@@ -27,6 +27,16 @@ export function App() {
       // Supabaseの投票データを合成
       const synced = await syncVotesFromSupabase(baseItems);
       setEvents(synced);
+
+      // URLルーティングチェック (/topic/:slug でアクセスされた場合)
+      const pathname = window.location.pathname;
+      if (pathname.startsWith('/topic/')) {
+        const targetSlug = pathname.replace('/topic/', '').trim();
+        const matched = synced.find(e => e.slug === targetSlug || e.id === targetSlug);
+        if (matched) {
+          setSelectedModalEvent(matched);
+        }
+      }
     } catch (err) {
       console.error('Error loading market data:', err);
     } finally {
@@ -50,7 +60,7 @@ export function App() {
     return m.category === selectedCategory;
   });
 
-  // 3. 実データ集計（マーケット総取引高、観測マーケット数、国内投票総数）
+  // 3. 実データ集計
   const totalVolume = events.reduce((sum, item) => sum + item.totalVolumeUsd, 0);
   const totalMarketsCount = events.length;
   const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
