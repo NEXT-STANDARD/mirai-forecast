@@ -19,7 +19,6 @@ export const LiveTape: React.FC = () => {
     { id: '5', time: '19:25:50', type: 'VOTE_YES', title: '米大統領選 2028', amountOrProb: 'YES投票', location: '福岡県' },
   ]);
 
-  // リアルタイムに歩み値が流れるエフェクト
   useEffect(() => {
     const interval = setInterval(() => {
       const titles = [
@@ -30,7 +29,7 @@ export const LiveTape: React.FC = () => {
         'イーサリアム現物ETF流入',
       ];
       const types: ('VOTE_YES' | 'VOTE_NO' | 'SMART_MONEY')[] = ['VOTE_YES', 'VOTE_NO', 'SMART_MONEY'];
-      const locs = ['東京都', '神奈川県', '愛知県', '海外', '大阪府', '北海道'];
+      const locs = ['東京都', '神奈川県', '愛知県', '海外', '大阪府', '福岡県'];
 
       const randomTitle = titles[Math.floor(Math.random() * titles.length)];
       const randomType = types[Math.floor(Math.random() * types.length)];
@@ -56,25 +55,25 @@ export const LiveTape: React.FC = () => {
 
   return (
     <div className="terminal-pane live-tape-pane">
-      <div className="pane-title-bar">
+      <div className="pane-title-bar live-tape-bar">
         <div className="title-text">
-          <Activity size={14} className="icon-green" />
-          <span>リアルタイム歩み値 ＆ 大口取引速報 (Time & Sales)</span>
+          <Activity size={13} className="icon-green" />
+          <span className="pane-main-title">歩み値 ＆ 大口取引速報 ｜ Time & Sales</span>
         </div>
         <span className="live-pill-sm">● LIVE STREAM</span>
       </div>
 
-      <div className="tape-items-scroll">
+      <div className="tape-items-scroll hide-native-scrollbar">
         {tape.map((item) => (
           <div key={item.id} className="tape-row">
             <span className="tape-time">{item.time}</span>
             <span className={`tape-badge ${item.type.toLowerCase()}`}>
               {item.type === 'SMART_MONEY' ? (
-                <><Zap size={11} /> SMART MONEY</>
+                <><Zap size={10} /> SMART MONEY</>
               ) : item.type === 'VOTE_YES' ? (
-                <><TrendingUp size={11} /> YES 投票</>
+                <><TrendingUp size={10} /> YES 投票</>
               ) : (
-                <><TrendingDown size={11} /> NO 投票</>
+                <><TrendingDown size={10} /> NO 投票</>
               )}
             </span>
             <span className="tape-title">{item.title}</span>

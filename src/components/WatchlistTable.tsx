@@ -17,20 +17,20 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
     <div className="terminal-pane watchlist-pane">
       <div className="pane-title-bar">
         <div className="title-text">
-          <Flame size={14} className="icon-gold" />
-          <span>観測銘柄リスト (Polymarket Screener)</span>
+          <Flame size={13} className="icon-gold" />
+          <span className="pane-main-title">観測銘柄 ｜ Screener</span>
         </div>
-        <span className="count-tag">{events.length} 銘柄</span>
+        <span className="count-tag">{events.length}件</span>
       </div>
 
-      <div className="table-scroll-container">
+      <div className="table-scroll-container custom-scroll">
         <table className="terminal-table">
           <thead>
             <tr>
-              <th className="th-name">予測テーマ / 銘柄</th>
-              <th className="th-prob text-right">現在確率</th>
-              <th className="th-chg text-right">24h騰落</th>
-              <th className="th-gap text-right">世論乖離</th>
+              <th className="th-name">銘柄 / 予測テーマ</th>
+              <th className="th-prob text-right">確率</th>
+              <th className="th-chg text-right">24h</th>
+              <th className="th-gap text-right">乖離</th>
               <th className="th-vol text-right">出来高</th>
             </tr>
           </thead>
@@ -48,7 +48,7 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                 >
                   <td className="td-name">
                     <div className="name-wrap">
-                      <span className="category-micro-tag">{item.categoryLabel}</span>
+                      <span className="category-micro-tag">{item.categoryLabel.slice(0, 8)}</span>
                       <span className="event-title-short" title={item.titleJa}>
                         {item.titleJa}
                       </span>
