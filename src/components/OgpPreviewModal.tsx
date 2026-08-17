@@ -11,24 +11,39 @@ interface OgpPreviewModalProps {
 export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
   item,
   onClose,
+  userVote,
 }) => {
   if (!item) return null;
 
   const [copied, setCopied] = useState(false);
 
   const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
-  const shareUrl = `https://mirairadar.com`;
+  const shareUrl = `https://mirairadar.com/topic/${item.slug}`;
   
-  // Xアルゴリズム最適化テキスト
-  const shareText = `【未来レーダー：世界の確率 vs 日本の世論⚡️】
+  // ユーザーの立場（YES/NO/未投票）に応じた熱いパーソナライズ文面
+  let stanceHeadline = '【未来レーダー：世界の確率 vs 日本の世論⚡️】';
+  let opinionHook = `世界と日本の未来予測はどう違う？\nあなたの直感を教えてください👇`;
+
+  if (userVote === 'YES') {
+    stanceHeadline = '【私はYES（起きる）に投票しました⚡️】';
+    opinionHook = item.worldProbYes < 50
+      ? `世界（Polymarket）はYES ${item.worldProbYes}%と慎重だけど、私は絶対起きる派！あなたの直感は？👇`
+      : `世界のお金もYES ${item.worldProbYes}%で過熱中！あなたも同じ見解？👇`;
+  } else if (userVote === 'NO') {
+    stanceHeadline = '【私はNO（起きない）に投票しました⚡️】';
+    opinionHook = item.worldProbYes >= 50
+      ? `世界（Polymarket）はYES ${item.worldProbYes}%と強気だけど、私は逆張りのNO派！あなたの直感は？👇`
+      : `世界もNO ${item.worldProbNo}%で一致！日本の皆さんはどう思いますか？👇`;
+  }
+
+  const shareText = `${stanceHeadline}
 「${item.titleJa}」
 
-🌍 世界のお金（Polymarket）：YES ${item.worldProbYes}%
+🌍 世界のリアルマネー：YES ${item.worldProbYes}%
 🇯🇵 日本の世論（当サイト）：YES ${item.japanVotes.percentYes}%
 ⚡️ 世論ギャップ：${gap}%
 
-世界と日本で未来の見え方はどう違う？
-👇 1クリック世論調査に参加（完全無料）
+${opinionHook}
 ${shareUrl}
 
 #未来レーダー #MiraiRadar #Polymarket #世論調査`;

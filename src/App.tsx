@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
+import { QuickGuideBanner } from './components/QuickGuideBanner';
 import { TradingTerminal } from './components/TradingTerminal';
+import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
 import { EventModal } from './components/EventModal';
 import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
@@ -107,8 +109,10 @@ export function App() {
     submitVoteToSupabase(eventId, choice);
   };
 
+  const currentFocusedEvent = events.find(e => e.id === activeTopicId) || filteredEvents[0] || events[0];
+
   return (
-    <div className="min-h-screen bg-primary">
+    <div className="min-h-screen bg-primary pb-16 md:pb-0">
       <Header
         activeCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
@@ -118,6 +122,10 @@ export function App() {
         totalMarketsCount={totalMarketsCount}
         totalJapanVotes={totalJapanVotes}
       />
+
+      <div className="container">
+        <QuickGuideBanner />
+      </div>
 
       <main className="container main-content">
         {/* 証券会社風 プロトレーディングターミナル */}
@@ -130,6 +138,16 @@ export function App() {
           activeEventId={activeTopicId}
         />
       </main>
+
+      {/* モバイル用 固定フローティング投票バー */}
+      {currentFocusedEvent && (
+        <MobileStickyVoteBar
+          event={currentFocusedEvent}
+          userVote={userVotes[currentFocusedEvent.id] || null}
+          onVote={handleVote}
+          onOpenShare={(event) => setSelectedShareEvent(event)}
+        />
+      )}
 
       {/* 詳細分析モーダル */}
       <EventModal

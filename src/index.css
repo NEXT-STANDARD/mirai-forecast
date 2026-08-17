@@ -1521,3 +1521,291 @@ body {
   transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(29, 155, 240, 0.4);
 }
+
+/* ========================================================
+   Quick Guide Banner (10秒でわかる使い方)
+   ======================================================== */
+.quick-guide-strip-wrap {
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.quick-guide-strip {
+  background: linear-gradient(90deg, rgba(15, 23, 42, 0.8), rgba(8, 14, 30, 0.9));
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-guide-strip:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(15, 23, 42, 0.95);
+}
+
+.quick-guide-strip.expanded {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.strip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.strip-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.strip-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  color: #fbbf24;
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+}
+
+.strip-summary {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.strip-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.toggle-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.rotate-90 {
+  transform: rotate(90deg);
+  transition: transform 0.2s;
+}
+
+.dismiss-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0.2rem;
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.dismiss-btn:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.strip-content-body {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.guide-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.guide-step-card {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #1e3a8a;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-text strong {
+  display: block;
+  font-size: 0.75rem;
+  color: #f8fafc;
+  margin-bottom: 0.2rem;
+}
+
+.step-text p {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ========================================================
+   Mobile Sticky Vote Bar (スマホ用 固定フローティングバー)
+   ======================================================== */
+.mobile-sticky-vote-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-sticky-vote-bar {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 85;
+    background: rgba(7, 11, 20, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(56, 189, 248, 0.25);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+    padding: 0.5rem 0.75rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .sticky-bar-inner {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .sticky-unvoted-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .sticky-topic-peek {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .lock-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.15);
+    padding: 0.08rem 0.35rem;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .topic-title-short {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sticky-vote-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+
+  .sticky-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 900;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+
+  .sticky-btn.yes {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+  }
+
+  .sticky-btn.no {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+  }
+
+  .sticky-btn:active, .sticky-btn.pop {
+    transform: scale(0.96);
+  }
+
+  /* 投票済みレイアウト */
+  .sticky-voted-layout {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+  }
+
+  .sticky-voted-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .voted-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: #34d399;
+  }
+
+  .spread-gap-pill {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: #fb7185;
+  }
+
+  .sticky-share-cta-btn {
+    background: linear-gradient(135deg, #1d9bf0, #0284c7);
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    box-shadow: 0 3px 10px rgba(29, 155, 240, 0.35);
+    flex-shrink: 0;
+  }
+}
