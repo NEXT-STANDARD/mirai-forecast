@@ -7,13 +7,13 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({
-  size = 34,
+  size = 32,
   className = '',
   showText = true,
 }) => {
   return (
-    <div className={`brand-logo-group ${className}`} style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-      {/* Polymarket / TradingView Style Minimal Geometric SVG Glyph */}
+    <div className={`brand-logo-group ${className}`}>
+      {/* Polymarket Style Minimal Geometric SVG Glyph */}
       <svg
         width={size}
         height={size}
@@ -44,9 +44,10 @@ export const Logo: React.FC<LogoProps> = ({
       {showText && (
         <div className="brand-text-block">
           <div className="brand-title">
-            未来レーダー <span>MiraiRadar</span>
+            <span className="main-name">未来レーダー</span>
+            <span className="sub-badge">MiraiRadar</span>
           </div>
-          <p className="brand-subtitle">世界の集合知（Polymarket）× 日本の世論</p>
+          <p className="brand-subtitle">世界の集合知 × 日本の世論</p>
         </div>
       )}
     </div>

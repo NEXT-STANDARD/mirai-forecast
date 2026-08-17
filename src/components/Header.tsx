@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Zap } from 'lucide-react';
 import { Logo } from './Logo';
 import type { CategoryType } from '../types';
 
@@ -9,6 +9,8 @@ interface HeaderProps {
   onRefresh: () => void;
   isRefreshing: boolean;
   totalMarketVolume: number;
+  totalMarketsCount: number;
+  totalJapanVotes: number;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,14 +19,16 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh,
   isRefreshing,
   totalMarketVolume,
+  totalMarketsCount,
+  totalJapanVotes,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
-    { id: 'all', label: '☀️ 全銘柄 (All)' },
-    { id: 'trending', label: '🔥 人気急上昇 (Trending)' },
+    { id: 'all', label: '☀️ 全銘柄' },
+    { id: 'trending', label: '🔥 人気急上昇' },
     { id: 'economy', label: '📊 経済・金利・暗号資産' },
-    { id: 'politics', label: '🌐 国際・選挙・地政学' },
-    { id: 'tech', label: '⚡ テック・AI・半導体' },
-    { id: 'sports', label: '⚽ スポーツ・エンタメ' },
+    { id: 'politics', label: '🌐 国際・選挙' },
+    { id: 'tech', label: '⚡ AI・テック' },
+    { id: 'sports', label: '⚽ エンタメ' },
   ];
 
   return (
@@ -34,14 +38,14 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="container ticker-inner">
           <div className="ticker-badge">
             <span className="live-dot"></span>
-            <span>LIVE TERMINAL FEED</span>
+            <span className="ticker-badge-text">LIVE TERMINAL</span>
           </div>
-          <div className="ticker-text">
-            <span>Polymarket Gamma/CLOB 自動同期中</span>
+          <div className="ticker-text hide-on-mobile">
+            <span>Polymarket 自動同期</span>
             <span className="divider">•</span>
-            <span>観測総ボリューム: <strong>${Math.round(totalMarketVolume / 1000000).toLocaleString()}M+</strong></span>
+            <span>観測総高: <strong>${Math.round(totalMarketVolume / 1000000).toLocaleString()}M+</strong></span>
             <span className="divider">•</span>
-            <span className="compliance-tag">非賭博・公選法配慮済み</span>
+            <span className="compliance-tag">非賭博・公選法配慮</span>
           </div>
           <button
             onClick={onRefresh}
@@ -49,34 +53,34 @@ export const Header: React.FC<HeaderProps> = ({
             title="データを再取得"
           >
             <RefreshCw size={11} />
-            <span>{isRefreshing ? '同期中...' : 'REFRESH'}</span>
+            <span>{isRefreshing ? '同期中' : 'REFRESH'}</span>
           </button>
         </div>
       </div>
 
       {/* メインヘッダー */}
       <div className="container main-header">
-        <Logo size={36} />
+        <Logo size={32} />
 
         <div className="header-stats">
           <div className="stat-card">
-            <div className="stat-label">観測マーケット数</div>
-            <div className="stat-value">3,420 件</div>
+            <div className="stat-label">観測マーケット</div>
+            <div className="stat-value">{totalMarketsCount.toLocaleString()} <span className="stat-unit">件</span></div>
           </div>
           <div className="stat-card">
             <div className="stat-label">国内投票総数</div>
-            <div className="stat-value">128,450 票</div>
+            <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
           </div>
-          <div className="stat-card highlight">
+          <div className="stat-card highlight hide-on-xs">
             <div className="stat-label">SmartRadar</div>
-            <div className="stat-value" style={{ color: '#38bdf8' }}>ONLINE (3D)</div>
+            <div className="stat-value pulse-text"><Zap size={11} /> 3D LIVE</div>
           </div>
         </div>
       </div>
 
       {/* ツールバー型カテゴリナビ */}
       <div className="container nav-container">
-        <nav className="category-nav">
+        <nav className="category-nav custom-scroll">
           {categories.map((cat) => (
             <button
               key={cat.id}

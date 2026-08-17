@@ -50,7 +50,10 @@ export function App() {
     return m.category === selectedCategory;
   });
 
+  // 3. 実データ集計（マーケット総取引高、観測マーケット数、国内投票総数）
   const totalVolume = events.reduce((sum, item) => sum + item.totalVolumeUsd, 0);
+  const totalMarketsCount = events.length;
+  const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
     setUserVotes(prev => ({ ...prev, [eventId]: choice }));
@@ -88,6 +91,8 @@ export function App() {
         onRefresh={loadMarketData}
         isRefreshing={isRefreshing}
         totalMarketVolume={totalVolume}
+        totalMarketsCount={totalMarketsCount}
+        totalJapanVotes={totalJapanVotes}
       />
 
       <main className="container main-content">
