@@ -4,10 +4,11 @@
  * 🛡️ Xアルゴリズム最適化＆運用ルール:
  * 1. 【1投稿目】URL完全排除 ＋ 特製高解像度インフォグラフィック画像（1200x630px）を直接添付
  * 2. 【2投稿目】1投稿目への自己リプライ（ツリー）として個別トピックURLを設置
- * 3. 【公選法対策】国内選挙トピックの自動ミュート
- * 4. 【オッズ操作対策】24h出来高 $80,000 以上のみ抽出
- * 5. 【不謹慎トピック除外】センシティブキーワード除外
- * 6. 【重複防止】投稿済みイベントIDのキャッシュ管理
+ * 3. 【文字化けゼロ対策】Noto Sans CJK JP / IPAフォント明示指定 ＆ SVGベクターアイコン描画
+ * 4. 【公選法対策】国内選挙トピックの自動ミュート
+ * 5. 【オッズ操作対策】24h出来高 $80,000 以上のみ抽出
+ * 6. 【不謹慎トピック除外】センシティブキーワード除外
+ * 7. 【重複防止】投稿済みイベントIDのキャッシュ管理
  */
 
 import { TwitterApi } from 'twitter-api-v2';
@@ -81,11 +82,11 @@ function savePostedEvent(eventId) {
 }
 
 /**
- * 1200x630px の特製インフォグラフィック画像をPNGバッファとして動的生成
+ * 1200x630px の特製インフォグラフィック画像をPNGバッファとして動的生成（文字化けゼロ仕様）
  */
 async function generateCardImagePng(title, worldProb) {
   const safeTitle = title.replace(/[<>&'"]/g, '');
-  const displayTitle = safeTitle.length > 40 ? safeTitle.slice(0, 38) + '...' : safeTitle;
+  const displayTitle = safeTitle.length > 38 ? safeTitle.slice(0, 36) + '...' : safeTitle;
 
   const svg = `
   <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
@@ -99,11 +100,20 @@ async function generateCardImagePng(title, worldProb) {
         <stop offset="0%" stop-color="#0284c7" />
         <stop offset="100%" stop-color="#38bdf8" />
       </linearGradient>
+      <linearGradient id="japanBar" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#be123c" />
+        <stop offset="100%" stop-color="#f43f5e" />
+      </linearGradient>
       <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="#0284c7" />
         <stop offset="100%" stop-color="#38bdf8" />
       </linearGradient>
     </defs>
+
+    <style>
+      .font-jp { font-family: 'Noto Sans CJK JP', 'Noto Sans JP', 'IPAGothic', 'IPAexGothic', 'Hiragino Kaku Gothic ProN', 'Meiryo', 'DejaVu Sans', sans-serif; }
+      .font-mono { font-family: 'JetBrains Mono', 'DejaVu Sans Mono', 'Courier New', monospace; }
+    </style>
 
     <!-- 背景 -->
     <rect width="1200" height="630" fill="url(#bgGrad)" />
@@ -118,19 +128,19 @@ async function generateCardImagePng(title, worldProb) {
       <path d="M 12 30 L 20 20 L 26 24 L 33 13" stroke="url(#logoGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
       <circle cx="33" cy="13" r="3" fill="#38bdf8" />
 
-      <text x="58" y="26" font-family="sans-serif" font-size="22" font-weight="900" fill="#ffffff">未来レーダー</text>
-      <rect x="180" y="8" width="115" height="24" rx="4" fill="#1e293b" />
-      <text x="188" y="24" font-family="monospace" font-size="13" font-weight="700" fill="#38bdf8">MiraiRadar.com</text>
+      <text x="58" y="28" class="font-jp" font-size="22" font-weight="bold" fill="#ffffff">未来レーダー</text>
+      <rect x="195" y="8" width="125" height="26" rx="4" fill="#1e293b" />
+      <text x="203" y="25" class="font-mono" font-size="13" font-weight="bold" fill="#38bdf8">MiraiRadar.com</text>
 
-      <rect x="880" y="4" width="200" height="34" rx="6" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.2" />
-      <text x="895" y="26" font-family="monospace" font-size="14" font-weight="900" fill="#38bdf8">⚡ REALTIME MARKET FEED</text>
+      <rect x="860" y="4" width="220" height="34" rx="6" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.2" />
+      <text x="875" y="26" class="font-mono" font-size="14" font-weight="bold" fill="#38bdf8">REALTIME MARKET FEED</text>
     </g>
 
     <!-- タイトル -->
     <g transform="translate(60, 155)">
       <rect width="1080" height="110" rx="12" fill="#080e1e" stroke="#1e293b" stroke-width="1" />
-      <text x="30" y="40" font-family="sans-serif" font-size="13" font-weight="800" fill="#38bdf8" letter-spacing="1">観測トピック・オッズ速報</text>
-      <text x="30" y="82" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff">${displayTitle}</text>
+      <text x="30" y="40" class="font-jp" font-size="13" font-weight="bold" fill="#38bdf8" letter-spacing="1">観測トピック・オッズ速報</text>
+      <text x="30" y="82" class="font-jp" font-size="28" font-weight="bold" fill="#ffffff">${displayTitle}</text>
     </g>
 
     <!-- 対比ボックス -->
@@ -138,39 +148,39 @@ async function generateCardImagePng(title, worldProb) {
       <!-- 世界のリアルマネー -->
       <g transform="translate(0, 0)">
         <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#1e3a8a" stroke-width="1.5" />
-        <text x="25" y="38" font-family="sans-serif" font-size="15" font-weight="800" fill="#94a3b8">🌍 世界のリアルマネー予測 (Polymarket)</text>
-        <text x="25" y="98" font-family="monospace" font-size="52" font-weight="900" fill="#38bdf8">YES ${worldProb}%</text>
+        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">世界のリアルマネー予測 (Polymarket)</text>
+        <text x="25" y="98" class="font-mono" font-size="52" font-weight="bold" fill="#38bdf8">YES ${worldProb}%</text>
         
         <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
         <rect x="25" y="125" width="${(worldProb / 100) * 440}" height="12" rx="6" fill="url(#worldBar)" />
 
-        <text x="25" y="165" font-family="monospace" font-size="14" font-weight="700" fill="#64748b">NO: ${100 - worldProb}% ｜ スマートマネー集中</text>
+        <text x="25" y="165" class="font-mono" font-size="14" font-weight="bold" fill="#64748b">NO: ${100 - worldProb}% ｜ スマートマネー集中</text>
       </g>
 
       <!-- VS バッジ -->
       <g transform="translate(505, 75)">
         <circle cx="35" cy="25" r="28" fill="#0f172a" stroke="#fbbf24" stroke-width="2" />
-        <text x="24" y="32" font-family="monospace" font-size="18" font-weight="900" fill="#fbbf24">VS</text>
+        <text x="24" y="32" class="font-mono" font-size="18" font-weight="bold" fill="#fbbf24">VS</text>
       </g>
 
       <!-- 日本の世論（ブラインドロック中） -->
       <g transform="translate(590, 0)">
         <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#881337" stroke-width="1.5" />
-        <text x="25" y="38" font-family="sans-serif" font-size="15" font-weight="800" fill="#94a3b8">🇯🇵 日本の世論 (バイアスフリー投票)</text>
-        <text x="25" y="98" font-family="monospace" font-size="52" font-weight="900" fill="#f43f5e">YES [ ??% ]</text>
+        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">日本の世論 (バイアスフリー投票)</text>
+        <text x="25" y="98" class="font-mono" font-size="52" font-weight="bold" fill="#f43f5e">YES [ ??% ]</text>
         
         <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
-        <rect x="25" y="125" width="220" height="12" rx="6" fill="#be123c" opacity="0.3" />
+        <rect x="25" y="125" width="220" height="12" rx="6" fill="url(#japanBar)" opacity="0.4" />
 
-        <text x="25" y="165" font-family="sans-serif" font-size="14" font-weight="800" fill="#fbbf24">🔒 投票すると真実の世論が開示されます</text>
+        <text x="25" y="165" class="font-jp" font-size="14" font-weight="bold" fill="#fbbf24">投票すると真実の世論が開示されます</text>
       </g>
     </g>
 
     <!-- フッター -->
     <g transform="translate(60, 565)">
       <circle cx="10" cy="10" r="5" fill="#10b981" />
-      <text x="26" y="15" font-family="sans-serif" font-size="14" font-weight="700" fill="#94a3b8">あなたはどう思う？ 1クリックで世論調査に参加（完全無料）</text>
-      <text x="1080" y="15" font-family="monospace" font-size="14" font-weight="800" fill="#38bdf8" text-anchor="end">mirairadar.com</text>
+      <text x="26" y="15" class="font-jp" font-size="14" font-weight="bold" fill="#94a3b8">あなたはどう思う？ 1クリックで世論調査に参加（完全無料）</text>
+      <text x="1080" y="15" class="font-mono" font-size="14" font-weight="bold" fill="#38bdf8" text-anchor="end">mirairadar.com</text>
     </g>
   </svg>
   `;
