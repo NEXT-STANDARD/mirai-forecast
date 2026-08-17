@@ -14,7 +14,14 @@ export function App() {
   const [events, setEvents] = useState<MarketItem[]>(INITIAL_EVENTS);
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
-  const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>({});
+  const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
+    try {
+      const saved = localStorage.getItem('mirairadar_user_votes');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // 1. Polymarket API ＆ Supabase データの完全自動同期
@@ -66,7 +73,13 @@ export function App() {
   const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
-    setUserVotes(prev => ({ ...prev, [eventId]: choice }));
+    setUserVotes(prev => {
+      const next = { ...prev, [eventId]: choice };
+      try {
+        localStorage.setItem('mirairadar_user_votes', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
 
     // ローカルステートを即時更新
     setEvents(prev => prev.map(item => {

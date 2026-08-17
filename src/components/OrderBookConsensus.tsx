@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { MarketItem } from '../types';
-import { ShieldCheck, Share2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { ShieldCheck, Share2, CheckCircle2, ArrowRight, Lock, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface OrderBookConsensusProps {
@@ -17,47 +17,80 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
   onOpenShare,
 }) => {
   const [animatingVote, setAnimatingVote] = useState<'YES' | 'NO' | null>(null);
+  const [justUnlocked, setJustUnlocked] = useState(false);
+
+  const isLocked = !userVote;
+  const gap = Math.abs(event.worldProbYes - event.japanVotes.percentYes);
 
   const handleVote = (choice: 'YES' | 'NO') => {
     setAnimatingVote(choice);
     onVote(event.id, choice);
+    setJustUnlocked(true);
 
     try {
       confetti({
-        particleCount: 40,
-        spread: 50,
-        origin: { y: 0.75 }
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.7 }
       });
     } catch {}
 
-    setTimeout(() => setAnimatingVote(null), 500);
+    setTimeout(() => {
+      setAnimatingVote(null);
+      setJustUnlocked(false);
+    }, 1500);
   };
 
-  const gap = Math.abs(event.worldProbYes - event.japanVotes.percentYes);
+  // 判定コメント（投票後）
+  const isAlignedWithWorld = (userVote === 'YES' && event.worldProbYes >= 50) || (userVote === 'NO' && event.worldProbYes < 50);
 
   return (
     <div className="terminal-pane orderbook-pane">
       <div className="pane-title-bar">
         <div className="title-text">
-          <span className="dot-radar live"></span>
+          <span className={`dot-radar ${isLocked ? 'locked' : 'live'}`}></span>
           <span>世論板情報 ｜ World vs Japan</span>
         </div>
-        <span className="gap-spread-tag">ギャップ: {gap}%</span>
+        {isLocked ? (
+          <span className="gap-spread-tag locked"><Lock size={10} /> ロック中</span>
+        ) : (
+          <span className="gap-spread-tag unlocked">ギャップ: {gap}%</span>
+        )}
       </div>
 
       {/* 板情報（オーダーブック風対比） */}
-      <div className="depth-book-container">
+      <div className={`depth-book-container ${isLocked ? 'is-blurred' : 'is-revealed'} ${justUnlocked ? 'unlock-flash' : ''}`}>
+        {/* 未投票時のすりガラス（ロックオーバーレイ） */}
+        {isLocked && (
+          <div className="depth-lock-overlay">
+            <div className="lock-icon-glow">
+              <Lock size={22} className="icon-lock" />
+            </div>
+            <p className="lock-prompt-title">バイアスフリー世論調査</p>
+            <p className="lock-prompt-desc">
+              先入観を防ぐため数値を非表示にしています。<br />
+              <strong>下のボタンであなたの直感を投票</strong>すると、<br />
+              世界と日本の世論スプレッドが解禁されます。
+            </p>
+          </div>
+        )}
+
         {/* 世界のお金 */}
         <div className="depth-row world">
           <div className="depth-info">
             <span className="depth-label">🌍 世界のリアルマネー (Polymarket)</span>
-            <span className="depth-price world-color">YES {event.worldProbYes}%</span>
+            <span className="depth-price world-color">
+              {isLocked ? '?? %' : `YES ${event.worldProbYes}%`}
+            </span>
           </div>
           <div className="depth-bar-track">
-            <div className="depth-bar-fill world-fill" style={{ width: `${event.worldProbYes}%` }}></div>
+            <div
+              className="depth-bar-fill world-fill"
+              style={{ width: isLocked ? '50%' : `${event.worldProbYes}%` }}
+            ></div>
           </div>
           <div className="depth-sub">
-            <span>NO: {event.worldProbNo}%</span>
+            <span>NO: {isLocked ? '?? %' : `${event.worldProbNo}%`}</span>
             <span>24h取引高: ${Math.round(event.volume24hUsd / 1000).toLocaleString()}k</span>
           </div>
         </div>
@@ -65,7 +98,9 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         {/* スプレッド（世論ギャップ） */}
         <div className="spread-divider">
           <div className="spread-line"></div>
-          <span className="spread-label">⚡ SPREAD GAP: {gap}%</span>
+          <span className="spread-label">
+            {isLocked ? '⚡ SPREAD GAP: [ LOCKED ]' : `⚡ SPREAD GAP: ${gap}%`}
+          </span>
           <div className="spread-line"></div>
         </div>
 
@@ -73,13 +108,18 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         <div className="depth-row japan">
           <div className="depth-info">
             <span className="depth-label">🇯🇵 日本の世論 (当サイト投票)</span>
-            <span className="depth-price japan-color">YES {event.japanVotes.percentYes}%</span>
+            <span className="depth-price japan-color">
+              {isLocked ? '?? %' : `YES ${event.japanVotes.percentYes}%`}
+            </span>
           </div>
           <div className="depth-bar-track">
-            <div className="depth-bar-fill japan-fill" style={{ width: `${event.japanVotes.percentYes}%` }}></div>
+            <div
+              className="depth-bar-fill japan-fill"
+              style={{ width: isLocked ? '50%' : `${event.japanVotes.percentYes}%` }}
+            ></div>
           </div>
           <div className="depth-sub">
-            <span>NO: {100 - event.japanVotes.percentYes}%</span>
+            <span>NO: {isLocked ? '?? %' : `${100 - event.japanVotes.percentYes}%`}</span>
             <span>有効投票数: {event.japanVotes.total.toLocaleString()} 票</span>
           </div>
         </div>
@@ -88,10 +128,12 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
       {/* 証券風ワンクリック投票パネル（Order Entry Panel） */}
       <div className="order-entry-panel">
         <div className="entry-header">
-          <span className="entry-title">世論投票エントリー（無料・匿名）</span>
+          <span className="entry-title">
+            {isLocked ? '🎯 あなたの直感は？（1秒・完全無料）' : '✅ 投票エントリー確定済み'}
+          </span>
           {userVote && (
             <span className="voted-entry-badge">
-              <CheckCircle2 size={13} /> [{userVote}] 確定済み
+              <CheckCircle2 size={13} /> [{userVote}] 投票済み
             </span>
           )}
         </div>
@@ -103,9 +145,11 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
           >
             <div className="entry-btn-top">
               <span className="btn-main-label">YES (そう思う)</span>
-              <span className="btn-sub-prob">{event.japanVotes.percentYes}%</span>
+              {!isLocked && <span className="btn-sub-prob">{event.japanVotes.percentYes}%</span>}
             </div>
-            <span className="btn-action-hint">クリックで支持票を投入</span>
+            <span className="btn-action-hint">
+              {isLocked ? '直感で「起きる」に1票' : '支持票投入済み'}
+            </span>
           </button>
 
           <button
@@ -114,24 +158,43 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
           >
             <div className="entry-btn-top">
               <span className="btn-main-label">NO (違う)</span>
-              <span className="btn-sub-prob">{100 - event.japanVotes.percentYes}%</span>
+              {!isLocked && <span className="btn-sub-prob">{100 - event.japanVotes.percentYes}%</span>}
             </div>
-            <span className="btn-action-hint">クリックで反対票を投入</span>
+            <span className="btn-action-hint">
+              {isLocked ? '直感で「起きない」に1票' : '反対票投入済み'}
+            </span>
           </button>
         </div>
 
-        {/* Xシェア導線 */}
-        <button onClick={() => onOpenShare(event)} className="terminal-share-btn">
-          <Share2 size={14} />
-          <span>この世論スプレッド（{gap}%）をXでシェア</span>
-          <ArrowRight size={13} />
-        </button>
+        {/* 投票後の分析インサイト ＆ Xシェア導線 */}
+        {!isLocked ? (
+          <div className="post-vote-block animate-fade-in">
+            <div className="vote-alignment-badge">
+              <Sparkles size={13} style={{ color: '#fbbf24' }} />
+              <span>
+                {isAlignedWithWorld
+                  ? '🎯 あなたの直感は世界の大口予測と一致しています！'
+                  : `⚡ 世界の大口と ${gap}% の見解ギャップがあります！`}
+              </span>
+            </div>
+
+            <button onClick={() => onOpenShare(event)} className="terminal-share-btn">
+              <Share2 size={14} />
+              <span>この世論スプレッド（{gap}%）をXでシェア</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+        ) : (
+          <div className="pre-vote-hint">
+            <span>👆 どちらかをクリックすると、即座に世論が開示されます</span>
+          </div>
+        )}
       </div>
 
       {/* 免責ポリシー */}
       <div className="terminal-compliance-note">
         <ShieldCheck size={13} />
-        <span>非ベッティング・公選法配慮済み情報端末</span>
+        <span>非ベッティング・公選法配慮済み世論インテリジェンス</span>
       </div>
     </div>
   );
