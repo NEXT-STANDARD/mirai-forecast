@@ -1,5 +1,5 @@
 /**
- * 未来予報 (Mirai Forecast / World VS) - X (Twitter) 自動速報Botスクリプト
+ * 未来レーダー (MiraiRadar.com) - X (Twitter) 自動速報Botスクリプト
  * 
  * 🛡️ 敵対的レビュー対策パッチ適用済み:
  * 1. 【公職選挙法対策】国内選挙トピックの自動ミュート
@@ -9,29 +9,25 @@
  */
 
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=30&active=true&closed=false&order=volume24hr&ascending=false';
-const MIN_VOLUME_24H_USD = 50000; // 最低出来高フィルター（仕手オッズ操作防止）
+const MIN_VOLUME_24H_USD = 50000;
 
-// センシティブ・不適切ワードのブラックリスト
 const SENSITIVE_KEYWORDS = [
   'death', 'kill', 'assassinate', 'die', 'dead', 'casualty', 'suicide',
   'terror', 'attack', 'bomb', 'war casualty', 'shooting', 'arrest', 'crime'
 ];
 
-// 公職選挙法規制対象（日本国内の選挙関連ワード）
 const JAPAN_ELECTION_KEYWORDS = [
   'japan election', 'japanese prime minister', 'shugiin', 'sangiin', '衆議院', '参議院', '都知事選'
 ];
 
 export async function checkMarketVolatilities() {
-  console.log(`[${new Date().toISOString()}] 未来予報 Bot: Polymarket市場データを監視中 (セーフティフィルター適用)...`);
+  console.log(`[${new Date().toISOString()}] 未来レーダー Bot: Polymarket市場データを監視中...`);
   
   try {
     const res = await fetch(POLYMARKET_EVENTS_API);
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     
     const events = await res.json();
-    console.log(`観測生データ: ${events.length} 件`);
-
     const safeAlertCandidates = [];
 
     for (const event of events) {
@@ -39,25 +35,11 @@ export async function checkMarketVolatilities() {
       const market = event.markets[0];
       const titleLower = (event.title + ' ' + (market.question || '')).toLowerCase();
       
-      // 1. センシティブトピックの除外
-      const isSensitive = SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw));
-      if (isSensitive) {
-        console.log(`  [除外: センシティブ] ${event.title}`);
-        continue;
-      }
+      if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
+      if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
-      // 2. 公選法配慮（国内選挙トピックの除外）
-      const isJapanElection = JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw));
-      if (isJapanElection) {
-        console.log(`  [除外: 公選法配慮] ${event.title}`);
-        continue;
-      }
-
-      // 3. 出来高フィルター（オッズ操作防止）
       const volume24h = event.volume24hr || 0;
-      if (volume24h < MIN_VOLUME_24H_USD) {
-        continue;
-      }
+      if (volume24h < MIN_VOLUME_24H_USD) continue;
 
       let probYes = 0;
       if (market.outcomePrices) {
@@ -77,12 +59,6 @@ export async function checkMarketVolatilities() {
       });
     }
 
-    console.log(`\n✅ 安全性検証済みトピック (${safeAlertCandidates.length}件):`);
-    safeAlertCandidates.slice(0, 2).forEach((item, i) => {
-      console.log(`\n--- 【X投稿ドラフト (安全基準クリア) #${i + 1}】 ---`);
-      console.log(generateTweetText(item));
-    });
-
     return safeAlertCandidates;
   } catch (err) {
     console.error('Error during monitoring:', err);
@@ -90,11 +66,11 @@ export async function checkMarketVolatilities() {
   }
 }
 
-function generateTweetText(item) {
+export function generateTweetText(item) {
   const isHighProb = item.probYes >= 50;
   const statusEmoji = isHighProb ? '🔺' : '🔻';
   
-  return `【未来予報：世界の確率速報⚡️】
+  return `【未来レーダー：世界の確率速報⚡️】
 「${item.title}」
 
 🌍 世界のリアルマネー予測：YES ${item.probYes}% (${statusEmoji})
@@ -104,10 +80,8 @@ function generateTweetText(item) {
 日本の皆さんはどう思いますか？
 
 👇 あなたの見解を1クリックで投票（完全無料）
-https://worldvs.jp/topic/${item.slug}
+https://mirairadar.com/topic/${item.slug}
 
 ※本投稿は統計データの速報であり、投資勧誘ではありません。
-#未来予報 #WorldVS #Polymarket #集合知 #未来予測`;
+#未来レーダー #MiraiRadar #Polymarket #未来予測 #世論調査`;
 }
-
-checkMarketVolatilities();
