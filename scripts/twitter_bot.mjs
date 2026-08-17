@@ -1,41 +1,46 @@
 /**
  * 未来レーダー (MiraiRadar.com) - X (Twitter) 自動速報Botスクリプト
- * 
- * 🛡️ 運用・安全仕様:
- * 1. 【公職選挙法対策】国内選挙トピックの自動ミュート
- * 2. 【オッズ操作対策】24h出来高 $50,000 以上 & 流動性フィルター
- * 3. 【不謹慎トピック対策】センシティブキーワード除外
- * 4. 【金商法対策】投資勧誘ではない旨の定型免責文
- * 5. 【重複投稿防止】過去に投稿したイベントIDをローカルキャッシュで管理
  */
 
 import { TwitterApi } from 'twitter-api-v2';
 import fs from 'fs';
 import path from 'path';
 
-// .env 読み込み
+// .env 読み込み (フォールバック)
 const envPath = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/.env';
-const env = {};
+const localEnv = {};
 if (fs.existsSync(envPath)) {
-  const content = fs.readFileSync(envPath, 'utf-8');
-  content.split('\n').forEach(line => {
-    const [k, ...v] = line.split('=');
-    if (k && !k.startsWith('#')) {
-      env[k.trim()] = v.join('=').trim();
-    }
-  });
+  try {
+    const content = fs.readFileSync(envPath, 'utf-8');
+    content.split('\n').forEach(line => {
+      const [k, ...v] = line.split('=');
+      if (k && !k.startsWith('#')) {
+        localEnv[k.trim()] = v.join('=').trim();
+      }
+    });
+  } catch {}
+}
+
+const apiKey = process.env.TWITTER_API_KEY || localEnv.TWITTER_API_KEY;
+const apiSecret = process.env.TWITTER_API_SECRET || localEnv.TWITTER_API_SECRET;
+const accessToken = process.env.TWITTER_ACCESS_TOKEN || localEnv.TWITTER_ACCESS_TOKEN;
+const accessSecret = process.env.TWITTER_ACCESS_SECRET || localEnv.TWITTER_ACCESS_SECRET;
+
+if (!apiKey || !apiSecret || !accessToken || !accessSecret) {
+  console.log('Twitter credentials missing, skipping tweet post');
+  process.exit(0);
 }
 
 const twitterClient = new TwitterApi({
-  appKey: env.TWITTER_API_KEY,
-  appSecret: env.TWITTER_API_SECRET,
-  accessToken: env.TWITTER_ACCESS_TOKEN,
-  accessSecret: env.TWITTER_ACCESS_SECRET,
+  appKey: apiKey,
+  appSecret: apiSecret,
+  accessToken: accessToken,
+  accessSecret: accessSecret,
 });
 
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=30&active=true&closed=false&order=volume24hr&ascending=false';
 const MIN_VOLUME_24H_USD = 80000;
-const POSTED_CACHE_FILE = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/scripts/.posted_events.json';
+const POSTED_CACHE_FILE = path.join(process.cwd(), 'scripts', '.posted_events.json');
 
 const SENSITIVE_KEYWORDS = [
   'death', 'kill', 'assassinate', 'die', 'dead', 'casualty', 'suicide',
@@ -81,7 +86,6 @@ export async function runTwitterBotAutoPost() {
       const market = event.markets[0];
       const titleLower = (event.title + ' ' + (market.question || '')).toLowerCase();
 
-      // 1. 安全性フィルター
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
@@ -89,7 +93,7 @@ export async function runTwitterBotAutoPost() {
       if (volume24h < MIN_VOLUME_24H_USD) continue;
 
       const eventId = String(event.id || event.slug);
-      if (postedList.includes(eventId)) continue; // すでに投稿済み
+      if (postedList.includes(eventId)) continue;
 
       let probYes = 50;
       if (market.outcomePrices) {
@@ -99,7 +103,6 @@ export async function runTwitterBotAutoPost() {
         } catch {}
       }
 
-      // X投稿文面の生成（アルゴリズム最適化）
       const tweetText = `【未来レーダー：世界の確率速報⚡️】
 「${event.title}」
 
@@ -110,7 +113,7 @@ export async function runTwitterBotAutoPost() {
 日本の皆さんの見解はどうですか？
 
 👇 1クリックで世論調査に参加（完全無料）
-https://mirairadar.com
+https://mirairadar.com/topic/${event.slug}
 
 ※本投稿は統計データの速報であり、投資勧誘ではありません。
 #未来レーダー #MiraiRadar #Polymarket #世論調査`;
@@ -121,7 +124,7 @@ https://mirairadar.com
       console.log(`🎉 Xへの自動速報ポストに成功しました！ Tweet ID: ${createdTweet.id}`);
 
       savePostedEvent(eventId);
-      break; // 1回の実行で1件投稿してレート制限を保護
+      break;
     }
   } catch (err) {
     console.error('Twitter Bot 実行エラー:', err);

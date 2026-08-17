@@ -16,8 +16,8 @@ if (!supabaseUrl || !supabaseKey) {
       if (key && !key.startsWith('#')) {
         const k = key.trim();
         const v = vals.join('=').trim();
-        if (k === 'VITE_SUPABASE_URL') supabaseUrl = v;
-        if (k === 'SUPABASE_SERVICE_ROLE_KEY' && v) supabaseKey = v;
+        if (k === 'VITE_SUPABASE_URL' && !supabaseUrl) supabaseUrl = v;
+        if (k === 'SUPABASE_SERVICE_ROLE_KEY' && v && !supabaseKey) supabaseKey = v;
         if (k === 'VITE_SUPABASE_ANON_KEY' && !supabaseKey) supabaseKey = v;
       }
     });
