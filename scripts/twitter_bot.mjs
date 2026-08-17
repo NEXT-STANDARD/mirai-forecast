@@ -1,8 +1,17 @@
 /**
  * 未来レーダー (MiraiRadar.com) - X (Twitter) 自動速報Botスクリプト
+ * 
+ * 🛡️ Xアルゴリズム最適化＆運用ルール:
+ * 1. 【1投稿目】URL完全排除 ＋ 特製高解像度インフォグラフィック画像（1200x630px）を直接添付
+ * 2. 【2投稿目】1投稿目への自己リプライ（ツリー）として個別トピックURLを設置
+ * 3. 【公選法対策】国内選挙トピックの自動ミュート
+ * 4. 【オッズ操作対策】24h出来高 $80,000 以上のみ抽出
+ * 5. 【不謹慎トピック除外】センシティブキーワード除外
+ * 6. 【重複防止】投稿済みイベントIDのキャッシュ管理
  */
 
 import { TwitterApi } from 'twitter-api-v2';
+import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
 
@@ -71,8 +80,106 @@ function savePostedEvent(eventId) {
   } catch {}
 }
 
+/**
+ * 1200x630px の特製インフォグラフィック画像をPNGバッファとして動的生成
+ */
+async function generateCardImagePng(title, worldProb) {
+  const safeTitle = title.replace(/[<>&'"]/g, '');
+  const displayTitle = safeTitle.length > 40 ? safeTitle.slice(0, 38) + '...' : safeTitle;
+
+  const svg = `
+  <svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#050811" />
+        <stop offset="50%" stop-color="#0b1329" />
+        <stop offset="100%" stop-color="#03050a" />
+      </linearGradient>
+      <linearGradient id="worldBar" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#0284c7" />
+        <stop offset="100%" stop-color="#38bdf8" />
+      </linearGradient>
+      <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#0284c7" />
+        <stop offset="100%" stop-color="#38bdf8" />
+      </linearGradient>
+    </defs>
+
+    <!-- 背景 -->
+    <rect width="1200" height="630" fill="url(#bgGrad)" />
+
+    <!-- 装飾ボーダー -->
+    <rect x="25" y="25" width="1150" height="580" rx="16" fill="none" stroke="#1e293b" stroke-width="2" />
+    <rect x="25" y="25" width="1150" height="580" rx="16" fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.2" />
+
+    <!-- ヘッダー -->
+    <g transform="translate(60, 65)">
+      <rect width="44" height="44" rx="10" fill="#0f172a" stroke="#1e293b" stroke-width="1.5" />
+      <path d="M 12 30 L 20 20 L 26 24 L 33 13" stroke="url(#logoGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+      <circle cx="33" cy="13" r="3" fill="#38bdf8" />
+
+      <text x="58" y="26" font-family="sans-serif" font-size="22" font-weight="900" fill="#ffffff">未来レーダー</text>
+      <rect x="180" y="8" width="115" height="24" rx="4" fill="#1e293b" />
+      <text x="188" y="24" font-family="monospace" font-size="13" font-weight="700" fill="#38bdf8">MiraiRadar.com</text>
+
+      <rect x="880" y="4" width="200" height="34" rx="6" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.2" />
+      <text x="895" y="26" font-family="monospace" font-size="14" font-weight="900" fill="#38bdf8">⚡ REALTIME MARKET FEED</text>
+    </g>
+
+    <!-- タイトル -->
+    <g transform="translate(60, 155)">
+      <rect width="1080" height="110" rx="12" fill="#080e1e" stroke="#1e293b" stroke-width="1" />
+      <text x="30" y="40" font-family="sans-serif" font-size="13" font-weight="800" fill="#38bdf8" letter-spacing="1">観測トピック・オッズ速報</text>
+      <text x="30" y="82" font-family="sans-serif" font-size="28" font-weight="900" fill="#ffffff">${displayTitle}</text>
+    </g>
+
+    <!-- 対比ボックス -->
+    <g transform="translate(60, 290)">
+      <!-- 世界のリアルマネー -->
+      <g transform="translate(0, 0)">
+        <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#1e3a8a" stroke-width="1.5" />
+        <text x="25" y="38" font-family="sans-serif" font-size="15" font-weight="800" fill="#94a3b8">🌍 世界のリアルマネー予測 (Polymarket)</text>
+        <text x="25" y="98" font-family="monospace" font-size="52" font-weight="900" fill="#38bdf8">YES ${worldProb}%</text>
+        
+        <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
+        <rect x="25" y="125" width="${(worldProb / 100) * 440}" height="12" rx="6" fill="url(#worldBar)" />
+
+        <text x="25" y="165" font-family="monospace" font-size="14" font-weight="700" fill="#64748b">NO: ${100 - worldProb}% ｜ スマートマネー集中</text>
+      </g>
+
+      <!-- VS バッジ -->
+      <g transform="translate(505, 75)">
+        <circle cx="35" cy="25" r="28" fill="#0f172a" stroke="#fbbf24" stroke-width="2" />
+        <text x="24" y="32" font-family="monospace" font-size="18" font-weight="900" fill="#fbbf24">VS</text>
+      </g>
+
+      <!-- 日本の世論（ブラインドロック中） -->
+      <g transform="translate(590, 0)">
+        <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#881337" stroke-width="1.5" />
+        <text x="25" y="38" font-family="sans-serif" font-size="15" font-weight="800" fill="#94a3b8">🇯🇵 日本の世論 (バイアスフリー投票)</text>
+        <text x="25" y="98" font-family="monospace" font-size="52" font-weight="900" fill="#f43f5e">YES [ ??% ]</text>
+        
+        <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
+        <rect x="25" y="125" width="220" height="12" rx="6" fill="#be123c" opacity="0.3" />
+
+        <text x="25" y="165" font-family="sans-serif" font-size="14" font-weight="800" fill="#fbbf24">🔒 投票すると真実の世論が開示されます</text>
+      </g>
+    </g>
+
+    <!-- フッター -->
+    <g transform="translate(60, 565)">
+      <circle cx="10" cy="10" r="5" fill="#10b981" />
+      <text x="26" y="15" font-family="sans-serif" font-size="14" font-weight="700" fill="#94a3b8">あなたはどう思う？ 1クリックで世論調査に参加（完全無料）</text>
+      <text x="1080" y="15" font-family="monospace" font-size="14" font-weight="800" fill="#38bdf8" text-anchor="end">mirairadar.com</text>
+    </g>
+  </svg>
+  `;
+
+  return await sharp(Buffer.from(svg)).png().toBuffer();
+}
+
 export async function runTwitterBotAutoPost() {
-  console.log(`[${new Date().toISOString()}] 未来レーダー Bot: Polymarket市場の急変動を走査中...`);
+  console.log(`[${new Date().toISOString()}] 未来レーダー Bot: Polymarket市場を走査中...`);
 
   try {
     const res = await fetch(POLYMARKET_EVENTS_API);
@@ -86,6 +193,7 @@ export async function runTwitterBotAutoPost() {
       const market = event.markets[0];
       const titleLower = (event.title + ' ' + (market.question || '')).toLowerCase();
 
+      // 1. 安全性フィルター
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
@@ -103,28 +211,47 @@ export async function runTwitterBotAutoPost() {
         } catch {}
       }
 
-      const tweetText = `【未来レーダー：世界の確率速報⚡️】
+      console.log(`[X投稿開始] 対象: ${event.title}`);
+
+      // 2. 特製カード画像 (PNG) を生成
+      const pngBuffer = await generateCardImagePng(event.title, probYes);
+      console.log('特製カード画像の生成完了 (1200x630px)');
+
+      // 3. Xに画像をアップロード (Media Upload)
+      const mediaId = await twitterClient.v1.uploadMedia(pngBuffer, { mimeType: 'image/png' });
+      console.log(`画像アップロード完了: Media ID = ${mediaId}`);
+
+      // 4. 【1投稿目】URL完全排除 ＋ 画像添付
+      const mainTweetText = `【未来レーダー：世界の確率速報⚡️】
 「${event.title}」
 
-🌍 世界のリアルマネー予測：YES ${probYes}%
-💰 24h取引高：$${Math.round(volume24h).toLocaleString()}
+🌍 世界のリアルマネー予測（Polymarket）：YES ${probYes}%
+💰 24h取引高：$${Math.round(volume24h).toLocaleString()}（約${Math.round(volume24h * 155 / 10000).toLocaleString()}万円）
 
-世界の予測市場（Polymarket）でスマートマネーが集中しています。
+世界の予測市場で大口スマートマネーが集中しています。
 日本の皆さんの見解はどうですか？
-
-👇 1クリックで世論調査に参加（完全無料）
-https://mirairadar.com/topic/${event.slug}
 
 ※本投稿は統計データの速報であり、投資勧誘ではありません。
 #未来レーダー #MiraiRadar #Polymarket #世論調査`;
 
-      console.log(`[X投稿実行中] 対象: ${event.title}`);
-      
-      const { data: createdTweet } = await twitterClient.v2.tweet(tweetText);
-      console.log(`🎉 Xへの自動速報ポストに成功しました！ Tweet ID: ${createdTweet.id}`);
+      const { data: mainTweet } = await twitterClient.v2.tweet(mainTweetText, {
+        media: { media_ids: [mediaId] },
+      });
+      console.log(`🎉 1投稿目（親ポスト・画像付き）投稿完了: Tweet ID = ${mainTweet.id}`);
+
+      // 5. 【2投稿目】自己リプライ（ツリー）としてURLを投稿
+      const replyTweetText = `👇 1クリックで世論調査に参加（完全無料・登録不要）
+https://mirairadar.com/topic/${event.slug}
+
+あなたの直感は世界のお金と一致しているか？投票後に世論スプレッドが開示されます。`;
+
+      const { data: replyTweet } = await twitterClient.v2.tweet(replyTweetText, {
+        reply: { in_reply_to_tweet_id: mainTweet.id },
+      });
+      console.log(`💬 2投稿目（ツリー・URLリプライ）投稿完了: Tweet ID = ${replyTweet.id}`);
 
       savePostedEvent(eventId);
-      break;
+      break; // レート制限保護のため1回1件
     }
   } catch (err) {
     console.error('Twitter Bot 実行エラー:', err);

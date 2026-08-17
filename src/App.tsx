@@ -23,6 +23,7 @@ export function App() {
     }
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   // 1. Polymarket API ＆ Supabase データの完全自動同期
   const loadMarketData = useCallback(async () => {
@@ -41,7 +42,7 @@ export function App() {
         const targetSlug = pathname.replace('/topic/', '').trim();
         const matched = synced.find(e => e.slug === targetSlug || e.id === targetSlug);
         if (matched) {
-          setSelectedModalEvent(matched);
+          setActiveTopicId(matched.id);
         }
       }
     } catch (err) {
@@ -126,6 +127,7 @@ export function App() {
           onVote={handleVote}
           onOpenModal={(event) => setSelectedModalEvent(event)}
           onOpenShare={(event) => setSelectedShareEvent(event)}
+          activeEventId={activeTopicId}
         />
       </main>
 

@@ -11,6 +11,7 @@ interface TradingTerminalProps {
   onVote: (eventId: string, choice: 'YES' | 'NO') => void;
   onOpenModal: (event: MarketItem) => void;
   onOpenShare: (event: MarketItem) => void;
+  activeEventId?: string | null;
 }
 
 export const TradingTerminal: React.FC<TradingTerminalProps> = ({
@@ -18,11 +19,20 @@ export const TradingTerminal: React.FC<TradingTerminalProps> = ({
   userVotes,
   onVote,
   onOpenShare,
+  activeEventId,
 }) => {
   // 初期選択銘柄
-  const [selectedEventId, setSelectedEventId] = useState<string>(events[0]?.id || '1');
+  const [selectedEventId, setSelectedEventId] = useState<string>(
+    activeEventId || events[0]?.id || '1'
+  );
 
-  const currentEvent = events.find((e) => e.id === selectedEventId) || events[0];
+  React.useEffect(() => {
+    if (activeEventId) {
+      setSelectedEventId(activeEventId);
+    }
+  }, [activeEventId]);
+
+  const currentEvent = events.find((e) => e.id === selectedEventId || e.slug === selectedEventId) || events[0];
 
   return (
     <div className="trading-terminal-root">
