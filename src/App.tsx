@@ -5,6 +5,7 @@ import { EventModal } from './components/EventModal';
 import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
 import { INITIAL_EVENTS } from './data/initialEvents';
+import { submitVoteToSupabase } from './services/supabaseClient';
 import type { MarketItem, CategoryType } from './types';
 
 export function App() {
@@ -22,6 +23,8 @@ export function App() {
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
     setUserVotes(prev => ({ ...prev, [eventId]: choice }));
+    // Supabaseへ非同期で投票ログを送信
+    submitVoteToSupabase(eventId, choice);
   };
 
   const handleRefresh = () => {
