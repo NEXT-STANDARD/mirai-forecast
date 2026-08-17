@@ -61,7 +61,6 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
   const getVolY = (vol: number) => height - paddingB - (vol / maxVol) * 45;
 
   const points = data.map((d, i) => `${getX(i)},${getY(d.prob)}`).join(' ');
-  const areaPath = `${points} L ${getX(data.length - 1)},${paddingT + chartH} L ${getX(0)},${paddingT + chartH} Z`;
 
   const lineColor = isPositive ? '#38bdf8' : '#f43f5e';
 
@@ -199,7 +198,10 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
               })}
 
               {/* エリア面 */}
-              <polygon points={areaPath} fill="url(#mainChartGrad)" />
+              <path
+                d={`M ${getX(0)},${getY(data[0].prob)} ${data.map((d, i) => `L ${getX(i)},${getY(d.prob)}`).join(' ')} L ${getX(data.length - 1)},${paddingT + chartH} L ${getX(0)},${paddingT + chartH} Z`}
+                fill="url(#mainChartGrad)"
+              />
 
               {/* 折れ線 */}
               <polyline
