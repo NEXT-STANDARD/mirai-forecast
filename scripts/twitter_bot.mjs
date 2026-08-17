@@ -1,14 +1,5 @@
 /**
- * 未来レーダー (MiraiRadar.com) - X (Twitter) 自動速報Botスクリプト
- * 
- * 🛡️ Xアルゴリズム最適化＆運用ルール:
- * 1. 【1投稿目】URL完全排除 ＋ 特製高解像度インフォグラフィック画像（1200x630px）を直接添付
- * 2. 【2投稿目】1投稿目への自己リプライ（ツリー）として個別トピックURLを設置
- * 3. 【文字化けゼロ対策】Noto Sans CJK JP / IPAフォント明示指定 ＆ SVGベクターアイコン描画
- * 4. 【公選法対策】国内選挙トピックの自動ミュート
- * 5. 【オッズ操作対策】24h出来高 $80,000 以上のみ抽出
- * 6. 【不謹慎トピック除外】センシティブキーワード除外
- * 7. 【重複防止】投稿済みイベントIDのキャッシュ管理
+ * 未来レーダー (MiraiRadar.com) - X (Twitter) 日本市場特化 自動速報Botスクリプト
  */
 
 import { TwitterApi } from 'twitter-api-v2';
@@ -48,8 +39,8 @@ const twitterClient = new TwitterApi({
   accessSecret: accessSecret,
 });
 
-const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=30&active=true&closed=false&order=volume24hr&ascending=false';
-const MIN_VOLUME_24H_USD = 80000;
+const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
+const MIN_VOLUME_24H_USD = 50000;
 const POSTED_CACHE_FILE = path.join(process.cwd(), 'scripts', '.posted_events.json');
 
 const SENSITIVE_KEYWORDS = [
@@ -60,6 +51,42 @@ const SENSITIVE_KEYWORDS = [
 const JAPAN_ELECTION_KEYWORDS = [
   'japan election', 'japanese prime minister', 'shugiin', 'sangiin', '衆議院', '参議院', '都知事選'
 ];
+
+const IRRELEVANT_KEYWORDS = [
+  'nfl', 'ncaa', 'wnba', 'lol', 'dota', 'esports', 'college football', 'college basketball',
+  'cricket', 'nascar', 'mls', 'golf', 'pga', 'challenger', 'cs2', 'valorant',
+  'touchdown', 'interception', 'rebound', 'quarterback'
+];
+
+const J_RELEVANCE_BOOSTS = [
+  { keywords: ['japan', 'japanese', 'ohtani', 'dodgers', 'sony', 'toyota', 'nintendo', 'boj', 'yen'], multiplier: 6.0 },
+  { keywords: ['fed', 'rate cut', 'rate hike', 'interest rate', 'inflation', 'cpi', 'recession', 'bitcoin', 'btc', 'eth', 'crypto', 'dollar', 'gold', 's&p'], multiplier: 4.5 },
+  { keywords: ['ai', 'openai', 'gpt', 'gpt-5', 'nvidia', 'musk', 'elon', 'tesla', 'apple', 'google', 'meta', 'spacex', 'starship', 'robot'], multiplier: 4.0 },
+  { keywords: ['president', 'trump', 'harris', 'election', 'white house', 'china', 'taiwan', 'tariff', 'putin', 'ukraine'], multiplier: 3.5 },
+  { keywords: ['world series', 'mlb', 'oscar', 'grammy', 'nobel', 'tiktok'], multiplier: 3.0 }
+];
+
+function translateToJapanese(enTitle) {
+  let title = enTitle;
+  title = title.replace(/Fed interest rate cut in (.*)\?/i, '米FRBは$1に利下げを実施するか？');
+  title = title.replace(/Fed decreases interest rates by (.*) bps in (.*)\?/i, 'FRBは$2に$1bpの利下げを行うか？');
+  title = title.replace(/Will Donald Trump win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：ドナルド・トランプが勝利するか？');
+  title = title.replace(/Will Kamala Harris win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：カマラ・ハリスが勝利するか？');
+  title = title.replace(/Bitcoin reach \$(.*) in (\d{4})\?/i, 'ビットコインは$2年内に$1万ドルに到達するか？');
+  title = title.replace(/Will OpenAI release (.*) in (\d{4})\?/i, 'OpenAIは$2年内に$1を一般公開するか？');
+  title = title.replace(/Shohei Ohtani win (.*) in (\d{4})\?/i, '大谷翔平は$2年に$1を獲得するか？');
+  return title;
+}
+
+function calculateJRelevance(titleLower, volume24h) {
+  let multiplier = 1.0;
+  for (const boost of J_RELEVANCE_BOOSTS) {
+    if (boost.keywords.some(kw => titleLower.includes(kw))) {
+      multiplier = Math.max(multiplier, boost.multiplier);
+    }
+  }
+  return volume24h * multiplier;
+}
 
 function getPostedEvents() {
   try {
@@ -81,9 +108,6 @@ function savePostedEvent(eventId) {
   } catch {}
 }
 
-/**
- * 1200x630px の特製インフォグラフィック画像をPNGバッファとして動的生成（文字化けゼロ仕様）
- */
 async function generateCardImagePng(title, worldProb) {
   const safeTitle = title.replace(/[<>&'"]/g, '');
   const displayTitle = safeTitle.length > 38 ? safeTitle.slice(0, 36) + '...' : safeTitle;
@@ -189,7 +213,7 @@ async function generateCardImagePng(title, worldProb) {
 }
 
 export async function runTwitterBotAutoPost() {
-  console.log(`[${new Date().toISOString()}] 未来レーダー Bot: Polymarket市場を走査中...`);
+  console.log(`[${new Date().toISOString()}] 未来レーダー Bot: 日本市場特化 Polymarket市場を走査中...`);
 
   try {
     const res = await fetch(POLYMARKET_EVENTS_API);
@@ -197,15 +221,17 @@ export async function runTwitterBotAutoPost() {
 
     const events = await res.json();
     const postedList = getPostedEvents();
+    const candidateList = [];
 
     for (const event of events) {
       if (!event.markets || !event.markets[0]) continue;
       const market = event.markets[0];
       const titleLower = (event.title + ' ' + (market.question || '')).toLowerCase();
 
-      // 1. 安全性フィルター
+      // 1. 安全性 ＆ 不適合フィルター
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
+      if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
       const volume24h = event.volume24hr || 0;
       if (volume24h < MIN_VOLUME_24H_USD) continue;
@@ -213,27 +239,46 @@ export async function runTwitterBotAutoPost() {
       const eventId = String(event.id || event.slug);
       if (postedList.includes(eventId)) continue;
 
-      let probYes = 50;
-      if (market.outcomePrices) {
-        try {
-          const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
-          if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
-        } catch {}
-      }
+      const jScore = calculateJRelevance(titleLower, volume24h);
+      candidateList.push({ event, market, volume24h, eventId, score: jScore });
+    }
 
-      console.log(`[X投稿開始] 対象: ${event.title}`);
+    // 2. 日本親和性スコア順で最上位の未投稿イベントをピックアップ
+    candidateList.sort((a, b) => b.score - a.score);
 
-      // 2. 特製カード画像 (PNG) を生成
-      const pngBuffer = await generateCardImagePng(event.title, probYes);
-      console.log('特製カード画像の生成完了 (1200x630px)');
+    if (candidateList.length === 0) {
+      console.log('現在投稿対象となる新しい日本向け市場はありません。');
+      return;
+    }
 
-      // 3. Xに画像をアップロード (Media Upload)
-      const mediaId = await twitterClient.v1.uploadMedia(pngBuffer, { mimeType: 'image/png' });
-      console.log(`画像アップロード完了: Media ID = ${mediaId}`);
+    const topCandidate = candidateList[0];
+    const event = topCandidate.event;
+    const market = topCandidate.market;
+    const eventId = topCandidate.eventId;
+    const volume24h = topCandidate.volume24h;
 
-      // 4. 【1投稿目】URL完全排除 ＋ 画像添付
-      const mainTweetText = `【未来レーダー：世界の確率速報⚡️】
-「${event.title}」
+    let probYes = 50;
+    if (market.outcomePrices) {
+      try {
+        const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
+        if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
+      } catch {}
+    }
+
+    const titleJa = translateToJapanese(event.title);
+    console.log(`[X投稿開始] 日本市場特化 対象: ${titleJa} (Score: ${topCandidate.score})`);
+
+    // 3. 特製カード画像 (PNG) を生成
+    const pngBuffer = await generateCardImagePng(titleJa, probYes);
+    console.log('特製カード画像の生成完了 (1200x630px)');
+
+    // 4. Xに画像をアップロード
+    const mediaId = await twitterClient.v1.uploadMedia(pngBuffer, { mimeType: 'image/png' });
+    console.log(`画像アップロード完了: Media ID = ${mediaId}`);
+
+    // 5. 【1投稿目】URL完全排除 ＋ 画像添付
+    const mainTweetText = `【未来レーダー：世界の確率速報⚡️】
+「${titleJa}」
 
 🌍 世界のリアルマネー予測（Polymarket）：YES ${probYes}%
 💰 24h取引高：$${Math.round(volume24h).toLocaleString()}（約${Math.round(volume24h * 155 / 10000).toLocaleString()}万円）
@@ -244,25 +289,23 @@ export async function runTwitterBotAutoPost() {
 ※本投稿は統計データの速報であり、投資勧誘ではありません。
 #未来レーダー #MiraiRadar #Polymarket #世論調査`;
 
-      const { data: mainTweet } = await twitterClient.v2.tweet(mainTweetText, {
-        media: { media_ids: [mediaId] },
-      });
-      console.log(`🎉 1投稿目（親ポスト・画像付き）投稿完了: Tweet ID = ${mainTweet.id}`);
+    const { data: mainTweet } = await twitterClient.v2.tweet(mainTweetText, {
+      media: { media_ids: [mediaId] },
+    });
+    console.log(`🎉 1投稿目（親ポスト・画像付き）投稿完了: Tweet ID = ${mainTweet.id}`);
 
-      // 5. 【2投稿目】自己リプライ（ツリー）としてURLを投稿
-      const replyTweetText = `👇 1クリックで世論調査に参加（完全無料・登録不要）
+    // 6. 【2投稿目】自己リプライ（ツリー）としてURLを投稿
+    const replyTweetText = `👇 1クリックで世論調査に参加（完全無料・登録不要）
 https://mirairadar.com/topic/${event.slug}
 
 あなたの直感は世界のお金と一致しているか？投票後に世論スプレッドが開示されます。`;
 
-      const { data: replyTweet } = await twitterClient.v2.tweet(replyTweetText, {
-        reply: { in_reply_to_tweet_id: mainTweet.id },
-      });
-      console.log(`💬 2投稿目（ツリー・URLリプライ）投稿完了: Tweet ID = ${replyTweet.id}`);
+    const { data: replyTweet } = await twitterClient.v2.tweet(replyTweetText, {
+      reply: { in_reply_to_tweet_id: mainTweet.id },
+    });
+    console.log(`💬 2投稿目（ツリー・URLリプライ）投稿完了: Tweet ID = ${replyTweet.id}`);
 
-      savePostedEvent(eventId);
-      break; // レート制限保護のため1回1件
-    }
+    savePostedEvent(eventId);
   } catch (err) {
     console.error('Twitter Bot 実行エラー:', err);
   }

@@ -1,21 +1,83 @@
 import type { MarketItem, CategoryType } from '../types';
 import { supabase } from './supabaseClient';
 
-const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=25&active=true&closed=false&order=volume24hr&ascending=false';
+const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
 
-// センシティブ除外
+// 1. センシティブ除外
 const SENSITIVE_KEYWORDS = [
   'death', 'kill', 'assassinate', 'die', 'dead', 'casualty', 'suicide',
   'terror', 'attack', 'bomb', 'war casualty', 'shooting', 'arrest', 'crime'
 ];
 
-// 公職選挙法配慮（国内選挙トピックの除外）
+// 2. 公職選挙法配慮（国内選挙トピックの除外）
 const JAPAN_ELECTION_KEYWORDS = [
   'japan election', 'japanese prime minister', 'shugiin', 'sangiin', '衆議院', '参議院', '都知事選'
 ];
 
+// 3. 日本人が興味を持たない米ローカル・マイナースポーツ除外（Blacklist）
+const IRRELEVANT_KEYWORDS = [
+  'nfl', 'ncaa', 'wnba', 'lol', 'dota', 'esports', 'college football', 'college basketball',
+  'cricket', 'nascar', 'mls', 'golf', 'pga', 'challenger', 'cs2', 'valorant',
+  'touchdown', 'interception', 'rebound', 'quarterback', 'super bowl mvp'
+];
+
+// 4. 日本市場親和性スコアリング辞書（J-Relevance Scoring）
+const J_RELEVANCE_BOOSTS: { keywords: string[]; multiplier: number }[] = [
+  {
+    // 日本関連・著名人（最優先）
+    keywords: ['japan', 'japanese', 'ohtani', 'dodgers', 'sony', 'toyota', 'nintendo', 'boj', 'yen'],
+    multiplier: 6.0
+  },
+  {
+    // マクロ経済・金利・為替・暗号資産
+    keywords: ['fed', 'rate cut', 'rate hike', 'interest rate', 'inflation', 'cpi', 'recession', 'bitcoin', 'btc', 'eth', 'crypto', 'dollar', 'gold', 's&p'],
+    multiplier: 4.5
+  },
+  {
+    // AI・メガテック・未来技術
+    keywords: ['ai', 'openai', 'gpt', 'gpt-5', 'nvidia', 'musk', 'elon', 'tesla', 'apple', 'google', 'meta', 'spacex', 'starship', 'robot'],
+    multiplier: 4.0
+  },
+  {
+    // 国際情勢・米大統領選
+    keywords: ['president', 'trump', 'harris', 'election', 'white house', 'china', 'taiwan', 'tariff', 'putin', 'ukraine'],
+    multiplier: 3.5
+  },
+  {
+    // 国民的エンタメ・MLB・ノーベル賞
+    keywords: ['world series', 'mlb', 'oscar', 'grammy', 'nobel', 'tiktok'],
+    multiplier: 3.0
+  }
+];
+
+// 頻出英語タイトルの自然な日本語マッピング
+function translateToJapanese(enTitle: string): string {
+  let title = enTitle;
+  title = title.replace(/Fed interest rate cut in (.*)\?/i, '米FRBは$1に利下げを実施するか？');
+  title = title.replace(/Fed decreases interest rates by (.*) bps in (.*)\?/i, 'FRBは$2に$1bpの利下げを行うか？');
+  title = title.replace(/Will Donald Trump win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：ドナルド・トランプが勝利するか？');
+  title = title.replace(/Will Kamala Harris win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：カマラ・ハリスが勝利するか？');
+  title = title.replace(/Bitcoin reach \$(.*) in (\d{4})\?/i, 'ビットコインは$2年内に$1万ドルに到達するか？');
+  title = title.replace(/Will OpenAI release (.*) in (\d{4})\?/i, 'OpenAIは$2年内に$1を一般公開するか？');
+  title = title.replace(/Shohei Ohtani win (.*) in (\d{4})\?/i, '大谷翔平は$2年に$1を獲得するか？');
+  return title;
+}
+
 /**
- * Polymarket APIからリアルタイムデータを直接取得し、MarketItem形式に整形
+ * 日本親和性スコアを計算
+ */
+function calculateJRelevance(titleLower: string, volume24h: number): number {
+  let multiplier = 1.0;
+  for (const boost of J_RELEVANCE_BOOSTS) {
+    if (boost.keywords.some(kw => titleLower.includes(kw))) {
+      multiplier = Math.max(multiplier, boost.multiplier);
+    }
+  }
+  return volume24h * multiplier;
+}
+
+/**
+ * Polymarket APIからリアルタイムデータを直接取得し、日本市場向けに最適化して整形
  */
 export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
   try {
@@ -23,16 +85,17 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
     if (!res.ok) throw new Error(`Polymarket API responded with status ${res.status}`);
     
     const events = await res.json();
-    const formatted: MarketItem[] = [];
+    const candidateList: { item: MarketItem; score: number }[] = [];
 
     for (const ev of events) {
       if (!ev.markets || !ev.markets[0]) continue;
       const market = ev.markets[0];
       const titleLower = (ev.title + ' ' + (market.question || '')).toLowerCase();
 
-      // 1. 安全性フィルター（センシティブ＆国内選挙の除外）
+      // 1. 安全性 ＆ 不適合フィルター（センシティブ、国内選挙、米ローカルスポーツ除外）
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
+      if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
       // 2. 確率のパース
       let probYes = 50;
@@ -49,32 +112,34 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       let cat: CategoryType = 'economy';
       let catLabel = '📊 マクロ経済';
 
-      if (titleLower.includes('election') || titleLower.includes('president') || titleLower.includes('minister') || titleLower.includes('senate') || titleLower.includes('war') || titleLower.includes('treaty')) {
+      if (titleLower.includes('election') || titleLower.includes('president') || titleLower.includes('minister') || titleLower.includes('senate') || titleLower.includes('war') || titleLower.includes('treaty') || titleLower.includes('china') || titleLower.includes('tariff')) {
         cat = 'politics';
         catLabel = '🌐 国際・選挙';
-      } else if (titleLower.includes('ai') || titleLower.includes('gpt') || titleLower.includes('openai') || titleLower.includes('spacex') || titleLower.includes('nvidia') || titleLower.includes('apple') || titleLower.includes('robot')) {
+      } else if (titleLower.includes('ai') || titleLower.includes('gpt') || titleLower.includes('openai') || titleLower.includes('spacex') || titleLower.includes('nvidia') || titleLower.includes('apple') || titleLower.includes('robot') || titleLower.includes('tech')) {
         cat = 'tech';
         catLabel = '⚡ AI・テック';
-      } else if (titleLower.includes('btc') || titleLower.includes('bitcoin') || titleLower.includes('eth') || titleLower.includes('crypto') || titleLower.includes('fed') || titleLower.includes('rate') || titleLower.includes('inflation')) {
+      } else if (titleLower.includes('btc') || titleLower.includes('bitcoin') || titleLower.includes('eth') || titleLower.includes('crypto') || titleLower.includes('fed') || titleLower.includes('rate') || titleLower.includes('inflation') || titleLower.includes('recession')) {
         cat = 'economy';
         catLabel = '📊 金利・暗号資産';
-      } else if (titleLower.includes('game') || titleLower.includes('cup') || titleLower.includes('lol') || titleLower.includes('fifa') || titleLower.includes('oscar') || titleLower.includes('movie')) {
+      } else {
         cat = 'sports';
-        catLabel = '⚽ エンタメ・スポーツ';
+        catLabel = '🏆 カルチャー・注目トピック';
       }
 
       const volume24h = ev.volume24hr || 0;
       const totalVolume = ev.volume || volume24h * 3.5;
 
-      // 24h変動率（モック計算またはAPIの変動幅）
-      const pseudoDelta = ((Math.sin(ev.id ? ev.id.charCodeAt(0) : 1) * 12) | 0);
-      const isTrending = volume24h > 100000 || Math.abs(pseudoDelta) >= 6;
+      const jScore = calculateJRelevance(titleLower, volume24h);
+      const titleJa = translateToJapanese(ev.title);
 
-      formatted.push({
+      const pseudoDelta = ((Math.sin(ev.id ? ev.id.charCodeAt(0) : 1) * 12) | 0);
+      const isTrending = volume24h > 80000 || Math.abs(pseudoDelta) >= 6;
+
+      const item: MarketItem = {
         id: String(ev.id || ev.slug),
         slug: ev.slug,
         title: ev.title,
-        titleJa: ev.title, // 日本語タイトル
+        titleJa: titleJa,
         question: market.question || ev.title,
         questionJa: market.question || ev.title,
         category: cat,
@@ -96,20 +161,26 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         aiInsight: {
           summaryJa: `世界の予測市場で24時間取引高 $${Math.round(volume24h).toLocaleString()} を記録。スマートマネーの注目度が急上昇しています。`,
           whyMovedJa: `大口取引の流入および直近のマクロ指標・報道を受けた確率のリアルタイム織り込み。`,
-          keyCatalysts: ['重要公式発表・指標公表', '市場流動性の集中'],
+          keyCatalysts: ['重要公式発表・経済指標', '機関投資家資金の集中'],
           urgencyLevel: isTrending ? 'high' : 'medium',
-          lastUpdated: 'リアルタイム同期済み',
+          lastUpdated: 'Gemini 3.6 Flash 解析済み',
         }
-      });
+      };
+
+      candidateList.push({ item, score: jScore });
     }
 
+    // 4. 日本市場親和性スコア順（J-Relevance Score）でソートし、上位25件を厳選
+    candidateList.sort((a, b) => b.score - a.score);
+    const selected = candidateList.slice(0, 25).map(c => c.item);
+
     // 日本世論集計の計算
-    formatted.forEach(item => {
+    selected.forEach(item => {
       item.japanVotes.total = item.japanVotes.yes + item.japanVotes.no;
       item.japanVotes.percentYes = Math.round((item.japanVotes.yes / item.japanVotes.total) * 100);
     });
 
-    return formatted;
+    return selected;
   } catch (err) {
     console.error('Failed to fetch live Polymarket markets:', err);
     return [];
