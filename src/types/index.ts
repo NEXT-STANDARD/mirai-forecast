@@ -1,4 +1,4 @@
-export type CategoryType = 'all' | 'politics' | 'economy' | 'tech' | 'culture' | 'sports';
+export type CategoryType = 'all' | 'trending' | 'economy' | 'politics' | 'tech' | 'sports';
 
 export interface MarketItem {
   id: string;
@@ -16,6 +16,7 @@ export interface MarketItem {
   volume24hUsd: number;
   totalVolumeUsd: number;
   endDate: string;
+  isTrending?: boolean; // 🔥 人気急上昇フラグ
   
   // 日本人ユーザーの投票集計（完全無料・意識調査）
   japanVotes: {

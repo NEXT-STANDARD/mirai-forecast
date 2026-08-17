@@ -20,10 +20,11 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄 (All)' },
+    { id: 'trending', label: '🔥 人気急上昇 (Trending)' },
     { id: 'economy', label: '📊 経済・金利・暗号資産' },
     { id: 'politics', label: '🌐 国際・選挙・地政学' },
     { id: 'tech', label: '⚡ テック・AI・半導体' },
-    { id: 'sports', label: '⚽ スポーツ・カルチャー' },
+    { id: 'sports', label: '⚽ スポーツ・エンタメ' },
   ];
 
   return (
@@ -36,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
             <span>LIVE TERMINAL FEED</span>
           </div>
           <div className="ticker-text">
-            <span>Polymarket CLOB/Gamma リアルタイム観測</span>
+            <span>Polymarket Gamma/CLOB 自動同期中</span>
             <span className="divider">•</span>
             <span>観測総ボリューム: <strong>${Math.round(totalMarketVolume / 1000000).toLocaleString()}M+</strong></span>
             <span className="divider">•</span>
@@ -55,10 +56,8 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* メインヘッダー */}
       <div className="container main-header">
-        {/* ミニマル幾何学ロゴ */}
         <Logo size={36} />
 
-        {/* 証券風ステータスインジケーター */}
         <div className="header-stats">
           <div className="stat-card">
             <div className="stat-label">観測マーケット数</div>
