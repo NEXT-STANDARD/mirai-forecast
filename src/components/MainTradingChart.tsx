@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import type { MarketItem } from '../types';
 import { ThreeRadar } from './ThreeRadar';
-import { TrendingUp, TrendingDown, Radio, Sparkles, BarChart2, Calendar } from 'lucide-react';
+import { TrendingUp, TrendingDown, Radio, Sparkles, BarChart2, Calendar, ExternalLink } from 'lucide-react';
 
 interface MainTradingChartProps {
   event: MarketItem;
   events: MarketItem[];
   onSelectEvent: (event: MarketItem) => void;
+  onOpenDetail?: (event: MarketItem) => void;
 }
 
 interface ChartPoint {
@@ -24,6 +25,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
   event,
   events,
   onSelectEvent,
+  onOpenDetail,
 }) => {
   const [activeTab, setActiveTab] = useState<'chart' | 'radar'>('chart');
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '30D' | 'ALL'>('30D');
@@ -141,6 +143,16 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
           <div className="symbol-title-row">
             <span className="ticker-code">POLY:{event.slug.slice(0, 10).toUpperCase()}</span>
             <span className="category-badge">{event.categoryLabel}</span>
+            {onOpenDetail && (
+              <button
+                onClick={() => onOpenDetail(event)}
+                className="btn-open-market-page"
+                title="この銘柄の個別深層分析ページを開く"
+              >
+                <span>個別ページ</span>
+                <ExternalLink size={11} />
+              </button>
+            )}
           </div>
           <h2 className="event-main-title">{event.titleJa}</h2>
         </div>

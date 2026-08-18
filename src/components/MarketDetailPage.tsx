@@ -1,0 +1,324 @@
+import React, { useState, useEffect } from 'react';
+import {
+  ArrowLeft,
+  Calendar,
+  Sparkles,
+  ShieldCheck,
+  MessageSquare,
+  FileText,
+  Clock,
+  Layers,
+  ChevronRight,
+  Flame
+} from 'lucide-react';
+import { MainTradingChart } from './MainTradingChart';
+import { OrderBookConsensus } from './OrderBookConsensus';
+import type { MarketItem } from '../types';
+
+interface MarketDetailPageProps {
+  item: MarketItem;
+  allEvents: MarketItem[];
+  userVote: 'YES' | 'NO' | null;
+  onVote: (eventId: string, choice: 'YES' | 'NO') => void;
+  onOpenShare: (item: MarketItem) => void;
+  onBack: () => void;
+  onSelectRelatedEvent: (item: MarketItem) => void;
+}
+
+export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
+  item,
+  allEvents,
+  userVote,
+  onVote,
+  onOpenShare,
+  onBack,
+  onSelectRelatedEvent,
+}) => {
+  const [commentInput, setCommentInput] = useState('');
+  const [comments, setComments] = useState(item.comments || []);
+
+  // SEO: ページタイトルとメタ情報の動的更新
+  useEffect(() => {
+    const originalTitle = document.title;
+    document.title = `${item.titleJa} ｜ 未来レーダー（MiraiRadar）`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [item]);
+
+  // コメント投稿
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentInput.trim()) return;
+
+    const newComment = {
+      id: `comm_${Date.now()}`,
+      author: userVote ? `予報士（${userVote}支持）` : '未来ウォッチャー',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+      vote: userVote || ('YES' as const),
+      text: commentInput.trim(),
+      createdAt: 'たった今',
+      likes: 1,
+    };
+
+    setComments([newComment, ...comments]);
+    setCommentInput('');
+  };
+
+  // 関連銘柄（同一カテゴリまたは人気銘柄から3件選定）
+  const relatedMarkets = allEvents
+    .filter((e) => e.id !== item.id && (e.category === item.category || e.isTrending))
+    .slice(0, 3);
+
+  // 世論ギャップ計算
+  const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
+
+  return (
+    <div className="market-detail-container animate-fade-in">
+      {/* パンくず ＆ 戻るバー */}
+      <div className="market-detail-nav">
+        <button onClick={onBack} className="btn-back-link">
+          <ArrowLeft size={16} />
+          <span>マーケット一覧へ戻る</span>
+        </button>
+
+        <div className="detail-meta-tags">
+          <span className="detail-cat-badge">{item.categoryLabel}</span>
+          {item.isTrending && (
+            <span className="detail-hot-badge">
+              <Flame size={12} className="fill-amber-400 text-amber-400" />
+              HOT
+            </span>
+          )}
+          <span className="detail-date-badge">
+            <Calendar size={12} />
+            締切: {item.endDate}
+          </span>
+        </div>
+      </div>
+
+      {/* タイトルヘッダー */}
+      <div className="market-detail-header-card">
+        <div className="detail-title-block">
+          <h1 className="detail-main-title">{item.titleJa}</h1>
+          <p className="detail-sub-question">{item.question}</p>
+        </div>
+
+        <div className="detail-header-stats-row">
+          <div className="header-stat-box">
+            <span className="stat-sub">世界オッズ (Polymarket)</span>
+            <span className="stat-main text-cyan-400">
+              YES {item.worldProbYes}%
+              <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+            </span>
+          </div>
+
+          <div className="header-stat-box">
+            <span className="stat-sub">日本世論支持率</span>
+            <span className="stat-main text-emerald-400">
+              {item.japanVotes.total > 0 ? `YES ${item.japanVotes.percentYes}%` : '受付中 (0票)'}
+              {item.japanVotes.total > 0 && <span className="stat-sub-prob"> ({item.japanVotes.total}票)</span>}
+            </span>
+          </div>
+
+          <div className="header-stat-box">
+            <span className="stat-sub">世論スプレッド (Gap)</span>
+            <span className="stat-main text-amber-400">⚡ {gap}% 乖離</span>
+          </div>
+
+          <div className="header-stat-box">
+            <span className="stat-sub">観測取引高 (24h / Total)</span>
+            <span className="stat-main text-slate-200">
+              ${(item.volume24hUsd || 0).toLocaleString()} / ${(item.totalVolumeUsd || 0).toLocaleString()}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* メイン 2カラムグリッド */}
+      <div className="market-detail-grid">
+        {/* 左カラム (65%): チャート ＆ AI深層分析 ＆ 判定ルール ＆ コメント */}
+        <div className="detail-left-pane">
+          {/* 大画面チャート */}
+          <div className="detail-chart-wrapper">
+            <MainTradingChart
+              event={item}
+              events={allEvents}
+              onSelectEvent={onSelectRelatedEvent}
+            />
+          </div>
+
+          {/* 💡 Gemini 3.7 Flash 深層カタリスト日程分析 */}
+          <div className="detail-section-card ai-catalyst-card">
+            <div className="section-card-header">
+              <div className="flex items-center gap-2">
+                <Sparkles className="text-amber-400 w-5 h-5" />
+                <h3 className="section-card-title">AIファンダメンタルズ要因 ＆ 注目カタリスト日程</h3>
+              </div>
+              <span className="badge-ai-model">Gemini 3.7 Flash 分析</span>
+            </div>
+
+            <div className="catalyst-content-body">
+              <div className="catalyst-summary-box">
+                <h4 className="catalyst-summary-title">📌 市場コンセンサス要約</h4>
+                <p className="catalyst-summary-text">
+                  {item.aiInsight?.summaryJa || '世界のスマートマネーは、直近の市場データやカタリスト日程を織り込みながら確率を形成しています。'}
+                </p>
+              </div>
+
+              {item.aiInsight?.whyMovedJa && (
+                <div className="catalyst-why-box">
+                  <h4 className="catalyst-why-title">⚡ 変動の主因 (Why It Moved)</h4>
+                  <p className="catalyst-why-text">{item.aiInsight.whyMovedJa}</p>
+                </div>
+              )}
+
+              {item.aiInsight?.keyCatalysts && item.aiInsight.keyCatalysts.length > 0 && (
+                <div className="catalyst-timeline-block">
+                  <h4 className="catalyst-timeline-title">
+                    <Clock size={14} className="text-amber-400" />
+                    <span>次回注目カタリスト日程（確率変動トリガー）</span>
+                  </h4>
+                  <div className="catalyst-pills-list">
+                    {item.aiInsight.keyCatalysts.map((cat, idx) => (
+                      <div key={idx} className="catalyst-timeline-item">
+                        <div className="catalyst-dot"></div>
+                        <span className="catalyst-text">{cat}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 📜 判定基準・公式ルール (Polymarket Resolution Rules) */}
+          <div className="detail-section-card rules-card">
+            <div className="section-card-header">
+              <div className="flex items-center gap-2">
+                <FileText className="text-cyan-400 w-5 h-5" />
+                <h3 className="section-card-title">公式判定ルール ＆ 情報源（Resolution Rules）</h3>
+              </div>
+              <span className="badge-oracle">UMA Optimistic Oracle 準拠</span>
+            </div>
+
+            <div className="rules-content-body">
+              <div className="rule-item">
+                <strong>判定基準（Criteria）:</strong>
+                <p>
+                  公式締切日（{item.endDate}）までに、質問文「{item.question}」が公式機関によって公式に確認された場合、YESとして判定（Resolution）されます。それ以外の場合はNOとして決済されます。
+                </p>
+              </div>
+
+              <div className="rule-item">
+                <strong>公式情報源（Resolution Source）:</strong>
+                <p>
+                  対象分野の公式発表機関（MLB公式、米連邦選挙管理委員会、日銀公式発表、SEC公式文書等）および UMA Optimistic Oracle の検証プロセスに基づきます。
+                </p>
+              </div>
+
+              <div className="rule-compliance-note">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>
+                  <strong>法的免責:</strong> 日本国内においては完全無料の意識調査・オルタナティブデータとして提供されており、金銭のベッティング行為は一切行われません。
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 💬 日本のコミュニティ議論 ＆ 直感コメント欄 */}
+          <div className="detail-section-card comments-card">
+            <div className="section-card-header">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="text-slate-300 w-5 h-5" />
+                <h3 className="section-card-title">国内コミュニティ議論 ＆ 予報士コメント ({comments.length}件)</h3>
+              </div>
+            </div>
+
+            {/* コメント投稿フォーム */}
+            <form onSubmit={handleAddComment} className="comment-post-form">
+              <input
+                type="text"
+                value={commentInput}
+                onChange={(e) => setCommentInput(e.target.value)}
+                placeholder={userVote ? `[${userVote}支持] あなたの直感理由や注目ニュースを投稿...` : 'あなたの直感理由や見解を共有...'}
+                className="comment-input-field"
+              />
+              <button type="submit" className="btn-comment-submit" disabled={!commentInput.trim()}>
+                投稿する
+              </button>
+            </form>
+
+            {/* コメントリスト */}
+            <div className="comments-timeline-list">
+              {comments.length === 0 ? (
+                <div className="empty-comments-box">
+                  <p>まだコメントがありません。最初の直感見解を投稿してみましょう！</p>
+                </div>
+              ) : (
+                comments.map((comm) => (
+                  <div key={comm.id} className="comment-card-item">
+                    <div className="comment-author-row">
+                      <div className="flex items-center gap-2">
+                        <span className="comment-author-name">{comm.author}</span>
+                        <span className={`comment-vote-tag ${comm.vote ? comm.vote.toLowerCase() : 'yes'}`}>
+                          [{comm.vote || 'YES'}]
+                        </span>
+                      </div>
+                      <span className="comment-time">{comm.createdAt}</span>
+                    </div>
+                    <p className="comment-text-content">{comm.text}</p>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* 右カラム (35%): 世論板 ＆ ワンクリック投票 ＆ Xシェア ＆ 関連銘柄 */}
+        <div className="detail-right-pane">
+          {/* 世論板情報 ＆ 証券風ワンクリック投票 */}
+          <OrderBookConsensus
+            event={item}
+            userVote={userVote}
+            onVote={(choice: 'YES' | 'NO') => onVote(item.id, choice)}
+            onOpenShare={() => onOpenShare(item)}
+          />
+
+          {/* 👥 関連する注目の未来銘柄 */}
+          {relatedMarkets.length > 0 && (
+            <div className="detail-section-card related-markets-card">
+              <div className="section-card-header">
+                <div className="flex items-center gap-2">
+                  <Layers className="text-cyan-400 w-4 h-4" />
+                  <h4 className="section-card-title text-xs">関連する注目の未来銘柄</h4>
+                </div>
+              </div>
+
+              <div className="related-markets-list">
+                {relatedMarkets.map((rel) => (
+                  <div
+                    key={rel.id}
+                    onClick={() => onSelectRelatedEvent(rel)}
+                    className="related-market-item"
+                  >
+                    <div className="related-info">
+                      <span className="related-cat">{rel.categoryLabel.slice(0, 6)}</span>
+                      <h5 className="related-title">{rel.titleJa}</h5>
+                    </div>
+                    <div className="related-prob text-cyan-400">
+                      <span>{rel.worldProbYes}%</span>
+                      <ChevronRight size={14} className="text-slate-500" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};

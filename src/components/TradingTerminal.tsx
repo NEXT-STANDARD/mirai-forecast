@@ -13,6 +13,7 @@ interface TradingTerminalProps {
   onOpenShare: (event: MarketItem) => void;
   activeEventId?: string | null;
   onOpenPropose?: () => void;
+  onOpenDetail?: (event: MarketItem) => void;
 }
 
 export const TradingTerminal: React.FC<TradingTerminalProps> = ({
@@ -22,6 +23,7 @@ export const TradingTerminal: React.FC<TradingTerminalProps> = ({
   onOpenShare,
   activeEventId,
   onOpenPropose,
+  onOpenDetail,
 }) => {
   // 初期選択銘柄
   const [selectedEventId, setSelectedEventId] = useState<string>(
@@ -77,6 +79,7 @@ export const TradingTerminal: React.FC<TradingTerminalProps> = ({
             event={currentEvent}
             events={events}
             onSelectEvent={(e) => setSelectedEventId(e.id)}
+            onOpenDetail={onOpenDetail}
           />
         </div>
 

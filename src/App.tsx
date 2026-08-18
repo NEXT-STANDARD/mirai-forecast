@@ -11,6 +11,7 @@ import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { AdminConsolePage } from './components/AdminConsolePage';
 import { MyForecastModal } from './components/MyForecastModal';
+import { MarketDetailPage } from './components/MarketDetailPage';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -23,6 +24,14 @@ export function App() {
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
+  
+  // 個別銘柄ページルーティング (/market/:slug or /market/:id)
+  const [detailMarketId, setDetailMarketId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const match = window.location.pathname.match(/^\/market\/(.+)$/);
+    return match ? decodeURIComponent(match[1]) : null;
+  });
+  
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
@@ -53,7 +62,22 @@ export function App() {
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   // URL 履歴管理
+  // URL 履歴管理
+  const handleOpenMarketDetail = (market: MarketItem) => {
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setDetailMarketId(market.slug || market.id);
+    window.history.pushState({}, '', `/market/${encodeURIComponent(market.slug || market.id)}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseMarketDetail = () => {
+    setDetailMarketId(null);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenLetter = () => {
+    setDetailMarketId(null);
     setIsAdminOpen(false);
     setIsLetterPageOpen(true);
     window.history.pushState({}, '', '/letter-to-mike');
@@ -66,6 +90,7 @@ export function App() {
   };
 
   const handleOpenAdmin = () => {
+    setDetailMarketId(null);
     setIsLetterPageOpen(false);
     setIsAdminOpen(true);
     window.history.pushState({}, '', '/admin');
@@ -78,6 +103,7 @@ export function App() {
   };
 
   const handleGoHome = () => {
+    setDetailMarketId(null);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setSelectedCategory('all');
@@ -85,6 +111,36 @@ export function App() {
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // ブラウザの戻る・進む (popstate) の監視
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname;
+      if (path === '/letter-to-mike') {
+        setIsLetterPageOpen(true);
+        setIsAdminOpen(false);
+        setDetailMarketId(null);
+      } else if (path === '/admin') {
+        setIsAdminOpen(true);
+        setIsLetterPageOpen(false);
+        setDetailMarketId(null);
+      } else {
+        const match = path.match(/^\/market\/(.+)$/);
+        if (match) {
+          setDetailMarketId(decodeURIComponent(match[1]));
+          setIsAdminOpen(false);
+          setIsLetterPageOpen(false);
+        } else {
+          setDetailMarketId(null);
+          setIsLetterPageOpen(false);
+          setIsAdminOpen(false);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // 管理者ショートカット (Cmd + Shift + A / Ctrl + Shift + A)
   useEffect(() => {
@@ -257,6 +313,18 @@ export function App() {
         <main className="container main-content">
           <LetterToMikePage onBack={handleCloseLetter} />
         </main>
+      ) : detailMarketId && events.find(e => e.id === detailMarketId || e.slug === detailMarketId) ? (
+        <main className="container main-content">
+          <MarketDetailPage
+            item={events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!}
+            allEvents={events}
+            userVote={userVotes[events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!.id] || null}
+            onVote={handleVote}
+            onOpenShare={(event) => setSelectedShareEvent(event)}
+            onBack={handleCloseMarketDetail}
+            onSelectRelatedEvent={handleOpenMarketDetail}
+          />
+        </main>
       ) : (
         <>
           <div className="container">
@@ -273,6 +341,7 @@ export function App() {
               onOpenShare={(event) => setSelectedShareEvent(event)}
               activeEventId={activeTopicId}
               onOpenPropose={() => setIsProposeModalOpen(true)}
+              onOpenDetail={handleOpenMarketDetail}
             />
           </main>
 
