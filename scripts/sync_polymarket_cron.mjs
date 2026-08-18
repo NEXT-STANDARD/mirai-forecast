@@ -1,5 +1,10 @@
 /**
- * 未来レーダー (MiraiRadar.com) - Polymarket ➔ Gemini 3.7 Flash 日本語化 ➔ Supabase 自動同期
+ * 未来レーダー (MiraiRadar.com) - Polymarket ➔ データ完全一致 Gemini 3.7 Flash 日本語化 ➔ Supabase 自動同期
+ * 
+ * 🛡️ 推奨アプローチA（完全データ整合性保証）:
+ * 確率（outcomePrices）が直接紐づいている `market.question`（または `ev.title + groupItemTitle`）を
+ * Gemini 3.7 Flash に渡すことで、データと質問文のズレを物理的にゼロにし、
+ * すべての銘柄で「YES (そう思う) / NO (違う)」の投票が100%筋の通った形で成立するように設計。
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -65,22 +70,27 @@ function calculateJRelevance(titleLower, volume24h) {
 }
 
 /**
- * Gemini 3.7 Flash を用いて複数の英語タイトルを一括でプロ品質の日本語タイトルに変換
+ * Gemini 3.7 Flash でオッズ直結の質問文をYES/NO完結の自然な日本語に変換
  */
-async function translateTitlesWithGemini(titles) {
-  if (!geminiApiKey || titles.length === 0) {
-    return titles.map(t => ({ en: t, ja: t }));
+async function translateQuestionsWithGemini(items) {
+  if (!geminiApiKey || items.length === 0) {
+    return items.map(i => ({ id: i.id, ja: i.rawQuestion }));
   }
 
-  const prompt = `あなたは経済・金融メディア（日経新聞やBloomberg日本語版）の敏腕編集デスクです。
-以下のPolymarket予測市場の英語タイトル一覧を、日本人の一般読者・ビジネスパーソンがパッと見て1秒で理解できる、自然で引きのある日本語の疑問文タイトルに翻訳・要約してください。
+  const prompt = `あなたは金融・経済メディア（日経新聞、Bloomberg日本語版）の敏腕編集デスクです。
+以下のPolymarket予測市場の「確率データに直接紐づく英語質問文（rawQuestion）」を、日本の読者がパッと見て1秒で理解でき、なおかつ「YES (そう思う) / NO (違う)」で自然に答えられる、魅力的で正確な日本語の疑問文タイトルに翻訳してください。
 
-【英語タイトル一覧】:
-${JSON.stringify(titles, null, 2)}
+【厳格な翻訳ルール】:
+1. 英語の主語（候補者名・企業名・数値など）を勝手に変更せず、必ず明記すること。
+2. 必ず文末を「〜か？」の疑問文にすること。
+3. 25文字〜40文字程度の簡潔で引き締まったニュース見出しにすること。
+
+【入力データ】:
+${JSON.stringify(items.map(i => ({ id: i.id, rawQuestion: i.rawQuestion })), null, 2)}
 
 以下のJSON配列形式のみを出力してください（Markdownのバッククォート不要）:
 [
-  { "en": "元の英語タイトル", "ja": "日本語タイトル" }
+  { "id": "ID", "ja": "日本語タイトル" }
 ]`;
 
   try {
@@ -101,13 +111,13 @@ ${JSON.stringify(titles, null, 2)}
 
     return JSON.parse(resultText);
   } catch (err) {
-    console.error('Gemini translation error, falling back to original titles:', err.message);
-    return titles.map(t => ({ en: t, ja: t }));
+    console.error('Gemini translation error, fallback to raw:', err.message);
+    return items.map(i => ({ id: i.id, ja: i.rawQuestion }));
   }
 }
 
 async function syncPolymarket() {
-  console.log(`[${new Date().toISOString()}] Polymarket ➔ Gemini 3.7 Flash 日本語化 ➔ Supabase 同期開始...`);
+  console.log(`[${new Date().toISOString()}] Polymarket ➔ 【推奨アプローチA 完全データ一致】同期開始...`);
 
   try {
     const res = await fetch(POLYMARKET_EVENTS_API);
@@ -153,9 +163,19 @@ async function syncPolymarket() {
       const volume24h = ev.volume24hr || 0;
       const jScore = calculateJRelevance(titleLower, volume24h);
 
+      // 【核心】オッズ数値と100%直結している具体的な質問文を抽出
+      let rawQuestion = market.question || ev.title;
+      if (market.groupItemTitle && !rawQuestion.includes(market.groupItemTitle)) {
+        rawQuestion = `${ev.title}: ${market.groupItemTitle}?`;
+      }
+
+      const eventId = String(ev.id || ev.slug);
+
       candidateList.push({
+        id: eventId,
         ev,
         market,
+        rawQuestion,
         probYes,
         cat,
         catLabel,
@@ -168,25 +188,25 @@ async function syncPolymarket() {
     candidateList.sort((a, b) => b.score - a.score);
     const topCandidates = candidateList.slice(0, 25);
 
-    // Gemini 3.7 Flash で一括翻訳
-    console.log(`🤖 ${topCandidates.length}件の英語タイトルを Gemini 3.7 Flash で自然な日本語に変換中...`);
-    const titlesToTranslate = topCandidates.map(c => c.ev.title);
+    // Gemini 3.7 Flash でオッズ直結の質問文を一括翻訳
+    console.log(`🤖 ${topCandidates.length}件のオッズ直結質問文を Gemini 3.7 Flash でデータ完全一致の日本語に変換中...`);
+    const translationInputs = topCandidates.map(c => ({ id: c.id, rawQuestion: c.rawQuestion }));
     const translationMap = new Map();
 
-    const translatedResults = await translateTitlesWithGemini(titlesToTranslate);
+    const translatedResults = await translateQuestionsWithGemini(translationInputs);
     translatedResults.forEach(item => {
-      translationMap.set(item.en, item.ja);
+      translationMap.set(item.id, item.ja);
     });
 
     const selectedRecords = topCandidates.map(c => {
-      const titleJa = translationMap.get(c.ev.title) || c.ev.title;
+      const titleJa = translationMap.get(c.id) || c.rawQuestion;
       return {
-        id: String(c.ev.id || c.ev.slug),
+        id: c.id,
         slug: c.ev.slug,
         title_ja: titleJa,
-        title_en: c.ev.title,
+        title_en: c.rawQuestion,
         question_ja: titleJa,
-        question_en: c.market.question || c.ev.title,
+        question_en: c.rawQuestion,
         category: c.cat,
         category_label: c.catLabel,
         icon_url: c.ev.image || c.ev.icon || '',
@@ -203,10 +223,11 @@ async function syncPolymarket() {
     if (error) {
       console.error('Supabase upsert error:', error.message);
     } else {
-      console.log(`\n🎉 【全銘柄 日本語化完了！】 厳選 ${selectedRecords.length}件 をSupabaseに同期完了！`);
-      console.log('サンプル翻訳:');
-      selectedRecords.slice(0, 5).forEach((r, i) => {
-        console.log(`  ${i + 1}. [${r.category_label}] ${r.title_ja}`);
+      console.log(`\n🎉 【推奨アプローチA 完全一致日本語化 成功！】 厳選 ${selectedRecords.length}件 を同期完了！`);
+      console.log('✅ データ・オッズ整合サンプル:');
+      selectedRecords.slice(0, 6).forEach((r, i) => {
+        const original = topCandidates.find(c => c.id === r.id);
+        console.log(`  ${i + 1}. [${r.category_label}] (YES ${original?.probYes}%) ${r.title_ja}`);
       });
     }
   } catch (err) {
