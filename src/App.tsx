@@ -6,6 +6,8 @@ import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
 import { EventModal } from './components/EventModal';
 import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
+import { MikeNoticePopup } from './components/MikeNoticePopup';
+import { LetterToMikePage } from './components/LetterToMikePage';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -16,6 +18,9 @@ export function App() {
   const [events, setEvents] = useState<MarketItem[]>(INITIAL_EVENTS);
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
+  const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
+    return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
+  });
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
       const saved = localStorage.getItem('mirairadar_user_votes');
@@ -26,6 +31,18 @@ export function App() {
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
+
+  // URL 履歴管理
+  const handleOpenLetter = () => {
+    setIsLetterPageOpen(true);
+    window.history.pushState({}, '', '/letter-to-mike');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseLetter = () => {
+    setIsLetterPageOpen(false);
+    window.history.pushState({}, '', '/');
+  };
 
   // 1. Polymarket API ＆ Supabase データの完全自動同期
   const loadMarketData = useCallback(async () => {
@@ -38,9 +55,11 @@ export function App() {
       const synced = await syncVotesFromSupabase(baseItems);
       setEvents(synced);
 
-      // URLルーティングチェック (/topic/:slug でアクセスされた場合)
+      // URLルーティングチェック (/topic/:slug または /letter-to-mike でアクセスされた場合)
       const pathname = window.location.pathname;
-      if (pathname.startsWith('/topic/')) {
+      if (pathname === '/letter-to-mike') {
+        setIsLetterPageOpen(true);
+      } else if (pathname.startsWith('/topic/')) {
         const targetSlug = pathname.replace('/topic/', '').trim();
         const matched = synced.find(e => e.slug === targetSlug || e.id === targetSlug);
         if (matched) {
@@ -121,33 +140,45 @@ export function App() {
         totalMarketVolume={totalVolume}
         totalMarketsCount={totalMarketsCount}
         totalJapanVotes={totalJapanVotes}
+        onOpenLetter={handleOpenLetter}
       />
 
-      <div className="container">
-        <QuickGuideBanner />
-      </div>
+      {isLetterPageOpen ? (
+        <main className="container main-content">
+          <LetterToMikePage onBack={handleCloseLetter} />
+        </main>
+      ) : (
+        <>
+          <div className="container">
+            <QuickGuideBanner />
+          </div>
 
-      <main className="container main-content">
-        {/* 証券会社風 プロトレーディングターミナル */}
-        <TradingTerminal
-          events={filteredEvents.length > 0 ? filteredEvents : events}
-          userVotes={userVotes}
-          onVote={handleVote}
-          onOpenModal={(event) => setSelectedModalEvent(event)}
-          onOpenShare={(event) => setSelectedShareEvent(event)}
-          activeEventId={activeTopicId}
-        />
-      </main>
+          <main className="container main-content">
+            {/* 証券会社風 プロトレーディングターミナル */}
+            <TradingTerminal
+              events={filteredEvents.length > 0 ? filteredEvents : events}
+              userVotes={userVotes}
+              onVote={handleVote}
+              onOpenModal={(event) => setSelectedModalEvent(event)}
+              onOpenShare={(event) => setSelectedShareEvent(event)}
+              activeEventId={activeTopicId}
+            />
+          </main>
 
-      {/* モバイル用 固定フローティング投票バー */}
-      {currentFocusedEvent && (
-        <MobileStickyVoteBar
-          event={currentFocusedEvent}
-          userVote={userVotes[currentFocusedEvent.id] || null}
-          onVote={handleVote}
-          onOpenShare={(event) => setSelectedShareEvent(event)}
-        />
+          {/* モバイル用 固定フローティング投票バー */}
+          {currentFocusedEvent && (
+            <MobileStickyVoteBar
+              event={currentFocusedEvent}
+              userVote={userVotes[currentFocusedEvent.id] || null}
+              onVote={handleVote}
+              onOpenShare={(event) => setSelectedShareEvent(event)}
+            />
+          )}
+        </>
       )}
+
+      {/* 初回訪問時のサイバーパンク風通知ポップアップ */}
+      <MikeNoticePopup onOpenLetter={handleOpenLetter} />
 
       {/* 詳細分析モーダル */}
       <EventModal

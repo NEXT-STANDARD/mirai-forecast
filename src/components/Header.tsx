@@ -11,6 +11,7 @@ interface HeaderProps {
   totalMarketVolume: number;
   totalMarketsCount: number;
   totalJapanVotes: number;
+  onOpenLetter?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalMarketVolume,
   totalMarketsCount,
   totalJapanVotes,
+  onOpenLetter,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
@@ -47,14 +49,22 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="divider">•</span>
             <span className="compliance-tag">非賭博・公選法配慮</span>
           </div>
-          <button
-            onClick={onRefresh}
-            className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`}
-            title="データを再取得"
-          >
-            <RefreshCw size={11} />
-            <span>{isRefreshing ? '同期中' : 'REFRESH'}</span>
-          </button>
+          <div className="ticker-right-actions">
+            {onOpenLetter && (
+              <button onClick={onOpenLetter} className="letter-ticker-badge">
+                <span className="dot-gold"></span>
+                <span>📨 Letter to Mike</span>
+              </button>
+            )}
+            <button
+              onClick={onRefresh}
+              className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`}
+              title="データを再取得"
+            >
+              <RefreshCw size={11} />
+              <span>{isRefreshing ? '同期中' : 'REFRESH'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -71,6 +81,12 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="stat-label">国内投票総数</div>
             <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
           </div>
+          {onOpenLetter && (
+            <button onClick={onOpenLetter} className="stat-card letter-highlight hide-on-xs" title="Polymarket Japan マイク・エイドリン氏への公開書簡">
+              <div className="stat-label">OPEN LETTER</div>
+              <div className="stat-value gold-text">📨 to Mike (Polymarket)</div>
+            </button>
+          )}
           <div className="stat-card highlight hide-on-xs">
             <div className="stat-label">SmartRadar</div>
             <div className="stat-value pulse-text"><Zap size={11} /> 3D LIVE</div>
