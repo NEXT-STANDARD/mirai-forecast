@@ -14,7 +14,9 @@ import {
   Key,
   Activity,
   Layers,
-  FileText
+  FileText,
+  X,
+  AlertTriangle
 } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
@@ -81,6 +83,18 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     localStorage.removeItem('mirai_admin_auth');
   };
 
+  const [approvingProposal, setApprovingProposal] = useState<ProposalItem | null>(null);
+  const [rejectingProposal, setRejectingProposal] = useState<ProposalItem | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // トースト表示タイマー
+  const showToast = (type: 'success' | 'error', text: string) => {
+    setToastMessage({ type, text });
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 4000);
+  };
+
   // 審査待ち提案一覧の取得
   const fetchProposals = async () => {
     setIsLoadingProposals(true);
@@ -109,9 +123,10 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     }
   }, [isAuthenticated]);
 
-  // 提案の承認 ＆ 本番公開
-  const handleApproveProposal = async (item: ProposalItem) => {
-    if (!confirm(`「${item.title_ja}」を承認し、本番マーケットに即時公開しますか？`)) return;
+  // 提案の承認 ＆ 本番公開 実行
+  const executeApproveProposal = async () => {
+    if (!approvingProposal) return;
+    const item = approvingProposal;
 
     setProcessingId(item.id);
     try {
@@ -126,27 +141,31 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
       setProposals(prev => prev.filter(p => p.id !== item.id));
       onRefreshMarkets();
-      alert(`🎉 提案「${item.title_ja}」を本番公開いたしました！`);
+      setApprovingProposal(null);
+      showToast('success', `🎉 「${item.title_ja}」を承認し、本番マーケットに即時公開いたしました！`);
     } catch (err: any) {
-      alert(`エラー: ${err.message}`);
+      showToast('error', `エラー: ${err.message}`);
     } finally {
       setProcessingId(null);
     }
   };
 
-  // 提案の却下・削除
-  const handleRejectProposal = async (id: string, title: string) => {
-    if (!confirm(`「${title}」を却下し、完全に削除しますか？`)) return;
+  // 提案の却下・削除 実行
+  const executeRejectProposal = async () => {
+    if (!rejectingProposal) return;
+    const item = rejectingProposal;
 
-    setProcessingId(id);
+    setProcessingId(item.id);
     try {
       if (supabase) {
-        const { error } = await supabase.from('events').delete().eq('id', id);
+        const { error } = await supabase.from('events').delete().eq('id', item.id);
         if (error) throw error;
       }
-      setProposals(prev => prev.filter(p => p.id !== id));
+      setProposals(prev => prev.filter(p => p.id !== item.id));
+      setRejectingProposal(null);
+      showToast('success', `🗑️ 提案「${item.title_ja}」を削除いたしました。`);
     } catch (err: any) {
-      alert(`エラー: ${err.message}`);
+      showToast('error', `エラー: ${err.message}`);
     } finally {
       setProcessingId(null);
     }
@@ -404,16 +423,16 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                     <div className="card-btn-row">
                       <button
                         className="btn-approve"
-                        onClick={() => handleApproveProposal(item)}
+                        onClick={() => setApprovingProposal(item)}
                         disabled={processingId === item.id}
                       >
                         <CheckCircle2 size={14} />
-                        <span>{processingId === item.id ? '承認展開中...' : '承認 ＆ 本番公開 (APPROVE)'}</span>
+                        <span>承認 ＆ 本番公開 (APPROVE)</span>
                       </button>
 
                       <button
                         className="btn-reject"
-                        onClick={() => handleRejectProposal(item.id, item.title_ja)}
+                        onClick={() => setRejectingProposal(item)}
                         disabled={processingId === item.id}
                       >
                         <XCircle size={14} />
@@ -640,6 +659,125 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
           </div>
         )}
       </div>
+
+      {/* ⚡ 承認 ＆ 本番公開 確認モーダル */}
+      {approvingProposal && (
+        <div className="modal-backdrop" onClick={() => setApprovingProposal(null)}>
+          <div className="modal-card admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-header bg-emerald-950/40 border-b border-emerald-500/30">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-emerald-400 tracking-wider">PROTOCOL DEPLOYMENT // 承認確認</span>
+                  <h3 className="text-sm font-bold text-slate-100">本番マーケットへ公開しますか？</h3>
+                </div>
+              </div>
+              <button onClick={() => setApprovingProposal(null)} className="modal-close-btn">
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="confirm-modal-body">
+              <p className="confirm-body-text">
+                以下のユーザー提案を承認し、未来レーダーの本番観測マーケットに即座に公開します。
+              </p>
+
+              <div className="confirm-target-card">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="category-tag-admin">{approvingProposal.category_label}</span>
+                  <span className="text-[10px] font-mono text-slate-500">{approvingProposal.id}</span>
+                </div>
+                <h4 className="text-sm font-bold text-white mb-2 leading-snug">{approvingProposal.title_ja}</h4>
+                <div className="text-xs text-slate-400 bg-slate-950/60 p-2 rounded border border-slate-800">
+                  {approvingProposal.question_en}
+                </div>
+              </div>
+
+              <div className="ai-auto-badge-box">
+                <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5" />
+                <span className="text-xs text-amber-300 leading-relaxed">
+                  <strong>Gemini 3.7 Flash 連携:</strong> 承認後、本銘柄専用の深層カタリスト日程分析が自動生成され、リアルタイムにサイト上で閲覧可能になります。
+                </span>
+              </div>
+            </div>
+
+            <div className="confirm-modal-footer">
+              <button
+                className="btn-cancel-modal"
+                onClick={() => setApprovingProposal(null)}
+                disabled={processingId !== null}
+              >
+                キャンセル
+              </button>
+              <button
+                className="btn-confirm-approve"
+                onClick={executeApproveProposal}
+                disabled={processingId !== null}
+              >
+                <CheckCircle2 size={15} />
+                <span>{processingId === approvingProposal.id ? '本番展開中...' : '承認して本番公開を実行する (CONFIRM)'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚨 却下・削除 確認モーダル */}
+      {rejectingProposal && (
+        <div className="modal-backdrop" onClick={() => setRejectingProposal(null)}>
+          <div className="modal-card admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-header bg-rose-950/40 border-b border-rose-500/30">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-rose-400" />
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-rose-400 tracking-wider">PURGE PROPOSAL // 却下確認</span>
+                  <h3 className="text-sm font-bold text-slate-100">この提案を完全に削除しますか？</h3>
+                </div>
+              </div>
+              <button onClick={() => setRejectingProposal(null)} className="modal-close-btn">
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="confirm-modal-body">
+              <p className="confirm-body-text text-rose-300/90">
+                この操作は取り消せません。キューから完全に削除されます。
+              </p>
+
+              <div className="confirm-target-card border-rose-500/20">
+                <h4 className="text-sm font-bold text-white mb-1">{rejectingProposal.title_ja}</h4>
+                <p className="text-xs text-slate-400">{rejectingProposal.question_en}</p>
+              </div>
+            </div>
+
+            <div className="confirm-modal-footer">
+              <button
+                className="btn-cancel-modal"
+                onClick={() => setRejectingProposal(null)}
+                disabled={processingId !== null}
+              >
+                キャンセル
+              </button>
+              <button
+                className="btn-confirm-reject"
+                onClick={executeRejectProposal}
+                disabled={processingId !== null}
+              >
+                <XCircle size={15} />
+                <span>{processingId === rejectingProposal.id ? '削除中...' : '完全に削除する (PURGE)'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 📡 サイバーパンク HUD トースト通知 */}
+      {toastMessage && (
+        <div className={`admin-hud-toast ${toastMessage.type === 'success' ? 'toast-success' : 'toast-error'}`}>
+          {toastMessage.type === 'success' ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+          <span>{toastMessage.text}</span>
+        </div>
+      )}
     </div>
   );
 };
