@@ -126,16 +126,15 @@ async function syncPolymarket() {
       const dbRecord = {
         id: String(ev.id || ev.slug),
         slug: ev.slug,
-        title: ev.title,
         title_ja: titleJa,
+        title_en: ev.title,
+        question_ja: market.question ? translateToJapanese(market.question) : titleJa,
+        question_en: market.question || ev.title,
         category: cat,
         category_label: catLabel,
-        world_prob_yes: Math.min(99, Math.max(1, probYes)),
-        world_prob_no: Math.min(99, Math.max(1, 100 - probYes)),
-        volume_24h_usd: volume24h,
-        total_volume_usd: ev.volume || volume24h * 3.5,
+        icon_url: ev.image || ev.icon || '',
         end_date: market.endDate || '2026-12-31',
-        is_trending: volume24h > 80000,
+        is_active: true,
         updated_at: new Date().toISOString(),
       };
 
