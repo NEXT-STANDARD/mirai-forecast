@@ -290,7 +290,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
           <div className="ai-box-head">
             <div className="head-title">
               <Sparkles size={14} className="icon-blue" />
-              <span>AI 変動要因＆カタリスト分析（Gemini 3.6 Flash）</span>
+              <span>AI 変動要因＆カタリスト分析（Gemini 3.7 Flash）</span>
             </div>
             <span className="urgency-tag high">重要度: HIGH</span>
           </div>

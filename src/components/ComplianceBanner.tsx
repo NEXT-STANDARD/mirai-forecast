@@ -50,7 +50,7 @@ export const ComplianceBanner: React.FC = () => {
         </div>
 
         <div className="footer-bottom-copy">
-          © 2026 未来レーダー (MiraiRadar.com). Powered by Polymarket Public Data & Gemini 3.6 Flash.
+          © 2026 未来レーダー (MiraiRadar.com). Powered by Polymarket Public Data & Gemini 3.7 Flash.
         </div>
       </div>
     </footer>

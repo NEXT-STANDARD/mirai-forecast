@@ -3,7 +3,7 @@
  */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const MODEL_NAME = 'gemini-3.6-flash';
+const MODEL_NAME = 'gemini-3.7-flash';
 
 export interface AiInsightResult {
   summaryJa: string;

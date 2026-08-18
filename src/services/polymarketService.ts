@@ -163,7 +163,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           whyMovedJa: `大口取引の流入および直近のマクロ指標・報道を受けた確率のリアルタイム織り込み。`,
           keyCatalysts: ['重要公式発表・経済指標', '機関投資家資金の集中'],
           urgencyLevel: isTrending ? 'high' : 'medium',
-          lastUpdated: 'Gemini 3.6 Flash 解析済み',
+          lastUpdated: 'Gemini 3.7 Flash 解析済み',
         }
       };
 
