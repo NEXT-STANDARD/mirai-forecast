@@ -9,6 +9,7 @@ import { ComplianceBanner } from './components/ComplianceBanner';
 import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
+import { AdminConsolePage } from './components/AdminConsolePage';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -23,6 +24,9 @@ export function App() {
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
+  const [isAdminOpen, setIsAdminOpen] = useState(() => {
+    return typeof window !== 'undefined' && window.location.pathname === '/admin';
+  });
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
       const saved = localStorage.getItem('mirairadar_user_votes');
@@ -36,6 +40,7 @@ export function App() {
 
   // URL 履歴管理
   const handleOpenLetter = () => {
+    setIsAdminOpen(false);
     setIsLetterPageOpen(true);
     window.history.pushState({}, '', '/letter-to-mike');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -46,13 +51,42 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenAdmin = () => {
+    setIsLetterPageOpen(false);
+    setIsAdminOpen(true);
+    window.history.pushState({}, '', '/admin');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseAdmin = () => {
+    setIsAdminOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleGoHome = () => {
     setIsLetterPageOpen(false);
+    setIsAdminOpen(false);
     setSelectedCategory('all');
     setActiveTopicId(null);
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // 管理者ショートカット (Cmd + Shift + A / Ctrl + Shift + A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
+        e.preventDefault();
+        setIsAdminOpen(prev => {
+          const next = !prev;
+          window.history.pushState({}, '', next ? '/admin' : '/');
+          return next;
+        });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // 1. Polymarket API ＆ Supabase データの完全自動同期
   const loadMarketData = useCallback(async () => {
@@ -65,9 +99,11 @@ export function App() {
       const synced = await syncVotesFromSupabase(baseItems);
       setEvents(synced);
 
-      // URLルーティングチェック (/topic/:slug または /letter-to-mike でアクセスされた場合)
+      // URLルーティングチェック
       const pathname = window.location.pathname;
-      if (pathname === '/letter-to-mike') {
+      if (pathname === '/admin') {
+        setIsAdminOpen(true);
+      } else if (pathname === '/letter-to-mike') {
         setIsLetterPageOpen(true);
       } else if (pathname.startsWith('/topic/')) {
         const targetSlug = pathname.replace('/topic/', '').trim();
@@ -155,7 +191,15 @@ export function App() {
         onOpenPropose={() => setIsProposeModalOpen(true)}
       />
 
-      {isLetterPageOpen ? (
+      {isAdminOpen ? (
+        <main className="container main-content">
+          <AdminConsolePage
+            onBack={handleCloseAdmin}
+            events={events}
+            onRefreshMarkets={loadMarketData}
+          />
+        </main>
+      ) : isLetterPageOpen ? (
         <main className="container main-content">
           <LetterToMikePage onBack={handleCloseLetter} />
         </main>
@@ -219,6 +263,17 @@ export function App() {
       />
 
       <ComplianceBanner />
+
+      {/* ローカル開発用/管理者用 司令室アクセスボタン (開発環境またはキーボードショートカットで表示) */}
+      {import.meta.env.DEV && !isAdminOpen && (
+        <button
+          onClick={handleOpenAdmin}
+          className="fixed bottom-2 left-2 z-50 text-[10px] font-mono font-bold bg-slate-900/90 text-amber-400/80 hover:text-amber-300 border border-amber-500/30 px-2 py-1 rounded shadow-lg backdrop-blur"
+          title="未来レーダー 司令室（Admin Console）"
+        >
+          ⚡ MISSION CONTROL
+        </button>
+      )}
     </div>
   );
 }
