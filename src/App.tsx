@@ -12,6 +12,7 @@ import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { AdminConsolePage } from './components/AdminConsolePage';
 import { MyForecastModal } from './components/MyForecastModal';
 import { MarketDetailPage } from './components/MarketDetailPage';
+import { OnboardingModal } from './components/OnboardingModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -24,6 +25,15 @@ export function App() {
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
+  
+  // 初回オンボーディング表示判定
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
+    try {
+      return !localStorage.getItem('mirairadar_onboarded');
+    } catch {
+      return false;
+    }
+  });
   
   // 個別銘柄ページルーティング (/market/:slug or /market/:id)
   const [detailMarketId, setDetailMarketId] = useState<string | null>(() => {
@@ -296,6 +306,7 @@ export function App() {
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={() => setIsMyForecastOpen(true)}
+        onOpenOnboarding={() => setIsOnboardingOpen(true)}
         userVotesCount={Object.keys(userVotes).length}
         streakDays={streak.currentStreak}
         resolvedNotificationsCount={resolvedNotificationsCount}
@@ -395,6 +406,20 @@ export function App() {
         onSelectEvent={(ev) => {
           setActiveTopicId(ev.id);
           setSelectedCategory('all');
+        }}
+      />
+
+      {/* 🌟 初見オンボーディング・クイックガイドモーダル */}
+      <OnboardingModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+        onStartPredicting={() => {
+          setIsOnboardingOpen(false);
+          const topEvent = events.find((e) => e.isTrending) || events[0];
+          if (topEvent) {
+            setActiveTopicId(topEvent.id);
+            setSelectedCategory('all');
+          }
         }}
       />
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Zap, Flame } from 'lucide-react';
+import { RefreshCw, Zap, Flame, HelpCircle } from 'lucide-react';
 import { Logo } from './Logo';
 import type { CategoryType } from '../types';
 
@@ -14,6 +14,7 @@ interface HeaderProps {
   onOpenLetter?: () => void;
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
+  onOpenOnboarding?: () => void;
   userVotesCount?: number;
   streakDays?: number;
   resolvedNotificationsCount?: number;
@@ -31,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLetter,
   onOpenPropose,
   onOpenMyForecast,
+  onOpenOnboarding,
   userVotesCount = 0,
   streakDays = 1,
   resolvedNotificationsCount = 0,
@@ -120,6 +122,15 @@ export const Header: React.FC<HeaderProps> = ({
                 {resolvedNotificationsCount > 0 && (
                   <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block" title="結果確定した銘柄があります" />
                 )}
+              </div>
+            </button>
+          )}
+          {onOpenOnboarding && (
+            <button onClick={onOpenOnboarding} className="stat-card guide-highlight hide-on-xs" title="未来レーダーの3ステップ使い方ガイド">
+              <div className="stat-label">GUIDE</div>
+              <div className="stat-value text-slate-200 flex items-center gap-1">
+                <HelpCircle size={11} className="text-cyan-400" />
+                <span>使い方</span>
               </div>
             </button>
           )}
