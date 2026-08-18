@@ -163,20 +163,79 @@ async function syncPolymarket() {
       }
 
       let cat = 'economy';
-      let catLabel = '📊 マクロ経済';
+      let catLabel = '📊 経済・金利・暗号資産';
 
-      if (titleLower.includes('election') || titleLower.includes('president') || titleLower.includes('minister') || titleLower.includes('senate') || titleLower.includes('war') || titleLower.includes('treaty') || titleLower.includes('china')) {
+      if (
+        titleLower.includes('election') ||
+        titleLower.includes('president') ||
+        titleLower.includes('minister') ||
+        titleLower.includes('senate') ||
+        titleLower.includes('war') ||
+        titleLower.includes('treaty') ||
+        titleLower.includes('china') ||
+        titleLower.includes('russia') ||
+        titleLower.includes('putin') ||
+        titleLower.includes('iran') ||
+        titleLower.includes('israel') ||
+        titleLower.includes('ceasefire') ||
+        titleLower.includes('hormuz') ||
+        titleLower.includes('governor')
+      ) {
         cat = 'politics';
-        catLabel = '🌐 国際・選挙';
-      } else if (titleLower.includes('ai') || titleLower.includes('gpt') || titleLower.includes('openai') || titleLower.includes('spacex') || titleLower.includes('nvidia') || titleLower.includes('apple') || titleLower.includes('tech')) {
+        catLabel = '🌐 国際・社会';
+      } else if (
+        titleLower.includes('ai') ||
+        titleLower.includes('gpt') ||
+        titleLower.includes('openai') ||
+        titleLower.includes('spacex') ||
+        titleLower.includes('nvidia') ||
+        titleLower.includes('apple') ||
+        titleLower.includes('tech') ||
+        titleLower.includes('nintendo') ||
+        titleLower.includes('switch')
+      ) {
         cat = 'tech';
         catLabel = '⚡ AI・テック';
-      } else if (titleLower.includes('btc') || titleLower.includes('bitcoin') || titleLower.includes('eth') || titleLower.includes('crypto') || titleLower.includes('fed') || titleLower.includes('rate') || titleLower.includes('inflation')) {
-        cat = 'economy';
-        catLabel = '📊 金利・暗号資産';
-      } else {
+      } else if (
+        titleLower.includes('ohtani') ||
+        titleLower.includes('dodgers') ||
+        titleLower.includes('cardinals') ||
+        titleLower.includes('orioles') ||
+        titleLower.includes('wings') ||
+        titleLower.includes('ballon d\'or') ||
+        titleLower.includes('epl') ||
+        titleLower.includes('champion') ||
+        titleLower.includes('uefa') ||
+        titleLower.includes('psg') ||
+        titleLower.includes('tennis') ||
+        titleLower.includes('cincinnati') ||
+        titleLower.includes('itf') ||
+        titleLower.includes('mlb') ||
+        titleLower.includes('soccer') ||
+        titleLower.includes('football')
+      ) {
         cat = 'sports';
-        catLabel = '🏆 カルチャー・注目トピック';
+        catLabel = '⚾ スポーツ';
+      } else if (
+        titleLower.includes('ghibli') ||
+        titleLower.includes('movie') ||
+        titleLower.includes('anime') ||
+        titleLower.includes('lol:') ||
+        titleLower.includes('league of legends') ||
+        titleLower.includes('counter-strike') ||
+        titleLower.includes('kespa') ||
+        titleLower.includes('lck') ||
+        titleLower.includes('esport') ||
+        titleLower.includes('musk # tweets') ||
+        titleLower.includes('box office') ||
+        titleLower.includes('grammy') ||
+        titleLower.includes('oscar')
+      ) {
+        cat = 'entertainment';
+        catLabel = '🎬 エンタメ・カルチャー';
+      } else {
+        cat = 'economy';
+        catLabel = '📊 経済・金利・暗号資産';
       }
 
       const volume24h = ev.volume24hr || 0;
