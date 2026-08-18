@@ -16,7 +16,8 @@ import {
   Layers,
   FileText,
   X,
-  AlertTriangle
+  AlertTriangle,
+  Edit3
 } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
@@ -85,7 +86,18 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
   const [approvingProposal, setApprovingProposal] = useState<ProposalItem | null>(null);
   const [rejectingProposal, setRejectingProposal] = useState<ProposalItem | null>(null);
+  const [editingProposal, setEditingProposal] = useState<ProposalItem | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editCategory, setEditCategory] = useState<CategoryType>('economy');
+  const [editIsBlackout, setEditIsBlackout] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const startEditProposal = (item: ProposalItem) => {
+    setEditingProposal(item);
+    setEditTitle(item.title_ja);
+    setEditCategory((item.category as CategoryType) || 'economy');
+    setEditIsBlackout(Boolean((item as any).is_election_blackout));
+  };
 
   // トースト表示タイマー
   const showToast = (type: 'success' | 'error', text: string) => {
@@ -170,6 +182,50 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       setProposals(prev => prev.filter(p => p.id !== item.id));
       setRejectingProposal(null);
       showToast('success', `🗑️ 提案「${item.title_ja}」を削除いたしました。`);
+    } catch (err: any) {
+      showToast('error', `エラー: ${err.message}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // 提案の微修正 ＆ 承認本番公開
+  const executeEditAndApprove = async () => {
+    if (!editingProposal || !editTitle.trim()) return;
+    const item = editingProposal;
+
+    const categoryLabels: Record<string, string> = {
+      economy: '📊 経済・金利・暗号資産',
+      tech: '⚡ AI・テック',
+      politics: '🌐 国際・社会',
+      sports: '⚾ スポーツ',
+      entertainment: '🎬 エンタメ・カルチャー',
+    };
+
+    setProcessingId(item.id);
+    try {
+      if (supabase) {
+        const { error } = await supabase
+          .from('events')
+          .update({
+            title_ja: editTitle.trim(),
+            title_en: editTitle.trim(),
+            question_ja: editTitle.trim(),
+            category: editCategory,
+            category_label: categoryLabels[editCategory] || '📊 経済・金利・暗号資産',
+            is_active: true,
+            is_election_blackout: editIsBlackout,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', item.id);
+
+        if (error) throw error;
+      }
+
+      setProposals(prev => prev.filter(p => p.id !== item.id));
+      onRefreshMarkets();
+      setEditingProposal(null);
+      showToast('success', `🎉 「${editTitle.trim()}」を微修正＆承認し、本番マーケットに即時公開いたしました！`);
     } catch (err: any) {
       showToast('error', `エラー: ${err.message}`);
     } finally {
@@ -434,7 +490,16 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                         disabled={processingId === item.id}
                       >
                         <CheckCircle2 size={14} />
-                        <span>承認 ＆ 本番公開 (APPROVE)</span>
+                        <span>そのまま承認 (APPROVE)</span>
+                      </button>
+
+                      <button
+                        className="btn-edit-proposal"
+                        onClick={() => startEditProposal(item)}
+                        disabled={processingId === item.id}
+                      >
+                        <Edit3 size={14} />
+                        <span>微修正して承認 (EDIT)</span>
                       </button>
 
                       <button
@@ -443,7 +508,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                         disabled={processingId === item.id}
                       >
                         <XCircle size={14} />
-                        <span>却下・削除</span>
+                        <span>却下</span>
                       </button>
                     </div>
                   </div>
@@ -773,6 +838,91 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
               >
                 <XCircle size={15} />
                 <span>{processingId === rejectingProposal.id ? '削除中...' : '完全に削除する (PURGE)'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✏️ 微修正して承認（Edit & Approve）モーダル */}
+      {editingProposal && (
+        <div className="modal-backdrop" onClick={() => setEditingProposal(null)}>
+          <div className="modal-card admin-confirm-modal" style={{ maxWidth: '580px' }} onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-header bg-amber-950/40 border-b border-amber-500/30">
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-amber-400" />
+                <div>
+                  <span className="text-[10px] font-mono font-bold text-amber-400 tracking-wider">EDIT & DEPLOY // 微修正して本番公開</span>
+                  <h3 className="text-sm font-bold text-slate-100">タイトル・カテゴリーを修正して承認</h3>
+                </div>
+              </div>
+              <button onClick={() => setEditingProposal(null)} className="modal-close-btn">
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="confirm-modal-body space-y-4">
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1">タイトル（疑問文形式）</label>
+                <input
+                  type="text"
+                  className="input-admin w-full"
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  placeholder="例: 大谷翔平は今季60本塁打を達成するか？"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-300 mb-1">カテゴリー</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  {[
+                    { id: 'economy', label: '📊 経済・金利・暗号資産' },
+                    { id: 'tech', label: '⚡ AI・テック' },
+                    { id: 'politics', label: '🌐 国際・社会' },
+                    { id: 'sports', label: '⚾ スポーツ' },
+                    { id: 'entertainment', label: '🎬 エンタメ・カルチャー' },
+                  ].map((c) => (
+                    <button
+                      type="button"
+                      key={c.id}
+                      className={`cat-btn-admin text-xs ${editCategory === c.id ? 'active' : ''}`}
+                      onClick={() => setEditCategory(c.id as CategoryType)}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 bg-slate-900/80 border border-slate-800 rounded-lg">
+                <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={editIsBlackout}
+                    onChange={(e) => setEditIsBlackout(e.target.checked)}
+                    className="checkbox-custom"
+                  />
+                  <span>🏛️ 公職選挙法ブラックアウト（公示期間中のため投票を一時停止にする）</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="confirm-modal-footer">
+              <button
+                className="btn-cancel-modal"
+                onClick={() => setEditingProposal(null)}
+                disabled={processingId !== null}
+              >
+                キャンセル
+              </button>
+              <button
+                className="btn-confirm-approve"
+                onClick={executeEditAndApprove}
+                disabled={processingId !== null || !editTitle.trim()}
+              >
+                <CheckCircle2 size={15} />
+                <span>{processingId === editingProposal.id ? '修正＆本番公開中...' : '修正内容で本番公開 (SAVE & DEPLOY)'}</span>
               </button>
             </div>
           </div>

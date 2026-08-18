@@ -120,53 +120,73 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
           </div>
           <div className="depth-sub">
             <span>NO: {isLocked ? '?? %' : event.japanVotes.total > 0 ? `${100 - event.japanVotes.percentYes}%` : '0%'}</span>
-            <span>実測投票数: {event.japanVotes.total.toLocaleString()} 票</span>
+            <span className="flex items-center gap-1">
+              実測投票数: {event.japanVotes.total.toLocaleString()} 票
+              {event.japanVotes.total > 0 && event.japanVotes.total < 5 && (
+                <span className="sample-badge">サンプル収集中</span>
+              )}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* 証券風ワンクリック投票パネル（Order Entry Panel） */}
-      <div className="order-entry-panel">
-        <div className="entry-header">
-          <span className="entry-title">
-            {isLocked ? '🎯 あなたの直感は？（1秒・完全無料）' : '✅ 投票エントリー確定済み'}
-          </span>
-          {userVote && (
-            <span className="voted-entry-badge">
-              <CheckCircle2 size={13} /> [{userVote}] 投票済み
-            </span>
-          )}
+      {/* 🏛️ 公選法第138条の3 選挙期間中ブラックアウト安全バナー */}
+      {event.isElectionBlackout ? (
+        <div className="election-blackout-banner">
+          <div className="blackout-icon">🏛️</div>
+          <div className="blackout-text">
+            <strong>公職選挙法第138条の3 遵守ステータス</strong>
+            <p>
+              選挙公示〜投開票期間中のため、新たな世論投票の受付を一時停止しています。
+              世界のリアルマネー予測（Polymarket）の閲覧のみご利用いただけます。
+            </p>
+          </div>
         </div>
-
-        <div className="entry-btn-grid">
-          <button
-            onClick={() => handleVote('YES')}
-            className={`entry-btn yes ${userVote === 'YES' ? 'selected' : ''} ${animatingVote === 'YES' ? 'pop' : ''}`}
-          >
-            <div className="entry-btn-top">
-              <span className="btn-main-label">YES (そう思う)</span>
-              {!isLocked && <span className="btn-sub-prob">{event.japanVotes.percentYes}%</span>}
-            </div>
-            <span className="btn-action-hint">
-              {isLocked ? '直感で「起きる」に1票' : '支持票投入済み'}
+      ) : (
+        /* 証券風ワンクリック投票パネル（Order Entry Panel） */
+        <div className="order-entry-panel">
+          <div className="entry-header">
+            <span className="entry-title">
+              {isLocked ? '🎯 あなたの直感は？（1秒・完全無料）' : '✅ 投票エントリー確定済み'}
             </span>
-          </button>
+            {userVote && (
+              <span className="voted-entry-badge">
+                <CheckCircle2 size={13} /> [{userVote}] 投票済み
+              </span>
+            )}
+          </div>
 
-          <button
-            onClick={() => handleVote('NO')}
-            className={`entry-btn no ${userVote === 'NO' ? 'selected' : ''} ${animatingVote === 'NO' ? 'pop' : ''}`}
-          >
-            <div className="entry-btn-top">
-              <span className="btn-main-label">NO (違う)</span>
-              {!isLocked && <span className="btn-sub-prob">{100 - event.japanVotes.percentYes}%</span>}
-            </div>
-            <span className="btn-action-hint">
-              {isLocked ? '直感で「起きない」に1票' : '反対票投入済み'}
-            </span>
-          </button>
+          <div className="entry-btn-grid">
+            <button
+              onClick={() => handleVote('YES')}
+              className={`entry-btn yes ${userVote === 'YES' ? 'selected' : ''} ${animatingVote === 'YES' ? 'pop' : ''}`}
+            >
+              <div className="entry-btn-top">
+                <span className="btn-main-label">YES (そう思う)</span>
+                {!isLocked && <span className="btn-sub-prob">{event.japanVotes.percentYes}%</span>}
+              </div>
+              <span className="btn-action-hint">
+                {isLocked ? '直感で「起きる」に1票' : '支持票投入済み'}
+              </span>
+            </button>
+
+            <button
+              onClick={() => handleVote('NO')}
+              className={`entry-btn no ${userVote === 'NO' ? 'selected' : ''} ${animatingVote === 'NO' ? 'pop' : ''}`}
+            >
+              <div className="entry-btn-top">
+                <span className="btn-main-label">NO (違う)</span>
+                {!isLocked && <span className="btn-sub-prob">{100 - event.japanVotes.percentYes}%</span>}
+              </div>
+              <span className="btn-action-hint">
+                {isLocked ? '直感で「起きない」に1票' : '反対票投入済み'}
+              </span>
+            </button>
+          </div>
         </div>
+      )}
 
-        {/* 投票後の分析インサイト ＆ Xシェア導線 */}
+      {/* 投票後の分析インサイト ＆ Xシェア導線 */}
         {!isLocked ? (
           <div className="post-vote-block animate-fade-in">
             <div className="vote-alignment-badge">
@@ -189,7 +209,6 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
             <span>👆 どちらかをクリックすると、即座に世論が開示されます</span>
           </div>
         )}
-      </div>
 
       {/* 免責ポリシー */}
       <div className="terminal-compliance-note">

@@ -10,6 +10,7 @@ import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { AdminConsolePage } from './components/AdminConsolePage';
+import { MyForecastModal } from './components/MyForecastModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -21,6 +22,7 @@ export function App() {
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
+  const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
@@ -179,16 +181,18 @@ export function App() {
   return (
     <div className="min-h-screen bg-primary pb-16 md:pb-0">
       <Header
-        activeCategory={selectedCategory}
+        selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
         onRefresh={loadMarketData}
         isRefreshing={isRefreshing}
-        totalMarketVolume={totalVolume}
+        totalVolume={totalVolume}
         totalMarketsCount={totalMarketsCount}
         totalJapanVotes={totalJapanVotes}
         onOpenLetter={handleOpenLetter}
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
+        onOpenMyForecast={() => setIsMyForecastOpen(true)}
+        userVotesCount={Object.keys(userVotes).length}
       />
 
       {isAdminOpen ? (
@@ -260,6 +264,18 @@ export function App() {
         item={selectedShareEvent}
         onClose={() => setSelectedShareEvent(null)}
         userVote={selectedShareEvent ? userVotes[selectedShareEvent.id] || null : null}
+      />
+
+      {/* 🏆 未来予報士プロファイル ＆ 的中履歴モーダル */}
+      <MyForecastModal
+        isOpen={isMyForecastOpen}
+        onClose={() => setIsMyForecastOpen(false)}
+        userVotes={userVotes}
+        events={events}
+        onSelectEvent={(ev) => {
+          setActiveTopicId(ev.id);
+          setSelectedCategory('all');
+        }}
       />
 
       <ComplianceBanner />

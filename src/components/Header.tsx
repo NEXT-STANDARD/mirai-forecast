@@ -4,29 +4,33 @@ import { Logo } from './Logo';
 import type { CategoryType } from '../types';
 
 interface HeaderProps {
-  activeCategory: CategoryType;
-  onSelectCategory: (category: CategoryType) => void;
-  onRefresh: () => void;
-  isRefreshing: boolean;
-  totalMarketVolume: number;
   totalMarketsCount: number;
   totalJapanVotes: number;
+  totalVolume: number;
+  selectedCategory: CategoryType;
+  onSelectCategory: (category: CategoryType) => void;
+  isRefreshing: boolean;
+  onRefresh: () => void;
   onOpenLetter?: () => void;
-  onGoHome?: () => void;
   onOpenPropose?: () => void;
+  onOpenMyForecast?: () => void;
+  userVotesCount?: number;
+  onGoHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  activeCategory,
-  onSelectCategory,
-  onRefresh,
-  isRefreshing,
-  totalMarketVolume,
   totalMarketsCount,
   totalJapanVotes,
+  totalVolume,
+  selectedCategory,
+  onSelectCategory,
+  isRefreshing,
+  onRefresh,
   onOpenLetter,
-  onGoHome,
   onOpenPropose,
+  onOpenMyForecast,
+  userVotesCount = 0,
+  onGoHome,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
@@ -55,7 +59,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="ticker-text hide-on-mobile">
             <span>Polymarket 自動同期</span>
             <span className="divider">•</span>
-            <span>観測総高: <strong>${Math.round(totalMarketVolume / 1000000).toLocaleString()}M+</strong></span>
+            <span>観測総高: <strong>${Math.round(totalVolume / 1000000).toLocaleString()}M+</strong></span>
             <span className="divider">•</span>
             <span className="compliance-tag">非賭博・公選法配慮</span>
           </div>
@@ -96,6 +100,12 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="stat-label">国内投票総数</div>
             <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
           </div>
+          {onOpenMyForecast && (
+            <button onClick={onOpenMyForecast} className="stat-card forecast-highlight" title="あなたの投票履歴と予報士ランク">
+              <div className="stat-label">MY PREDICTOR</div>
+              <div className="stat-value text-cyan-400">🏆 マイ予報 ({userVotesCount})</div>
+            </button>
+          )}
           {onOpenPropose && (
             <button onClick={onOpenPropose} className="stat-card propose-highlight hide-on-xs" title="新しい未来の問いを提案する">
               <div className="stat-label">COMMUNITY</div>
@@ -122,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`nav-item ${activeCategory === cat.id ? 'active' : ''}`}
+              className={`nav-item ${selectedCategory === cat.id ? 'active' : ''}`}
             >
               {cat.label}
             </button>
