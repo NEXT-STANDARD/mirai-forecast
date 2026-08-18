@@ -36,6 +36,27 @@ export const TradingTerminal: React.FC<TradingTerminalProps> = ({
 
   const currentEvent = events.find((e) => e.id === selectedEventId || e.slug === selectedEventId) || events[0];
 
+  if (!currentEvent || events.length === 0) {
+    return (
+      <div className="trading-terminal-root">
+        <div className="terminal-empty-view">
+          <div className="empty-box-inner">
+            <span className="text-2xl mb-2">📡</span>
+            <h3 className="text-sm font-bold text-slate-100">該当するカテゴリーの観測銘柄はありません</h3>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm text-center">
+              現在、このカテゴリーのマーケットを準備中です。観測したい未来の問いがあれば提案してください。
+            </p>
+            {onOpenPropose && (
+              <button onClick={onOpenPropose} className="btn-screener-propose mt-4">
+                💡 新しい問いを提案する
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="trading-terminal-root">
       {/* 3ペイン構成：左（銘柄スクリーナー）、中央（メインチャート＆AI）、右（板情報＆投票） */}

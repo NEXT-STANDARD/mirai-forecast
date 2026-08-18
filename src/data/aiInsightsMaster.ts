@@ -427,5 +427,28 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     ],
     "urgencyLevel": "high",
     "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+  },
+  "official-1787048081444": {
+    "titleJa": "NVIDIAの時価総額は年内に世界初の4兆ドル（約600兆円）を突破するか？",
+    "summaryJa": "Blackwell出荷本格化とハイパースケーラーの投資増を背景に期待先行も、供給制約と過熱感で慎重論も交錯。",
+    "whyMovedJa": "ジェンスン・ファンCEOが言及した新アーキテクチャBlackwellの旺盛な需要と、MicrosoftやMetaなど巨大ITのAI設備投資拡大が株価を牽引している。",
+    "keyCatalysts": [
+      "10月29日〜31日：Microsoft・Meta・Alphabetの7-9月期決算発表（AI設備投資Capexの増減）",
+      "11月20日：NVIDIA 2025年度第3四半期決算発表（Blackwell出荷計画と次期売上高ガイダンス）"
+    ],
+    "urgencyLevel": "high",
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+  },
+  "official-1787048085663": {
+    "titleJa": "Appleは年内に独自の次世代オンデバイスAI『Apple Intelligence』の日本語版を正式提供するか？",
+    "summaryJa": "Apple公式が2025年春の対応を予告しており、マーク・ガーマン氏もiOS 18.4での日本語解禁を有力視。",
+    "whyMovedJa": "iPhone 16販売における目玉機能だが、ティム・クックCEOが明言した英語優先方針とLLMローカライズの難航が国内シェア維持の懸念材料となっているため。",
+    "keyCatalysts": [
+      "3月中旬：iOS 18.4パブリックベータ版の配信開始と日本語モデル実装の確認",
+      "4月上旬：iOS 18.4正式版リリースに伴うApple Intelligence日本語版の解禁",
+      "6月9日前後：WWDC25基調講演における追加機能および多言語展開ロードマップの発表"
+    ],
+    "urgencyLevel": "high",
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   }
 };

@@ -110,8 +110,9 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       const { data } = await supabase
         .from('events')
         .select('*')
+        .eq('is_active', true)
         .order('updated_at', { ascending: false })
-        .limit(30);
+        .limit(100);
       if (data && data.length > 0) {
         dbEvents = data;
       }
