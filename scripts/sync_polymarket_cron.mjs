@@ -228,6 +228,27 @@ async function syncPolymarket() {
     fs.writeFileSync(INSIGHTS_JSON_PATH, JSON.stringify(insightsJsonStore, null, 2));
     console.log(`✅ ${INSIGHTS_JSON_PATH} に深層カタリスト分析を保存完了`);
 
+    // src/data/aiInsightsMaster.ts にTypeScriptマスターとして出力
+    const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
+    const tsContent = `/**
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
+ * 自動生成ファイル (sync_polymarket_cron.mjs により更新)
+ */
+
+export interface AiInsightData {
+  titleJa: string;
+  summaryJa: string;
+  whyMovedJa: string;
+  keyCatalysts: string[];
+  urgencyLevel: 'high' | 'medium' | 'low';
+  lastUpdated: string;
+}
+
+export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringify(insightsJsonStore, null, 2)};
+`;
+    fs.writeFileSync(tsPath, tsContent);
+    console.log(`✅ ${tsPath} にTypeScriptマスターとして出力完了`);
+
     const selectedRecords = topCandidates.map(c => {
       const insight = insightMap.get(c.id);
       const titleJa = insight?.titleJa || c.rawQuestion;
