@@ -1,4 +1,6 @@
-import type { MarketItem } from '../types';
+import fs from 'fs';
+
+const content = `import type { MarketItem } from '../types';
 
 export const INITIAL_EVENTS: MarketItem[] = [
   {
@@ -146,3 +148,7 @@ export const INITIAL_EVENTS: MarketItem[] = [
     comments: []
   }
 ];
+`;
+
+fs.writeFileSync('/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/src/data/initialEvents.ts', content);
+console.log('✅ initialEvents.ts cleaned successfully');

@@ -95,9 +95,12 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     }, 4000);
   };
 
-  // 審査待ち提案一覧の取得
+  const [realLatency, setRealLatency] = useState<number | null>(null);
+
+  // 審査待ち提案一覧の取得 ＆ 実測レイテンシ計測
   const fetchProposals = async () => {
     setIsLoadingProposals(true);
+    const start = performance.now();
     try {
       if (supabase) {
         const { data, error } = await supabase
@@ -105,6 +108,9 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
           .select('*')
           .eq('is_active', false)
           .order('updated_at', { ascending: false });
+
+        const end = performance.now();
+        setRealLatency(Math.round(end - start));
 
         if (!error && data) {
           setProposals(data);
@@ -306,7 +312,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
           </div>
           <div className="telemetry-item">
             <span className="t-label">LATENCY</span>
-            <span className="t-val text-cyan-400">16ms</span>
+            <span className="t-val text-cyan-400">{realLatency !== null ? `${realLatency}ms` : '測定中...'}</span>
           </div>
           <div className="telemetry-item">
             <span className="t-label">ACTIVE MARKETS</span>

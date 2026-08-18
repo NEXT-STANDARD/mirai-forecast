@@ -93,7 +93,7 @@ export const TradingTerminal: React.FC<TradingTerminalProps> = ({
 
       {/* 下部：歩み値（Time & Sales）リアルタイムストリーム */}
       <div className="terminal-bottom-row">
-        <LiveTape />
+        <LiveTape events={events} />
       </div>
     </div>
   );

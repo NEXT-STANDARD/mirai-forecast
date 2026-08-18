@@ -109,18 +109,18 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
           <div className="depth-info">
             <span className="depth-label">🇯🇵 日本の世論 (当サイト投票)</span>
             <span className="depth-price japan-color">
-              {isLocked ? '?? %' : `YES ${event.japanVotes.percentYes}%`}
+              {isLocked ? '?? %' : event.japanVotes.total > 0 ? `YES ${event.japanVotes.percentYes}%` : '投票受付中 (0票)'}
             </span>
           </div>
           <div className="depth-bar-track">
             <div
               className="depth-bar-fill japan-fill"
-              style={{ width: isLocked ? '50%' : `${event.japanVotes.percentYes}%` }}
+              style={{ width: isLocked ? '50%' : event.japanVotes.total > 0 ? `${event.japanVotes.percentYes}%` : '50%' }}
             ></div>
           </div>
           <div className="depth-sub">
-            <span>NO: {isLocked ? '?? %' : `${100 - event.japanVotes.percentYes}%`}</span>
-            <span>有効投票数: {event.japanVotes.total.toLocaleString()} 票</span>
+            <span>NO: {isLocked ? '?? %' : event.japanVotes.total > 0 ? `${100 - event.japanVotes.percentYes}%` : '0%'}</span>
+            <span>実測投票数: {event.japanVotes.total.toLocaleString()} 票</span>
           </div>
         </div>
       </div>

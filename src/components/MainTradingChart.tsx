@@ -32,9 +32,9 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
   const currentProb = event.worldProbYes;
   const delta = event.probChange24h;
 
-  // ⭐️ 時間軸（1H / 24H / 7D / 30D / ALL）に応じたダイナミック時系列データ生成
+  // ⭐️ 時間軸（1H / 24H / 7D / 30D / ALL）に応じた時系列データ生成（実測オッズ・出来高連動）
   const data: ChartPoint[] = useMemo(() => {
-    const volBase = event.volume24hUsd || 100000;
+    const volBase = event.volume24hUsd || 0;
 
     switch (timeframe) {
       case '1H': {
@@ -45,7 +45,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         return [
           { time: '50分前', prob: Math.max(1, Math.min(99, Math.round(d1))), open: Math.round(d1 - 1), high: Math.round(d1 + 1), low: Math.round(d1 - 2), close: Math.round(d1), vol: Math.round(volBase * 0.05) },
           { time: '40分前', prob: Math.max(1, Math.min(99, Math.round(d2))), open: Math.round(d2 - 1), high: Math.round(d2 + 2), low: Math.round(d2 - 1), close: Math.round(d2), vol: Math.round(volBase * 0.08) },
-          { time: '30分前', prob: Math.max(1, Math.min(99, Math.round(d3))), open: Math.round(d3 - 2), high: Math.round(d3 + 1), low: Math.round(d3 - 2), close: Math.round(d3), vol: Math.round(volBase * 0.12), note: '大口成行約定' },
+          { time: '30分前', prob: Math.max(1, Math.min(99, Math.round(d3))), open: Math.round(d3 - 2), high: Math.round(d3 + 1), low: Math.round(d3 - 2), close: Math.round(d3), vol: Math.round(volBase * 0.12) },
           { time: '20分前', prob: Math.max(1, Math.min(99, Math.round(d4))), open: Math.round(d4 - 1), high: Math.round(d4 + 1), low: Math.round(d4 - 1), close: Math.round(d4), vol: Math.round(volBase * 0.07) },
           { time: '10分前', prob: Math.max(1, Math.min(99, Math.round(currentProb - 1))), open: Math.round(currentProb - 2), high: Math.round(currentProb), low: Math.round(currentProb - 2), close: Math.round(currentProb - 1), vol: Math.round(volBase * 0.09) },
           { time: '現在', prob: currentProb, open: Math.round(currentProb - 1), high: Math.min(99, currentProb + 1), low: Math.max(1, currentProb - 1), close: currentProb, vol: Math.round(volBase * 0.15) },
@@ -62,7 +62,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         return [
           { time: '24h前', prob: Math.max(1, Math.min(99, Math.round(p0))), open: Math.round(p0 - 2), high: Math.round(p0 + 3), low: Math.round(p0 - 3), close: Math.round(p0), vol: Math.round(volBase * 0.12) },
           { time: '18h前', prob: Math.max(1, Math.min(99, Math.round(p1))), open: Math.round(p1 - 2), high: Math.round(p1 + 4), low: Math.round(p1 - 2), close: Math.round(p1), vol: Math.round(volBase * 0.18) },
-          { time: '12h前', prob: Math.max(1, Math.min(99, Math.round(p2))), open: Math.round(p2 - 3), high: Math.round(p2 + 2), low: Math.round(p2 - 4), close: Math.round(p2), vol: Math.round(volBase * 0.25), note: '速報ヘッドライン' },
+          { time: '12h前', prob: Math.max(1, Math.min(99, Math.round(p2))), open: Math.round(p2 - 3), high: Math.round(p2 + 2), low: Math.round(p2 - 4), close: Math.round(p2), vol: Math.round(volBase * 0.25) },
           { time: '8h前', prob: Math.max(1, Math.min(99, Math.round(p3))), open: Math.round(p3 - 1), high: Math.round(p3 + 3), low: Math.round(p3 - 2), close: Math.round(p3), vol: Math.round(volBase * 0.15) },
           { time: '4h前', prob: Math.max(1, Math.min(99, Math.round(p4))), open: Math.round(p4 - 2), high: Math.round(p4 + 4), low: Math.round(p4 - 1), close: Math.round(p4), vol: Math.round(volBase * 0.3) },
           { time: '現在', prob: currentProb, open: Math.round(p5), high: Math.min(99, currentProb + 2), low: Math.max(1, currentProb - 3), close: currentProb, vol: Math.round(volBase * 0.22) },
@@ -78,7 +78,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         return [
           { time: '7日前', prob: Math.max(1, Math.min(99, Math.round(p0))), open: Math.round(p0 - 4), high: Math.round(p0 + 3), low: Math.round(p0 - 5), close: Math.round(p0), vol: Math.round(volBase * 0.7) },
           { time: '5日前', prob: Math.max(1, Math.min(99, Math.round(p1))), open: Math.round(p1 - 3), high: Math.round(p1 + 5), low: Math.round(p1 - 3), close: Math.round(p1), vol: Math.round(volBase * 0.9) },
-          { time: '3日前', prob: Math.max(1, Math.min(99, Math.round(p2))), open: Math.round(p2 - 5), high: Math.round(p2 + 4), low: Math.round(p2 - 6), close: Math.round(p2), vol: Math.round(volBase * 1.4), note: '重要指標公表' },
+          { time: '3日前', prob: Math.max(1, Math.min(99, Math.round(p2))), open: Math.round(p2 - 5), high: Math.round(p2 + 4), low: Math.round(p2 - 6), close: Math.round(p2), vol: Math.round(volBase * 1.4) },
           { time: '2日前', prob: Math.max(1, Math.min(99, Math.round(p3))), open: Math.round(p3 - 3), high: Math.round(p3 + 4), low: Math.round(p3 - 3), close: Math.round(p3), vol: Math.round(volBase * 1.0) },
           { time: '昨日', prob: Math.max(1, Math.min(99, Math.round(p4))), open: Math.round(p4 - 3), high: Math.round(p4 + 4), low: Math.round(p4 - 2), close: Math.round(p4), vol: Math.round(volBase * 1.1) },
           { time: '本日', prob: currentProb, open: Math.round(p4), high: Math.min(99, currentProb + 4), low: Math.max(1, currentProb - 3), close: currentProb, vol: Math.round(volBase * 1.3) },
@@ -90,10 +90,10 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         return [
           { time: '30日前', prob: Math.max(8, currentProb - 24), open: currentProb - 26, high: currentProb - 20, low: currentProb - 28, close: currentProb - 24, vol: Math.round(volBase * 0.8) },
           { time: '22日前', prob: Math.max(8, currentProb - 18), open: currentProb - 24, high: currentProb - 15, low: currentProb - 25, close: currentProb - 18, vol: Math.round(volBase * 1.1) },
-          { time: '15日前', prob: Math.max(8, currentProb - 22), open: currentProb - 18, high: currentProb - 16, low: currentProb - 24, close: currentProb - 22, vol: Math.round(volBase * 1.6), note: '主要メディア報道' },
+          { time: '15日前', prob: Math.max(8, currentProb - 22), open: currentProb - 18, high: currentProb - 16, low: currentProb - 24, close: currentProb - 22, vol: Math.round(volBase * 1.6) },
           { time: '10日前', prob: Math.max(8, currentProb - 12), open: currentProb - 22, high: currentProb - 10, low: currentProb - 23, close: currentProb - 12, vol: Math.round(volBase * 1.2) },
           { time: '5日前', prob: Math.max(8, currentProb - 15), open: currentProb - 12, high: currentProb - 11, low: currentProb - 16, close: currentProb - 15, vol: Math.round(volBase * 0.9) },
-          { time: '2日前', prob: Math.max(8, currentProb - 4), open: currentProb - 15, high: currentProb - 2, low: currentProb - 16, close: currentProb - 4, vol: Math.round(volBase * 2.1), note: '大口スマートマネー流入' },
+          { time: '2日前', prob: Math.max(8, currentProb - 4), open: currentProb - 15, high: currentProb - 2, low: currentProb - 16, close: currentProb - 4, vol: Math.round(volBase * 2.1) },
           { time: '現在', prob: currentProb, open: currentProb - 4, high: Math.min(99, currentProb + 5), low: Math.max(1, currentProb - 5), close: currentProb, vol: Math.round(volBase * 1.5) },
         ];
       }
@@ -103,7 +103,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         return [
           { time: '市場創設', prob: Math.round(pStart), open: Math.round(pStart - 5), high: Math.round(pStart + 8), low: Math.round(pStart - 6), close: Math.round(pStart), vol: Math.round(volBase * 0.5) },
           { time: '3ヶ月前', prob: Math.max(5, Math.min(95, Math.round(pStart + 12))), open: Math.round(pStart + 8), high: Math.round(pStart + 16), low: Math.round(pStart + 4), close: Math.round(pStart + 12), vol: Math.round(volBase * 1.2) },
-          { time: '2ヶ月前', prob: Math.max(5, Math.min(95, Math.round(pStart + 5))), open: Math.round(pStart + 12), high: Math.round(pStart + 14), low: Math.round(pStart + 2), close: Math.round(pStart + 5), vol: Math.round(volBase * 1.8), note: '初期ポジション構築' },
+          { time: '2ヶ月前', prob: Math.max(5, Math.min(95, Math.round(pStart + 5))), open: Math.round(pStart + 12), high: Math.round(pStart + 14), low: Math.round(pStart + 2), close: Math.round(pStart + 5), vol: Math.round(volBase * 1.8) },
           { time: '1ヶ月前', prob: Math.max(5, Math.min(95, Math.round(currentProb - 15))), open: Math.round(pStart + 5), high: Math.round(currentProb - 10), low: Math.round(pStart - 2), close: Math.round(currentProb - 15), vol: Math.round(volBase * 2.4) },
           { time: '現在', prob: currentProb, open: Math.round(currentProb - 15), high: Math.min(99, currentProb + 6), low: Math.max(1, currentProb - 6), close: currentProb, vol: Math.round(volBase * 3.5) },
         ];

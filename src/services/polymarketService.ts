@@ -119,7 +119,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
     }
 
     // 2. Polymarket API からリアルタイムのオッズ・出来高を取得
-    let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number }>();
+    let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number }>();
     try {
       const res = await fetch(POLYMARKET_EVENTS_API);
       if (res.ok) {
@@ -136,8 +136,9 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             }
             const volume24h = ev.volume24hr || 0;
             const totalVolume = ev.volume || volume24h * 3.5;
+            const probChange24h = market.oneDayPriceChange ? Math.round(parseFloat(market.oneDayPriceChange) * 100) : 0;
 
-            const odds = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume };
+            const odds = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h };
             liveOddsMap.set(String(ev.id), odds);
             if (ev.slug) liveOddsMap.set(ev.slug, odds);
           }
@@ -149,14 +150,14 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
 
     // 3. Supabaseの日本語データ + AI_INSIGHTS_MASTER + 最新オッズを結合
     if (dbEvents.length > 0) {
-      return dbEvents.map((db, index) => {
+      return dbEvents.map((db) => {
         const live = liveOddsMap.get(String(db.id)) || liveOddsMap.get(db.slug);
         const probYes = live ? live.probYes : 50;
-        const volume24h = live ? live.volume24h : 120000;
-        const totalVolume = live ? live.totalVolume : 450000;
+        const volume24h = live ? (live.volume24h || 0) : 0;
+        const totalVolume = live ? (live.totalVolume || 0) : 0;
+        const probChange24h = live ? (live.probChange24h || 0) : 0;
 
-        const pseudoDelta = ((Math.sin(db.id ? String(db.id).charCodeAt(0) : index) * 12) | 0);
-        const isTrending = volume24h > 80000 || Math.abs(pseudoDelta) >= 6;
+        const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
 
         // ⭐️ メモリから100%確実に深層カタリスト分析を即時解決 (セマンティック完全対応)
         const aiInsight = resolveAiInsight(String(db.id), db.slug, db.title_ja, db.category);
@@ -169,20 +170,20 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           question: db.question_en || db.title_ja,
           questionJa: db.question_ja || db.title_ja,
           category: (db.category as CategoryType) || 'economy',
-          categoryLabel: db.category_label || '📊 マクロ経済',
+          categoryLabel: db.category_label || '📊 経済・金利・暗号資産',
           iconUrl: db.icon_url || '',
           worldProbYes: probYes,
           worldProbNo: 100 - probYes,
-          probChange24h: pseudoDelta,
+          probChange24h,
           volume24hUsd: volume24h,
           totalVolumeUsd: totalVolume,
           endDate: db.end_date || '2026-12-31',
           isTrending,
           japanVotes: {
-            yes: 140 + ((index * 37) % 200),
-            no: 80 + ((index * 23) % 150),
+            yes: 0,
+            no: 0,
             total: 0,
-            percentYes: 0,
+            percentYes: 50,
           },
           aiInsight,
         };
@@ -197,7 +198,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
 }
 
 /**
- * Supabaseから「投票ログ」を集計して反映
+ * Supabaseから「実際の投票ログ」のみを完全集計して反映（ダミー加算ゼロ）
  */
 export async function syncVotesFromSupabase(items: MarketItem[]): Promise<MarketItem[]> {
   if (!supabase) return items;
@@ -217,9 +218,9 @@ export async function syncVotesFromSupabase(items: MarketItem[]): Promise<Market
     }
 
     return items.map(item => {
-      const dbVotes = voteCounts[item.id];
-      const yesTotal = item.japanVotes.yes + (dbVotes ? dbVotes.yes : 0);
-      const noTotal = item.japanVotes.no + (dbVotes ? dbVotes.no : 0);
+      const dbVotes = voteCounts[item.id] || voteCounts[item.slug];
+      const yesTotal = dbVotes ? dbVotes.yes : 0;
+      const noTotal = dbVotes ? dbVotes.no : 0;
       const total = yesTotal + noTotal;
 
       return {

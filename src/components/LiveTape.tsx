@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Activity, Zap, TrendingUp, TrendingDown } from 'lucide-react';
+import type { MarketItem } from '../types';
+import { supabase } from '../services/supabaseClient';
 
 interface TapeItem {
   id: string;
@@ -10,77 +12,111 @@ interface TapeItem {
   location?: string;
 }
 
-export const LiveTape: React.FC = () => {
-  const [tape, setTape] = useState<TapeItem[]>([
-    { id: '1', time: '19:30:12', type: 'VOTE_YES', title: '日銀利上げ (9月)', amountOrProb: 'YES投票', location: '東京都' },
-    { id: '2', time: '19:29:45', type: 'SMART_MONEY', title: '米大統領選 2028', amountOrProb: '+$42,000 大口買い', location: 'New York' },
-    { id: '3', time: '19:28:30', type: 'VOTE_NO', title: 'OpenAI GPT-5年内公開', amountOrProb: 'NO投票', location: '大阪府' },
-    { id: '4', time: '19:27:15', type: 'SMART_MONEY', title: 'ビットコイン15万ドル到達', amountOrProb: '+$18,500 急変検知', location: 'London' },
-    { id: '5', time: '19:25:50', type: 'VOTE_YES', title: '米大統領選 2028', amountOrProb: 'YES投票', location: '福岡県' },
-  ]);
+interface LiveTapeProps {
+  events?: MarketItem[];
+}
 
+export const LiveTape: React.FC<LiveTapeProps> = ({ events = [] }) => {
+  const [tape, setTape] = useState<TapeItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 1. Supabaseから本物のリアル投票ログを取得し、銘柄タイトルと紐付ける
   useEffect(() => {
-    const interval = setInterval(() => {
-      const titles = [
-        '米大統領選 2028',
-        '日銀利上げ (9月)',
-        'OpenAI GPT-5年内公開',
-        'ビットコイン15万ドル到達',
-        'イーサリアム現物ETF流入',
-      ];
-      const types: ('VOTE_YES' | 'VOTE_NO' | 'SMART_MONEY')[] = ['VOTE_YES', 'VOTE_NO', 'SMART_MONEY'];
-      const locs = ['東京都', '神奈川県', '愛知県', '海外', '大阪府', '福岡県'];
+    async function loadRealTape() {
+      if (!supabase) {
+        setIsLoading(false);
+        return;
+      }
 
-      const randomTitle = titles[Math.floor(Math.random() * titles.length)];
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      const randomLoc = locs[Math.floor(Math.random() * locs.length)];
+      try {
+        const { data: voteLogs } = await supabase
+          .from('japan_vote_logs')
+          .select('id, event_id, choice, voted_at, device_type')
+          .order('voted_at', { ascending: false })
+          .limit(10);
 
-      const now = new Date();
-      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        const realItems: TapeItem[] = [];
 
-      const newItem: TapeItem = {
-        id: String(Date.now()),
-        time: timeStr,
-        type: randomType,
-        title: randomTitle,
-        amountOrProb: randomType === 'SMART_MONEY' ? `+$${(Math.floor(Math.random() * 30) + 10) * 1000} 大口流入` : randomType === 'VOTE_YES' ? 'YES投票' : 'NO投票',
-        location: randomLoc,
-      };
+        if (voteLogs && voteLogs.length > 0) {
+          voteLogs.forEach((v) => {
+            const ev = events.find((e) => e.id === v.event_id || e.slug === v.event_id);
+            const title = ev ? ev.titleJa : `銘柄 #${v.event_id.slice(0, 8)}`;
+            const d = v.voted_at ? new Date(v.voted_at) : new Date();
+            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 
-      setTape((prev) => [newItem, ...prev.slice(0, 7)]);
-    }, 4000);
+            realItems.push({
+              id: v.id,
+              time: timeStr,
+              type: v.choice === 'YES' ? 'VOTE_YES' : 'VOTE_NO',
+              title,
+              amountOrProb: v.choice === 'YES' ? 'YES 投票' : 'NO 投票',
+              location: v.device_type === 'MOBILE' ? 'モバイル' : 'PC端末',
+            });
+          });
+        }
 
-    return () => clearInterval(interval);
-  }, []);
+        // 2. 実データのあるPolymarketの高出来高銘柄（実数）も追加
+        const topVolumeEvents = events
+          .filter((e) => e.volume24hUsd > 10000)
+          .sort((a, b) => b.volume24hUsd - a.volume24hUsd)
+          .slice(0, 5);
+
+        topVolumeEvents.forEach((ev) => {
+          realItems.push({
+            id: `vol-${ev.id}`,
+            time: `実測出来高`,
+            type: 'SMART_MONEY',
+            title: ev.titleJa,
+            amountOrProb: `$${Math.round(ev.volume24hUsd / 1000).toLocaleString()}k 取引高`,
+            location: 'Polymarket',
+          });
+        });
+
+        setTape(realItems);
+      } catch (err) {
+        console.error('Error fetching real tape:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadRealTape();
+  }, [events]);
 
   return (
     <div className="terminal-pane live-tape-pane">
       <div className="pane-title-bar live-tape-bar">
         <div className="title-text">
           <Activity size={13} className="icon-green" />
-          <span className="pane-main-title">歩み値 ＆ 大口取引速報 ｜ Time & Sales</span>
+          <span className="pane-main-title">リアルタイム歩み値 ＆ 実測取引高 ｜ Real-time Time & Sales</span>
         </div>
-        <span className="live-pill-sm">● LIVE STREAM</span>
+        <span className="live-pill-sm">● REAL DATA ONLY</span>
       </div>
 
       <div className="tape-items-scroll hide-native-scrollbar">
-        {tape.map((item) => (
-          <div key={item.id} className="tape-row">
-            <span className="tape-time">{item.time}</span>
-            <span className={`tape-badge ${item.type.toLowerCase()}`}>
-              {item.type === 'SMART_MONEY' ? (
-                <><Zap size={10} /> SMART MONEY</>
-              ) : item.type === 'VOTE_YES' ? (
-                <><TrendingUp size={10} /> YES 投票</>
-              ) : (
-                <><TrendingDown size={10} /> NO 投票</>
-              )}
-            </span>
-            <span className="tape-title">{item.title}</span>
-            <span className="tape-val">{item.amountOrProb}</span>
-            {item.location && <span className="tape-loc">({item.location})</span>}
+        {tape.length === 0 ? (
+          <div className="py-2 px-4 text-xs text-slate-500">
+            {isLoading ? '実測ログ集計中...' : 'リアルタイム投票ログ受付中（新しい投票があると即座にここに流れます）'}
           </div>
-        ))}
+        ) : (
+          tape.map((item) => (
+            <div key={item.id} className="tape-row">
+              <span className="tape-time">{item.time}</span>
+              <span className={`tape-badge ${item.type.toLowerCase()}`}>
+                {item.type === 'SMART_MONEY' ? (
+                  <><Zap size={10} /> 実測出来高</>
+                ) : item.type === 'VOTE_YES' ? (
+                  <><TrendingUp size={10} /> リアル YES</>
+                ) : (
+                  <><TrendingDown size={10} /> リアル NO</>
+                )}
+              </span>
+              <span className="tape-title">{item.title}</span>
+              <span className="tape-val">{item.amountOrProb}</span>
+              {item.location && <span className="tape-loc">({item.location})</span>}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
