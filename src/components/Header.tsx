@@ -49,118 +49,96 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="header-container">
-      {/* 1. 最上部スリム・ティッカーバー */}
-      <div className="top-ticker-bar">
-        <div className="container ticker-inner">
-          <div className="ticker-left-info">
-            <div
-              className="ticker-badge"
-              onClick={onGoHome}
-              style={{ cursor: onGoHome ? 'pointer' : 'default' }}
-              title="未来レーダー トップへ戻る"
-            >
-              <span className="live-dot"></span>
-              <span className="ticker-badge-text">LIVE</span>
-            </div>
-            <div className="ticker-meta-items hide-on-mobile">
-              <span className="ticker-item">Polymarket 実況同期</span>
-              <span className="ticker-divider">•</span>
-              <span className="ticker-item">観測: <strong>{totalMarketsCount}銘柄</strong> (${Math.round(totalVolume / 1000000).toLocaleString()}M)</span>
-              <span className="ticker-divider">•</span>
-              <span className="ticker-item">国内投票: <strong>{totalJapanVotes.toLocaleString()}票</strong></span>
-              <span className="ticker-divider">•</span>
-              <span className="compliance-tag">完全無料・非賭博</span>
-            </div>
+    <header className="header-container-slim">
+      {/* 1. 一体型スリム・メインバー */}
+      <div className="container header-main-bar">
+        {/* 左側: ロゴ ＋ 控えめサブタイトル ＋ LIVEステータス */}
+        <div className="header-left-cluster">
+          <Logo size={24} onClick={onGoHome} />
+          
+          <div className="header-status-badge hide-on-mobile" title={`観測総高: $${Math.round(totalVolume / 1000000).toLocaleString()}M ｜ 国内投票: ${totalJapanVotes.toLocaleString()}票`}>
+            <span className="live-dot-green"></span>
+            <span className="status-text">LIVE ({totalMarketsCount}銘柄 ｜ {totalJapanVotes.toLocaleString()}票)</span>
           </div>
+        </div>
 
-          <div className="ticker-right-actions">
-            {onOpenLetter && (
-              <button onClick={onOpenLetter} className="letter-ticker-badge hide-on-xs" title="Polymarket Mike氏への公開書簡">
-                <span className="dot-gold"></span>
-                <span>📨 to Mike</span>
-              </button>
-            )}
+        {/* 右側: 厳選アクション群 */}
+        <div className="header-right-cluster">
+          {onOpenLetter && (
             <button
-              onClick={onRefresh}
-              className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`}
-              title="最新データを再取得"
+              onClick={onOpenLetter}
+              className="btn-header-subtle hide-on-xs"
+              title="Polymarket Mike氏への公開書簡"
             >
-              <RefreshCw size={11} />
-              <span>{isRefreshing ? '同期中' : '同期'}</span>
+              <span className="dot-gold-mini"></span>
+              <span>📨 to Mike</span>
             </button>
-          </div>
-        </div>
-      </div>
+          )}
 
-      {/* 2. メインヘッダー（ロゴ ＆ 厳選アクション） */}
-      <div className="container main-header-clean">
-        <div className="header-brand-block">
-          <Logo size={28} onClick={onGoHome} />
-        </div>
-
-        {/* アクションボタン（スマホではマイ予報に集中、PCではフル表示） */}
-        <div className="header-nav-actions">
-          {/* ① 使い方ガイド（PC用） */}
           {onOpenOnboarding && (
             <button
               onClick={onOpenOnboarding}
-              className="btn-header-ghost hide-on-mobile"
-              title="未来レーダーの3ステップ使い方ガイド"
+              className="btn-header-subtle hide-on-mobile"
+              title="未来レーダーの使い方"
             >
-              <HelpCircle size={13} className="text-cyan-400" />
+              <HelpCircle size={12} className="text-cyan-400" />
               <span>使い方</span>
             </button>
           )}
 
-          {/* ② 問いを提案（PC用・スマホはスクリーナー側の＋ボタンに集約） */}
           {onOpenPropose && (
             <button
               onClick={onOpenPropose}
-              className="btn-header-propose hide-on-mobile"
+              className="btn-header-amber hide-on-mobile"
               title="新しい未来の問いを提案する"
             >
-              <PlusCircle size={13} />
+              <PlusCircle size={12} />
               <span>問いを提案</span>
             </button>
           )}
 
-          {/* ③ マイ予報（スマホ・PC共通の最重要ハブ） */}
+          {/* 🏆 マイ予報ハブ */}
           {onOpenMyForecast && (
             <button
               onClick={onOpenMyForecast}
-              className="btn-header-forecast relative"
+              className="btn-header-forecast-slim relative"
               title="あなたの投票履歴・ストリーク・全国ランキング"
             >
-              <div className="btn-forecast-inner">
-                <span className="btn-forecast-title">🏆 マイ予報</span>
-                <span className="btn-forecast-count">({userVotesCount})</span>
+              <div className="flex items-center gap-1.5">
+                <span className="font-bold text-xs">🏆 マイ予報</span>
+                <span className="text-cyan-400 font-mono text-[11px]">({userVotesCount})</span>
                 {streakDays > 0 && (
-                  <span className="btn-forecast-streak">
-                    <Flame size={10} className="fill-amber-400 text-amber-400" />
+                  <span className="streak-mini-badge">
+                    <Flame size={9} className="fill-amber-400 text-amber-400" />
                     {streakDays}d
                   </span>
                 )}
               </div>
               {resolvedNotificationsCount > 0 && (
-                <span
-                  className="notification-dot"
-                  title="結果確定した銘柄があります"
-                />
+                <span className="notification-dot-mini" title="結果確定通知" />
               )}
             </button>
           )}
+
+          {/* 同期ボタン */}
+          <button
+            onClick={onRefresh}
+            className={`btn-header-refresh ${isRefreshing ? 'spinning' : ''}`}
+            title="最新データを同期"
+          >
+            <RefreshCw size={11} />
+          </button>
         </div>
       </div>
 
-      {/* 3. ツールバー型カテゴリナビ */}
-      <div className="container nav-container">
-        <nav className="category-nav custom-scroll">
+      {/* 2. カテゴリナビバー */}
+      <div className="container nav-container-slim">
+        <nav className="category-nav-slim custom-scroll">
           {categories.map((cat) => (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.id)}
-              className={`nav-item ${selectedCategory === cat.id ? 'active' : ''}`}
+              className={`nav-tab-item ${selectedCategory === cat.id ? 'active' : ''}`}
             >
               {cat.label}
             </button>

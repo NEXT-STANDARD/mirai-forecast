@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Header } from './components/Header';
-import { QuickGuideBanner } from './components/QuickGuideBanner';
 import { TradingTerminal } from './components/TradingTerminal';
 import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
 import { EventModal } from './components/EventModal';
@@ -338,10 +337,6 @@ export function App() {
         </main>
       ) : (
         <>
-          <div className="container">
-            <QuickGuideBanner />
-          </div>
-
           <main className="container main-content">
             {/* 証券会社風 プロトレーディングターミナル */}
             <TradingTerminal

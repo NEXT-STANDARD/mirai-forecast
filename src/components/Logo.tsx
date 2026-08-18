@@ -8,7 +8,7 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({
-  size = 32,
+  size = 26,
   className = '',
   showText = true,
   onClick,
@@ -18,9 +18,9 @@ export const Logo: React.FC<LogoProps> = ({
       className={`brand-logo-group ${className}`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
-      title="未来レーダー トップへ戻る"
+      title="MiraiRadar トップへ"
     >
-      {/* Polymarket Style Minimal Geometric SVG Glyph */}
+      {/* Polymarket Style Geometric Minimal Glyph */}
       <svg
         width={size}
         height={size}
@@ -29,7 +29,7 @@ export const Logo: React.FC<LogoProps> = ({
         xmlns="http://www.w3.org/2000/svg"
         style={{ flexShrink: 0 }}
       >
-        <rect width="40" height="40" rx="10" fill="#0f172a" stroke="#1e293b" strokeWidth="1.5" />
+        <rect width="40" height="40" rx="8" fill="#0f172a" stroke="#1e293b" strokeWidth="1.5" />
         <path
           d="M10 28 L18 19 L23 23 L30 12"
           stroke="url(#logoGrad)"
@@ -49,12 +49,9 @@ export const Logo: React.FC<LogoProps> = ({
       </svg>
 
       {showText && (
-        <div className="brand-text-block">
-          <div className="brand-title">
-            <span className="main-name">未来レーダー</span>
-            <span className="sub-badge">MiraiRadar</span>
-          </div>
-          <p className="brand-subtitle hide-on-mobile">世界の集合知 × 日本の世論</p>
+        <div className="brand-text-single-line">
+          <span className="brand-name-bold">MiraiRadar</span>
+          <span className="brand-sub-tagline hide-on-mobile">世界の集合知×日本の世論</span>
         </div>
       )}
     </div>
