@@ -44,6 +44,14 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleGoHome = () => {
+    setIsLetterPageOpen(false);
+    setSelectedCategory('all');
+    setActiveTopicId(null);
+    window.history.pushState({}, '', '/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // 1. Polymarket API ＆ Supabase データの完全自動同期
   const loadMarketData = useCallback(async () => {
     setIsRefreshing(true);
@@ -141,6 +149,7 @@ export function App() {
         totalMarketsCount={totalMarketsCount}
         totalJapanVotes={totalJapanVotes}
         onOpenLetter={handleOpenLetter}
+        onGoHome={handleGoHome}
       />
 
       {isLetterPageOpen ? (

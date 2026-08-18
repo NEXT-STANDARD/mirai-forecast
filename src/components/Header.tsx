@@ -12,6 +12,7 @@ interface HeaderProps {
   totalMarketsCount: number;
   totalJapanVotes: number;
   onOpenLetter?: () => void;
+  onGoHome?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalMarketsCount,
   totalJapanVotes,
   onOpenLetter,
+  onGoHome,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
@@ -38,7 +40,12 @@ export const Header: React.FC<HeaderProps> = ({
       {/* 上部ティッカーバー */}
       <div className="top-ticker-bar">
         <div className="container ticker-inner">
-          <div className="ticker-badge">
+          <div
+            className="ticker-badge"
+            onClick={onGoHome}
+            style={{ cursor: onGoHome ? 'pointer' : 'default' }}
+            title="未来レーダー トップへ戻る"
+          >
             <span className="live-dot"></span>
             <span className="ticker-badge-text">LIVE TERMINAL</span>
           </div>
@@ -70,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* メインヘッダー */}
       <div className="container main-header">
-        <Logo size={32} />
+        <Logo size={32} onClick={onGoHome} />
 
         <div className="header-stats">
           <div className="stat-card">

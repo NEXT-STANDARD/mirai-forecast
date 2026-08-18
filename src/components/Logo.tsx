@@ -4,15 +4,22 @@ interface LogoProps {
   size?: number;
   className?: string;
   showText?: boolean;
+  onClick?: () => void;
 }
 
 export const Logo: React.FC<LogoProps> = ({
   size = 32,
   className = '',
   showText = true,
+  onClick,
 }) => {
   return (
-    <div className={`brand-logo-group ${className}`}>
+    <div
+      className={`brand-logo-group ${className}`}
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      title="未来レーダー トップへ戻る"
+    >
       {/* Polymarket Style Minimal Geometric SVG Glyph */}
       <svg
         width={size}
