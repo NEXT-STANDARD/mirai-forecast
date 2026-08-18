@@ -51,9 +51,10 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
 
     const categoryLabels: Record<string, string> = {
       economy: '📊 経済・金利・暗号資産',
-      politics: '🌐 国際・社会',
       tech: '⚡ AI・テック',
-      sports: '🏆 カルチャー・エンタメ',
+      politics: '🌐 国際・社会',
+      sports: '⚾ スポーツ',
+      entertainment: '🎬 エンタメ・カルチャー',
     };
 
     const newRecord = {
@@ -165,7 +166,8 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
                   { id: 'economy', label: '📊 経済・金利・暗号資産' },
                   { id: 'tech', label: '⚡ AI・テック' },
                   { id: 'politics', label: '🌐 国際・社会' },
-                  { id: 'sports', label: '🏆 カルチャー・エンタメ' },
+                  { id: 'sports', label: '⚾ スポーツ' },
+                  { id: 'entertainment', label: '🎬 エンタメ・カルチャー' },
                 ].map((c) => (
                   <button
                     type="button"

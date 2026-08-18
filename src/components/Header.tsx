@@ -32,9 +32,10 @@ export const Header: React.FC<HeaderProps> = ({
     { id: 'all', label: '☀️ 全銘柄' },
     { id: 'trending', label: '🔥 人気急上昇' },
     { id: 'economy', label: '📊 経済・金利・暗号資産' },
-    { id: 'politics', label: '🌐 国際・選挙' },
     { id: 'tech', label: '⚡ AI・テック' },
-    { id: 'sports', label: '⚽ エンタメ' },
+    { id: 'politics', label: '🌐 国際・社会' },
+    { id: 'sports', label: '⚾ スポーツ' },
+    { id: 'entertainment', label: '🎬 エンタメ' },
   ];
 
   return (

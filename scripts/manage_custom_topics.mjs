@@ -182,7 +182,8 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
     economy: '📊 経済・金利・暗号資産',
     tech: '⚡ AI・テック',
     politics: '🌐 国際・社会',
-    sports: '🏆 カルチャー・エンタメ',
+    sports: '⚾ スポーツ',
+    entertainment: '🎬 エンタメ・カルチャー',
   };
 
   const id = `official-${Date.now()}`;

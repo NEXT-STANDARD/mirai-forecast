@@ -188,7 +188,8 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       economy: '📊 経済・金利・暗号資産',
       tech: '⚡ AI・テック',
       politics: '🌐 国際・社会',
-      sports: '🏆 カルチャー・エンタメ',
+      sports: '⚾ スポーツ',
+      entertainment: '🎬 エンタメ・カルチャー',
     };
 
     const id = `official-${Date.now()}`;
@@ -487,12 +488,13 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                     <span>カテゴリ選定</span>
                     <span className="tag-required">必須</span>
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {[
                       { id: 'economy', label: '📊 経済・金利・暗号資産' },
                       { id: 'tech', label: '⚡ AI・テック' },
                       { id: 'politics', label: '🌐 国際・社会' },
-                      { id: 'sports', label: '🏆 カルチャー・エンタメ' },
+                      { id: 'sports', label: '⚾ スポーツ' },
+                      { id: 'entertainment', label: '🎬 エンタメ・カルチャー' },
                     ].map((c) => (
                       <button
                         type="button"

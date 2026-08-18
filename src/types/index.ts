@@ -1,4 +1,4 @@
-export type CategoryType = 'all' | 'trending' | 'economy' | 'politics' | 'tech' | 'sports';
+export type CategoryType = 'all' | 'trending' | 'economy' | 'politics' | 'tech' | 'sports' | 'entertainment';
 
 export interface MarketItem {
   id: string;
