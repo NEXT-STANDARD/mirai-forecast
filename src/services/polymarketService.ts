@@ -3,69 +3,29 @@ import { supabase } from './supabaseClient';
 
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
 
-// 1. センシティブ除外
 const SENSITIVE_KEYWORDS = [
   'death', 'kill', 'assassinate', 'die', 'dead', 'casualty', 'suicide',
   'terror', 'attack', 'bomb', 'war casualty', 'shooting', 'arrest', 'crime'
 ];
 
-// 2. 公職選挙法配慮（国内選挙トピックの除外）
 const JAPAN_ELECTION_KEYWORDS = [
   'japan election', 'japanese prime minister', 'shugiin', 'sangiin', '衆議院', '参議院', '都知事選'
 ];
 
-// 3. 日本人が興味を持たない米ローカル・マイナースポーツ除外（Blacklist）
 const IRRELEVANT_KEYWORDS = [
   'nfl', 'ncaa', 'wnba', 'lol', 'dota', 'esports', 'college football', 'college basketball',
   'cricket', 'nascar', 'mls', 'golf', 'pga', 'challenger', 'cs2', 'valorant',
-  'touchdown', 'interception', 'rebound', 'quarterback', 'super bowl mvp'
+  'touchdown', 'interception', 'rebound', 'quarterback'
 ];
 
-// 4. 日本市場親和性スコアリング辞書（J-Relevance Scoring）
-const J_RELEVANCE_BOOSTS: { keywords: string[]; multiplier: number }[] = [
-  {
-    // 日本関連・著名人（最優先）
-    keywords: ['japan', 'japanese', 'ohtani', 'dodgers', 'sony', 'toyota', 'nintendo', 'boj', 'yen'],
-    multiplier: 6.0
-  },
-  {
-    // マクロ経済・金利・為替・暗号資産
-    keywords: ['fed', 'rate cut', 'rate hike', 'interest rate', 'inflation', 'cpi', 'recession', 'bitcoin', 'btc', 'eth', 'crypto', 'dollar', 'gold', 's&p'],
-    multiplier: 4.5
-  },
-  {
-    // AI・メガテック・未来技術
-    keywords: ['ai', 'openai', 'gpt', 'gpt-5', 'nvidia', 'musk', 'elon', 'tesla', 'apple', 'google', 'meta', 'spacex', 'starship', 'robot'],
-    multiplier: 4.0
-  },
-  {
-    // 国際情勢・米大統領選
-    keywords: ['president', 'trump', 'harris', 'election', 'white house', 'china', 'taiwan', 'tariff', 'putin', 'ukraine'],
-    multiplier: 3.5
-  },
-  {
-    // 国民的エンタメ・MLB・ノーベル賞
-    keywords: ['world series', 'mlb', 'oscar', 'grammy', 'nobel', 'tiktok'],
-    multiplier: 3.0
-  }
+const J_RELEVANCE_BOOSTS = [
+  { keywords: ['japan', 'japanese', 'ohtani', 'dodgers', 'sony', 'toyota', 'nintendo', 'boj', 'yen'], multiplier: 6.0 },
+  { keywords: ['fed', 'rate cut', 'rate hike', 'interest rate', 'inflation', 'cpi', 'recession', 'bitcoin', 'btc', 'eth', 'crypto', 'dollar', 'gold', 's&p'], multiplier: 4.5 },
+  { keywords: ['ai', 'openai', 'gpt', 'gpt-5', 'nvidia', 'musk', 'elon', 'tesla', 'apple', 'google', 'meta', 'spacex', 'starship', 'robot'], multiplier: 4.0 },
+  { keywords: ['president', 'trump', 'harris', 'election', 'white house', 'china', 'taiwan', 'tariff', 'putin', 'ukraine'], multiplier: 3.5 },
+  { keywords: ['world series', 'mlb', 'oscar', 'grammy', 'nobel', 'tiktok'], multiplier: 3.0 }
 ];
 
-// 頻出英語タイトルの自然な日本語マッピング
-function translateToJapanese(enTitle: string): string {
-  let title = enTitle;
-  title = title.replace(/Fed interest rate cut in (.*)\?/i, '米FRBは$1に利下げを実施するか？');
-  title = title.replace(/Fed decreases interest rates by (.*) bps in (.*)\?/i, 'FRBは$2に$1bpの利下げを行うか？');
-  title = title.replace(/Will Donald Trump win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：ドナルド・トランプが勝利するか？');
-  title = title.replace(/Will Kamala Harris win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：カマラ・ハリスが勝利するか？');
-  title = title.replace(/Bitcoin reach \$(.*) in (\d{4})\?/i, 'ビットコインは$2年内に$1万ドルに到達するか？');
-  title = title.replace(/Will OpenAI release (.*) in (\d{4})\?/i, 'OpenAIは$2年内に$1を一般公開するか？');
-  title = title.replace(/Shohei Ohtani win (.*) in (\d{4})\?/i, '大谷翔平は$2年に$1を獲得するか？');
-  return title;
-}
-
-/**
- * 日本親和性スコアを計算
- */
 function calculateJRelevance(titleLower: string, volume24h: number): number {
   let multiplier = 1.0;
   for (const boost of J_RELEVANCE_BOOSTS) {
@@ -77,7 +37,7 @@ function calculateJRelevance(titleLower: string, volume24h: number): number {
 }
 
 /**
- * Polymarket APIからリアルタイムデータを直接取得し、日本市場向けに最適化して整形
+ * Polymarket APIからリアルタイムデータを直接取得
  */
 export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
   try {
@@ -92,12 +52,10 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       const market = ev.markets[0];
       const titleLower = (ev.title + ' ' + (market.question || '')).toLowerCase();
 
-      // 1. 安全性 ＆ 不適合フィルター（センシティブ、国内選挙、米ローカルスポーツ除外）
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
-      // 2. 確率のパース
       let probYes = 50;
       if (market.outcomePrices) {
         try {
@@ -108,7 +66,6 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         } catch {}
       }
 
-      // 3. カテゴリの推定
       let cat: CategoryType = 'economy';
       let catLabel = '📊 マクロ経済';
 
@@ -128,9 +85,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
 
       const volume24h = ev.volume24hr || 0;
       const totalVolume = ev.volume || volume24h * 3.5;
-
       const jScore = calculateJRelevance(titleLower, volume24h);
-      const titleJa = translateToJapanese(ev.title);
 
       const pseudoDelta = ((Math.sin(ev.id ? ev.id.charCodeAt(0) : 1) * 12) | 0);
       const isTrending = volume24h > 80000 || Math.abs(pseudoDelta) >= 6;
@@ -139,7 +94,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         id: String(ev.id || ev.slug),
         slug: ev.slug,
         title: ev.title,
-        titleJa: titleJa,
+        titleJa: ev.title, // 後段の syncVotesFromSupabase で日本語化タイトルに上書き
         question: market.question || ev.title,
         questionJa: market.question || ev.title,
         category: cat,
@@ -170,11 +125,9 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       candidateList.push({ item, score: jScore });
     }
 
-    // 4. 日本市場親和性スコア順（J-Relevance Score）でソートし、上位25件を厳選
     candidateList.sort((a, b) => b.score - a.score);
     const selected = candidateList.slice(0, 25).map(c => c.item);
 
-    // 日本世論集計の計算
     selected.forEach(item => {
       item.japanVotes.total = item.japanVotes.yes + item.japanVotes.no;
       item.japanVotes.percentYes = Math.round((item.japanVotes.yes / item.japanVotes.total) * 100);
@@ -188,33 +141,54 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
 }
 
 /**
- * Supabaseから投票ログを集計して各銘柄に反映
+ * Supabaseから「Gemini 3.7 Flash翻訳済み日本語タイトル」および「投票ログ」を取得して統合
  */
 export async function syncVotesFromSupabase(items: MarketItem[]): Promise<MarketItem[]> {
   if (!supabase) return items;
 
   try {
+    // 1. Supabaseの events テーブルから Gemini 3.7 Flash 日本語タイトルを取得
+    const { data: dbEvents } = await supabase
+      .from('events')
+      .select('id, slug, title_ja, category_label');
+
+    const translationMap = new Map<string, { titleJa: string; catLabel?: string }>();
+    if (dbEvents) {
+      dbEvents.forEach(e => {
+        if (e.title_ja) {
+          translationMap.set(e.id, { titleJa: e.title_ja, catLabel: e.category_label });
+          if (e.slug) translationMap.set(e.slug, { titleJa: e.title_ja, catLabel: e.category_label });
+        }
+      });
+    }
+
+    // 2. 投票ログを取得
     const { data: voteLogs, error } = await supabase
       .from('japan_vote_logs')
       .select('event_id, choice');
 
-    if (error || !voteLogs) return items;
-
     const voteCounts: Record<string, { yes: number; no: number }> = {};
-
-    voteLogs.forEach(v => {
-      if (!voteCounts[v.event_id]) voteCounts[v.event_id] = { yes: 0, no: 0 };
-      if (v.choice === 'YES') voteCounts[v.event_id].yes += 1;
-      if (v.choice === 'NO') voteCounts[v.event_id].no += 1;
-    });
+    if (!error && voteLogs) {
+      voteLogs.forEach(v => {
+        if (!voteCounts[v.event_id]) voteCounts[v.event_id] = { yes: 0, no: 0 };
+        if (v.choice === 'YES') voteCounts[v.event_id].yes += 1;
+        if (v.choice === 'NO') voteCounts[v.event_id].no += 1;
+      });
+    }
 
     return items.map(item => {
+      const translated = translationMap.get(item.id) || translationMap.get(item.slug);
+      const titleJa = translated ? translated.titleJa : item.titleJa;
+      const categoryLabel = translated?.catLabel || item.categoryLabel;
+
       const dbVotes = voteCounts[item.id];
       if (dbVotes) {
         const total = item.japanVotes.yes + dbVotes.yes + item.japanVotes.no + dbVotes.no;
         const yesTotal = item.japanVotes.yes + dbVotes.yes;
         return {
           ...item,
+          titleJa,
+          categoryLabel,
           japanVotes: {
             yes: yesTotal,
             no: item.japanVotes.no + dbVotes.no,
@@ -223,10 +197,15 @@ export async function syncVotesFromSupabase(items: MarketItem[]): Promise<Market
           }
         };
       }
-      return item;
+
+      return {
+        ...item,
+        titleJa,
+        categoryLabel,
+      };
     });
   } catch (err) {
-    console.error('Failed to sync votes from Supabase:', err);
+    console.error('Failed to sync from Supabase:', err);
     return items;
   }
 }

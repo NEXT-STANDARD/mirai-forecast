@@ -1,5 +1,5 @@
 /**
- * 未来レーダー (MiraiRadar.com) - Polymarket ➔ Supabase 日本市場特化 自動同期スクリプト
+ * 未来レーダー (MiraiRadar.com) - Polymarket ➔ Gemini 3.7 Flash 日本語化 ➔ Supabase 自動同期
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -21,6 +21,7 @@ if (fs.existsSync(envPath)) {
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
+const geminiApiKey = process.env.GEMINI_API_KEY || localEnv.GEMINI_API_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Supabase credentials missing, skipping sync');
@@ -53,18 +54,6 @@ const J_RELEVANCE_BOOSTS = [
   { keywords: ['world series', 'mlb', 'oscar', 'grammy', 'nobel', 'tiktok'], multiplier: 3.0 }
 ];
 
-function translateToJapanese(enTitle) {
-  let title = enTitle;
-  title = title.replace(/Fed interest rate cut in (.*)\?/i, '米FRBは$1に利下げを実施するか？');
-  title = title.replace(/Fed decreases interest rates by (.*) bps in (.*)\?/i, 'FRBは$2に$1bpの利下げを行うか？');
-  title = title.replace(/Will Donald Trump win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：ドナルド・トランプが勝利するか？');
-  title = title.replace(/Will Kamala Harris win the (\d{4}) US Presidential Election\?/i, '$1年米大統領選：カマラ・ハリスが勝利するか？');
-  title = title.replace(/Bitcoin reach \$(.*) in (\d{4})\?/i, 'ビットコインは$2年内に$1万ドルに到達するか？');
-  title = title.replace(/Will OpenAI release (.*) in (\d{4})\?/i, 'OpenAIは$2年内に$1を一般公開するか？');
-  title = title.replace(/Shohei Ohtani win (.*) in (\d{4})\?/i, '大谷翔平は$2年に$1を獲得するか？');
-  return title;
-}
-
 function calculateJRelevance(titleLower, volume24h) {
   let multiplier = 1.0;
   for (const boost of J_RELEVANCE_BOOSTS) {
@@ -75,8 +64,50 @@ function calculateJRelevance(titleLower, volume24h) {
   return volume24h * multiplier;
 }
 
+/**
+ * Gemini 3.7 Flash を用いて複数の英語タイトルを一括でプロ品質の日本語タイトルに変換
+ */
+async function translateTitlesWithGemini(titles) {
+  if (!geminiApiKey || titles.length === 0) {
+    return titles.map(t => ({ en: t, ja: t }));
+  }
+
+  const prompt = `あなたは経済・金融メディア（日経新聞やBloomberg日本語版）の敏腕編集デスクです。
+以下のPolymarket予測市場の英語タイトル一覧を、日本人の一般読者・ビジネスパーソンがパッと見て1秒で理解できる、自然で引きのある日本語の疑問文タイトルに翻訳・要約してください。
+
+【英語タイトル一覧】:
+${JSON.stringify(titles, null, 2)}
+
+以下のJSON配列形式のみを出力してください（Markdownのバッククォート不要）:
+[
+  { "en": "元の英語タイトル", "ja": "日本語タイトル" }
+]`;
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${geminiApiKey}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: "application/json" }
+      })
+    });
+
+    if (!res.ok) throw new Error(`Gemini API responded with status ${res.status}`);
+    const data = await res.json();
+    const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!resultText) throw new Error('Empty Gemini response');
+
+    return JSON.parse(resultText);
+  } catch (err) {
+    console.error('Gemini translation error, falling back to original titles:', err.message);
+    return titles.map(t => ({ en: t, ja: t }));
+  }
+}
+
 async function syncPolymarket() {
-  console.log(`[${new Date().toISOString()}] Polymarket ➔ Supabase 日本市場特化 同期開始...`);
+  console.log(`[${new Date().toISOString()}] Polymarket ➔ Gemini 3.7 Flash 日本語化 ➔ Supabase 同期開始...`);
 
   try {
     const res = await fetch(POLYMARKET_EVENTS_API);
@@ -121,37 +152,62 @@ async function syncPolymarket() {
 
       const volume24h = ev.volume24hr || 0;
       const jScore = calculateJRelevance(titleLower, volume24h);
-      const titleJa = translateToJapanese(ev.title);
 
-      const dbRecord = {
-        id: String(ev.id || ev.slug),
-        slug: ev.slug,
+      candidateList.push({
+        ev,
+        market,
+        probYes,
+        cat,
+        catLabel,
+        volume24h,
+        score: jScore,
+      });
+    }
+
+    // 日本親和性スコア順で上位25件を厳選
+    candidateList.sort((a, b) => b.score - a.score);
+    const topCandidates = candidateList.slice(0, 25);
+
+    // Gemini 3.7 Flash で一括翻訳
+    console.log(`🤖 ${topCandidates.length}件の英語タイトルを Gemini 3.7 Flash で自然な日本語に変換中...`);
+    const titlesToTranslate = topCandidates.map(c => c.ev.title);
+    const translationMap = new Map();
+
+    const translatedResults = await translateTitlesWithGemini(titlesToTranslate);
+    translatedResults.forEach(item => {
+      translationMap.set(item.en, item.ja);
+    });
+
+    const selectedRecords = topCandidates.map(c => {
+      const titleJa = translationMap.get(c.ev.title) || c.ev.title;
+      return {
+        id: String(c.ev.id || c.ev.slug),
+        slug: c.ev.slug,
         title_ja: titleJa,
-        title_en: ev.title,
-        question_ja: market.question ? translateToJapanese(market.question) : titleJa,
-        question_en: market.question || ev.title,
-        category: cat,
-        category_label: catLabel,
-        icon_url: ev.image || ev.icon || '',
-        end_date: market.endDate || '2026-12-31',
+        title_en: c.ev.title,
+        question_ja: titleJa,
+        question_en: c.market.question || c.ev.title,
+        category: c.cat,
+        category_label: c.catLabel,
+        icon_url: c.ev.image || c.ev.icon || '',
+        end_date: c.market.endDate || '2026-12-31',
         is_active: true,
         updated_at: new Date().toISOString(),
       };
+    });
 
-      candidateList.push({ record: dbRecord, score: jScore });
-    }
-
-    candidateList.sort((a, b) => b.score - a.score);
-    const selectedRecords = candidateList.slice(0, 25).map(c => c.record);
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('events')
       .upsert(selectedRecords, { onConflict: 'id' });
 
     if (error) {
       console.error('Supabase upsert error:', error.message);
     } else {
-      console.log(`✅ 日本市場特化 厳選マーケット ${selectedRecords.length}件 をSupabaseに同期完了！`);
+      console.log(`\n🎉 【全銘柄 日本語化完了！】 厳選 ${selectedRecords.length}件 をSupabaseに同期完了！`);
+      console.log('サンプル翻訳:');
+      selectedRecords.slice(0, 5).forEach((r, i) => {
+        console.log(`  ${i + 1}. [${r.category_label}] ${r.title_ja}`);
+      });
     }
   } catch (err) {
     console.error('Sync Error:', err);
