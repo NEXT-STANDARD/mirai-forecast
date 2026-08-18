@@ -76,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
 
           <div className="ticker-right-actions">
             {onOpenLetter && (
-              <button onClick={onOpenLetter} className="letter-ticker-badge" title="Polymarket Mike氏への公開書簡">
+              <button onClick={onOpenLetter} className="letter-ticker-badge hide-on-xs" title="Polymarket Mike氏への公開書簡">
                 <span className="dot-gold"></span>
                 <span>📨 to Mike</span>
               </button>
@@ -87,7 +87,7 @@ export const Header: React.FC<HeaderProps> = ({
               title="最新データを再取得"
             >
               <RefreshCw size={11} />
-              <span className="hide-on-xs">{isRefreshing ? '同期中' : 'REFRESH'}</span>
+              <span>{isRefreshing ? '同期中' : '同期'}</span>
             </button>
           </div>
         </div>
@@ -96,36 +96,36 @@ export const Header: React.FC<HeaderProps> = ({
       {/* 2. メインヘッダー（ロゴ ＆ 厳選アクション） */}
       <div className="container main-header-clean">
         <div className="header-brand-block">
-          <Logo size={32} onClick={onGoHome} />
+          <Logo size={28} onClick={onGoHome} />
         </div>
 
-        {/* 厳選された3つの主要アクションボタン */}
+        {/* アクションボタン（スマホではマイ予報に集中、PCではフル表示） */}
         <div className="header-nav-actions">
-          {/* ① 使い方ガイド */}
+          {/* ① 使い方ガイド（PC用） */}
           {onOpenOnboarding && (
             <button
               onClick={onOpenOnboarding}
-              className="btn-header-ghost hide-on-xs"
+              className="btn-header-ghost hide-on-mobile"
               title="未来レーダーの3ステップ使い方ガイド"
             >
-              <HelpCircle size={14} className="text-cyan-400" />
+              <HelpCircle size={13} className="text-cyan-400" />
               <span>使い方</span>
             </button>
           )}
 
-          {/* ② 問いを提案 */}
+          {/* ② 問いを提案（PC用・スマホはスクリーナー側の＋ボタンに集約） */}
           {onOpenPropose && (
             <button
               onClick={onOpenPropose}
-              className="btn-header-propose"
+              className="btn-header-propose hide-on-mobile"
               title="新しい未来の問いを提案する"
             >
-              <PlusCircle size={14} />
+              <PlusCircle size={13} />
               <span>問いを提案</span>
             </button>
           )}
 
-          {/* ③ マイ予報（ストリーク・ランキング） */}
+          {/* ③ マイ予報（スマホ・PC共通の最重要ハブ） */}
           {onOpenMyForecast && (
             <button
               onClick={onOpenMyForecast}
@@ -133,13 +133,11 @@ export const Header: React.FC<HeaderProps> = ({
               title="あなたの投票履歴・ストリーク・全国ランキング"
             >
               <div className="btn-forecast-inner">
-                <div className="flex items-center gap-1.5">
-                  <span className="btn-forecast-title">🏆 マイ予報</span>
-                  <span className="btn-forecast-count">({userVotesCount})</span>
-                </div>
+                <span className="btn-forecast-title">🏆 マイ予報</span>
+                <span className="btn-forecast-count">({userVotesCount})</span>
                 {streakDays > 0 && (
                   <span className="btn-forecast-streak">
-                    <Flame size={11} className="fill-amber-400 text-amber-400" />
+                    <Flame size={10} className="fill-amber-400 text-amber-400" />
                     {streakDays}d
                   </span>
                 )}

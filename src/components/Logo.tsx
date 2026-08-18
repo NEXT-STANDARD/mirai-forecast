@@ -54,7 +54,7 @@ export const Logo: React.FC<LogoProps> = ({
             <span className="main-name">未来レーダー</span>
             <span className="sub-badge">MiraiRadar</span>
           </div>
-          <p className="brand-subtitle">世界の集合知 × 日本の世論</p>
+          <p className="brand-subtitle hide-on-mobile">世界の集合知 × 日本の世論</p>
         </div>
       )}
     </div>
