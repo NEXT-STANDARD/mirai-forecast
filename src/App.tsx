@@ -212,7 +212,7 @@ export function App() {
           <main className="container main-content">
             {/* 証券会社風 プロトレーディングターミナル */}
             <TradingTerminal
-              events={filteredEvents.length > 0 ? filteredEvents : events}
+              events={filteredEvents}
               userVotes={userVotes}
               onVote={handleVote}
               onOpenModal={(event) => setSelectedModalEvent(event)}

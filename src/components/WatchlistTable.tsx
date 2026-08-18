@@ -44,20 +44,34 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {events.map((item) => {
-              const isSelected = selectedEvent.id === item.id;
-              const isUp = item.probChange24h >= 0;
-              const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
-              
-              return (
-                <tr
-                  key={item.id}
-                  onClick={() => onSelectEvent(item)}
-                  className={`terminal-tr ${isSelected ? 'selected' : ''}`}
-                >
-                  <td className="td-name">
-                    <div className="name-wrap">
-                      <span className="category-micro-tag">{item.categoryLabel.slice(0, 8)}</span>
+            {events.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="text-center py-8 text-slate-400 text-xs">
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <span>このカテゴリーの観測銘柄は現在準備中です</span>
+                    {onOpenPropose && (
+                      <button onClick={onOpenPropose} className="btn-screener-propose mt-1">
+                        💡 最初の問いを提案する
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              events.map((item) => {
+                const isSelected = selectedEvent?.id === item.id;
+                const isUp = item.probChange24h >= 0;
+                const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
+                
+                return (
+                  <tr
+                    key={item.id}
+                    onClick={() => onSelectEvent(item)}
+                    className={`terminal-tr ${isSelected ? 'selected' : ''}`}
+                  >
+                    <td className="td-name">
+                      <div className="name-wrap">
+                        <span className="category-micro-tag">{item.categoryLabel.slice(0, 8)}</span>
                       <span className="event-title-short" title={item.titleJa}>
                         {item.titleJa}
                       </span>
@@ -89,7 +103,7 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                   </td>
                 </tr>
               );
-            })}
+            }))}
           </tbody>
         </table>
       </div>
