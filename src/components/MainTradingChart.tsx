@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { MarketItem } from '../types';
 import { ThreeRadar } from './ThreeRadar';
-import { TrendingUp, TrendingDown, Radio, Sparkles, BarChart2 } from 'lucide-react';
+import { TrendingUp, TrendingDown, Radio, Sparkles, BarChart2, Calendar } from 'lucide-react';
 
 interface MainTradingChartProps {
   event: MarketItem;
@@ -284,7 +284,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         </div>
       )}
 
-      {/* Gemini AI 要因速報フィード */}
+      {/* Gemini 3.7 Flash 銘柄固有 深層カタリスト分析 */}
       {event.aiInsight && (
         <div className="ai-catalyst-terminal-box">
           <div className="ai-box-head">
@@ -292,12 +292,30 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
               <Sparkles size={14} className="icon-blue" />
               <span>AI 変動要因＆カタリスト分析（Gemini 3.7 Flash）</span>
             </div>
-            <span className="urgency-tag high">重要度: HIGH</span>
+            <span className="urgency-tag high">LIVE ANALYTICS</span>
           </div>
+
           <p className="ai-box-summary">{event.aiInsight.summaryJa}</p>
+
           <div className="ai-box-why">
             <span className="why-lbl">なぜ動いているか:</span> {event.aiInsight.whyMovedJa}
           </div>
+
+          {event.aiInsight.keyCatalysts && event.aiInsight.keyCatalysts.length > 0 && (
+            <div className="ai-box-catalysts-row">
+              <div className="catalysts-label">
+                <Calendar size={11} className="icon-gold" />
+                <span>次回注目カタリスト:</span>
+              </div>
+              <div className="catalysts-chips-wrap">
+                {event.aiInsight.keyCatalysts.map((cat, idx) => (
+                  <span key={idx} className="catalyst-chip">
+                    {cat}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

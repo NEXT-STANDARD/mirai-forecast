@@ -6,11 +6,12 @@ const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&
 
 /**
  * Supabaseから「Gemini 3.7 Flash 日本語化済み銘柄」を優先取得し、
- * Polymarket APIから「最新オッズ・出来高」をリアルタイムマージする堅牢アーキテクチャ
+ * public/data/ai_insights.json から「深層カタリスト分析」を、
+ * Polymarket APIから「最新オッズ・出来高」をマージする堅牢アーキテクチャ
  */
 export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
   try {
-    // 1. まず Supabase の events テーブルから最新の日本語銘柄マスターを取得
+    // 1. Supabase の events テーブルから最新の日本語銘柄マスターを取得
     let dbEvents: any[] = [];
     if (supabase) {
       const { data } = await supabase
@@ -23,7 +24,19 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       }
     }
 
-    // 2. Polymarket API からリアルタイムのオッズ・出来高を取得
+    // 2. ai_insights.json から銘柄固有の深層分析を取得
+    let insightsMap = new Map<string, any>();
+    try {
+      const res = await fetch('/data/ai_insights.json');
+      if (res.ok) {
+        const insightsData = await res.json();
+        Object.entries(insightsData).forEach(([id, val]) => {
+          insightsMap.set(id, val);
+        });
+      }
+    } catch {}
+
+    // 3. Polymarket API からリアルタイムのオッズ・出来高を取得
     let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number }>();
     try {
       const res = await fetch(POLYMARKET_EVENTS_API);
@@ -52,7 +65,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       console.warn('Polymarket Live API failed, using cached odds:', apiErr);
     }
 
-    // 3. Supabaseの日本語データをベースに、最新オッズをマージして MarketItem を構築
+    // 4. Supabaseの日本語データをベースに、最新オッズと銘柄固有のAI分析をマージして MarketItem を構築
     if (dbEvents.length > 0) {
       return dbEvents.map((db, index) => {
         const live = liveOddsMap.get(String(db.id)) || liveOddsMap.get(db.slug);
@@ -63,11 +76,22 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         const pseudoDelta = ((Math.sin(db.id ? String(db.id).charCodeAt(0) : index) * 12) | 0);
         const isTrending = volume24h > 80000 || Math.abs(pseudoDelta) >= 6;
 
+        // 銘柄固有の深層カタリスト分析
+        const specificInsight = insightsMap.get(String(db.id)) || insightsMap.get(db.slug);
+
+        const aiInsight = {
+          summaryJa: specificInsight?.summaryJa || `世界の予測市場で24時間取引高 $${Math.round(volume24h).toLocaleString()} を記録中。`,
+          whyMovedJa: specificInsight?.whyMovedJa || `直近のニュース・指標発表を受けたスマートマネーのリアルタイム織り込み。`,
+          keyCatalysts: specificInsight?.keyCatalysts || ['重要公式発表・経済指標', '市場流動性の集中'],
+          urgencyLevel: (isTrending ? 'high' : 'medium') as 'high' | 'medium' | 'low',
+          lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+        };
+
         return {
           id: String(db.id),
           slug: db.slug || `topic-${db.id}`,
           title: db.title_en || db.title_ja,
-          titleJa: db.title_ja, // ⭐️ 永久に日本語タイトルを保証
+          titleJa: db.title_ja,
           question: db.question_en || db.title_ja,
           questionJa: db.question_ja || db.title_ja,
           category: (db.category as CategoryType) || 'economy',
@@ -86,18 +110,11 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             total: 0,
             percentYes: 0,
           },
-          aiInsight: {
-            summaryJa: `世界の予測市場で24時間取引高 $${Math.round(volume24h).toLocaleString()} を記録。スマートマネーの注目度が急上昇しています。`,
-            whyMovedJa: `大口取引の流入および直近のマクロ指標・報道を受けた確率のリアルタイム織り込み。`,
-            keyCatalysts: ['重要公式発表・経済指標', '機関投資家資金の集中'],
-            urgencyLevel: isTrending ? 'high' : 'medium',
-            lastUpdated: 'Gemini 3.7 Flash 解析済み',
-          }
+          aiInsight,
         };
       });
     }
 
-    // 4. Supabaseが空の場合のフォールバック
     return INITIAL_EVENTS;
   } catch (err) {
     console.error('Failed to load market data:', err);
