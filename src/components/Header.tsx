@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Zap, Flame, HelpCircle } from 'lucide-react';
+import { RefreshCw, Flame, HelpCircle, PlusCircle } from 'lucide-react';
 import { Logo } from './Logo';
 import type { CategoryType } from '../types';
 
@@ -50,110 +50,112 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="header-container">
-      {/* 上部ティッカーバー */}
+      {/* 1. 最上部スリム・ティッカーバー */}
       <div className="top-ticker-bar">
         <div className="container ticker-inner">
-          <div
-            className="ticker-badge"
-            onClick={onGoHome}
-            style={{ cursor: onGoHome ? 'pointer' : 'default' }}
-            title="未来レーダー トップへ戻る"
-          >
-            <span className="live-dot"></span>
-            <span className="ticker-badge-text">LIVE TERMINAL</span>
+          <div className="ticker-left-info">
+            <div
+              className="ticker-badge"
+              onClick={onGoHome}
+              style={{ cursor: onGoHome ? 'pointer' : 'default' }}
+              title="未来レーダー トップへ戻る"
+            >
+              <span className="live-dot"></span>
+              <span className="ticker-badge-text">LIVE</span>
+            </div>
+            <div className="ticker-meta-items hide-on-mobile">
+              <span className="ticker-item">Polymarket 実況同期</span>
+              <span className="ticker-divider">•</span>
+              <span className="ticker-item">観測: <strong>{totalMarketsCount}銘柄</strong> (${Math.round(totalVolume / 1000000).toLocaleString()}M)</span>
+              <span className="ticker-divider">•</span>
+              <span className="ticker-item">国内投票: <strong>{totalJapanVotes.toLocaleString()}票</strong></span>
+              <span className="ticker-divider">•</span>
+              <span className="compliance-tag">完全無料・非賭博</span>
+            </div>
           </div>
-          <div className="ticker-text hide-on-mobile">
-            <span>Polymarket 自動同期</span>
-            <span className="divider">•</span>
-            <span>観測総高: <strong>${Math.round(totalVolume / 1000000).toLocaleString()}M+</strong></span>
-            <span className="divider">•</span>
-            <span className="compliance-tag">非賭博・公選法配慮</span>
-          </div>
+
           <div className="ticker-right-actions">
-            {onOpenPropose && (
-              <button onClick={onOpenPropose} className="propose-ticker-badge">
-                <span>💡 問いを提案する</span>
-              </button>
-            )}
             {onOpenLetter && (
-              <button onClick={onOpenLetter} className="letter-ticker-badge">
+              <button onClick={onOpenLetter} className="letter-ticker-badge" title="Polymarket Mike氏への公開書簡">
                 <span className="dot-gold"></span>
-                <span>📨 Letter to Mike</span>
+                <span>📨 to Mike</span>
               </button>
             )}
             <button
               onClick={onRefresh}
               className={`refresh-btn ${isRefreshing ? 'spinning' : ''}`}
-              title="データを再取得"
+              title="最新データを再取得"
             >
               <RefreshCw size={11} />
-              <span>{isRefreshing ? '同期中' : 'REFRESH'}</span>
+              <span className="hide-on-xs">{isRefreshing ? '同期中' : 'REFRESH'}</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* メインヘッダー */}
-      <div className="container main-header">
-        <Logo size={32} onClick={onGoHome} />
+      {/* 2. メインヘッダー（ロゴ ＆ 厳選アクション） */}
+      <div className="container main-header-clean">
+        <div className="header-brand-block">
+          <Logo size={32} onClick={onGoHome} />
+        </div>
 
-        <div className="header-stats">
-          <div className="stat-card">
-            <div className="stat-label">観測マーケット</div>
-            <div className="stat-value">{totalMarketsCount.toLocaleString()} <span className="stat-unit">件</span></div>
-          </div>
-          <div className="stat-card">
-            <div className="stat-label">国内投票総数</div>
-            <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
-          </div>
+        {/* 厳選された3つの主要アクションボタン */}
+        <div className="header-nav-actions">
+          {/* ① 使い方ガイド */}
+          {onOpenOnboarding && (
+            <button
+              onClick={onOpenOnboarding}
+              className="btn-header-ghost hide-on-xs"
+              title="未来レーダーの3ステップ使い方ガイド"
+            >
+              <HelpCircle size={14} className="text-cyan-400" />
+              <span>使い方</span>
+            </button>
+          )}
+
+          {/* ② 問いを提案 */}
+          {onOpenPropose && (
+            <button
+              onClick={onOpenPropose}
+              className="btn-header-propose"
+              title="新しい未来の問いを提案する"
+            >
+              <PlusCircle size={14} />
+              <span>問いを提案</span>
+            </button>
+          )}
+
+          {/* ③ マイ予報（ストリーク・ランキング） */}
           {onOpenMyForecast && (
-            <button onClick={onOpenMyForecast} className="stat-card forecast-highlight relative" title="あなたの投票履歴・ストリーク・全国ランキング">
-              <div className="stat-label flex items-center justify-between">
-                <span>MY PREDICTOR</span>
+            <button
+              onClick={onOpenMyForecast}
+              className="btn-header-forecast relative"
+              title="あなたの投票履歴・ストリーク・全国ランキング"
+            >
+              <div className="btn-forecast-inner">
+                <div className="flex items-center gap-1.5">
+                  <span className="btn-forecast-title">🏆 マイ予報</span>
+                  <span className="btn-forecast-count">({userVotesCount})</span>
+                </div>
                 {streakDays > 0 && (
-                  <span className="text-[9px] text-amber-400 flex items-center font-mono font-bold">
-                    <Flame size={10} className="fill-amber-400 mr-0.5" />
+                  <span className="btn-forecast-streak">
+                    <Flame size={11} className="fill-amber-400 text-amber-400" />
                     {streakDays}d
                   </span>
                 )}
               </div>
-              <div className="stat-value text-cyan-400 flex items-center gap-1">
-                <span>🏆 マイ予報 ({userVotesCount})</span>
-                {resolvedNotificationsCount > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block" title="結果確定した銘柄があります" />
-                )}
-              </div>
+              {resolvedNotificationsCount > 0 && (
+                <span
+                  className="notification-dot"
+                  title="結果確定した銘柄があります"
+                />
+              )}
             </button>
           )}
-          {onOpenOnboarding && (
-            <button onClick={onOpenOnboarding} className="stat-card guide-highlight hide-on-xs" title="未来レーダーの3ステップ使い方ガイド">
-              <div className="stat-label">GUIDE</div>
-              <div className="stat-value text-slate-200 flex items-center gap-1">
-                <HelpCircle size={11} className="text-cyan-400" />
-                <span>使い方</span>
-              </div>
-            </button>
-          )}
-          {onOpenPropose && (
-            <button onClick={onOpenPropose} className="stat-card propose-highlight hide-on-xs" title="新しい未来の問いを提案する">
-              <div className="stat-label">COMMUNITY</div>
-              <div className="stat-value text-amber-400">💡 問いを提案</div>
-            </button>
-          )}
-          {onOpenLetter && (
-            <button onClick={onOpenLetter} className="stat-card letter-highlight hide-on-xs" title="Polymarket Japan マイク・エイドリン氏への公開書簡">
-              <div className="stat-label">OPEN LETTER</div>
-              <div className="stat-value gold-text">📨 to Mike</div>
-            </button>
-          )}
-          <div className="stat-card highlight hide-on-xs">
-            <div className="stat-label">SmartRadar</div>
-            <div className="stat-value pulse-text"><Zap size={11} /> 3D LIVE</div>
-          </div>
         </div>
       </div>
 
-      {/* ツールバー型カテゴリナビ */}
+      {/* 3. ツールバー型カテゴリナビ */}
       <div className="container nav-container">
         <nav className="category-nav custom-scroll">
           {categories.map((cat) => (
