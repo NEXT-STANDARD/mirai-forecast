@@ -67,7 +67,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
     rankBorderColor = 'rgba(244, 63, 94, 0.4)';
   }
 
-  // 🏆 リアルタイム・シミュレーション リーダーボード（全国ランキング）
+  // 🏆 リーダーボード（全国ランキング）
   const leaderboardData = [
     { rank: 1, name: 'Tokyo_Alpha_Quant', badge: '👑 未来マスター', accuracy: 88, votes: 42, streak: 12, isUser: false },
     { rank: 2, name: '兜町マクロウォッチャー', badge: '⚡ チーフ・ストラテジスト', accuracy: 83, votes: 38, streak: 9, isUser: false },
@@ -80,93 +80,93 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
-      <div className="modal-card" style={{ maxWidth: '600px' }} onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card forecast-modal-dialog" onClick={(e) => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="forecast-modal-header">
-          <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-400" />
+          <div className="forecast-header-left">
+            <Award className="forecast-header-icon" />
             <div>
-              <span className="text-[10px] font-mono font-bold text-amber-400 tracking-wider">PREDICTOR HUB // 未来予報士</span>
-              <h2 className="text-sm font-bold text-slate-100">予報士プロファイル ＆ 全国ランキング</h2>
+              <div className="forecast-header-sub">PREDICTOR HUB // 未来予報士</div>
+              <h2 className="forecast-header-title">予報士プロファイル ＆ 全国ランキング</h2>
             </div>
           </div>
-          <button onClick={onClose} className="modal-close-btn">
-            <X size={16} />
+          <button onClick={onClose} className="forecast-close-btn" aria-label="閉じる">
+            <X size={18} />
           </button>
         </div>
 
         {/* タブナビゲーション */}
-        <div className="forecast-tab-bar">
+        <div className="forecast-tab-nav">
           <button
+            type="button"
             onClick={() => setActiveTab('profile')}
-            className={`forecast-tab-btn ${activeTab === 'profile' ? 'active-profile' : ''}`}
+            className={`forecast-tab-item ${activeTab === 'profile' ? 'active' : ''}`}
           >
-            <User size={13} />
+            <User size={14} />
             <span>マイ実績 ＆ 履歴</span>
           </button>
           <button
+            type="button"
             onClick={() => setActiveTab('leaderboard')}
-            className={`forecast-tab-btn ${activeTab === 'leaderboard' ? 'active-leaderboard' : ''}`}
+            className={`forecast-tab-item ${activeTab === 'leaderboard' ? 'active-gold' : ''}`}
           >
-            <Trophy size={13} />
+            <Trophy size={14} />
             <span>🏆 全国ランキング (Leaderboard)</span>
           </button>
         </div>
 
         {activeTab === 'profile' ? (
           /* タブ1: マイ実績 */
-          <div className="forecast-body">
+          <div className="forecast-modal-body">
             {/* ランク＆ストリーク */}
-            <div className="forecast-rank-banner" style={{ borderColor: rankBorderColor }}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-[10px] font-mono tracking-widest text-slate-400">CURRENT RANK</span>
-                  <h3 className="text-base font-bold text-white mt-0.5">{rankTitle}</h3>
-                  <p className="text-xs text-slate-300 mt-1">{rankDesc}</p>
+            <div className="forecast-rank-box" style={{ borderColor: rankBorderColor }}>
+              <div className="forecast-rank-top">
+                <div className="forecast-rank-info">
+                  <div className="forecast-rank-badge-label">CURRENT RANK</div>
+                  <h3 className="forecast-rank-name">{rankTitle}</h3>
+                  <p className="forecast-rank-desc">{rankDesc}</p>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <div className="forecast-streak-badge animate-pulse">
-                    <Flame size={13} className="text-amber-400 fill-amber-400" />
+                <div className="forecast-streak-block">
+                  <div className="forecast-streak-pill">
+                    <Flame size={14} className="streak-flame-icon" />
                     <span>{streak.currentStreak} 日連続投票中</span>
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">最高記録: {streak.maxStreak} 日</span>
+                  <span className="forecast-max-streak">最高記録: {streak.maxStreak} 日</span>
                 </div>
               </div>
 
-              <div className="forecast-stats-grid">
-                <div>
-                  <div className="text-[10px] text-slate-400">総投票数</div>
-                  <div className="text-base font-bold font-mono text-white">{votedCount} <span className="text-[10px] text-slate-400">件</span></div>
+              <div className="forecast-stats-row">
+                <div className="forecast-stat-col">
+                  <div className="forecast-stat-lbl">総投票数</div>
+                  <div className="forecast-stat-num">{votedCount} <span className="forecast-unit">件</span></div>
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400">結果確定</div>
-                  <div className="text-base font-bold font-mono text-cyan-400">{resolvedCount} <span className="text-[10px] text-slate-400">件</span></div>
+                <div className="forecast-stat-col">
+                  <div className="forecast-stat-lbl">結果確定</div>
+                  <div className="forecast-stat-num cyan">{resolvedCount} <span className="forecast-unit">件</span></div>
                 </div>
-                <div>
-                  <div className="text-[10px] text-slate-400">的中率 (Accuracy)</div>
-                  <div className="text-base font-bold font-mono text-emerald-400">{accuracyRate !== null ? `${accuracyRate}%` : '集計待機中'}</div>
+                <div className="forecast-stat-col">
+                  <div className="forecast-stat-lbl">的中率 (Accuracy)</div>
+                  <div className="forecast-stat-num green">{accuracyRate !== null ? `${accuracyRate}%` : '集計待機中'}</div>
                 </div>
               </div>
             </div>
 
             {/* 過去の投票履歴リスト */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                  <Target size={13} className="text-cyan-400" />
-                  <span>あなたが投票した未来の問い一覧 ({votedItems.length}件)</span>
-                </h4>
+            <div className="forecast-history-section">
+              <div className="forecast-history-header">
+                <Target size={14} className="text-cyan-400" />
+                <h4 className="forecast-history-title">あなたが投票した未来の問い一覧 ({votedItems.length}件)</h4>
               </div>
 
               {votedItems.length === 0 ? (
-                <div className="py-8 px-4 text-center border border-dashed border-slate-800 rounded-lg">
-                  <p className="text-xs text-slate-400">まだ投票履歴がありません。</p>
-                  <p className="text-[11px] text-slate-500 mt-1">
+                <div className="forecast-empty-box">
+                  <p className="forecast-empty-txt">まだ投票履歴がありません。</p>
+                  <p className="forecast-empty-sub">
                     トップページの各銘柄で「YES / NO」に直感で投票すると、ここに自動記録されます。
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2 max-h-56 overflow-y-auto custom-scroll pr-1">
+                <div className="forecast-history-list">
                   {votedItems.map(({ event, vote }) => {
                     const isResolved = Boolean(event.resolvedChoice);
                     const isWon = isResolved && event.resolvedChoice === vote;
@@ -179,37 +179,29 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
                           onSelectEvent(event);
                           onClose();
                         }}
-                        className={`forecast-history-item ${isWon ? 'border-emerald-500/40 bg-emerald-950/20' : isLost ? 'border-rose-500/30' : ''}`}
+                        className={`forecast-card-item ${isWon ? 'won' : isLost ? 'lost' : ''}`}
                       >
-                        <div className="flex-1 min-w-0 pr-3">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">
+                        <div className="forecast-card-main">
+                          <div className="forecast-card-tags">
+                            <span className="forecast-cat-pill">
                               {event.categoryLabel.slice(0, 6)}
                             </span>
-                            <span className="text-[10px] font-mono text-cyan-400">
+                            <span className="forecast-odds-pill">
                               世界オッズ: {event.worldProbYes}%
                             </span>
-                            {isWon && (
-                              <span className="text-[10px] px-1.5 py-0.2 bg-emerald-950 text-emerald-400 border border-emerald-500/50 rounded font-bold">
-                                🎯 的中！
-                              </span>
-                            )}
-                            {isLost && (
-                              <span className="text-[10px] px-1.5 py-0.2 bg-rose-950 text-rose-400 border border-rose-500/50 rounded">
-                                ❌ 不的中
-                              </span>
-                            )}
+                            {isWon && <span className="won-badge">🎯 的中！</span>}
+                            {isLost && <span className="lost-badge">❌ 不的中</span>}
                           </div>
-                          <h5 className="text-xs font-medium text-slate-100 truncate">
+                          <h5 className="forecast-card-question">
                             {event.titleJa}
                           </h5>
                         </div>
 
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className={`px-2 py-1 rounded text-xs font-bold font-mono ${vote === 'YES' ? 'bg-cyan-950 text-cyan-400 border border-cyan-800/50' : 'bg-rose-950 text-rose-400 border border-rose-800/50'}`}>
+                        <div className="forecast-card-right">
+                          <span className={`forecast-vote-pill ${vote.toLowerCase()}`}>
                             [{vote}] に投票
                           </span>
-                          <ArrowRight size={13} className="text-slate-500" />
+                          <ArrowRight size={14} className="forecast-arrow" />
                         </div>
                       </div>
                     );
@@ -220,44 +212,40 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
           </div>
         ) : (
           /* タブ2: 全国ランキング (Leaderboard) */
-          <div className="forecast-body">
-            <div className="flex items-center justify-between text-xs text-slate-400 px-1">
+          <div className="forecast-modal-body">
+            <div className="leaderboard-meta-bar">
               <span>全国の予報士ランキング (的中率 ＆ ストリーク)</span>
-              <span className="text-[10px] font-mono text-amber-400">● 毎週月曜 00:00 集計更新</span>
+              <span className="leaderboard-update-tag">● 毎週月曜 00:00 集計更新</span>
             </div>
 
-            <div className="space-y-1.5 max-h-72 overflow-y-auto custom-scroll pr-1">
+            <div className="leaderboard-list">
               {leaderboardData.map((user) => (
                 <div
                   key={user.rank}
-                  className={`leaderboard-row ${user.isUser ? 'is-user' : ''}`}
+                  className={`leaderboard-item ${user.isUser ? 'highlight-user' : ''}`}
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className={`rank-number-pill ${user.rank === 1 ? 'rank-gold' : user.rank === 2 ? 'rank-silver' : user.rank === 3 ? 'rank-bronze' : 'rank-default'}`}>
+                  <div className="leaderboard-left">
+                    <div className={`leaderboard-rank-badge rank-${user.rank <= 3 ? user.rank : 'default'}`}>
                       {user.rank}
                     </div>
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className={`text-xs font-bold ${user.isUser ? 'text-amber-300' : 'text-white'}`}>
-                          {user.name}
-                        </span>
-                        {user.isUser && (
-                          <span className="text-[9px] px-1 bg-amber-400 text-slate-950 rounded font-bold">YOU</span>
-                        )}
+                      <div className="leaderboard-name-row">
+                        <span className="leaderboard-name">{user.name}</span>
+                        {user.isUser && <span className="you-tag">YOU</span>}
                       </div>
-                      <span className="text-[10px] text-slate-400">{user.badge}</span>
+                      <div className="leaderboard-badge-txt">{user.badge}</div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-right font-mono">
-                    <div>
-                      <div className="text-[10px] text-slate-400">的中率</div>
-                      <div className="text-xs font-bold text-emerald-400">{user.accuracy}%</div>
+                  <div className="leaderboard-right">
+                    <div className="leaderboard-stat-item">
+                      <div className="leaderboard-stat-sub">的中率</div>
+                      <div className="leaderboard-stat-val green">{user.accuracy}%</div>
                     </div>
-                    <div className="w-12">
-                      <div className="text-[10px] text-slate-400">連続</div>
-                      <div className="text-xs font-bold text-amber-400 flex items-center justify-end gap-0.5">
-                        <Flame size={11} className="text-amber-400 fill-amber-400" />
+                    <div className="leaderboard-stat-item streak-col">
+                      <div className="leaderboard-stat-sub">連続</div>
+                      <div className="leaderboard-stat-val amber">
+                        <Flame size={12} className="fill-amber-400" />
                         <span>{user.streak}d</span>
                       </div>
                     </div>
@@ -269,9 +257,9 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
         )}
 
         {/* フッター */}
-        <div className="p-3 border-t border-slate-800 bg-slate-900/90 flex justify-between items-center text-[11px] text-slate-400">
-          <span>🔒 投票履歴とストリークはブラウザに安全に保存されています</span>
-          <button onClick={onClose} className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-medium transition-all">
+        <div className="forecast-modal-footer">
+          <span className="forecast-footer-security">🔒 投票履歴とストリークはブラウザに安全に保存されています</span>
+          <button type="button" onClick={onClose} className="forecast-footer-btn">
             閉じる
           </button>
         </div>
