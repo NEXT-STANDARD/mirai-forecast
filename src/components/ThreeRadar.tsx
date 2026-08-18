@@ -18,13 +18,13 @@ export const ThreeRadar: React.FC<ThreeRadarProps> = ({
     if (!containerRef.current) return;
 
     const container = containerRef.current;
-    const width = container.clientWidth || 360;
-    const height = container.clientHeight || 280;
+    const width = container.clientWidth || 640;
+    const height = 380;
 
-    // 1. Scene & Camera
+    // 1. Scene & Camera (大迫力の斜め見下ろしアングル)
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 15, 25);
+    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 1000);
+    camera.position.set(0, 18, 22);
     camera.lookAt(0, 0, 0);
 
     // 2. Renderer
@@ -201,6 +201,7 @@ export const ThreeRadar: React.FC<ThreeRadarProps> = ({
             <span className="hud-label">📡 3D SMART MONEY SCANNER</span>
             <span className="hud-live-tag">ACTIVE 360°</span>
           </div>
+          <span className="radar-footer-guide">💡 ノードをホバーでオッズ確認 ｜ クリックでチャート切り替え</span>
         </div>
       </div>
 
