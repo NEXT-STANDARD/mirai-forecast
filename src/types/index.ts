@@ -48,3 +48,10 @@ export interface MarketItem {
     likes: number;
   }>;
 }
+
+export interface StreakData {
+  currentStreak: number;
+  lastVoteDate: string; // YYYY-MM-DD
+  maxStreak: number;
+  totalVotedDays: number;
+}

@@ -14,7 +14,7 @@ import { MyForecastModal } from './components/MyForecastModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
-import type { MarketItem, CategoryType } from './types';
+import type { MarketItem, CategoryType, StreakData } from './types';
 
 export function App() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
@@ -36,6 +36,18 @@ export function App() {
     } catch {
       return {};
     }
+  });
+  const [streak, setStreak] = useState<StreakData>(() => {
+    try {
+      const saved = localStorage.getItem('mirairadar_streak');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return {
+      currentStreak: 1,
+      lastVoteDate: new Date().toISOString().split('T')[0],
+      maxStreak: 1,
+      totalVotedDays: 1,
+    };
   });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
@@ -151,6 +163,36 @@ export function App() {
       return next;
     });
 
+    // ストリーク日数の更新
+    setStreak(prev => {
+      const today = new Date().toISOString().split('T')[0];
+      if (prev.lastVoteDate === today) {
+        return prev;
+      }
+
+      const lastDate = new Date(prev.lastVoteDate);
+      const currentDate = new Date(today);
+      const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+      let nextStreak = 1;
+      if (diffDays === 1) {
+        nextStreak = prev.currentStreak + 1;
+      }
+
+      const next: StreakData = {
+        currentStreak: nextStreak,
+        lastVoteDate: today,
+        maxStreak: Math.max(prev.maxStreak, nextStreak),
+        totalVotedDays: prev.totalVotedDays + 1,
+      };
+
+      try {
+        localStorage.setItem('mirairadar_streak', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+
     // ローカルステートを即時更新
     setEvents(prev => prev.map(item => {
       if (item.id === eventId) {
@@ -176,6 +218,12 @@ export function App() {
     submitVoteToSupabase(eventId, choice);
   };
 
+  // 投票した銘柄のうち結果確定している件数
+  const resolvedNotificationsCount = Object.keys(userVotes).filter(id => {
+    const ev = events.find(e => e.id === id || e.slug === id);
+    return ev && Boolean(ev.resolvedChoice);
+  }).length;
+
   const currentFocusedEvent = events.find(e => e.id === activeTopicId) || filteredEvents[0] || events[0];
 
   return (
@@ -193,6 +241,8 @@ export function App() {
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={() => setIsMyForecastOpen(true)}
         userVotesCount={Object.keys(userVotes).length}
+        streakDays={streak.currentStreak}
+        resolvedNotificationsCount={resolvedNotificationsCount}
       />
 
       {isAdminOpen ? (
@@ -272,6 +322,7 @@ export function App() {
         onClose={() => setIsMyForecastOpen(false)}
         userVotes={userVotes}
         events={events}
+        streak={streak}
         onSelectEvent={(ev) => {
           setActiveTopicId(ev.id);
           setSelectedCategory('all');

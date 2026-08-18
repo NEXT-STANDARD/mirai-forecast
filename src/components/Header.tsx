@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, Zap } from 'lucide-react';
+import { RefreshCw, Zap, Flame } from 'lucide-react';
 import { Logo } from './Logo';
 import type { CategoryType } from '../types';
 
@@ -15,6 +15,8 @@ interface HeaderProps {
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
   userVotesCount?: number;
+  streakDays?: number;
+  resolvedNotificationsCount?: number;
   onGoHome?: () => void;
 }
 
@@ -30,6 +32,8 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPropose,
   onOpenMyForecast,
   userVotesCount = 0,
+  streakDays = 1,
+  resolvedNotificationsCount = 0,
   onGoHome,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
@@ -101,9 +105,22 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
           </div>
           {onOpenMyForecast && (
-            <button onClick={onOpenMyForecast} className="stat-card forecast-highlight" title="あなたの投票履歴と予報士ランク">
-              <div className="stat-label">MY PREDICTOR</div>
-              <div className="stat-value text-cyan-400">🏆 マイ予報 ({userVotesCount})</div>
+            <button onClick={onOpenMyForecast} className="stat-card forecast-highlight relative" title="あなたの投票履歴・ストリーク・全国ランキング">
+              <div className="stat-label flex items-center justify-between">
+                <span>MY PREDICTOR</span>
+                {streakDays > 0 && (
+                  <span className="text-[9px] text-amber-400 flex items-center font-mono font-bold">
+                    <Flame size={10} className="fill-amber-400 mr-0.5" />
+                    {streakDays}d
+                  </span>
+                )}
+              </div>
+              <div className="stat-value text-cyan-400 flex items-center gap-1">
+                <span>🏆 マイ予報 ({userVotesCount})</span>
+                {resolvedNotificationsCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping inline-block" title="結果確定した銘柄があります" />
+                )}
+              </div>
             </button>
           )}
           {onOpenPropose && (
