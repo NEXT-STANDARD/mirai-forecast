@@ -6,12 +6,14 @@ interface WatchlistTableProps {
   events: MarketItem[];
   selectedEvent: MarketItem;
   onSelectEvent: (event: MarketItem) => void;
+  onOpenPropose?: () => void;
 }
 
 export const WatchlistTable: React.FC<WatchlistTableProps> = ({
   events,
   selectedEvent,
   onSelectEvent,
+  onOpenPropose,
 }) => {
   return (
     <div className="terminal-pane watchlist-pane">
@@ -20,7 +22,14 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
           <Flame size={13} className="icon-gold" />
           <span className="pane-main-title">観測銘柄 ｜ Screener</span>
         </div>
-        <span className="count-tag">{events.length}件</span>
+        <div className="flex items-center gap-1.5">
+          {onOpenPropose && (
+            <button onClick={onOpenPropose} className="btn-screener-propose" title="新しい未来の問いを提案する">
+              ＋ 問いを提案
+            </button>
+          )}
+          <span className="count-tag">{events.length}件</span>
+        </div>
       </div>
 
       <div className="table-scroll-container custom-scroll">

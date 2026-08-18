@@ -8,6 +8,7 @@ import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
 import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
+import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -18,6 +19,7 @@ export function App() {
   const [events, setEvents] = useState<MarketItem[]>(INITIAL_EVENTS);
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
+  const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
@@ -150,6 +152,7 @@ export function App() {
         totalJapanVotes={totalJapanVotes}
         onOpenLetter={handleOpenLetter}
         onGoHome={handleGoHome}
+        onOpenPropose={() => setIsProposeModalOpen(true)}
       />
 
       {isLetterPageOpen ? (
@@ -171,6 +174,7 @@ export function App() {
               onOpenModal={(event) => setSelectedModalEvent(event)}
               onOpenShare={(event) => setSelectedShareEvent(event)}
               activeEventId={activeTopicId}
+              onOpenPropose={() => setIsProposeModalOpen(true)}
             />
           </main>
 
@@ -185,6 +189,12 @@ export function App() {
           )}
         </>
       )}
+
+      {/* ユーザー提案モーダル */}
+      <ProposeTopicModal
+        isOpen={isProposeModalOpen}
+        onClose={() => setIsProposeModalOpen(false)}
+      />
 
       {/* 初回訪問時のサイバーパンク風通知ポップアップ */}
       <MikeNoticePopup onOpenLetter={handleOpenLetter} />

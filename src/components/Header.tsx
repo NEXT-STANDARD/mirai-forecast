@@ -13,6 +13,7 @@ interface HeaderProps {
   totalJapanVotes: number;
   onOpenLetter?: () => void;
   onGoHome?: () => void;
+  onOpenPropose?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -25,6 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   totalJapanVotes,
   onOpenLetter,
   onGoHome,
+  onOpenPropose,
 }) => {
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
@@ -57,6 +59,11 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="compliance-tag">非賭博・公選法配慮</span>
           </div>
           <div className="ticker-right-actions">
+            {onOpenPropose && (
+              <button onClick={onOpenPropose} className="propose-ticker-badge">
+                <span>💡 問いを提案する</span>
+              </button>
+            )}
             {onOpenLetter && (
               <button onClick={onOpenLetter} className="letter-ticker-badge">
                 <span className="dot-gold"></span>
@@ -88,10 +95,16 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="stat-label">国内投票総数</div>
             <div className="stat-value">{totalJapanVotes.toLocaleString()} <span className="stat-unit">票</span></div>
           </div>
+          {onOpenPropose && (
+            <button onClick={onOpenPropose} className="stat-card propose-highlight hide-on-xs" title="新しい未来の問いを提案する">
+              <div className="stat-label">COMMUNITY</div>
+              <div className="stat-value text-amber-400">💡 問いを提案</div>
+            </button>
+          )}
           {onOpenLetter && (
             <button onClick={onOpenLetter} className="stat-card letter-highlight hide-on-xs" title="Polymarket Japan マイク・エイドリン氏への公開書簡">
               <div className="stat-label">OPEN LETTER</div>
-              <div className="stat-value gold-text">📨 to Mike (Polymarket)</div>
+              <div className="stat-value gold-text">📨 to Mike</div>
             </button>
           )}
           <div className="stat-card highlight hide-on-xs">
