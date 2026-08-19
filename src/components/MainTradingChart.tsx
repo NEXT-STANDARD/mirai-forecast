@@ -1,13 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import type { MarketItem } from '../types';
-import { ThreeRadar } from './ThreeRadar';
-import { Radio, Sparkles, BarChart2, Calendar, ExternalLink, RefreshCw } from 'lucide-react';
+import { Sparkles, Calendar, ExternalLink, RefreshCw } from 'lucide-react';
 import { fetchMarketPriceHistory, type HistoricalPricePoint } from '../services/polymarketService';
 
 interface MainTradingChartProps {
   event: MarketItem;
-  events: MarketItem[];
-  onSelectEvent: (event: MarketItem) => void;
+  events?: MarketItem[];
+  onSelectEvent?: (event: MarketItem) => void;
   onOpenDetail?: (event: MarketItem) => void;
 }
 
@@ -24,11 +23,8 @@ interface ChartPoint {
 
 export const MainTradingChart: React.FC<MainTradingChartProps> = ({
   event,
-  events,
-  onSelectEvent,
   onOpenDetail,
 }) => {
-  const [activeTab, setActiveTab] = useState<'chart' | 'radar'>('chart');
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '30D' | 'ALL'>('30D');
   const [livePoints, setLivePoints] = useState<HistoricalPricePoint[] | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -225,34 +221,11 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
           </div>
           <h2 className="event-main-title">{event.titleJa || event.title}</h2>
         </div>
-
-        {/* チャート / 3Dレーダー 切替 */}
-        <div className="view-mode-tabs">
-          <button
-            onClick={() => setActiveTab('chart')}
-            className={`tab-btn ${activeTab === 'chart' ? 'active' : ''}`}
-          >
-            <BarChart2 size={14} />
-            <span>価格・出来高チャート</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('radar')}
-            className={`tab-btn ${activeTab === 'radar' ? 'active' : ''}`}
-          >
-            <Radio size={14} />
-            <span>3D SmartRadar</span>
-          </button>
-        </div>
       </div>
 
-      {activeTab === 'radar' ? (
-        <div className="radar-view-container">
-          <ThreeRadar events={events} onSelectEvent={onSelectEvent} />
-        </div>
-      ) : (
-        <div className="chart-content-area">
-          {/* OHLCV クォンツ情報バー ＆ 時間軸セレクター */}
-          <div className="chart-stats-toolbar">
+      <div className="chart-content-area">
+        {/* OHLCV クォンツ情報バー ＆ 時間軸セレクター */}
+        <div className="chart-stats-toolbar">
             <div className="ohlcv-metrics">
               <div className="metric-group main-prob">
                 <span className="metric-lbl">YES 確率</span>
@@ -500,7 +473,6 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             )}
           </div>
         </div>
-      )}
     </div>
   );
 };
