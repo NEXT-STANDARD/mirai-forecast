@@ -222,8 +222,8 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
               </div>
 
               {/* カードメインタイトル */}
-              <h4 className="card-market-title" title={event.titleJa}>
-                {event.titleJa}
+              <h4 className="card-market-title" title={event.titleJa || event.title}>
+                {event.titleJa || event.title}
               </h4>
 
               {/* ⭐️ デュアル世論スプレッド（世界マネー vs 日本世論） */}

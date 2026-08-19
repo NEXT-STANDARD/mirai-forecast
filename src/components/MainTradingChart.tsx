@@ -210,8 +210,8 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
       <div className="main-chart-top-bar">
         <div className="symbol-info">
           <div className="symbol-title-row">
-            <span className="ticker-code">POLY:{event.slug.slice(0, 10).toUpperCase()}</span>
-            <span className="category-badge">{event.categoryLabel}</span>
+            <span className="ticker-code">POLY:{(event.slug || event.id || 'MARKET').slice(0, 10).toUpperCase()}</span>
+            <span className="category-badge">{event.categoryLabel || '⚡ AI・テック'}</span>
             {onOpenDetail && (
               <button
                 onClick={() => onOpenDetail(event)}
@@ -223,7 +223,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
               </button>
             )}
           </div>
-          <h2 className="event-main-title">{event.titleJa}</h2>
+          <h2 className="event-main-title">{event.titleJa || event.title}</h2>
         </div>
 
         {/* チャート / 3Dレーダー 切替 */}

@@ -171,15 +171,24 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         // ⭐️ メモリから100%確実に深層カタリスト分析を即時解決 (セマンティック完全対応)
         const aiInsight = resolveAiInsight(String(db.id), db.slug, db.title_ja, db.category);
 
+        const categoryKey = (db.category as CategoryType) || 'economy';
+        const categoryLabels: Record<string, string> = {
+          economy: '📊 経済・金利・暗号資産',
+          tech: '⚡ AI・テック',
+          politics: '🌐 国際・社会',
+          sports: '⚾ スポーツ',
+          entertainment: '🎬 エンタメ',
+        };
+
         return {
           id: String(db.id),
           slug: db.slug || `topic-${db.id}`,
-          title: db.title_en || db.title_ja,
-          titleJa: db.title_ja,
-          question: db.question_en || db.title_ja,
-          questionJa: db.question_ja || db.title_ja,
-          category: (db.category as CategoryType) || 'economy',
-          categoryLabel: db.category_label || '📊 経済・金利・暗号資産',
+          title: db.title_en || db.title_ja || 'Market Topic',
+          titleJa: db.title_ja || db.title_en || '観測銘柄',
+          question: db.question_en || db.title_ja || 'Question',
+          questionJa: db.question_ja || db.title_ja || '観測テーマ',
+          category: categoryKey,
+          categoryLabel: db.category_label || categoryLabels[categoryKey] || '📊 経済・金利・暗号資産',
           iconUrl: db.icon_url || '',
           worldProbYes: probYes,
           worldProbNo: 100 - probYes,

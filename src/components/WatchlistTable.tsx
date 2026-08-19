@@ -71,9 +71,9 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                   >
                     <td className="td-name">
                       <div className="name-wrap">
-                        <span className="category-micro-tag">{item.categoryLabel.slice(0, 8)}</span>
-                      <span className="event-title-short" title={item.titleJa}>
-                        {item.titleJa}
+                        <span className="category-micro-tag">{(item.categoryLabel || '⚡ AI・テック').slice(0, 8)}</span>
+                      <span className="event-title-short" title={item.titleJa || item.title}>
+                        {item.titleJa || item.title}
                       </span>
                     </div>
                   </td>
