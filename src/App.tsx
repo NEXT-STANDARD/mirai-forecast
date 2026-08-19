@@ -8,6 +8,7 @@ import { ComplianceBanner } from './components/ComplianceBanner';
 import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
+import { SpreadRankingSection } from './components/SpreadRankingSection';
 import { AdminConsolePage } from './components/AdminConsolePage';
 import { AllMarketsGrid } from './components/AllMarketsGrid';
 import { MyForecastModal } from './components/MyForecastModal';
@@ -351,7 +352,20 @@ export function App() {
               onOpenDetail={handleOpenMarketDetail}
             />
 
-            {/* 🎴 すべての未来マーケット（全銘柄カードグリッド ＆ 即時投票） */}
+            {/* ⚡ 注目の世論スプレッド乖離ランキング（キラー第1弾） */}
+            <SpreadRankingSection
+              events={events}
+              userVotes={userVotes}
+              onVote={handleVote}
+              onSelectEvent={(event) => {
+                setActiveTopicId(event.id);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              onOpenDetail={handleOpenMarketDetail}
+              onOpenShare={(event) => setSelectedShareEvent(event)}
+            />
+
+            {/* 🎴 すべての観測銘柄（全銘柄カードグリッド ＆ 即時投票） */}
             <AllMarketsGrid
               events={events}
               userVotes={userVotes}
