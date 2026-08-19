@@ -966,46 +966,41 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                         icon: '📊',
                         name: '経済・金利・暗号資産',
                         desc: '日銀利上げ・米FRB・為替・株価・ビットコイン',
-                        tagColor: 'text-amber-400',
                       },
                       {
                         id: 'tech',
                         icon: '⚡',
                         name: 'AI・テック',
                         desc: '生成AI・OpenAI・SpaceX・NVIDIA・半導体',
-                        tagColor: 'text-cyan-400',
                       },
                       {
                         id: 'politics',
                         icon: '🌐',
                         name: '国際・社会',
                         desc: '米大統領選・解散総選挙・地政学・政策法案',
-                        tagColor: 'text-blue-400',
                       },
                       {
                         id: 'sports',
                         icon: '⚾',
                         name: 'スポーツ',
                         desc: '大谷翔平・MLB・プロ野球・日本代表・海外サッカー',
-                        tagColor: 'text-emerald-400',
                       },
                       {
                         id: 'entertainment',
                         icon: '🎬',
                         name: 'エンタメ',
                         desc: '映画興行収入・アニメ新作・紅白歌合戦・SNSトレンド',
-                        tagColor: 'text-purple-400',
                       },
                     ].map((c) => (
                       <button
                         type="button"
                         key={c.id}
-                        className={`admin-cat-card ${newCategory === c.id ? 'active' : ''}`}
+                        className={`admin-cat-card cat-${c.id} ${newCategory === c.id ? 'active' : ''}`}
                         onClick={() => setNewCategory(c.id as CategoryType)}
                       >
                         <div className="admin-cat-card-header">
                           <span className="admin-cat-icon">{c.icon}</span>
-                          <span className={`admin-cat-name ${c.tagColor}`}>{c.name}</span>
+                          <span className="admin-cat-name">{c.name}</span>
                         </div>
                         <p className="admin-cat-desc">{c.desc}</p>
                       </button>
