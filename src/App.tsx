@@ -14,6 +14,7 @@ import { AllMarketsGrid } from './components/AllMarketsGrid';
 import { MyForecastModal } from './components/MyForecastModal';
 import { MarketDetailPage } from './components/MarketDetailPage';
 import { OnboardingModal } from './components/OnboardingModal';
+import { AiConnectorPage } from './components/AiConnectorPage';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -45,6 +46,9 @@ export function App() {
   
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
+  });
+  const [isAiConnectorOpen, setIsAiConnectorOpen] = useState(() => {
+    return typeof window !== 'undefined' && (window.location.pathname === '/ai-connector' || window.location.pathname === '/developers');
   });
   const [isAdminOpen, setIsAdminOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/admin';
@@ -117,6 +121,7 @@ export function App() {
     setDetailMarketId(null);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
+    setIsAiConnectorOpen(false);
     setSelectedCategory('all');
     setActiveTopicId(null);
     window.history.pushState({}, '', '/');
@@ -127,13 +132,20 @@ export function App() {
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === '/letter-to-mike') {
-        setIsLetterPageOpen(true);
-        setIsAdminOpen(false);
-        setDetailMarketId(null);
-      } else if (path === '/admin') {
+      if (path === '/admin') {
         setIsAdminOpen(true);
         setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setDetailMarketId(null);
+      } else if (path === '/letter-to-mike') {
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(true);
+        setIsAiConnectorOpen(false);
+        setDetailMarketId(null);
+      } else if (path === '/ai-connector' || path === '/developers') {
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(true);
         setDetailMarketId(null);
       } else {
         const match = path.match(/^\/market\/(.+)$/);
@@ -141,10 +153,12 @@ export function App() {
           setDetailMarketId(decodeURIComponent(match[1]));
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
+          setIsAiConnectorOpen(false);
         } else {
           setDetailMarketId(null);
-          setIsLetterPageOpen(false);
           setIsAdminOpen(false);
+          setIsLetterPageOpen(false);
+          setIsAiConnectorOpen(false);
         }
       }
     };
@@ -308,6 +322,7 @@ export function App() {
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={() => setIsMyForecastOpen(true)}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
+        onOpenAiConnector={() => setIsAiConnectorOpen(true)}
         userVotesCount={Object.keys(userVotes).length}
         streakDays={streak.currentStreak}
         resolvedNotificationsCount={resolvedNotificationsCount}
@@ -324,6 +339,10 @@ export function App() {
       ) : isLetterPageOpen ? (
         <main className="container main-content">
           <LetterToMikePage onBack={handleCloseLetter} />
+        </main>
+      ) : isAiConnectorOpen ? (
+        <main className="container main-content">
+          <AiConnectorPage onBack={() => setIsAiConnectorOpen(false)} />
         </main>
       ) : detailMarketId && events.find(e => e.id === detailMarketId || e.slug === detailMarketId) ? (
         <main className="container main-content">

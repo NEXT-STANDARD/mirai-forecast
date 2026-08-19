@@ -15,6 +15,7 @@ interface HeaderProps {
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
   onOpenOnboarding?: () => void;
+  onOpenAiConnector?: () => void;
   userVotesCount?: number;
   streakDays?: number;
   resolvedNotificationsCount?: number;
@@ -33,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenPropose,
   onOpenMyForecast,
   onOpenOnboarding,
+  onOpenAiConnector,
   userVotesCount = 0,
   streakDays = 1,
   resolvedNotificationsCount = 0,
@@ -72,6 +74,17 @@ export const Header: React.FC<HeaderProps> = ({
             >
               <span className="dot-gold-mini"></span>
               <span>📨 to Mike</span>
+            </button>
+          )}
+
+          {onOpenAiConnector && (
+            <button
+              onClick={onOpenAiConnector}
+              className="btn-header-subtle hide-on-mobile"
+              title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
+            >
+              <span className="text-emerald-400 font-mono text-[10px]">🤖</span>
+              <span>AI連携</span>
             </button>
           )}
 
