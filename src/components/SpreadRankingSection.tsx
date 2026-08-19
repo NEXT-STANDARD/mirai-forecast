@@ -9,6 +9,7 @@ import {
   CheckCircle2, 
   Lock,
   Crown,
+  Medal,
   Flame
 } from 'lucide-react';
 
@@ -84,16 +85,18 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
           const hasVoted = Boolean(userVote);
           const rankNumber = index + 1;
 
-          // 順位メダル・バッジ装飾
+          // 順位メダル・バッジ装飾（数字重複の解消）
           let rankBadgeClass = 'rank-badge-other';
-          let rankIcon = <span className="font-mono">{rankNumber}</span>;
+          let rankIcon = null;
           if (rankNumber === 1) {
             rankBadgeClass = 'rank-badge-gold';
-            rankIcon = <Crown size={14} className="text-amber-300" />;
+            rankIcon = <Crown size={13} className="text-amber-300" />;
           } else if (rankNumber === 2) {
             rankBadgeClass = 'rank-badge-silver';
+            rankIcon = <Medal size={13} className="text-slate-200" />;
           } else if (rankNumber === 3) {
             rankBadgeClass = 'rank-badge-bronze';
+            rankIcon = <Medal size={13} className="text-amber-600" />;
           }
 
           // なぜ乖離しているかのAIインサイト
@@ -110,7 +113,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 <div className="flex items-center gap-1.5">
                   <div className={`rank-badge ${rankBadgeClass}`}>
                     {rankIcon}
-                    <span>{rankNumber}位</span>
+                    <span className="font-mono font-extrabold">{rankNumber}位</span>
                   </div>
                   <span className="spread-category-label">{event.categoryLabel}</span>
                 </div>

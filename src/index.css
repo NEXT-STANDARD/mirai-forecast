@@ -6464,17 +6464,19 @@ body {
 .spread-meter-label {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
-  font-size: 0.62rem;
+  gap: 0.35rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  color: #94a3b8;
-  width: 65px;
+  color: #cbd5e1;
+  width: 74px;
+  min-width: 74px;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
 .spread-meter-track {
   flex: 1;
-  height: 6px;
+  height: 8px;
   background: rgba(255, 255, 255, 0.08);
   border-radius: 9999px;
   overflow: hidden;
@@ -6488,17 +6490,17 @@ body {
 
 .spread-meter-bar.world-bar {
   background: #38bdf8;
-  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
 }
 
 .spread-meter-bar.japan-bar {
   background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
 }
 
 .spread-meter-value {
-  font-size: 0.72rem;
-  width: 32px;
+  font-size: 0.78rem;
+  width: 36px;
   text-align: right;
   flex-shrink: 0;
 }
@@ -6508,30 +6510,33 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  font-size: 0.58rem;
-  color: #64748b;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  color: #94a3b8;
   font-weight: 600;
 }
 
-/* 投票ボタングループ */
+/* 投票ボタングループ（親指タップ最適化 ＆ ゆったりサイズ） */
 .spread-vote-group {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.45rem;
+  gap: 0.6rem;
+  margin: 0.25rem 0;
 }
 
 .btn-ranking-vote {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.3rem;
-  padding: 0.4rem;
-  border-radius: 6px;
-  font-size: 0.68rem;
-  font-weight: 800;
+  gap: 0.4rem;
+  min-height: 48px;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 900;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: -0.01em;
 }
 
 .btn-rank-yes {
@@ -7628,24 +7633,52 @@ img, canvas, svg, video {
   }
 
   .spread-ranking-card {
-    padding: 0.75rem !important;
+    padding: 1.1rem 1.0rem !important;
     width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    border-radius: 12px !important;
   }
 
   .spread-card-title {
     height: auto !important;
     min-height: 2.2rem !important;
-    font-size: 0.82rem !important;
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    margin: 0.25rem 0 !important;
+    color: #ffffff !important;
   }
 
   .spread-meter-label {
-    width: 55px !important;
-    font-size: 0.58rem !important;
+    width: 72px !important;
+    min-width: 72px !important;
+    white-space: nowrap !important;
+    font-size: 0.68rem !important;
+    color: #cbd5e1 !important;
+  }
+
+  .spread-vote-group {
+    gap: 0.6rem !important;
+    margin: 0.35rem 0 !important;
   }
 
   .btn-ranking-vote {
-    padding: 0.35rem 0.25rem !important;
-    font-size: 0.64rem !important;
+    min-height: 48px !important;
+    padding: 0.65rem 0.5rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 900 !important;
+    border-radius: 8px !important;
+  }
+
+  .spread-card-footer {
+    margin-top: 0.25rem !important;
+    gap: 0.5rem !important;
+  }
+
+  .btn-spread-share {
+    min-height: 38px !important;
+    font-size: 0.75rem !important;
   }
 
   /* 🔍 全観測銘柄グリッド */
