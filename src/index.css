@@ -7379,6 +7379,195 @@ body {
   color: #f8fafc;
 }
 
+/* ========================================================
+   📱 Mobile Viewport & Full Responsive Optimization Pack
+   (横スクロール・はみ出し撲滅 ＆ モバイル最適化)
+   ======================================================== */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+img, canvas, svg, video {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .main-content {
+    padding-top: 0.35rem;
+    padding-bottom: 5.5rem; /* モバイル投票スティッキーバーのスペース確保 */
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ヘッダーのモバイル最適化 */
+  .header-main-bar {
+    padding: 0.35rem 0.5rem;
+  }
+
+  /* 3ペインターミナル */
+  .terminal-3pane-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .terminal-pane {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  /* 世論スプレッド乖離ランキング */
+  .spread-ranking-section {
+    padding: 0.85rem 0.65rem;
+    border-radius: 10px;
+    width: 100%;
+  }
+
+  .spread-ranking-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .spread-ranking-card {
+    padding: 0.75rem;
+    width: 100%;
+  }
+
+  .spread-card-title {
+    height: auto;
+    min-height: 2.2rem;
+    font-size: 0.82rem;
+  }
+
+  .spread-meter-label {
+    width: 55px;
+    font-size: 0.58rem;
+  }
+
+  .btn-ranking-vote {
+    padding: 0.35rem 0.25rem;
+    font-size: 0.64rem;
+  }
+
+  /* 全観測銘柄グリッド */
+  .section-header-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+  }
+
+  .section-controls-group {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .market-search-box {
+    width: 100% !important;
+  }
+
+  .sort-selector-box {
+    width: 100% !important;
+    justify-content: space-between;
+  }
+
+  .markets-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .market-card-item {
+    padding: 0.75rem;
+    width: 100%;
+  }
+
+  .topic-pills-scroll-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hot-keywords-row {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* チャート＆ディベート対比 */
+  .chart-debate-preview {
+    grid-template-columns: 1fr !important;
+    gap: 0.4rem;
+  }
+
+  .debate-cards-grid {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem;
+  }
+
+  /* オーダーブック・板情報 */
+  .order-entry-panel {
+    padding: 0.6rem;
+  }
+
+  .entry-btn-grid {
+    gap: 0.35rem;
+  }
+
+  .entry-btn {
+    padding: 0.45rem 0.35rem;
+  }
+
+  .btn-main-label {
+    font-size: 0.72rem;
+  }
+
+  .btn-action-hint {
+    font-size: 0.58rem;
+  }
+
+  /* 管理画面 */
+  .kgi-cards-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .funnel-stages-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* AI Connector ページ */
+  .connector-content-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .connector-hero-title {
+    font-size: 1.25rem;
+  }
+
+  .code-block {
+    font-size: 0.62rem;
+  }
+}
+
+
 
 
 
