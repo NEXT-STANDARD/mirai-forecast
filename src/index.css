@@ -7958,6 +7958,110 @@ img, canvas, svg, video {
   line-height: 1.45;
 }
 
+/* 管理画面 公式銘柄投下 カテゴリカードグリッド */
+.admin-cat-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.admin-cat-card {
+  background: rgba(2, 6, 23, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.admin-cat-card:hover {
+  background: rgba(15, 23, 42, 0.9);
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.admin-cat-card.active {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+.admin-cat-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.admin-cat-icon {
+  font-size: 1.1rem;
+}
+
+.admin-cat-name {
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.admin-cat-desc {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* 公職選挙法安全ロックトグル */
+.election-lock-toggle-box {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+@media (max-width: 700px) {
+  .election-lock-toggle-box {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+.election-lock-info {
+  flex: 1;
+}
+
+.btn-toggle-lock {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #94a3b8;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-toggle-lock:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.btn-toggle-lock.active {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+
 
 
 

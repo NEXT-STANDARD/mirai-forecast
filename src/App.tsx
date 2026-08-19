@@ -21,7 +21,7 @@ import { submitVoteToSupabase } from './services/supabaseClient';
 import type { MarketItem, CategoryType, StreakData } from './types';
 
 export function App() {
-  const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>('trending');
   const [events, setEvents] = useState<MarketItem[]>(INITIAL_EVENTS);
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
@@ -131,7 +131,7 @@ export function App() {
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
-    setSelectedCategory('all');
+    setSelectedCategory('trending');
     setActiveTopicId(null);
     window.history.pushState({}, '', '/');
     window.scrollTo({ top: 0, behavior: 'smooth' });

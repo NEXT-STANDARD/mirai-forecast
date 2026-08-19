@@ -77,6 +77,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState<CategoryType>('economy');
   const [newReason, setNewReason] = useState('');
+  const [newIsBlackout, setNewIsBlackout] = useState(false);
   const [isDeploying, setIsDeploying] = useState(false);
   const [deploySuccess, setDeploySuccess] = useState(false);
 
@@ -267,7 +268,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       tech: '⚡ AI・テック',
       politics: '🌐 国際・社会',
       sports: '⚾ スポーツ',
-      entertainment: '🎬 エンタメ・カルチャー',
+      entertainment: '🎬 エンタメ',
     };
 
     const id = `official-${Date.now()}`;
@@ -279,10 +280,11 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       question_ja: formattedTitle,
       question_en: `【運営公式投下銘柄】背景: ${newReason.trim() || '公式選定トピック'}`,
       category: newCategory,
-      category_label: categoryLabels[newCategory] || '📊 注目トピック',
+      category_label: categoryLabels[newCategory] || '📊 経済・金利・暗号資産',
       icon_url: '',
       end_date: '2026-12-31',
       is_active: true,
+      is_election_blackout: newIsBlackout,
       updated_at: new Date().toISOString(),
     };
 
@@ -954,38 +956,96 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
                 <div className="form-group-admin">
                   <label className="form-label-admin">
-                    <span>カテゴリ選定</span>
+                    <span>カテゴリ選定（サイト表示先）</span>
                     <span className="tag-required">必須</span>
                   </label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                  <div className="admin-cat-cards-grid">
                     {[
-                      { id: 'economy', label: '📊 経済・金利・暗号資産' },
-                      { id: 'tech', label: '⚡ AI・テック' },
-                      { id: 'politics', label: '🌐 国際・社会' },
-                      { id: 'sports', label: '⚾ スポーツ' },
-                      { id: 'entertainment', label: '🎬 エンタメ・カルチャー' },
+                      {
+                        id: 'economy',
+                        icon: '📊',
+                        name: '経済・金利・暗号資産',
+                        desc: '日銀利上げ・米FRB・為替・株価・ビットコイン',
+                        tagColor: 'text-amber-400',
+                      },
+                      {
+                        id: 'tech',
+                        icon: '⚡',
+                        name: 'AI・テック',
+                        desc: '生成AI・OpenAI・SpaceX・NVIDIA・半導体',
+                        tagColor: 'text-cyan-400',
+                      },
+                      {
+                        id: 'politics',
+                        icon: '🌐',
+                        name: '国際・社会',
+                        desc: '米大統領選・解散総選挙・地政学・政策法案',
+                        tagColor: 'text-blue-400',
+                      },
+                      {
+                        id: 'sports',
+                        icon: '⚾',
+                        name: 'スポーツ',
+                        desc: '大谷翔平・MLB・プロ野球・日本代表・海外サッカー',
+                        tagColor: 'text-emerald-400',
+                      },
+                      {
+                        id: 'entertainment',
+                        icon: '🎬',
+                        name: 'エンタメ',
+                        desc: '映画興行収入・アニメ新作・紅白歌合戦・SNSトレンド',
+                        tagColor: 'text-purple-400',
+                      },
                     ].map((c) => (
                       <button
                         type="button"
                         key={c.id}
-                        className={`cat-btn-admin ${newCategory === c.id ? 'active' : ''}`}
+                        className={`admin-cat-card ${newCategory === c.id ? 'active' : ''}`}
                         onClick={() => setNewCategory(c.id as CategoryType)}
                       >
-                        {c.label}
+                        <div className="admin-cat-card-header">
+                          <span className="admin-cat-icon">{c.icon}</span>
+                          <span className={`admin-cat-name ${c.tagColor}`}>{c.name}</span>
+                        </div>
+                        <p className="admin-cat-desc">{c.desc}</p>
                       </button>
                     ))}
                   </div>
                 </div>
 
+                {/* 公職選挙法第138条の3 安全ロック トグル */}
+                <div className="form-group-admin">
+                  <div className="election-lock-toggle-box">
+                    <div className="election-lock-info">
+                      <div className="flex items-center gap-2">
+                        <ShieldAlert size={16} className="text-amber-400" />
+                        <span className="font-bold text-slate-100 text-xs">公職選挙法 第138条の3 安全ロック（選挙期間中の投票休止）</span>
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 m-0">
+                        国政選挙・地方選挙など選挙関連の銘柄の場合にONにしてください。選挙公示〜投票終了の間、自動的に投票受付を一時停止し、法令遵守モードで保護します。
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      className={`btn-toggle-lock ${newIsBlackout ? 'active' : ''}`}
+                      onClick={() => setNewIsBlackout(!newIsBlackout)}
+                    >
+                      <span className="toggle-slider"></span>
+                      <span className="toggle-label font-mono">{newIsBlackout ? 'LOCKED (安全ロックON)' : 'OFF (通常銘柄)'}</span>
+                    </button>
+                  </div>
+                </div>
+
                 <div className="form-group-admin">
                   <label className="form-label-admin">
-                    <span>注目背景・カタリスト材料</span>
+                    <span>注目背景・カタリスト材料（Gemini AI分析用）</span>
                     <span className="tag-optional">任意</span>
                   </label>
                   <textarea
                     className="textarea-admin"
                     rows={3}
-                    placeholder="例: 直近の特許出願状況と、海外モーターショーでのプレスカンファレンス開催予告。"
+                    placeholder="例: 直近の特許出願状況と、海外カンファレンスでのプレスカンファレンス開催予告。"
                     value={newReason}
                     onChange={(e) => setNewReason(e.target.value)}
                   />
