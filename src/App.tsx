@@ -43,7 +43,9 @@ export function App() {
     const match = window.location.pathname.match(/^\/market\/(.+)$/);
     return match ? decodeURIComponent(match[1]) : null;
   });
-  
+
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
@@ -51,7 +53,7 @@ export function App() {
     return typeof window !== 'undefined' && (window.location.pathname === '/ai-connector' || window.location.pathname === '/developers');
   });
   const [isAdminOpen, setIsAdminOpen] = useState(() => {
-    return typeof window !== 'undefined' && window.location.pathname === '/admin';
+    return isLocalhost && typeof window !== 'undefined' && window.location.pathname === '/admin';
   });
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
@@ -133,10 +135,19 @@ export function App() {
     const handlePopState = () => {
       const path = window.location.pathname;
       if (path === '/admin') {
-        setIsAdminOpen(true);
-        setIsLetterPageOpen(false);
-        setIsAiConnectorOpen(false);
-        setDetailMarketId(null);
+        if (isLocalhost) {
+          setIsAdminOpen(true);
+          setIsLetterPageOpen(false);
+          setIsAiConnectorOpen(false);
+          setDetailMarketId(null);
+        } else {
+          // 本番環境では /admin は存在しないものとしてトップへ強制リダイレクト
+          window.history.replaceState({}, '', '/');
+          setIsAdminOpen(false);
+          setIsLetterPageOpen(false);
+          setIsAiConnectorOpen(false);
+          setDetailMarketId(null);
+        }
       } else if (path === '/letter-to-mike') {
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
@@ -165,10 +176,12 @@ export function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [isLocalhost]);
 
-  // 管理者ショートカット (Cmd + Shift + A / Ctrl + Shift + A)
+  // 管理者ショートカット (ローカル環境でのみ有効: Cmd + Shift + A)
   useEffect(() => {
+    if (!isLocalhost) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && (e.key === 'a' || e.key === 'A')) {
         e.preventDefault();
@@ -179,9 +192,10 @@ export function App() {
         });
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isLocalhost]);
 
   // 1. Polymarket API ＆ Supabase データの完全自動同期
   const loadMarketData = useCallback(async () => {

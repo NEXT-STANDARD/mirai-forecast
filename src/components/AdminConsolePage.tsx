@@ -46,6 +46,21 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   events,
   onRefreshMarkets,
 }) => {
+  const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  // 本番環境アクセス拒否ガード（404 Not Found）
+  if (!isLocalhost) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center p-6">
+        <h1 className="text-4xl font-extrabold text-slate-200 font-mono mb-2">404</h1>
+        <p className="text-slate-400 text-sm mb-4">お探しのページは見つかりませんでした。</p>
+        <button onClick={onBack} className="btn-action-sm">
+          トップページへ戻る
+        </button>
+      </div>
+    );
+  }
+
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('mirai_admin_auth') === 'true';
   });
