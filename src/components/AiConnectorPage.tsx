@@ -8,7 +8,8 @@ import {
   Terminal, 
   ShieldCheck, 
   Scale, 
-  Code2
+  Code2,
+  Zap
 } from 'lucide-react';
 
 interface AiConnectorPageProps {
@@ -18,6 +19,8 @@ interface AiConnectorPageProps {
 export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
   const [copiedTab, setCopiedTab] = useState<string | null>(null);
 
+  const mcpEndpointUrl = 'https://mirairadar.com/api/mcp';
+
   const claudeConfigJson = `{
   "mcpServers": {
     "mirairadar": {
@@ -26,14 +29,6 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
       "env": {
         "MIRAIRADAR_API_URL": "https://mirairadar.com/api/mcp"
       }
-    }
-  }
-}`;
-
-  const cursorConfigJson = `{
-  "mcpServers": {
-    "mirairadar": {
-      "url": "https://mirairadar.com/api/mcp"
     }
   }
 }`;
@@ -95,16 +90,53 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
         {/* 左ペイン: 各種AIへの接続手順 */}
         <div className="connector-left-pane">
           <h2 className="connector-section-title flex items-center gap-2">
-            <Terminal size={18} className="text-cyan-400" />
-            <span>30秒クイックスタート（設定ファイルの追加）</span>
+            <Zap size={18} className="text-amber-400" />
+            <span>接続方法（かんたんURL入力 ＆ 開発者JSON）</span>
           </h2>
 
-          {/* Claude Desktop */}
+          {/* 🌟 1. 【超かんたん・推奨】URLを入力するだけ（ノーコード） */}
+          <div className="setup-card featured-setup-card">
+            <div className="setup-card-header">
+              <div className="flex items-center gap-2">
+                <span className="setup-badge-recommended">★ 最も簡単（URL入力のみ）</span>
+                <h3 className="setup-title">Claude Desktop / Cursor 設定</h3>
+              </div>
+              <button 
+                onClick={() => copyToClipboard(mcpEndpointUrl, 'url-only')}
+                className="btn-copy-config primary"
+              >
+                {copiedTab === 'url-only' ? <Check size={13} /> : <Copy size={13} />}
+                <span>{copiedTab === 'url-only' ? 'URLコピー完了！' : 'MCP URLをコピー'}</span>
+              </button>
+            </div>
+            <p className="setup-desc">
+              Claude DesktopアプリやCursorの<strong>「設定 (Settings) ➔ コネクタ / MCP (Model Context Protocol)」</strong>を開き、以下のURLを登録するだけで接続が完了します。
+            </p>
+            <div className="url-copy-box">
+              <span className="font-mono text-cyan-400 font-bold text-xs">{mcpEndpointUrl}</span>
+            </div>
+            <div className="setup-steps-list">
+              <div className="step-item">
+                <span className="step-num">1</span>
+                <span>サーバー名に <code>mirairadar</code> と入力</span>
+              </div>
+              <div className="step-item">
+                <span className="step-num">2</span>
+                <span>URLに上の <code>{mcpEndpointUrl}</code> を貼り付け</span>
+              </div>
+              <div className="step-item">
+                <span className="step-num">3</span>
+                <span>保存をクリックして接続完了！🎉</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 🛠️ 2. 【開発者向け】JSON設定ファイルを直接編集する方法 */}
           <div className="setup-card">
             <div className="setup-card-header">
               <div className="flex items-center gap-2">
-                <span className="setup-num font-mono">01</span>
-                <h3 className="setup-title">Claude Desktop への接続</h3>
+                <Terminal size={14} className="text-slate-400" />
+                <h3 className="setup-title">開発者向け：JSON設定ファイルで追加</h3>
               </div>
               <button 
                 onClick={() => copyToClipboard(claudeConfigJson, 'claude')}
@@ -115,30 +147,9 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
               </button>
             </div>
             <p className="setup-desc">
-              <code>claude_desktop_config.json</code> の <code>mcpServers</code> に以下を追加するだけで、Claudeが自動で未来レーダーを参照できるようになります。
+              <code>claude_desktop_config.json</code> の <code>mcpServers</code> に直接追記したい場合はこちらをご使用ください。
             </p>
             <pre className="code-block font-mono">{claudeConfigJson}</pre>
-          </div>
-
-          {/* Cursor / Windsurf */}
-          <div className="setup-card">
-            <div className="setup-card-header">
-              <div className="flex items-center gap-2">
-                <span className="setup-num font-mono">02</span>
-                <h3 className="setup-title">Cursor / Windsurf への接続</h3>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(cursorConfigJson, 'cursor')}
-                className="btn-copy-config"
-              >
-                {copiedTab === 'cursor' ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copiedTab === 'cursor' ? 'コピー完了！' : 'URL設定をコピー'}</span>
-              </button>
-            </div>
-            <p className="setup-desc">
-              Cursorの <code>Settings ➔ Features ➔ MCP ➔ Add New MCP Server</code> から Remote URL（<code>https://mirairadar.com/api/mcp</code>）を登録してください。
-            </p>
-            <pre className="code-block font-mono">{cursorConfigJson}</pre>
           </div>
 
           {/* コピペ用プロンプト集 */}
@@ -162,7 +173,7 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
           </div>
         </div>
 
-        {/* 右ペイン: 公開されているMCPツール一覧 */}
+        {/* 右ペイン: 公開されているMCPツール一覧 ＆ レートリミット仕様 */}
         <div className="connector-right-pane">
           <h2 className="connector-section-title flex items-center gap-2">
             <Code2 size={18} className="text-emerald-400" />
@@ -207,14 +218,28 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
             </div>
           </div>
 
-          {/* セキュリティ＆コンプライアンス証跡 */}
+          {/* 🛡️ レートリミット ＆ エッジキャッシュ仕様 */}
           <div className="security-notice-card">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1.5">
               <ShieldCheck size={14} />
-              <span>データ完全性 ＆ オープンAPI仕様</span>
+              <span>レートリミット ＆ エッジキャッシュ仕様</span>
             </div>
-            <p className="text-slate-400 text-xs leading-relaxed m-0">
-              未来レーダーのWebMCPエンドポイントは、認証不要・完全オープンで利用可能です。APIレートリミットは設けておりますが、商用・非商用問わず自由にご活用いただけます。
+            <div className="rate-limit-specs-list">
+              <div className="spec-row">
+                <span className="spec-label">認証方式:</span>
+                <span className="spec-val">完全オープン（API Key不要）</span>
+              </div>
+              <div className="spec-row">
+                <span className="spec-label">リクエスト制限:</span>
+                <span className="spec-val">100 req / 分 (IP単位)</span>
+              </div>
+              <div className="spec-row">
+                <span className="spec-label">エッジキャッシュ:</span>
+                <span className="spec-val">Cloudflare CDN 300秒 自動更新</span>
+              </div>
+            </div>
+            <p className="text-slate-400 text-[11px] leading-relaxed mt-2 mb-0">
+              Cloudflareのグローバルエッジでキャッシュ処理されるため、PolymarketやSupabaseへの負荷を抑え、AIエージェントからの超高速な応答（&lt;50ms）を実現しています。
             </p>
           </div>
         </div>
