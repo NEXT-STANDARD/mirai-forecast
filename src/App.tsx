@@ -46,6 +46,13 @@ export function App() {
 
   const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
 
+  // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
+  useEffect(() => {
+    if (!isLocalhost && typeof window !== 'undefined' && window.location.pathname === '/admin') {
+      window.history.replaceState({}, '', '/');
+    }
+  }, [isLocalhost]);
+
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
     return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
   });
@@ -342,7 +349,7 @@ export function App() {
         resolvedNotificationsCount={resolvedNotificationsCount}
       />
 
-      {isAdminOpen ? (
+      {isAdminOpen && isLocalhost ? (
         <main className="container main-content">
           <AdminConsolePage
             onBack={handleCloseAdmin}
