@@ -60,21 +60,17 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
 
   return (
     <section className="spread-ranking-section">
-      {/* ランキングヘッダー */}
+      {/* ランキングセクション見出し（風通しの良いゆったりレイアウト） */}
       <div className="spread-ranking-header">
-        <div className="flex items-center gap-2">
-          <div className="ranking-flame-icon">
-            <Flame size={18} className="text-amber-400 animate-pulse" />
+        <div className="spread-header-content">
+          <div className="spread-title-row">
+            <Flame size={20} className="text-amber-400 animate-pulse flex-shrink-0" />
+            <h3 className="spread-ranking-title">注目の世論スプレッド乖離ランキング</h3>
+            <span className="spread-live-badge font-mono">⚡ リアルタイム最大ギャップ</span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="spread-ranking-title">注目の世論スプレッド乖離ランキング</h3>
-              <span className="spread-live-badge font-mono">⚡ リアルタイム最大ギャップ</span>
-            </div>
-            <p className="spread-ranking-subtitle">
-              世界のスマートマネー（Polymarket）とお茶の間の直感が最も激突している話題のテーマ
-            </p>
-          </div>
+          <p className="spread-ranking-subtitle">
+            世界のスマートマネー（Polymarket）とお茶の間の直感が最も激突している話題のテーマ
+          </p>
         </div>
       </div>
 

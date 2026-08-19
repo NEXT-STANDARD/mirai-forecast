@@ -6288,10 +6288,11 @@ body {
    SpreadRankingSection: Top Discrepancy Ranking Showcase
    ======================================================== */
 .spread-ranking-section {
-  margin-top: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
   box-sizing: border-box;
 }
@@ -6299,27 +6300,30 @@ body {
 .spread-ranking-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  align-items: flex-start;
+  width: 100%;
 }
 
-.ranking-flame-icon {
-  padding: 0.45rem;
-  background: rgba(245, 158, 11, 0.15);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  border-radius: 8px;
+.spread-header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.spread-title-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
 }
 
 .spread-ranking-title {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 900;
   color: #f8fafc;
   margin: 0;
   letter-spacing: -0.02em;
+  line-height: 1.35;
 }
 
 .spread-live-badge {
@@ -6327,15 +6331,17 @@ body {
   background: rgba(245, 158, 11, 0.18);
   color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 0.1rem 0.45rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 9999px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .spread-ranking-subtitle {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: #94a3b8;
   margin: 0;
+  line-height: 1.6;
 }
 
 /* ランキンググリッド */
@@ -7619,16 +7625,42 @@ img, canvas, svg, video {
   .th-prob { width: 25% !important; }
   .th-gap  { width: 25% !important; }
 
-  /* ⚡ 世論スプレッド乖離ランキング */
+  /* ⚡ 世論スプレッド乖離ランキング（開放的でゆったりしたモバイル余白） */
   .spread-ranking-section {
-    padding: 0.75rem 0.55rem !important;
-    border-radius: 10px !important;
+    padding: 0 !important;
+    margin-top: 2.25rem !important;
+    margin-bottom: 2rem !important;
+    border: none !important;
+    background: transparent !important;
     width: 100% !important;
+  }
+
+  .spread-ranking-header {
+    padding: 0 0.25rem !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .spread-title-row {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  .spread-ranking-title {
+    font-size: 1.05rem !important;
+    line-height: 1.4 !important;
+  }
+
+  .spread-ranking-subtitle {
+    font-size: 0.75rem !important;
+    line-height: 1.5 !important;
+    margin-top: 0.25rem !important;
   }
 
   .spread-ranking-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.65rem !important;
+    gap: 0.85rem !important;
     width: 100% !important;
   }
 
