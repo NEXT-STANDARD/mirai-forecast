@@ -395,21 +395,30 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
                 </g>
               ))}
 
-              {/* X軸 時間ラベル */}
-              {data.map((d, i) => (
-                <text
-                  key={`time-${i}`}
-                  x={getX(i)}
-                  y={height - paddingB + 16}
-                  fill={hoverIndex === i ? '#f8fafc' : '#64748b'}
-                  fontSize="8.5"
-                  fontFamily="monospace"
-                  textAnchor="middle"
-                  fontWeight={hoverIndex === i ? 'bold' : 'normal'}
-                >
-                  {d.time}
-                </text>
-              ))}
+              {/* X軸 時間ラベル（スマホ時の重なり防止・スマート間引き） */}
+              {data.map((d, i) => {
+                const isMobile = width < 480;
+                const shouldShow = isMobile
+                  ? (i === 0 || i === Math.floor(data.length / 2) || i === data.length - 1)
+                  : (data.length > 8 ? i % 2 === 0 || i === data.length - 1 : true);
+
+                if (!shouldShow && hoverIndex !== i) return null;
+
+                return (
+                  <text
+                    key={`time-${i}`}
+                    x={getX(i)}
+                    y={height - paddingB + 16}
+                    fill={hoverIndex === i ? '#f8fafc' : '#94a3b8'}
+                    fontSize={isMobile ? '8.5' : '9.5'}
+                    fontFamily="monospace"
+                    textAnchor="middle"
+                    fontWeight={hoverIndex === i ? 'bold' : 'normal'}
+                  >
+                    {d.time}
+                  </text>
+                );
+              })}
             </svg>
 
             {/* チャートフッター：データ凡例 */}

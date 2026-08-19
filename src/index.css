@@ -435,24 +435,76 @@ body {
   color: #38bdf8;
 }
 
-/* レスポンシブ（スマホ・タブレット対応） */
+/* レスポンシブ（スマホ・タブレット対応 ＆ 行間・ホワイトスペース最適化） */
 @media (max-width: 768px) {
   .hide-on-mobile {
     display: none !important;
   }
 
   .header-main-bar {
-    padding: 0.35rem 0.6rem;
+    padding: 0.5rem 0.75rem;
   }
 
   .brand-name-bold {
-    font-size: 0.95rem;
+    font-size: 0.98rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* メイン銘柄タイトルの行間とフォントサイズ最適化 */
+  .event-main-title {
+    font-size: 1.02rem !important;
+    line-height: 1.5 !important;
+    margin-top: 0.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* 銘柄ヘッダーの縦並びと余白 */
+  .main-chart-top-bar {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.65rem !important;
+    padding: 0.75rem 0.85rem !important;
+  }
+
+  .view-mode-tabs {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .view-mode-tabs .tab-btn {
+    justify-content: center;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.72rem;
+  }
+
+  /* カード内パディングと行間 */
+  .market-grid-card {
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .market-grid-card .market-card-title {
+    font-size: 0.95rem !important;
+    line-height: 1.5 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* 投票ボタンの押しやすさ（親指タップ領域 46px以上） */
+  .btn-vote-trigger {
+    min-height: 46px !important;
+    font-size: 0.85rem !important;
   }
 }
 
 @media (max-width: 480px) {
   .hide-on-xs {
     display: none !important;
+  }
+
+  .main-content {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 }
 
