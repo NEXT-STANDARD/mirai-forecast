@@ -9,6 +9,7 @@ import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { AdminConsolePage } from './components/AdminConsolePage';
+import { AllMarketsGrid } from './components/AllMarketsGrid';
 import { MyForecastModal } from './components/MyForecastModal';
 import { MarketDetailPage } from './components/MarketDetailPage';
 import { OnboardingModal } from './components/OnboardingModal';
@@ -347,6 +348,19 @@ export function App() {
               onOpenShare={(event) => setSelectedShareEvent(event)}
               activeEventId={activeTopicId}
               onOpenPropose={() => setIsProposeModalOpen(true)}
+              onOpenDetail={handleOpenMarketDetail}
+            />
+
+            {/* 🎴 すべての未来マーケット（全銘柄カードグリッド ＆ 即時投票） */}
+            <AllMarketsGrid
+              events={events}
+              userVotes={userVotes}
+              onVote={handleVote}
+              onSelectEvent={(event) => {
+                setActiveTopicId(event.id);
+                // 画面上部のターミナルへスムーズスクロール
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
               onOpenDetail={handleOpenMarketDetail}
             />
           </main>
