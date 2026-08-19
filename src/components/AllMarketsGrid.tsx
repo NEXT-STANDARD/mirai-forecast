@@ -261,7 +261,17 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                   <span>•</span>
                   <span className="flex items-center gap-1">
                     <Calendar size={10} />
-                    <span>{event.endDate.replace('2026年', '').replace('2026-', '')}</span>
+                    <span>
+                      {(() => {
+                        const raw = event.endDate || '';
+                        if (raw.includes('T')) {
+                          const datePart = raw.split('T')[0];
+                          const [, m, d] = datePart.split('-');
+                          return `${m}/${d}`;
+                        }
+                        return raw.replace('2026年', '').replace('2026-', '');
+                      })()}
+                    </span>
                   </span>
                 </div>
 
