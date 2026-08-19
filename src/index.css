@@ -4669,6 +4669,91 @@ body {
   gap: 0.15rem;
 }
 
+.forecast-next-rank-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.65rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 6px;
+  font-size: 0.68rem;
+  color: #fde68a;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.forecast-share-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(29, 155, 240, 0.15) 0%, rgba(2, 132, 199, 0.25) 100%);
+  border: 1px solid rgba(29, 155, 240, 0.4);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+  margin: 0.75rem 0;
+  gap: 0.75rem;
+}
+
+.btn-forecast-x-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #1d9bf0;
+  color: #ffffff;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-shadow: 0 0 10px rgba(29, 155, 240, 0.4);
+}
+
+.btn-forecast-x-share:hover {
+  background: #0ea5e9;
+  transform: translateY(-1px);
+}
+
+.pending-badge {
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  padding: 0.08rem 0.35rem;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+.leaderboard-footer-action {
+  display: flex;
+  justify-content: center;
+  padding: 0.85rem 0 0.25rem 0;
+}
+
+.btn-leaderboard-share {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: #020617;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 900;
+  padding: 0.45rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btn-leaderboard-share:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
 .forecast-modal-footer {
   padding: 0.85rem 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);

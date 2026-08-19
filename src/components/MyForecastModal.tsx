@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { X, Award, ArrowRight, Target, Flame, Trophy, User } from 'lucide-react';
+import { 
+  X, 
+  Award, 
+  ArrowRight, 
+  Target, 
+  Flame, 
+  Trophy, 
+  User, 
+  Share2, 
+  Crown, 
+  Sparkles
+} from 'lucide-react';
 import type { MarketItem, StreakData } from '../types';
 
 interface MyForecastModalProps {
@@ -50,21 +61,25 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
   let rankTitle = '🌱 ルーキー予報士 (Lv.1)';
   let rankDesc = '未来の直感を記録し始めた駆け出しアナリスト';
   let rankBorderColor = 'rgba(148, 163, 184, 0.3)';
+  let nextRankHint = 'あと 3 問投票で Lv.2 クォンツ・オブザーバー へ昇格！';
 
   if (votedCount >= 3) {
     rankTitle = '🔭 クォンツ・オブザーバー (Lv.2)';
     rankDesc = '世界のスマートマネーと世論のギャップを鋭く観察中';
     rankBorderColor = 'rgba(56, 189, 248, 0.4)';
+    nextRankHint = 'あと 5 問投票で Lv.3 チーフ・ストラテジスト へ昇格！';
   }
   if (votedCount >= 8) {
     rankTitle = '⚡ チーフ・ストラテジスト (Lv.3)';
     rankDesc = '多数の未来テーマに投票し、独自の世論ポートフォリオを構築中';
     rankBorderColor = 'rgba(251, 191, 36, 0.4)';
+    nextRankHint = 'あと 7 問投票で Master Predictor（未来マスター）へ到達！';
   }
   if (votedCount >= 15) {
     rankTitle = '👑 未来マスター (Master Predictor)';
     rankDesc = '卓越した洞察力で世界の集合知と対峙する伝説の予報士';
     rankBorderColor = 'rgba(244, 63, 94, 0.4)';
+    nextRankHint = '最高位ランク達成！全国リーダーボード上位をキープ中';
   }
 
   // 🏆 リーダーボード（全国ランキング）
@@ -72,11 +87,29 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
     { rank: 1, name: 'Tokyo_Alpha_Quant', badge: '👑 未来マスター', accuracy: 88, votes: 42, streak: 12, isUser: false },
     { rank: 2, name: '兜町マクロウォッチャー', badge: '⚡ チーフ・ストラテジスト', accuracy: 83, votes: 38, streak: 9, isUser: false },
     { rank: 3, name: 'シリコンバレー観測員', badge: '⚡ チーフ・ストラテジスト', accuracy: 79, votes: 29, streak: 7, isUser: false },
-    { rank: 4, name: 'あなた (Your Forecast)', badge: rankTitle, accuracy: accuracyRate || 75, votes: Math.max(votedCount, 1), streak: streak.currentStreak, isUser: true },
+    { rank: 4, name: 'あなた (Your Forecast)', badge: rankTitle, accuracy: accuracyRate ?? 75, votes: Math.max(votedCount, 1), streak: streak.currentStreak, isUser: true },
     { rank: 5, name: 'Crypto_Oracle_JP', badge: '🔭 クォンツ・オブザーバー', accuracy: 72, votes: 21, streak: 4, isUser: false },
     { rank: 6, name: 'AI_Trend_Hunter', badge: '🔭 クォンツ・オブザーバー', accuracy: 68, votes: 19, streak: 3, isUser: false },
     { rank: 7, name: 'Nagoya_Trader', badge: '🌱 ルーキー予報士', accuracy: 65, votes: 14, streak: 2, isUser: false },
   ];
+
+  // X自慢シェアリンク生成
+  const handleShareToX = () => {
+    const accText = accuracyRate !== null ? `的中率: 🎯 ${accuracyRate}%` : `投票数: 📊 ${votedCount}問`;
+    const shareText = `【未来レーダー】私の未来予報士ステータス
+${rankTitle}
+連続ストリーク: 🔥 ${streak.currentStreak}日
+${accText}
+
+世界のスマートマネー（Polymarket）vs 日本の世論を1秒予報！
+あなたの直感は世界を上回れるか？
+
+👉 https://mirairadar.com
+#未来レーダー #MiraiRadar #Polymarket`;
+
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="modal-backdrop" onClick={onClose}>
@@ -103,7 +136,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
             className={`forecast-tab-item ${activeTab === 'profile' ? 'active' : ''}`}
           >
             <User size={14} />
-            <span>マイ実績 ＆ 履歴</span>
+            <span>マイ実績 ＆ 的中履歴</span>
           </button>
           <button
             type="button"
@@ -111,7 +144,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
             className={`forecast-tab-item ${activeTab === 'leaderboard' ? 'active-gold' : ''}`}
           >
             <Trophy size={14} />
-            <span>🏆 全国ランキング (Leaderboard)</span>
+            <span>🏆 週間リーダーボード (Top 10)</span>
           </button>
         </div>
 
@@ -137,30 +170,53 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
 
               <div className="forecast-stats-row">
                 <div className="forecast-stat-col">
-                  <div className="forecast-stat-lbl">総投票数</div>
-                  <div className="forecast-stat-num">{votedCount} <span className="forecast-unit">件</span></div>
+                  <div className="forecast-stat-lbl">総予報数</div>
+                  <div className="forecast-stat-num">{votedCount} <span className="forecast-unit">問</span></div>
                 </div>
                 <div className="forecast-stat-col">
-                  <div className="forecast-stat-lbl">結果確定</div>
-                  <div className="forecast-stat-num cyan">{resolvedCount} <span className="forecast-unit">件</span></div>
+                  <div className="forecast-stat-lbl">判定確定</div>
+                  <div className="forecast-stat-num cyan">{resolvedCount} <span className="forecast-unit">問</span></div>
                 </div>
                 <div className="forecast-stat-col">
                   <div className="forecast-stat-lbl">的中率 (Accuracy)</div>
                   <div className="forecast-stat-num green">{accuracyRate !== null ? `${accuracyRate}%` : '集計待機中'}</div>
                 </div>
               </div>
+
+              {/* 昇格プログレス */}
+              <div className="forecast-next-rank-hint">
+                <Sparkles size={12} className="text-amber-400" />
+                <span>{nextRankHint}</span>
+              </div>
+            </div>
+
+            {/* 🐦 X自慢シェアバナー */}
+            <div className="forecast-share-banner">
+              <div className="share-banner-text">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
+                  <Crown size={14} className="text-amber-400" />
+                  <span>あなたの予報士ステータスをXでシェア</span>
+                </div>
+                <p className="text-[11px] text-slate-400 m-0">
+                  ストリーク（🔥）と的中実績をフォロワーに公開して議論を呼ぼう
+                </p>
+              </div>
+              <button onClick={handleShareToX} className="btn-forecast-x-share">
+                <Share2 size={13} />
+                <span>Xで実績をシェア</span>
+              </button>
             </div>
 
             {/* 過去の投票履歴リスト */}
             <div className="forecast-history-section">
               <div className="forecast-history-header">
                 <Target size={14} className="text-cyan-400" />
-                <h4 className="forecast-history-title">あなたが投票した未来の問い一覧 ({votedItems.length}件)</h4>
+                <h4 className="forecast-history-title">あなたが予報した未来の問い ({votedItems.length}件)</h4>
               </div>
 
               {votedItems.length === 0 ? (
                 <div className="forecast-empty-box">
-                  <p className="forecast-empty-txt">まだ投票履歴がありません。</p>
+                  <p className="forecast-empty-txt">まだ予報履歴がありません。</p>
                   <p className="forecast-empty-sub">
                     トップページの各銘柄で「YES / NO」に直感で投票すると、ここに自動記録されます。
                   </p>
@@ -187,10 +243,11 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
                               {event.categoryLabel.slice(0, 6)}
                             </span>
                             <span className="forecast-odds-pill">
-                              世界オッズ: {event.worldProbYes}%
+                              世界: {event.worldProbYes}%
                             </span>
                             {isWon && <span className="won-badge">🎯 的中！</span>}
                             {isLost && <span className="lost-badge">❌ 不的中</span>}
+                            {!isResolved && <span className="pending-badge">⏳ 判定待機中</span>}
                           </div>
                           <h5 className="forecast-card-question">
                             {event.titleJa}
@@ -199,7 +256,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
 
                         <div className="forecast-card-right">
                           <span className={`forecast-vote-pill ${vote.toLowerCase()}`}>
-                            [{vote}] に投票
+                            [{vote}]
                           </span>
                           <ArrowRight size={14} className="forecast-arrow" />
                         </div>
@@ -214,8 +271,11 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
           /* タブ2: 全国ランキング (Leaderboard) */
           <div className="forecast-modal-body">
             <div className="leaderboard-meta-bar">
-              <span>全国の予報士ランキング (的中率 ＆ ストリーク)</span>
-              <span className="leaderboard-update-tag">● 毎週月曜 00:00 集計更新</span>
+              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                <Crown size={14} />
+                <span>週間トップ予報士ランキング (Weekly Top Predictors)</span>
+              </div>
+              <span className="leaderboard-update-tag">● 毎週月曜 00:00 自動集計</span>
             </div>
 
             <div className="leaderboard-list">
@@ -226,7 +286,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
                 >
                   <div className="leaderboard-left">
                     <div className={`leaderboard-rank-badge rank-${user.rank <= 3 ? user.rank : 'default'}`}>
-                      {user.rank}
+                      {user.rank === 1 ? <Crown size={12} className="text-amber-950" /> : user.rank}
                     </div>
                     <div>
                       <div className="leaderboard-name-row">
@@ -253,12 +313,20 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
                 </div>
               ))}
             </div>
+
+            {/* ランキング下部シェア */}
+            <div className="leaderboard-footer-action">
+              <button onClick={handleShareToX} className="btn-leaderboard-share">
+                <Share2 size={13} />
+                <span>私のランキング順位をXでシェア</span>
+              </button>
+            </div>
           </div>
         )}
 
         {/* フッター */}
         <div className="forecast-modal-footer">
-          <span className="forecast-footer-security">🔒 投票履歴とストリークはブラウザに安全に保存されています</span>
+          <span className="forecast-footer-security">🔒 予報履歴とストリークはブラウザに安全に保存されています</span>
           <button type="button" onClick={onClose} className="forecast-footer-btn">
             閉じる
           </button>
