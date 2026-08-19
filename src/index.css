@@ -6017,7 +6017,8 @@ body {
 }
 
 .market-card-item.voted-card {
-  border-left: 3px solid #10b981;
+  border-color: rgba(16, 185, 129, 0.35);
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.03) 0%, #080d1a 100%);
 }
 
 .card-top-row {
