@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { MarketItem } from '../types';
 import { ThreeRadar } from './ThreeRadar';
-import { TrendingUp, TrendingDown, Radio, Sparkles, BarChart2, Calendar, ExternalLink } from 'lucide-react';
+import { Radio, Sparkles, BarChart2, Calendar, ExternalLink, RefreshCw } from 'lucide-react';
+import { fetchMarketPriceHistory, type HistoricalPricePoint } from '../services/polymarketService';
 
 interface MainTradingChartProps {
   event: MarketItem;
@@ -29,15 +30,82 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'chart' | 'radar'>('chart');
   const [timeframe, setTimeframe] = useState<'1H' | '24H' | '7D' | '30D' | 'ALL'>('30D');
+  const [livePoints, setLivePoints] = useState<HistoricalPricePoint[] | null>(null);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   const isPositive = event.probChange24h >= 0;
   const currentProb = event.worldProbYes;
   const delta = event.probChange24h;
 
-  // ⭐️ 時間軸（1H / 24H / 7D / 30D / ALL）に応じた時系列データ生成（実測オッズ・出来高連動）
+  // ⭐️ Polymarket 公式価格履歴API（CLOB prices-history）から時系列データを非同期フェッチ
+  useEffect(() => {
+    let isMounted = true;
+    setIsLoadingHistory(true);
+
+    const loadHistory = async () => {
+      try {
+        const history = await fetchMarketPriceHistory(event.clobTokenId || event.id, timeframe);
+        if (isMounted) {
+          setLivePoints(history);
+          setIsLoadingHistory(false);
+        }
+      } catch {
+        if (isMounted) {
+          setLivePoints(null);
+          setIsLoadingHistory(false);
+        }
+      }
+    };
+
+    loadHistory();
+
+    // 30秒ごとに自動リフレッシュ（生きているリアルタイムチャート）
+    const intervalId = setInterval(loadHistory, 30000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [event.id, event.clobTokenId, timeframe]);
+
+  // ⭐️ チャートデータの構築（API実測データ優先 ＋ フォールバック）
   const data: ChartPoint[] = useMemo(() => {
     const volBase = event.volume24hUsd || 0;
 
+    // 1. Polymarket 公式の時系列データが存在する場合
+    if (livePoints && livePoints.length >= 2) {
+      const step = Math.max(1, Math.floor(livePoints.length / 12));
+      const sampled = livePoints.filter((_, idx) => idx % step === 0 || idx === livePoints.length - 1);
+
+      return sampled.map((pt, idx) => {
+        const d = new Date(pt.t * 1000);
+        let timeLabel = '';
+        if (timeframe === '1H') {
+          timeLabel = `${d.getMinutes()}分前`;
+        } else if (timeframe === '24H') {
+          timeLabel = `${d.getHours()}:00`;
+        } else if (timeframe === '7D' || timeframe === '30D') {
+          timeLabel = `${d.getMonth() + 1}/${d.getDate()}`;
+        } else {
+          timeLabel = `${d.getFullYear()}/${d.getMonth() + 1}`;
+        }
+
+        const isLast = idx === sampled.length - 1;
+        const probVal = isLast ? currentProb : pt.p;
+
+        return {
+          time: timeLabel,
+          prob: probVal,
+          open: Math.max(1, probVal - 1),
+          high: Math.min(99, probVal + 2),
+          low: Math.max(1, probVal - 2),
+          close: probVal,
+          vol: Math.round(volBase * (0.05 + (idx / sampled.length) * 0.15)),
+        };
+      });
+    }
+
+    // 2. フォールバック（実測24h変動率ベース）
     switch (timeframe) {
       case '1H': {
         const d1 = currentProb - (delta * 0.15);
@@ -111,9 +179,10 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         ];
       }
     }
-  }, [timeframe, currentProb, delta, event.volume24hUsd]);
+  }, [timeframe, currentProb, delta, event.volume24hUsd, livePoints]);
 
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+
   const activePoint = (hoverIndex !== null && data[hoverIndex]) ? data[hoverIndex] : data[data.length - 1];
 
   const width = 640;
@@ -176,48 +245,54 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
         </div>
       </div>
 
-      {activeTab === 'chart' ? (
-        <div className="tradingview-chart-box">
-          {/* 金融ターミナル指標バー */}
-          <div className="tv-metric-strip">
-            <div className="tv-metric">
-              <span className="label">YES 確率</span>
-              <div className="val-group">
-                <span className="prob-big">{activePoint.prob}%</span>
-                <span className={`pill-24h ${isPositive ? 'up' : 'down'}`}>
-                  {isPositive ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
-                  {isPositive ? `+${event.probChange24h}%` : `${event.probChange24h}%`}
+      {activeTab === 'radar' ? (
+        <div className="radar-view-container">
+          <ThreeRadar events={events} onSelectEvent={onSelectEvent} />
+        </div>
+      ) : (
+        <div className="chart-content-area">
+          {/* OHLCV クォンツ情報バー ＆ 時間軸セレクター */}
+          <div className="chart-stats-toolbar">
+            <div className="ohlcv-metrics">
+              <div className="metric-group main-prob">
+                <span className="metric-lbl">YES 確率</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="metric-val text-cyan-400 font-mono font-extrabold text-base">
+                    {activePoint?.prob ?? currentProb}%
+                  </span>
+                  <span className={`delta-tag ${isPositive ? 'pos' : 'neg'}`}>
+                    {isPositive ? '+' : ''}{delta}%
+                  </span>
+                </div>
+              </div>
+
+              <div className="metric-group hide-on-mobile">
+                <span className="metric-lbl">始値(Open)</span>
+                <span className="metric-val">{activePoint?.open ?? currentProb}%</span>
+              </div>
+              <div className="metric-group hide-on-mobile">
+                <span className="metric-lbl">高値(High)</span>
+                <span className="metric-val text-emerald-400">{activePoint?.high ?? currentProb}%</span>
+              </div>
+              <div className="metric-group hide-on-mobile">
+                <span className="metric-lbl">安値(Low)</span>
+                <span className="metric-val text-rose-400">{activePoint?.low ?? currentProb}%</span>
+              </div>
+              <div className="metric-group hide-on-mobile">
+                <span className="metric-lbl">出来高(Vol)</span>
+                <span className="metric-val text-slate-200">
+                  ${Math.round((activePoint?.vol || 0) / 1000)}k
                 </span>
               </div>
             </div>
 
-            <div className="tv-metric">
-              <span className="label">始値 (Open)</span>
-              <span className="val-mono">{activePoint.open}%</span>
-            </div>
-            <div className="tv-metric">
-              <span className="label">高値 (High)</span>
-              <span className="val-mono pos">{activePoint.high}%</span>
-            </div>
-            <div className="tv-metric">
-              <span className="label">安値 (Low)</span>
-              <span className="val-mono neg">{activePoint.low}%</span>
-            </div>
-            <div className="tv-metric">
-              <span className="label">出来高 (Vol)</span>
-              <span className="val-mono">${Math.round(activePoint.vol / 1000).toLocaleString()}k</span>
-            </div>
-
-            {/* 時間軸ボタン */}
-            <div className="tv-timeframes">
+            {/* 時間軸ボタン（1H / 24H / 7D / 30D / ALL） */}
+            <div className="timeframe-selector">
               {(['1H', '24H', '7D', '30D', 'ALL'] as const).map((tf) => (
                 <button
                   key={tf}
-                  onClick={() => {
-                    setTimeframe(tf);
-                    setHoverIndex(null);
-                  }}
-                  className={`tf-button ${timeframe === tf ? 'active' : ''}`}
+                  onClick={() => setTimeframe(tf)}
+                  className={`tf-btn ${timeframe === tf ? 'active' : ''}`}
                 >
                   {tf}
                 </button>
@@ -225,199 +300,180 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             </div>
           </div>
 
-          {/* SVG チャート領域 */}
-          <div className="tv-svg-wrap">
+          {/* SVG 折れ線 ＋ 出来高チャート */}
+          <div className="svg-chart-container">
             <svg
               viewBox={`0 0 ${width} ${height}`}
-              className="tv-svg"
+              className="chart-svg"
               onMouseLeave={() => setHoverIndex(null)}
             >
               <defs>
-                <linearGradient id="mainChartGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor={lineColor} stopOpacity="0.4" />
+                <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={lineColor} stopOpacity="0.35" />
                   <stop offset="100%" stopColor={lineColor} stopOpacity="0.0" />
                 </linearGradient>
               </defs>
 
-              {/* 水平グリッド */}
-              {[25, 50, 75].map((lvl) => (
-                <g key={lvl}>
+              {/* Y軸 グリッド線（25%, 50%, 75%） */}
+              {[25, 50, 75].map((level) => (
+                <g key={level}>
                   <line
                     x1={paddingL}
-                    y1={getY(lvl)}
+                    y1={getY(level)}
                     x2={width - paddingR}
-                    y2={getY(lvl)}
-                    stroke="#1e293b"
-                    strokeDasharray="2 4"
+                    y2={getY(level)}
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeDasharray="3 3"
                   />
                   <text
                     x={paddingL - 8}
-                    y={getY(lvl) + 3}
-                    textAnchor="end"
-                    fontSize="9"
+                    y={getY(level) + 3}
                     fill="#64748b"
+                    fontSize="9"
                     fontFamily="monospace"
+                    textAnchor="end"
                   >
-                    {lvl}%
+                    {level}%
                   </text>
                 </g>
               ))}
 
-              {/* 出来高 (Volume) バー */}
+              {/* 出来高ヒストグラム（下部バー） */}
               {data.map((d, i) => {
-                const bx = getX(i) - 8;
-                const by = getVolY(d.vol);
-                const bh = height - paddingB - by;
-
+                const barX = getX(i) - 6;
+                const barY = getVolY(d.vol);
+                const barH = height - paddingB - barY;
                 return (
                   <rect
                     key={`vol-${i}`}
-                    x={bx}
-                    y={by}
-                    width="16"
-                    height={bh}
-                    fill={hoverIndex === i ? '#38bdf8' : '#1e3a8a'}
-                    opacity={hoverIndex === i ? 0.65 : 0.3}
+                    x={barX}
+                    y={barY}
+                    width="12"
+                    height={Math.max(2, barH)}
+                    fill="rgba(56, 189, 248, 0.15)"
                     rx="1"
                   />
                 );
               })}
 
-              {/* エリア面 */}
-              <path
-                d={`M ${getX(0)},${getY(data[0].prob)} ${data.map((d, i) => `L ${getX(i)},${getY(d.prob)}`).join(' ')} L ${getX(data.length - 1)},${paddingT + chartH} L ${getX(0)},${paddingT + chartH} Z`}
-                fill="url(#mainChartGrad)"
+              {/* チャート塗りつぶしグラデーション */}
+              <polygon
+                points={`${points} ${getX(data.length - 1)},${height - paddingB} ${getX(0)},${height - paddingB}`}
+                fill="url(#chartGrad)"
               />
 
-              {/* 折れ線 */}
+              {/* チャート折れ線 */}
               <polyline
+                points={points}
                 fill="none"
                 stroke={lineColor}
-                strokeWidth="3"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                points={points}
               />
 
-              {/* 十字線 (Crosshair) */}
-              {hoverIndex !== null && (
-                <g>
-                  <line
-                    x1={getX(hoverIndex)}
-                    y1={paddingT}
-                    x2={getX(hoverIndex)}
-                    y2={height - paddingB}
-                    stroke="#94a3b8"
-                    strokeDasharray="3 3"
+              {/* データポイント ＆ ホバー判定サークル */}
+              {data.map((d, i) => (
+                <g key={i}>
+                  <circle
+                    cx={getX(i)}
+                    cy={getY(d.prob)}
+                    r={hoverIndex === i ? 5 : (i === data.length - 1 ? 4 : 2.5)}
+                    fill={i === data.length - 1 ? lineColor : '#020617'}
+                    stroke={lineColor}
+                    strokeWidth="2"
                   />
-                  <line
-                    x1={paddingL}
-                    y1={getY(data[hoverIndex].prob)}
-                    x2={width - paddingR}
-                    y2={getY(data[hoverIndex].prob)}
-                    stroke="#94a3b8"
-                    strokeDasharray="3 3"
+                  <rect
+                    x={getX(i) - 15}
+                    y={0}
+                    width="30"
+                    height={height}
+                    fill="transparent"
+                    onMouseEnter={() => setHoverIndex(i)}
+                    className="cursor-crosshair"
                   />
                 </g>
-              )}
+              ))}
 
-              {/* ポイント */}
-              {data.map((d, i) => {
-                const cx = getX(i);
-                const cy = getY(d.prob);
-                const isH = hoverIndex === i;
-
-                return (
-                  <g key={i} onMouseEnter={() => setHoverIndex(i)} style={{ cursor: 'crosshair' }}>
-                    <circle
-                      cx={cx}
-                      cy={cy}
-                      r={isH ? 6.5 : d.note ? 4.5 : 3.5}
-                      fill={d.note ? '#fbbf24' : isH ? '#fff' : lineColor}
-                      stroke="#070a12"
-                      strokeWidth="2"
-                    />
-                    {d.note && (
-                      <text x={cx} y={cy - 9} textAnchor="middle" fontSize="10" fill="#fbbf24" fontWeight="bold">
-                        ★
-                      </text>
-                    )}
-                  </g>
-                );
-              })}
-
-              {/* 時間軸 X軸ラベル */}
+              {/* X軸 時間ラベル */}
               {data.map((d, i) => (
                 <text
-                  key={`lbl-${i}`}
+                  key={`time-${i}`}
                   x={getX(i)}
-                  y={height - 18}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fill={hoverIndex === i ? '#38bdf8' : '#64748b'}
+                  y={height - paddingB + 16}
+                  fill={hoverIndex === i ? '#f8fafc' : '#64748b'}
+                  fontSize="8.5"
                   fontFamily="monospace"
+                  textAnchor="middle"
                   fontWeight={hoverIndex === i ? 'bold' : 'normal'}
                 >
                   {d.time}
                 </text>
               ))}
             </svg>
-          </div>
 
-          {/* チャート下部フッター */}
-          <div className="tv-chart-footer">
-            <div className="footer-status">
-              <span className="live-pill">● REALTIME MARKET FEED [{timeframe}]</span>
-              {activePoint.note && (
-                <span className="catalyst-note-pill">
-                  💡 {activePoint.time}: {activePoint.note}
-                </span>
-              )}
-            </div>
-            <div className="footer-legends">
-              <span className="legend"><span className="dot blue"></span> 確率推移線</span>
-              <span className="legend"><span className="dot bar"></span> 出来高 (Volume)</span>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="tradingview-radar-box">
-          <ThreeRadar events={events} onSelectEvent={onSelectEvent} />
-        </div>
-      )}
-
-      {/* Gemini 3.7 Flash 銘柄固有 深層カタリスト分析 */}
-      {event.aiInsight && (
-        <div className="ai-catalyst-terminal-box">
-          <div className="ai-box-head">
-            <div className="head-title">
-              <Sparkles size={14} className="icon-blue" />
-              <span>AI 変動要因＆カタリスト分析（Gemini 3.7 Flash）</span>
-            </div>
-            <span className="urgency-tag high">LIVE ANALYTICS</span>
-          </div>
-
-          <p className="ai-box-summary">{event.aiInsight.summaryJa}</p>
-
-          <div className="ai-box-why">
-            <span className="why-lbl">なぜ動いているか:</span> {event.aiInsight.whyMovedJa}
-          </div>
-
-          {event.aiInsight.keyCatalysts && event.aiInsight.keyCatalysts.length > 0 && (
-            <div className="ai-box-catalysts-row">
-              <div className="catalysts-label">
-                <Calendar size={11} className="icon-gold" />
-                <span>次回注目カタリスト:</span>
-              </div>
-              <div className="catalysts-chips-wrap">
-                {event.aiInsight.keyCatalysts.map((cat, idx) => (
-                  <span key={idx} className="catalyst-chip">
-                    {cat}
+            {/* チャートフッター：データ凡例 */}
+            <div className="chart-legend-row">
+              <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-mono">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>REALTIME MARKET FEED [{timeframe}]</span>
+                {isLoadingHistory ? (
+                  <span className="flex items-center gap-1 text-cyan-400 font-bold ml-1">
+                    <RefreshCw size={9} className="animate-spin" />
+                    <span>時系列取得中...</span>
                   </span>
-                ))}
+                ) : livePoints ? (
+                  <span className="text-cyan-400 font-bold ml-1">● Polymarket 実測同期済み</span>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-3 text-[10px] text-slate-400 font-mono">
+                <span className="flex items-center gap-1">
+                  <span className="w-2.5 h-0.5 bg-cyan-400"></span> 確率推移
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 bg-cyan-400/20"></span> 出来高 (Volume)
+                </span>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* 💡 AI要因・カタリスト日程ブロック */}
+          <div className="ai-catalyst-block">
+            <div className="ai-header-row">
+              <div className="flex items-center gap-1.5">
+                <Sparkles size={13} className="text-amber-400" />
+                <span className="ai-block-title">AI 変動要因＆カタリスト分析 (Gemini 3.7 Flash)</span>
+              </div>
+              <span className="ai-live-tag">LIVE ANALYTICS</span>
+            </div>
+
+            <p className="ai-summary-text">
+              {event.aiInsight?.summaryJa || '世界のスマートマネーは、直近の市場データやカタリスト日程を織り込みながら確率を形成しています。'}
+            </p>
+
+            {event.aiInsight?.whyMovedJa && (
+              <div className="ai-why-moved">
+                <span className="why-label">なぜ動いているか:</span>
+                <span className="why-text">{event.aiInsight.whyMovedJa}</span>
+              </div>
+            )}
+
+            {event.aiInsight?.keyCatalysts && event.aiInsight.keyCatalysts.length > 0 && (
+              <div className="catalyst-timeline-row">
+                <div className="catalyst-label flex items-center gap-1">
+                  <Calendar size={11} className="text-amber-400" />
+                  <span>次回注目カタリスト:</span>
+                </div>
+                <div className="catalyst-pills">
+                  {event.aiInsight.keyCatalysts.map((cat, idx) => (
+                    <span key={idx} className="catalyst-pill">
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

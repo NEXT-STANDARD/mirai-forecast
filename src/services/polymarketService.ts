@@ -119,7 +119,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
     }
 
     // 2. Polymarket API からリアルタイムのオッズ・出来高を取得
-    let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number }>();
+    let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string }>();
     try {
       const res = await fetch(POLYMARKET_EVENTS_API);
       if (res.ok) {
@@ -137,8 +137,16 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             const volume24h = ev.volume24hr || 0;
             const totalVolume = ev.volume || volume24h * 3.5;
             const probChange24h = market.oneDayPriceChange ? Math.round(parseFloat(market.oneDayPriceChange) * 100) : 0;
+            
+            let clobTokenId: string | undefined = undefined;
+            if (market.clobTokenIds) {
+              try {
+                const ids = typeof market.clobTokenIds === 'string' ? JSON.parse(market.clobTokenIds) : market.clobTokenIds;
+                if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
+              } catch {}
+            }
 
-            const odds = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h };
+            const odds = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h, clobTokenId };
             liveOddsMap.set(String(ev.id), odds);
             if (ev.slug) liveOddsMap.set(ev.slug, odds);
           }
@@ -156,6 +164,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         const volume24h = live ? (live.volume24h || 0) : 0;
         const totalVolume = live ? (live.totalVolume || 0) : 0;
         const probChange24h = live ? (live.probChange24h || 0) : 0;
+        const clobTokenId = live ? live.clobTokenId : undefined;
 
         const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
 
@@ -179,6 +188,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           totalVolumeUsd: totalVolume,
           endDate: db.end_date || '2026-12-31',
           isTrending,
+          clobTokenId,
           japanVotes: {
             yes: 0,
             no: 0,
@@ -236,5 +246,81 @@ export async function syncVotesFromSupabase(items: MarketItem[]): Promise<Market
   } catch (err) {
     console.error('Failed to sync votes from Supabase:', err);
     return items;
+  }
+}
+
+export interface HistoricalPricePoint {
+  t: number;
+  p: number; // 0 to 100
+}
+
+const priceHistoryCache: Record<string, { timestamp: number; data: HistoricalPricePoint[] }> = {};
+
+/**
+ * 📈 Polymarket 公式 CLOB prices-history API から実売買時系列データを取得
+ */
+export async function fetchMarketPriceHistory(
+  clobTokenId: string | undefined,
+  timeframe: '1H' | '24H' | '7D' | '30D' | 'ALL'
+): Promise<HistoricalPricePoint[] | null> {
+  if (!clobTokenId) return null;
+
+  const cacheKey = `${clobTokenId}_${timeframe}`;
+  const now = Date.now();
+  const cacheTTL = timeframe === '1H' || timeframe === '24H' ? 30000 : 60000;
+
+  if (priceHistoryCache[cacheKey] && (now - priceHistoryCache[cacheKey].timestamp) < cacheTTL) {
+    return priceHistoryCache[cacheKey].data;
+  }
+
+  let intervalParam = '1m';
+  let fidelityParam = '60';
+
+  switch (timeframe) {
+    case '1H':
+      intervalParam = '1h';
+      fidelityParam = '1';
+      break;
+    case '24H':
+      intervalParam = '1d';
+      fidelityParam = '5';
+      break;
+    case '7D':
+      intervalParam = '1w';
+      fidelityParam = '30';
+      break;
+    case '30D':
+      intervalParam = '1m';
+      fidelityParam = '120';
+      break;
+    case 'ALL':
+      intervalParam = 'max';
+      fidelityParam = '360';
+      break;
+  }
+
+  try {
+    const url = `https://clob.polymarket.com/prices-history?market=${encodeURIComponent(clobTokenId)}&interval=${intervalParam}&fidelity=${fidelityParam}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (data && Array.isArray(data.history) && data.history.length > 0) {
+      const points: HistoricalPricePoint[] = data.history.map((pt: { t: number; p: number }) => ({
+        t: pt.t,
+        p: Math.round(Number(pt.p) * 100),
+      }));
+
+      priceHistoryCache[cacheKey] = {
+        timestamp: now,
+        data: points,
+      };
+
+      return points;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`Could not fetch Polymarket price history for ${clobTokenId}:`, err);
+    return null;
   }
 }

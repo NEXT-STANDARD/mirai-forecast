@@ -19,6 +19,7 @@ export interface MarketItem {
   isTrending?: boolean; // 🔥 人気急上昇フラグ
   isElectionBlackout?: boolean; // 🏛️ 公選法第138条の3遵守（選挙公示・投票期間中の安全ロック）
   resolvedChoice?: 'YES' | 'NO' | null; // 🏁 結果確定（的中判定用）
+  clobTokenId?: string; // 📈 Polymarket CLOB prices-history 用のアセットID
   
   // 日本人ユーザーの投票集計（完全無料・意識調査）
   japanVotes: {
