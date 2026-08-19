@@ -18,6 +18,7 @@ import { AiConnectorPage } from './components/AiConnectorPage';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
+import { cyberSound } from './utils/cyberSound';
 import type { MarketItem, CategoryType, StreakData } from './types';
 
 export function App() {
@@ -257,6 +258,12 @@ export function App() {
   const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
+    // 🔊 サイバーパンク電子音 ＆ 触覚フィードバック
+    cyberSound.playVote(choice);
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(choice === 'YES' ? [25, 30, 35] : [40, 20]);
+    }
+
     setUserVotes(prev => {
       const next = { ...prev, [eventId]: choice };
       try {

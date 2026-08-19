@@ -1,6 +1,7 @@
 import React from 'react';
-import { RefreshCw, Flame, HelpCircle, PlusCircle } from 'lucide-react';
+import { RefreshCw, Flame, HelpCircle, PlusCircle, Volume2, VolumeX } from 'lucide-react';
 import { Logo } from './Logo';
+import { cyberSound } from '../utils/cyberSound';
 import type { CategoryType } from '../types';
 
 interface HeaderProps {
@@ -40,6 +41,8 @@ export const Header: React.FC<HeaderProps> = ({
   resolvedNotificationsCount = 0,
   onGoHome,
 }) => {
+  const [isMuted, setIsMuted] = React.useState(() => cyberSound.getIsMuted());
+
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
     { id: 'trending', label: '🔥 人気急上昇' },
@@ -66,6 +69,20 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* 右側: 厳選アクション群 */}
         <div className="header-right-cluster">
+          {/* 🔊 サイバーUIサウンド切替 */}
+          <button
+            onClick={() => setIsMuted(cyberSound.toggleMute())}
+            className="btn-header-subtle"
+            title={isMuted ? 'サイバーUI効果音: OFF (クリックでON)' : 'サイバーUI効果音: ON (クリックでミュート)'}
+          >
+            {isMuted ? (
+              <VolumeX size={13} className="text-slate-400" />
+            ) : (
+              <Volume2 size={13} className="text-cyan-400 animate-pulse" />
+            )}
+            <span className="hide-on-xs font-mono text-[10px]">{isMuted ? 'MUTE' : 'AUDIO'}</span>
+          </button>
+
           {onOpenLetter && (
             <button
               onClick={onOpenLetter}
