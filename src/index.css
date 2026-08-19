@@ -8295,24 +8295,143 @@ body::after {
 }
 
 /* 5. ネオンホログラフィック・ホバー光彩 */
-.spread-ranking-card:hover,
-.market-card-item:hover {
-  box-shadow: 0 0 25px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(56, 189, 248, 0.05) !important;
-  border-color: rgba(56, 189, 248, 0.5) !important;
+/* ========================================================
+   🌈 RGB Gaming Keyboard Chroma System (ゲーミングRGB変色システム)
+   ======================================================== */
+
+/* 1. RGB Chroma Wave キーフレーム（色相が滑らかに一周回転） */
+@keyframes rgbChromaWave {
+  0% {
+    filter: hue-rotate(0deg) drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+  }
+  33% {
+    filter: hue-rotate(120deg) drop-shadow(0 0 10px rgba(16, 185, 129, 0.6));
+  }
+  66% {
+    filter: hue-rotate(240deg) drop-shadow(0 0 10px rgba(244, 63, 94, 0.6));
+  }
+  100% {
+    filter: hue-rotate(360deg) drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+  }
 }
 
-/* 6. YES / NO 投票ボタンのサイバー発光 */
-.btn-ranking-vote.btn-rank-yes:hover,
-.sticky-btn.yes:hover {
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.6) !important;
-  transform: translateY(-1px);
+/* 2. RGB レインボー・ボーダーフロー（ゲーミングキーボードのウェーブ） */
+@keyframes rgbBorderFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
-.btn-ranking-vote.btn-rank-no:hover,
-.sticky-btn.no:hover {
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.6) !important;
-  transform: translateY(-1px);
+/* 3. 1位カード ＆ 注目カードのRGBゲーミング外枠 */
+.spread-ranking-card.rank-first-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(13, 21, 39, 0.95) 0%, rgba(8, 13, 26, 0.98) 100%);
+  border: 1px solid transparent !important;
+  background-clip: padding-box;
 }
+
+.spread-ranking-card.rank-first-card::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  background: linear-gradient(
+    90deg,
+    #38bdf8,
+    #a855f7,
+    #f43f5e,
+    #fbbf24,
+    #10b981,
+    #38bdf8
+  );
+  background-size: 300% 300%;
+  animation: rgbBorderFlow 4s ease infinite;
+  z-index: -1;
+  clip-path: polygon(
+    0 0,
+    calc(100% - 14px) 0,
+    100% 14px,
+    100% 100%,
+    14px 100%,
+    0 calc(100% - 14px)
+  );
+  opacity: 0.85;
+}
+
+/* 4. 乖離ギャップピルのRGBゲーミング発光 */
+.spread-gap-pill {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2), rgba(244, 63, 94, 0.2), rgba(251, 191, 36, 0.2)) !important;
+  background-size: 300% 300% !important;
+  animation: rgbBorderFlow 5s ease infinite !important;
+  border-color: rgba(251, 191, 36, 0.6) !important;
+  color: #ffffff !important;
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+}
+
+/* 5. 投票ボタン（YES/NO）のRGB Reactiveホバー */
+.btn-ranking-vote:hover,
+.btn-card-vote:hover {
+  background-size: 200% 200%;
+  animation: rgbBorderFlow 2s linear infinite;
+  letter-spacing: 0.02em;
+}
+
+.btn-ranking-vote.btn-rank-yes:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(56, 189, 248, 0.3) 100%) !important;
+  border-color: #34d399 !important;
+  box-shadow: 0 0 15px rgba(52, 211, 153, 0.5), inset 0 0 10px rgba(56, 189, 248, 0.2) !important;
+}
+
+.btn-ranking-vote.btn-rank-no:hover {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%) !important;
+  border-color: #fb7185 !important;
+  box-shadow: 0 0 15px rgba(251, 113, 133, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.2) !important;
+}
+
+/* 6. LIVEステータスインジケーターのRGBブリージング */
+.live-dot-green {
+  animation: rgbChromaWave 6s linear infinite !important;
+}
+
+/* 7. オッズバーを駆け抜けるRGBレーザー光彩 */
+@keyframes laserShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+.spread-meter-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.spread-meter-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  animation: laserShimmer 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 
 
 
