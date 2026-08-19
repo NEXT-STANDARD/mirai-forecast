@@ -160,24 +160,30 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 </div>
               </div>
 
-              {/* 🎯 1タップ即時投票ボタン */}
-              <div className="spread-vote-group" onClick={(e) => e.stopPropagation()}>
-                <button
-                  onClick={() => onVote(event.id, 'YES')}
-                  className={`btn-ranking-vote btn-rank-yes ${userVote === 'YES' ? 'active' : ''}`}
-                >
-                  <span>YES (そう思う)</span>
-                  {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
-                </button>
+              {/* 🎯 1タップ即時投票ボタン または 🏛️ 公選法ブラックアウト */}
+              {event.isElectionBlackout ? (
+                <div className="card-blackout-badge" onClick={(e) => e.stopPropagation()}>
+                  <span>🏛️ 公選法第138条の3 遵守（選挙期間中受付休止）</span>
+                </div>
+              ) : (
+                <div className="spread-vote-group" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => onVote(event.id, 'YES')}
+                    className={`btn-ranking-vote btn-rank-yes ${userVote === 'YES' ? 'active' : ''}`}
+                  >
+                    <span>YES (そう思う)</span>
+                    {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                  </button>
 
-                <button
-                  onClick={() => onVote(event.id, 'NO')}
-                  className={`btn-ranking-vote btn-rank-no ${userVote === 'NO' ? 'active' : ''}`}
-                >
-                  <span>NO (起きない)</span>
-                  {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
-                </button>
-              </div>
+                  <button
+                    onClick={() => onVote(event.id, 'NO')}
+                    className={`btn-ranking-vote btn-rank-no ${userVote === 'NO' ? 'active' : ''}`}
+                  >
+                    <span>NO (起きない)</span>
+                    {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
+                  </button>
+                </div>
+              )}
 
               {/* 💡 AI要因・カタリスト1行インサイト */}
               {reasonText && (

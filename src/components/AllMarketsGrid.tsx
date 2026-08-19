@@ -260,24 +260,30 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                 </div>
               </div>
 
-              {/* 🎯 1タップ即時投票ボタングループ */}
-              <div className="card-quick-vote-row" onClick={(e) => e.stopPropagation()}>
-                <button
-                  onClick={() => onVote(event.id, 'YES')}
-                  className={`btn-card-vote btn-vote-yes ${userVote === 'YES' ? 'selected' : ''}`}
-                >
-                  <span className="vote-label">YES (そう思う)</span>
-                  {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
-                </button>
+              {/* 🎯 1タップ即時投票ボタングループ または 🏛️ 公選法ブラックアウト */}
+              {event.isElectionBlackout ? (
+                <div className="card-blackout-badge" onClick={(e) => e.stopPropagation()}>
+                  <span>🏛️ 公選法第138条の3 遵守（選挙期間中受付休止）</span>
+                </div>
+              ) : (
+                <div className="card-quick-vote-row" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    onClick={() => onVote(event.id, 'YES')}
+                    className={`btn-card-vote btn-vote-yes ${userVote === 'YES' ? 'selected' : ''}`}
+                  >
+                    <span className="vote-label">YES (そう思う)</span>
+                    {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                  </button>
 
-                <button
-                  onClick={() => onVote(event.id, 'NO')}
-                  className={`btn-card-vote btn-vote-no ${userVote === 'NO' ? 'selected' : ''}`}
-                >
-                  <span className="vote-label">NO (起きない)</span>
-                  {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
-                </button>
-              </div>
+                  <button
+                    onClick={() => onVote(event.id, 'NO')}
+                    className={`btn-card-vote btn-vote-no ${userVote === 'NO' ? 'selected' : ''}`}
+                  >
+                    <span className="vote-label">NO (起きない)</span>
+                    {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
+                  </button>
+                </div>
+              )}
 
               {/* 🪄 Gemini 次回注目カタリスト予報 */}
               {catalyst && (

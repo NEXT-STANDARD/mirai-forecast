@@ -6758,5 +6758,21 @@ body {
   margin: 0;
 }
 
+.card-blackout-badge {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  text-align: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+
 
 
