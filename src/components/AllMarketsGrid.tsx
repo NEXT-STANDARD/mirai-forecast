@@ -109,7 +109,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
       <div className="markets-section-header">
         <div className="section-title-group">
           <div className="flex items-center gap-2">
-            <h3 className="section-main-title">すべての未来マーケット</h3>
+            <h3 className="section-main-title">すべての観測銘柄</h3>
             <span className="markets-count-badge font-mono">{filteredEvents.length}件</span>
           </div>
           <p className="section-subtitle">
@@ -123,7 +123,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
             <Search size={14} className="search-icon" />
             <input
               type="text"
-              placeholder="銘柄・テーマを検索..."
+              placeholder="観測銘柄・テーマを検索..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="market-search-input"
@@ -329,9 +329,9 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
 
       {filteredEvents.length === 0 && (
         <div className="empty-markets-card">
-          <p className="text-sm text-slate-400">該当する未来マーケットが見つかりませんでした。</p>
+          <p className="text-sm text-slate-400">該当する観測銘柄が見つかりませんでした。</p>
           <button onClick={() => { onSelectCategory('all'); setSearchQuery(''); }} className="btn-reset-filters">
-            すべての銘柄を表示
+            すべての観測銘柄を表示
           </button>
         </div>
       )}
