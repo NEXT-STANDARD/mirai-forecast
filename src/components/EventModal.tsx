@@ -157,13 +157,13 @@ export const EventModal: React.FC<EventModalProps> = ({
                 onClick={() => onVote(item.id, 'YES')}
                 className={`modal-vote-btn yes ${userVote === 'YES' ? 'active' : ''}`}
               >
-                👍 YES（そう思う）
+                👍 YES
               </button>
               <button
                 onClick={() => onVote(item.id, 'NO')}
                 className={`modal-vote-btn no ${userVote === 'NO' ? 'active' : ''}`}
               >
-                👎 NO（そう思わない）
+                👎 NO
               </button>
             </div>
           </div>

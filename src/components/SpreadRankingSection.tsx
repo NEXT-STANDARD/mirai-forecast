@@ -170,16 +170,16 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                     onClick={() => onVote(event.id, 'YES')}
                     className={`btn-ranking-vote btn-rank-yes ${userVote === 'YES' ? 'active' : ''}`}
                   >
-                    <span>YES (そう思う)</span>
-                    {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                    <span>YES</span>
+                    {userVote === 'YES' && <CheckCircle2 size={13} className="text-emerald-400" />}
                   </button>
 
                   <button
                     onClick={() => onVote(event.id, 'NO')}
                     className={`btn-ranking-vote btn-rank-no ${userVote === 'NO' ? 'active' : ''}`}
                   >
-                    <span>NO (起きない)</span>
-                    {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
+                    <span>NO</span>
+                    {userVote === 'NO' && <CheckCircle2 size={13} className="text-rose-400" />}
                   </button>
                 </div>
               )}

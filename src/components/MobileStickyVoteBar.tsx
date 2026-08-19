@@ -55,13 +55,13 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
                 onClick={() => handleVote('YES')}
                 className={`sticky-btn yes ${animatingChoice === 'YES' ? 'pop' : ''}`}
               >
-                YES (そう思う)
+                YES
               </button>
               <button
                 onClick={() => handleVote('NO')}
                 className={`sticky-btn no ${animatingChoice === 'NO' ? 'pop' : ''}`}
               >
-                NO (違う)
+                NO
               </button>
             </div>
           </div>

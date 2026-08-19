@@ -162,11 +162,11 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
               className={`entry-btn yes ${userVote === 'YES' ? 'selected' : ''} ${animatingVote === 'YES' ? 'pop' : ''}`}
             >
               <div className="entry-btn-top">
-                <span className="btn-main-label">YES (そう思う)</span>
+                <span className="btn-main-label">YES</span>
                 {!isLocked && <span className="btn-sub-prob">{event.japanVotes.percentYes}%</span>}
               </div>
               <span className="btn-action-hint">
-                {isLocked ? '直感で「起きる」に1票' : '支持票投入済み'}
+                {isLocked ? '支持・買い予測' : '支持票投入済み'}
               </span>
             </button>
 
@@ -175,11 +175,11 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
               className={`entry-btn no ${userVote === 'NO' ? 'selected' : ''} ${animatingVote === 'NO' ? 'pop' : ''}`}
             >
               <div className="entry-btn-top">
-                <span className="btn-main-label">NO (違う)</span>
+                <span className="btn-main-label">NO</span>
                 {!isLocked && <span className="btn-sub-prob">{100 - event.japanVotes.percentYes}%</span>}
               </div>
               <span className="btn-action-hint">
-                {isLocked ? '直感で「起きない」に1票' : '反対票投入済み'}
+                {isLocked ? '反対・売り予測' : '反対票投入済み'}
               </span>
             </button>
           </div>

@@ -271,16 +271,16 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                     onClick={() => onVote(event.id, 'YES')}
                     className={`btn-card-vote btn-vote-yes ${userVote === 'YES' ? 'selected' : ''}`}
                   >
-                    <span className="vote-label">YES (そう思う)</span>
-                    {userVote === 'YES' && <CheckCircle2 size={12} className="text-emerald-400" />}
+                    <span className="vote-label">YES</span>
+                    {userVote === 'YES' && <CheckCircle2 size={13} className="text-emerald-400" />}
                   </button>
 
                   <button
                     onClick={() => onVote(event.id, 'NO')}
                     className={`btn-card-vote btn-vote-no ${userVote === 'NO' ? 'selected' : ''}`}
                   >
-                    <span className="vote-label">NO (起きない)</span>
-                    {userVote === 'NO' && <CheckCircle2 size={12} className="text-rose-400" />}
+                    <span className="vote-label">NO</span>
+                    {userVote === 'NO' && <CheckCircle2 size={13} className="text-rose-400" />}
                   </button>
                 </div>
               )}

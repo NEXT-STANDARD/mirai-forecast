@@ -126,7 +126,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             >
               <span className="btn-icon">👍</span>
               <div className="btn-text-group">
-                <span className="btn-main">YES (そう思う)</span>
+                <span className="btn-main">YES</span>
                 <span className="btn-sub">{event.japanVotes.percentYes}% 支持</span>
               </div>
             </button>
@@ -137,7 +137,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             >
               <span className="btn-icon">👎</span>
               <div className="btn-text-group">
-                <span className="btn-main">NO (違う)</span>
+                <span className="btn-main">NO</span>
                 <span className="btn-sub">{100 - event.japanVotes.percentYes}% 支持</span>
               </div>
             </button>
