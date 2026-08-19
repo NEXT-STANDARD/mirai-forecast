@@ -175,6 +175,52 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                 </div>
               )}
 
+              {/* ⚔️ Gemini 3.7 知的ディベート対比（YES論拠 vs NO論拠） */}
+              <div className="ai-debate-section">
+                <div className="debate-header-bar">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                    <span className="text-base">⚔️</span>
+                    <span>AI知性ディベート：世界スマートマネー vs 慎重派の論拠対比</span>
+                  </div>
+                  <span className="debate-badge font-mono">BULL vs BEAR DEBATE</span>
+                </div>
+
+                <div className="debate-cards-grid">
+                  {/* 🟢 YES派（実現・強気派）の論拠 */}
+                  <div className="debate-card bull-card">
+                    <div className="debate-card-header">
+                      <span className="debate-tag-bull">🟢 YES支持の主要論拠（強気派）</span>
+                      <span className="debate-prob font-mono text-cyan-400">世界 YES {item.worldProbYes}%</span>
+                    </div>
+                    <p className="debate-card-text">
+                      {item.aiInsight?.bullCaseJa || `${item.titleJa} に関して、市場の先行指標や直近のモメンタム、関係機関の積極姿勢を織り込み、スマートマネーが強気な買いを入れている背景が存在します。`}
+                    </p>
+                  </div>
+
+                  {/* 🔴 NO派（慎重・懐疑・リスク派）の論拠 */}
+                  <div className="debate-card bear-card">
+                    <div className="debate-card-header">
+                      <span className="debate-tag-bear">🔴 NO支持の主要論拠（慎重派）</span>
+                      <span className="debate-prob font-mono text-rose-400">世界 NO {100 - item.worldProbYes}%</span>
+                    </div>
+                    <p className="debate-card-text">
+                      {item.aiInsight?.bearCaseJa || `締切日までの時間的猶予、法規制や地政学リスク、および突発的なサプライズ懸念により、一定数のクォンツ勢が下振れリスクを警戒しています。`}
+                    </p>
+                  </div>
+                </div>
+
+                {/* ⚖️ 争点・対立軸の総括 */}
+                <div className="debate-summary-box">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 mb-1">
+                    <span>⚖️</span>
+                    <span>最大の争点・勝負の分かれ目</span>
+                  </div>
+                  <p className="debate-summary-text">
+                    {item.aiInsight?.debateSummaryJa || `今後のカタリスト日程（公式発表や重要指標）における数値が市場予測を上回るかどうかが、確率の急変トリガーとなります。`}
+                  </p>
+                </div>
+              </div>
+
               {item.aiInsight?.keyCatalysts && item.aiInsight.keyCatalysts.length > 0 && (
                 <div className="catalyst-timeline-block">
                   <h4 className="catalyst-timeline-title">

@@ -29,13 +29,16 @@ export interface MarketItem {
     percentYes: number;
   };
   
-  // AI要因分析
+  // AI要因分析 & 知的ディベート
   aiInsight?: {
     summaryJa: string;
     whyMovedJa: string;
     keyCatalysts: string[];
     urgencyLevel: 'high' | 'medium' | 'low';
     lastUpdated: string;
+    bullCaseJa?: string;      // 🟢 YES支持（強気・実現派）の主要論拠
+    bearCaseJa?: string;      // 🔴 NO支持（慎重・懐疑・リスク派）の主要論拠
+    debateSummaryJa?: string; // ⚖️ 最大の対立軸・勝負の分かれ目
   };
 
   // コメント

@@ -6598,4 +6598,165 @@ body {
   color: #38bdf8;
 }
 
+/* ========================================================
+   Gemini 3.7 Flash AI Deep Debate Insight Section Styles
+   ======================================================== */
+.ai-debate-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.debate-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.debate-badge {
+  font-size: 0.62rem;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 800;
+}
+
+.debate-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .debate-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.debate-card {
+  padding: 0.85rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.15s ease;
+}
+
+.debate-card.bull-card {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.debate-card.bull-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+}
+
+.debate-card.bear-card {
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+}
+
+.debate-card.bear-card:hover {
+  border-color: #f43f5e;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.15);
+}
+
+.debate-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.debate-tag-bull {
+  color: #38bdf8;
+}
+
+.debate-tag-bear {
+  color: #fb7185;
+}
+
+.debate-prob {
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.debate-card-text {
+  font-size: 0.72rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.debate-summary-box {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 6px;
+  padding: 0.65rem 0.85rem;
+}
+
+.debate-summary-text {
+  font-size: 0.7rem;
+  color: #fde68a;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* チャート下部のミニ・ディベート対比 */
+.chart-debate-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+  margin: 0.6rem 0;
+}
+
+@media (max-width: 640px) {
+  .chart-debate-preview {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-debate-col {
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.chart-debate-col.bull {
+  background: rgba(2, 132, 199, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.chart-debate-col.bear {
+  background: rgba(225, 29, 72, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+.chart-debate-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.chart-debate-col.bull .chart-debate-tag { color: #38bdf8; }
+.chart-debate-col.bear .chart-debate-tag { color: #fb7185; }
+
+.chart-debate-text {
+  font-size: 0.66rem;
+  color: #cbd5e1;
+  line-height: 1.35;
+  margin: 0;
+}
+
+
 

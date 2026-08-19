@@ -437,12 +437,12 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             </div>
           </div>
 
-          {/* 💡 AI要因・カタリスト日程ブロック */}
+          {/* 💡 AI要因・カタリスト日程 ＆ 知的ディベートブロック */}
           <div className="ai-catalyst-block">
             <div className="ai-header-row">
               <div className="flex items-center gap-1.5">
                 <Sparkles size={13} className="text-amber-400" />
-                <span className="ai-block-title">AI 変動要因＆カタリスト分析 (Gemini 3.7 Flash)</span>
+                <span className="ai-block-title">AI 変動要因＆知性ディベート (Gemini 3.7 Flash)</span>
               </div>
               <span className="ai-live-tag">LIVE ANALYTICS</span>
             </div>
@@ -450,6 +450,22 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             <p className="ai-summary-text">
               {event.aiInsight?.summaryJa || '世界のスマートマネーは、直近の市場データやカタリスト日程を織り込みながら確率を形成しています。'}
             </p>
+
+            {/* ⚔️ ミニ・ディベート対比バー */}
+            <div className="chart-debate-preview">
+              <div className="chart-debate-col bull">
+                <span className="chart-debate-tag">🟢 YES論拠 (強気派)</span>
+                <p className="chart-debate-text">
+                  {event.aiInsight?.bullCaseJa || '先行指標の好転や機関マネーの買いが先行して確率を押し上げ中。'}
+                </p>
+              </div>
+              <div className="chart-debate-col bear">
+                <span className="chart-debate-tag">🔴 NO論拠 (慎重派)</span>
+                <p className="chart-debate-text">
+                  {event.aiInsight?.bearCaseJa || '日程的な時間不足や下振れサプライズ懸念により慎重姿勢を維持。'}
+                </p>
+              </div>
+            </div>
 
             {event.aiInsight?.whyMovedJa && (
               <div className="ai-why-moved">
