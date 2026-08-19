@@ -17,7 +17,8 @@ import {
   FileText,
   X,
   AlertTriangle,
-  Edit3
+  Edit3,
+  BookOpen
 } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
@@ -67,7 +68,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   const [pinCode, setPinCode] = useState('');
   const [pinError, setPinError] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'proposals' | 'deploy' | 'metrics' | 'analytics' | 'logs' | 'kpi'>('kpi');
+  const [activeTab, setActiveTab] = useState<'proposals' | 'deploy' | 'metrics' | 'analytics' | 'logs' | 'kpi' | 'manual'>('kpi');
   const [proposals, setProposals] = useState<ProposalItem[]>([]);
   const [isLoadingProposals, setIsLoadingProposals] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -425,6 +426,14 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
         </button>
 
         <button
+          className={`mission-tab ${activeTab === 'manual' ? 'active' : ''}`}
+          onClick={() => setActiveTab('manual')}
+        >
+          <BookOpen size={14} className="text-cyan-400" />
+          <span>📖 週56h 運用マニュアル</span>
+        </button>
+
+        <button
           className={`mission-tab ${activeTab === 'proposals' ? 'active' : ''}`}
           onClick={() => setActiveTab('proposals')}
         >
@@ -489,10 +498,20 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   </p>
                 </div>
 
-                <button
-                  className="btn-copy-kpi-summary"
-                  onClick={() => {
-                    const summaryText = `【未来レーダー 100% LIVE KPI・ファネル観測サマリー】
+                <div className="flex items-center gap-2">
+                  <button
+                    className="btn-open-manual-quick"
+                    onClick={() => setActiveTab('manual')}
+                    title="週56h公式運用マニュアルを開く"
+                  >
+                    <BookOpen size={13} className="text-cyan-300" />
+                    <span>📖 運用マニュアル</span>
+                  </button>
+
+                  <button
+                    className="btn-copy-kpi-summary"
+                    onClick={() => {
+                      const summaryText = `【未来レーダー 100% LIVE KPI・ファネル観測サマリー】
 📅 観測日時: ${new Date().toLocaleString('ja-JP')}
 🏆 総観測銘柄数: ${events.length} 銘柄
 🗳️ 実測投票総数: ${liveTotalVotes.toLocaleString()} 票 (LIVE)
@@ -510,13 +529,14 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 【AIへの相談・改善リクエスト】:
 この最新LIVEデータを元に、次に改善すべきUI/UXやバズ拡大施策の提案をお願いします。`;
 
-                    navigator.clipboard.writeText(summaryText);
-                    showToast('success', '100% LIVE KPIサマリーをクリップボードにコピーしました！');
-                  }}
-                >
-                  <Sparkles size={13} className="text-amber-300" />
-                  <span>LIVE対話サマリーをコピー</span>
-                </button>
+                      navigator.clipboard.writeText(summaryText);
+                      showToast('success', '100% LIVE KPIサマリーをクリップボードにコピーしました！');
+                    }}
+                  >
+                    <Sparkles size={13} className="text-amber-300" />
+                    <span>LIVE対話サマリーをコピー</span>
+                  </button>
+                </div>
               </div>
 
               {/* 🏆 2大KGI（最終目標）カード */}
@@ -653,6 +673,167 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
             </div>
           );
         })()}
+
+        {/* ========================================================
+            TAB: 週56時間 公式運用マニュアル (Operations Manual)
+           ======================================================== */}
+        {activeTab === 'manual' && (
+          <div className="tab-pane-manual animate-fade-in">
+            <div className="pane-section-header">
+              <div>
+                <div className="flex items-center gap-2">
+                  <BookOpen size={18} className="text-cyan-400" />
+                  <h2 className="section-title">週56時間 フルコミット・公式運用マニュアル</h2>
+                  <span className="text-xs font-mono px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/60 text-cyan-300">
+                    目標: MAV 1万票 ｜ MAU 3万人
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  1日8時間 × 週7日（56時間）の投下リソースを最大レバレッジさせる実践タイムテーブル ＆ アクションガイド
+                </p>
+              </div>
+
+              <button
+                className="btn-action-sm"
+                onClick={() => setActiveTab('kpi')}
+              >
+                <BarChart3 size={12} />
+                <span>KPI司令室へ戻る</span>
+              </button>
+            </div>
+
+            {/* 4大リソース配分バー */}
+            <div className="manual-resource-card">
+              <h3 className="text-xs font-bold text-slate-200 uppercase tracking-wider mb-2 font-mono">
+                WEEKLY RESOURCE ALLOCATION // 週56時間の黄金比率
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-2.5">
+                <div className="resource-pill-box bg-cyan-950/40 border border-cyan-800/40 p-3 rounded-lg">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-xs font-bold text-cyan-300">1. SNS・対話・拡散</span>
+                    <span className="font-mono text-cyan-400 font-bold text-sm">40% (22h)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 m-0">X世論速報、引用RT、専門家・ファン対話、WebMCP記事共有</p>
+                </div>
+
+                <div className="resource-pill-box bg-emerald-950/40 border border-emerald-800/40 p-3 rounded-lg">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-xs font-bold text-emerald-300">2. トピック選定＆審査</span>
+                    <span className="font-mono text-emerald-400 font-bold text-sm">25% (14h)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 m-0">ホット時事テーマの投下、ユーザー提案の審査・承認</p>
+                </div>
+
+                <div className="resource-pill-box bg-amber-950/40 border border-amber-800/40 p-3 rounded-lg">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-xs font-bold text-amber-300">3. 週末アワード実況</span>
+                    <span className="font-mono text-amber-400 font-bold text-sm">20% (11h)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 m-0">日曜21:00の週間MVP実況、確定銘柄の勝敗総括</p>
+                </div>
+
+                <div className="resource-pill-box bg-purple-950/40 border border-purple-800/40 p-3 rounded-lg">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <span className="text-xs font-bold text-purple-300">4. テレメトリ＆AI改善</span>
+                    <span className="font-mono text-purple-400 font-bold text-sm">15% (9h)</span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 m-0">100% LIVEデータ観測、AI対話によるUI/UX微調整</p>
+                </div>
+              </div>
+            </div>
+
+            {/* 平日 ＆ 週末 タイムテーブル 2カラム */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+              {/* 平日ルーティン */}
+              <div className="manual-routine-card bg-slate-900/70 border border-slate-800 p-4 rounded-xl">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800">
+                  <span className="text-lg">🌅</span>
+                  <h3 className="text-sm font-bold text-slate-100">平日デイリー運用（月〜金: 各8時間）</h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="routine-step p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-amber-400">朝（08:30 - 10:30 ｜ 2h）</span>
+                      <span className="text-slate-500 font-mono">市場オープン＆速報</span>
+                    </div>
+                    <ul className="text-xs text-slate-300 space-y-1 pl-4 list-disc m-0">
+                      <li>管理画面で夜間の投票数・レイテンシを観測</li>
+                      <li>朝刊・MLB結果から「今日の問い」を1〜2件新規投下</li>
+                      <li>公式Xで「☀️ 朝の世論スプレッド速報」を画像付きポスト</li>
+                    </ul>
+                  </div>
+
+                  <div className="routine-step p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-cyan-400">昼（11:30 - 14:30 ｜ 3h）</span>
+                      <span className="text-slate-500 font-mono">コミュニティ対話＆AI連携</span>
+                    </div>
+                    <ul className="text-xs text-slate-300 space-y-1 pl-4 list-disc m-0">
+                      <li>Xで「Polymarket」「大谷」議論中のユーザーに客観データ提供</li>
+                      <li>投票シェアしてくれたユーザーに「ナイス予測！」と公式リプライ</li>
+                      <li>Zenn記事共有 ＆ Claude/Cursor開発者へWebMCPの活用法発信</li>
+                    </ul>
+                  </div>
+
+                  <div className="routine-step p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-purple-400">夕・夜（17:30 - 20:30 ｜ 3h）</span>
+                      <span className="text-slate-500 font-mono">ゴールデンタイム発信</span>
+                    </div>
+                    <ul className="text-xs text-slate-300 space-y-1 pl-4 list-disc m-0">
+                      <li>「提案審査キュー」を開き、ユーザーの問いをワンクリック承認</li>
+                      <li>19:00〜21:00に「今日一番意見が割れたテーマ」を投稿</li>
+                      <li>「LIVE対話サマリー」をコピーし、AIと翌日の施策を議論</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* 週末ルーティン */}
+              <div className="manual-routine-card bg-slate-900/70 border border-slate-800 p-4 rounded-xl">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800">
+                  <span className="text-lg">🏆</span>
+                  <h3 className="text-sm font-bold text-slate-100">週末スペシャル運用（土・日: 各8時間）</h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="routine-step p-2.5 rounded-lg bg-slate-950/60 border border-slate-800/80">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-emerald-400">土曜日（8.0時間）</span>
+                      <span className="text-slate-500 font-mono">実況＆深層記事執筆</span>
+                    </div>
+                    <ul className="text-xs text-slate-300 space-y-1 pl-4 list-disc m-0">
+                      <li>大谷翔平の打席や週末スポーツに合わせたリアルタイム世論実況</li>
+                      <li>note / Zenn 等で週間トピックの深層分析記事を執筆</li>
+                      <li>翌週のビッグイベント（FOMC/決算/選挙等）の銘柄を先行投下</li>
+                    </ul>
+                  </div>
+
+                  <div className="routine-step p-2.5 rounded-lg bg-amber-950/30 border border-amber-800/40">
+                    <div className="flex items-center justify-between text-xs mb-1">
+                      <span className="font-bold text-amber-300">日曜日（8.0時間）</span>
+                      <span className="text-amber-400 font-mono font-bold">★ 週間アワード実況</span>
+                    </div>
+                    <ul className="text-xs text-slate-300 space-y-1 pl-4 list-disc m-0">
+                      <li>過去1週間に確定した銘柄の勝敗（日本世論 vs 世界マネー）を整理</li>
+                      <li><strong>21:00「週間MVPアワード発表Bot」の自動投稿に合わせて公式・個人アカウントで実況・盛り上げ！</strong></li>
+                      <li>週次KPI（MAV・MAU）の振り返りと、月曜朝の仕込み</li>
+                    </ul>
+                  </div>
+
+                  {/* キラートピックの黄金律 */}
+                  <div className="p-2.5 rounded-lg bg-slate-950/80 border border-slate-800">
+                    <span className="text-xs font-bold text-slate-200 block mb-1">💡 バズるトピック選定 3大チェック</span>
+                    <p className="text-[11px] text-slate-400 m-0">
+                      ①「直感」vs「論理」が激突 ｜ ②「財布」に直結するマクロ経済 ｜ ③「数日以内」に結果が出る速報性
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ========================================================
             TAB 1: 提案審査パイプライン (Proposals)
