@@ -7381,13 +7381,14 @@ body {
 
 /* ========================================================
    📱 Mobile Viewport & Full Responsive Optimization Pack
-   (横スクロール・はみ出し撲滅 ＆ モバイル最適化)
+   (iPhone 14 Pro / Android 横スクロール・はみ出し完全撲滅)
    ======================================================== */
-html, body {
-  max-width: 100%;
-  overflow-x: hidden;
+html, body, #root {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
   position: relative;
   width: 100%;
+  box-sizing: border-box;
 }
 
 *, *::before, *::after {
@@ -7401,81 +7402,212 @@ img, canvas, svg, video {
 
 @media (max-width: 768px) {
   .container {
-    padding: 0 0.5rem;
-    max-width: 100%;
-    width: 100%;
+    padding: 0 0.45rem !important;
+    max-width: 100vw !important;
+    width: 100% !important;
+    box-sizing: border-box;
   }
 
   .main-content {
-    padding-top: 0.35rem;
-    padding-bottom: 5.5rem; /* モバイル投票スティッキーバーのスペース確保 */
-    max-width: 100%;
-    overflow-x: hidden;
+    padding-top: 0.25rem !important;
+    padding-bottom: 5.5rem !important; /* モバイル投票スティッキーバーのスペース確保 */
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
   }
 
   /* ヘッダーのモバイル最適化 */
   .header-main-bar {
-    padding: 0.35rem 0.5rem;
+    padding: 0.35rem 0.45rem !important;
   }
 
-  /* 3ペインターミナル */
+  .header-left-cluster {
+    gap: 0.3rem !important;
+  }
+
+  .header-right-cluster {
+    gap: 0.3rem !important;
+  }
+
+  /* 🌟 3ペインターミナルの順序変更（チャート ➔ 投票 ➔ スクリーナー） */
   .terminal-3pane-grid {
-    grid-template-columns: 1fr !important;
-    gap: 0.5rem;
-    width: 100%;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 中央ペイン（メインチャート）を最上部に配置 */
+  .terminal-col.col-center {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 右ペイン（板情報＆ワンクリック投票）を2番目に配置 */
+  .terminal-col.col-right {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* 左ペイン（銘柄スクリーナー）を3番目に配置 */
+  .terminal-col.col-left {
+    order: 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .terminal-pane {
-    max-width: 100%;
-    border-radius: 8px;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
   }
 
-  /* 世論スプレッド乖離ランキング */
+  /* 📈 メインチャート内部の最適化 */
+  .main-chart-pane {
+    min-height: auto !important;
+  }
+
+  .main-chart-top-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.45rem !important;
+    padding: 0.5rem 0.65rem !important;
+  }
+
+  .symbol-info {
+    width: 100% !important;
+  }
+
+  .symbol-title-row {
+    flex-wrap: wrap !important;
+    gap: 0.3rem !important;
+  }
+
+  .event-main-title {
+    font-size: 0.88rem !important;
+    white-space: normal !important;
+    line-height: 1.35 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+  }
+
+  .view-mode-tabs {
+    width: 100% !important;
+  }
+
+  .view-mode-tabs .tab-btn {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 0.25rem 0.35rem !important;
+    font-size: 0.65rem !important;
+  }
+
+  .chart-stats-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.45rem !important;
+    padding: 0.45rem 0.65rem !important;
+  }
+
+  .ohlcv-metrics {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .timeframe-selector {
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
+
+  .tf-btn {
+    flex: 1 !important;
+    text-align: center !important;
+    padding: 0.15rem 0.2rem !important;
+    font-size: 0.62rem !important;
+  }
+
+  .svg-chart-container {
+    padding: 0.25rem 0.25rem 0 0.25rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+
+  .chart-svg {
+    width: 100% !important;
+    height: 190px !important;
+  }
+
+  .ai-catalyst-block {
+    margin: 0.45rem 0.55rem 0.65rem 0.55rem !important;
+    padding: 0.6rem 0.75rem !important;
+  }
+
+  /* 📋 スクリーナー（Watchlist）のモバイル最適化 */
+  .watchlist-pane {
+    height: auto !important;
+    max-height: 380px !important;
+  }
+
+  .terminal-table th.th-vol,
+  .terminal-table td.td-vol {
+    display: none !important;
+  }
+
+  .th-name { width: 50% !important; }
+  .th-prob { width: 25% !important; }
+  .th-gap  { width: 25% !important; }
+
+  /* ⚡ 世論スプレッド乖離ランキング */
   .spread-ranking-section {
-    padding: 0.85rem 0.65rem;
-    border-radius: 10px;
-    width: 100%;
+    padding: 0.75rem 0.55rem !important;
+    border-radius: 10px !important;
+    width: 100% !important;
   }
 
   .spread-ranking-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.65rem;
-    width: 100%;
+    gap: 0.65rem !important;
+    width: 100% !important;
   }
 
   .spread-ranking-card {
-    padding: 0.75rem;
-    width: 100%;
+    padding: 0.75rem !important;
+    width: 100% !important;
   }
 
   .spread-card-title {
-    height: auto;
-    min-height: 2.2rem;
-    font-size: 0.82rem;
+    height: auto !important;
+    min-height: 2.2rem !important;
+    font-size: 0.82rem !important;
   }
 
   .spread-meter-label {
-    width: 55px;
-    font-size: 0.58rem;
+    width: 55px !important;
+    font-size: 0.58rem !important;
   }
 
   .btn-ranking-vote {
-    padding: 0.35rem 0.25rem;
-    font-size: 0.64rem;
+    padding: 0.35rem 0.25rem !important;
+    font-size: 0.64rem !important;
   }
 
-  /* 全観測銘柄グリッド */
+  /* 🔍 全観測銘柄グリッド */
   .section-header-row {
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 0.65rem !important;
+    gap: 0.55rem !important;
   }
 
   .section-controls-group {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.4rem !important;
   }
 
   .market-search-box {
@@ -7484,64 +7616,64 @@ img, canvas, svg, video {
 
   .sort-selector-box {
     width: 100% !important;
-    justify-content: space-between;
+    justify-content: space-between !important;
   }
 
   .markets-cards-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.65rem;
-    width: 100%;
+    gap: 0.65rem !important;
+    width: 100% !important;
   }
 
   .market-card-item {
-    padding: 0.75rem;
-    width: 100%;
+    padding: 0.75rem !important;
+    width: 100% !important;
   }
 
   .topic-pills-scroll-container {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
   }
 
   .hot-keywords-row {
-    width: 100%;
-    max-width: 100%;
-    overflow-x: auto;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
     -webkit-overflow-scrolling: touch;
   }
 
   /* チャート＆ディベート対比 */
   .chart-debate-preview {
     grid-template-columns: 1fr !important;
-    gap: 0.4rem;
+    gap: 0.4rem !important;
   }
 
   .debate-cards-grid {
     grid-template-columns: 1fr !important;
-    gap: 0.5rem;
+    gap: 0.5rem !important;
   }
 
   /* オーダーブック・板情報 */
   .order-entry-panel {
-    padding: 0.6rem;
+    padding: 0.55rem !important;
   }
 
   .entry-btn-grid {
-    gap: 0.35rem;
+    gap: 0.35rem !important;
   }
 
   .entry-btn {
-    padding: 0.45rem 0.35rem;
+    padding: 0.45rem 0.35rem !important;
   }
 
   .btn-main-label {
-    font-size: 0.72rem;
+    font-size: 0.72rem !important;
   }
 
   .btn-action-hint {
-    font-size: 0.58rem;
+    font-size: 0.58rem !important;
   }
 
   /* 管理画面 */
@@ -7559,13 +7691,14 @@ img, canvas, svg, video {
   }
 
   .connector-hero-title {
-    font-size: 1.25rem;
+    font-size: 1.25rem !important;
   }
 
   .code-block {
-    font-size: 0.62rem;
+    font-size: 0.62rem !important;
   }
 }
+
 
 
 
