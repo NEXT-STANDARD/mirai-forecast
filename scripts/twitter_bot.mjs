@@ -1,13 +1,17 @@
 /**
- * 未来レーダー (MiraiRadar.com) - X (Twitter) 【推奨アプローチA データ完全一致】自動速報Botスクリプト
+ * ⚡ 未来レーダー (MiraiRadar.com) - 公式X (Twitter) 【世論スプレッド乖離警報】自動速報Botスクリプト
+ * 
+ * 役割: 世界マネー確率（Polymarket）と日本世論の最大乖離銘柄を自動検知し、
+ * インパクト抜群の対比画像（1200x630px）を添付してXへ自動ツリー投稿する。
  */
 
 import { TwitterApi } from 'twitter-api-v2';
 import sharp from 'sharp';
 import fs from 'fs';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
 
-// .env 読み込み (フォールバック)
+// .env 読み込み
 const envPath = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/.env';
 const localEnv = {};
 if (fs.existsSync(envPath)) {
@@ -27,6 +31,8 @@ const apiSecret = process.env.TWITTER_API_SECRET || localEnv.TWITTER_API_SECRET;
 const accessToken = process.env.TWITTER_ACCESS_TOKEN || localEnv.TWITTER_ACCESS_TOKEN;
 const accessSecret = process.env.TWITTER_ACCESS_SECRET || localEnv.TWITTER_ACCESS_SECRET;
 const geminiApiKey = process.env.GEMINI_API_KEY || localEnv.GEMINI_API_KEY;
+const supabaseUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || localEnv.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
 
 if (!apiKey || !apiSecret || !accessToken || !accessSecret) {
   console.log('Twitter credentials missing, skipping tweet post');
@@ -40,8 +46,10 @@ const twitterClient = new TwitterApi({
   accessSecret: accessSecret,
 });
 
+const supabase = (supabaseUrl && supabaseKey) ? createClient(supabaseUrl, supabaseKey) : null;
+
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
-const MIN_VOLUME_24H_USD = 50000;
+const MIN_VOLUME_24H_USD = 30000;
 const POSTED_CACHE_FILE = path.join(process.cwd(), 'scripts', '.posted_events.json');
 
 const SENSITIVE_KEYWORDS = [
@@ -100,22 +108,23 @@ function savePostedEvent(eventId) {
 async function translateSingleWithGemini(rawQuestion) {
   if (!geminiApiKey) return rawQuestion;
 
-  const prompt = `あなたは経済・金融メディア（日経新聞、Bloomberg日本語版）の編集デスクです。
-以下のPolymarket市場の英語質問文を、日本の読者がパッと見て1秒で理解でき、「YES/NO」で自然に回答できる日本語の疑問文見出しに翻訳してください。
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+  const prompt = `あなたは金融・オルタナティブデータメディア「未来レーダー」の主任翻訳クォンツです。
+以下のPolymarketの市場テーマを、日本の一般読者・投資家が直感的に理解できる自然で洗練された日本語の問い（タイトル）に翻訳してください。
 
-【英語質問】: ${rawQuestion}
+【原文】: "${rawQuestion}"
 
-JSON形式のみで出力してください:
-{ "ja": "日本語タイトル（〜か？）" }`;
+【出力フォーマット】:
+必ず以下のJSON形式のみを出力してください。
+{"ja": "〜するか？"}`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${geminiApiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { responseMimeType: "application/json" }
+        generationConfig: { responseMimeType: 'application/json' }
       })
     });
 
@@ -129,7 +138,10 @@ JSON形式のみで出力してください:
   }
 }
 
-async function generateCardImagePng(title, worldProb) {
+/**
+ * 🎨 世論スプレッド対比カード画像 (1200x630px PNG) を生成
+ */
+async function generateSpreadCardImagePng(title, worldProb, japanProb, gap) {
   const safeTitle = title.replace(/[<>&'"]/g, '');
   const displayTitle = safeTitle.length > 38 ? safeTitle.slice(0, 36) + '...' : safeTitle;
 
@@ -146,8 +158,12 @@ async function generateCardImagePng(title, worldProb) {
         <stop offset="100%" stop-color="#38bdf8" />
       </linearGradient>
       <linearGradient id="japanBar" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0%" stop-color="#be123c" />
-        <stop offset="100%" stop-color="#f43f5e" />
+        <stop offset="0%" stop-color="#059669" />
+        <stop offset="100%" stop-color="#10b981" />
+      </linearGradient>
+      <linearGradient id="gapGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#f59e0b" />
+        <stop offset="100%" stop-color="#fbbf24" />
       </linearGradient>
       <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stop-color="#0284c7" />
@@ -163,7 +179,7 @@ async function generateCardImagePng(title, worldProb) {
     <!-- 背景 -->
     <rect width="1200" height="630" fill="url(#bgGrad)" />
 
-    <!-- 装飾ボーダー -->
+    <!-- 外枠ボーダー -->
     <rect x="25" y="25" width="1150" height="580" rx="16" fill="none" stroke="#1e293b" stroke-width="2" />
     <rect x="25" y="25" width="1150" height="580" rx="16" fill="none" stroke="#38bdf8" stroke-width="1" opacity="0.2" />
 
@@ -177,79 +193,91 @@ async function generateCardImagePng(title, worldProb) {
       <rect x="195" y="8" width="125" height="26" rx="4" fill="#1e293b" />
       <text x="203" y="25" class="font-mono" font-size="13" font-weight="bold" fill="#38bdf8">MiraiRadar.com</text>
 
-      <rect x="860" y="4" width="220" height="34" rx="6" fill="#0284c7" fill-opacity="0.2" stroke="#38bdf8" stroke-width="1.2" />
-      <text x="875" y="26" class="font-mono" font-size="14" font-weight="bold" fill="#38bdf8">REALTIME MARKET FEED</text>
+      <!-- 乖離速報バッジ -->
+      <rect x="830" y="4" width="250" height="34" rx="6" fill="#f59e0b" fill-opacity="0.2" stroke="#fbbf24" stroke-width="1.2" />
+      <text x="845" y="26" class="font-mono" font-size="14" font-weight="bold" fill="#fbbf24">⚡ SPREAD ALERT: ${gap}% GAP</text>
     </g>
 
     <!-- タイトル -->
-    <g transform="translate(60, 155)">
-      <rect width="1080" height="110" rx="12" fill="#080e1e" stroke="#1e293b" stroke-width="1" />
-      <text x="30" y="40" class="font-jp" font-size="13" font-weight="bold" fill="#38bdf8" letter-spacing="1">観測トピック・オッズ速報</text>
-      <text x="30" y="82" class="font-jp" font-size="28" font-weight="bold" fill="#ffffff">${displayTitle}</text>
+    <g transform="translate(60, 150)">
+      <rect width="1080" height="105" rx="12" fill="#080e1e" stroke="#1e293b" stroke-width="1" />
+      <text x="30" y="36" class="font-jp" font-size="13" font-weight="bold" fill="#fbbf24" letter-spacing="1">⚡ 世界とお茶の間の見解が激突中！</text>
+      <text x="30" y="78" class="font-jp" font-size="26" font-weight="bold" fill="#ffffff">${displayTitle}</text>
     </g>
 
-    <!-- 対比ボックス -->
-    <g transform="translate(60, 290)">
-      <!-- 世界のリアルマネー -->
+    <!-- 対比ボックス（2カラム） -->
+    <g transform="translate(60, 280)">
+      <!-- 世界マネー -->
       <g transform="translate(0, 0)">
         <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#1e3a8a" stroke-width="1.5" />
-        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">世界のリアルマネー予測 (Polymarket)</text>
+        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">世界のリアルマネー確率 (Polymarket)</text>
         <text x="25" y="98" class="font-mono" font-size="52" font-weight="bold" fill="#38bdf8">YES ${worldProb}%</text>
         
         <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
         <rect x="25" y="125" width="${(worldProb / 100) * 440}" height="12" rx="6" fill="url(#worldBar)" />
-
-        <text x="25" y="165" class="font-mono" font-size="14" font-weight="bold" fill="#64748b">NO: ${100 - worldProb}% ｜ スマートマネー集中</text>
+        <text x="25" y="165" class="font-jp" font-size="12" fill="#64748b">世界中の機関投資家・クォンツのリアル約定値</text>
       </g>
 
-      <!-- VS バッジ -->
-      <g transform="translate(505, 75)">
-        <circle cx="35" cy="25" r="28" fill="#0f172a" stroke="#fbbf24" stroke-width="2" />
-        <text x="24" y="32" class="font-mono" font-size="18" font-weight="bold" fill="#fbbf24">VS</text>
-      </g>
-
-      <!-- 日本の世論（ブラインドロック中） -->
+      <!-- 日本世論 -->
       <g transform="translate(590, 0)">
-        <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#881337" stroke-width="1.5" />
-        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">日本の世論 (バイアスフリー投票)</text>
-        <text x="25" y="98" class="font-mono" font-size="52" font-weight="bold" fill="#f43f5e">YES [ ??% ]</text>
+        <rect width="490" height="195" rx="12" fill="#080e1e" stroke="#065f46" stroke-width="1.5" />
+        <text x="25" y="38" class="font-jp" font-size="15" font-weight="bold" fill="#94a3b8">日本の生活者世論 (未来レーダー)</text>
+        <text x="25" y="98" class="font-mono" font-size="52" font-weight="bold" fill="#10b981">YES ${japanProb}%</text>
         
         <rect x="25" y="125" width="440" height="12" rx="6" fill="#050811" />
-        <rect x="25" y="125" width="220" height="12" rx="6" fill="url(#japanBar)" opacity="0.4" />
-
-        <text x="25" y="165" class="font-jp" font-size="14" font-weight="bold" fill="#fbbf24">投票すると真実の世論が開示されます</text>
+        <rect x="25" y="125" width="${(japanProb / 100) * 440}" height="12" rx="6" fill="url(#japanBar)" />
+        <text x="25" y="165" class="font-jp" font-size="12" fill="#64748b">完全無料・非賭博オピニオン意識調査集計</text>
       </g>
     </g>
 
     <!-- フッター -->
-    <g transform="translate(60, 565)">
-      <circle cx="10" cy="10" r="5" fill="#10b981" />
-      <text x="26" y="15" class="font-jp" font-size="14" font-weight="bold" fill="#94a3b8">あなたはどう思う？ 1クリックで世論調査に参加（完全無料）</text>
-      <text x="1080" y="15" class="font-mono" font-size="14" font-weight="bold" fill="#38bdf8" text-anchor="end">mirairadar.com</text>
+    <g transform="translate(60, 525)">
+      <rect width="1080" height="50" rx="8" fill="#080d1a" stroke="#1e293b" stroke-width="1" />
+      <text x="30" y="30" class="font-jp" font-size="14" font-weight="bold" fill="#fbbf24">⚡ あなたの直感はどちらが正しいと思いますか？</text>
+      <text x="750" y="30" class="font-mono" font-size="13" font-weight="bold" fill="#38bdf8">1秒投票 ➔ mirairadar.com</text>
     </g>
-  </svg>
-  `;
+  </svg>`;
 
   return await sharp(Buffer.from(svg)).png().toBuffer();
 }
 
-export async function runTwitterBotAutoPost() {
-  console.log(`[${new Date().toISOString()] 未来レーダー Bot: 【推奨アプローチA 完全データ一致】市場を走査中...`);
-
+/**
+ * ⚡ メイン処理: 世論スプレッド乖離警報の自動ポスト
+ */
+async function runTwitterSpreadAlertBot() {
   try {
+    console.log('⚡【未来レーダー】公式X 世論スプレッド乖離警報Bot 起動...');
+
+    // 1. Supabaseから日本の投票集計を取得
+    const voteMap = new Map();
+    if (supabase) {
+      const { data: voteLogs } = await supabase.from('japan_vote_logs').select('event_id, choice');
+      if (voteLogs) {
+        voteLogs.forEach(v => {
+          if (!voteMap.has(v.event_id)) voteMap.set(v.event_id, { yes: 0, no: 0 });
+          const curr = voteMap.get(v.event_id);
+          if (v.choice === 'YES') curr.yes += 1;
+          if (v.choice === 'NO') curr.no += 1;
+        });
+      }
+    }
+
+    // 2. Polymarket APIから最新市場を取得
     const res = await fetch(POLYMARKET_EVENTS_API);
-    if (!res.ok) throw new Error(`API error: ${res.status}`);
+    if (!res.ok) {
+      console.error('Polymarket API 取得失敗');
+      return;
+    }
 
     const events = await res.json();
     const postedList = getPostedEvents();
     const candidateList = [];
 
     for (const event of events) {
-      if (!event.markets || !event.markets[0]) continue;
+      if (!event.markets || event.markets.length === 0) continue;
       const market = event.markets[0];
       const titleLower = (event.title + ' ' + (market.question || '')).toLowerCase();
 
-      // 1. 安全性 ＆ 不適合フィルター
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
@@ -265,76 +293,107 @@ export async function runTwitterBotAutoPost() {
         rawQuestion = `${event.title}: ${market.groupItemTitle}?`;
       }
 
+      let worldProb = 50;
+      if (market.outcomePrices) {
+        try {
+          const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
+          if (Array.isArray(parsed) && parsed[0]) worldProb = Math.round(parseFloat(parsed[0]) * 100);
+        } catch {}
+      }
+
+      // 日本の世論集計
+      const dbVotes = voteMap.get(eventId) || voteMap.get(event.slug);
+      let japanProb = 50;
+      let totalVotes = 0;
+      if (dbVotes) {
+        totalVotes = dbVotes.yes + dbVotes.no;
+        if (totalVotes > 0) japanProb = Math.round((dbVotes.yes / totalVotes) * 100);
+      }
+
+      // 乖離率ギャップ
+      const gap = Math.abs(worldProb - japanProb);
       const jScore = calculateJRelevance(titleLower, volume24h);
-      candidateList.push({ event, market, rawQuestion, volume24h, eventId, score: jScore });
+
+      // 乖離率が大きい、またはJ-スコアが高いものを評価
+      const spreadScore = jScore * (1 + gap / 50);
+      candidateList.push({
+        event,
+        market,
+        rawQuestion,
+        volume24h,
+        eventId,
+        worldProb,
+        japanProb,
+        totalVotes,
+        gap,
+        score: spreadScore,
+      });
     }
 
     candidateList.sort((a, b) => b.score - a.score);
 
     if (candidateList.length === 0) {
-      console.log('現在投稿対象となる新しい市場はありません。');
+      console.log('現在投稿対象となる新しい乖離市場はありません。');
       return;
     }
 
     const topCandidate = candidateList[0];
     const event = topCandidate.event;
-    const market = topCandidate.market;
-    const eventId = topCandidate.eventId;
+    const worldProb = topCandidate.worldProb;
+    const japanProb = topCandidate.japanProb;
+    const gap = topCandidate.gap;
     const volume24h = topCandidate.volume24h;
 
-    let probYes = 50;
-    if (market.outcomePrices) {
-      try {
-        const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
-        if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
-      } catch {}
-    }
-
-    // Gemini 3.7 Flash でオッズ直結の質問文を翻訳
+    // Gemini 3.7 Flash でタイトルを自然な日本語に翻訳
     const titleJa = await translateSingleWithGemini(topCandidate.rawQuestion);
-    console.log(`[X投稿開始] 完全一致対象: ${titleJa} (YES ${probYes}%, Score: ${topCandidate.score})`);
+    console.log(`[X速報開始] 乖離テーマ: ${titleJa}`);
+    console.log(`- 世界マネー: YES ${worldProb}% ｜ 日本世論: YES ${japanProb}% ｜ 乖離: ⚡ ${gap}%`);
 
-    // 特製カード画像 (PNG) を生成
-    const pngBuffer = await generateCardImagePng(titleJa, probYes);
-    console.log('特製カード画像の生成完了 (1200x630px)');
+    // 特製世論対比カード画像 (1200x630px) を生成
+    const pngBuffer = await generateSpreadCardImagePng(titleJa, worldProb, japanProb, gap);
+    console.log('特製世論対比画像の生成完了 (1200x630px)');
 
     // Xに画像をアップロード
     const mediaId = await twitterClient.v1.uploadMedia(pngBuffer, { mimeType: 'image/png' });
     console.log(`画像アップロード完了: Media ID = ${mediaId}`);
 
-    // 【1投稿目】URL完全排除 ＋ 画像添付
-    const mainTweetText = `【未来レーダー：世界の確率速報⚡️】
+    // 【1投稿目】親ポスト（画像付き・URLなしでアルゴリズム拡散最大化）
+    const mainTweetText = `🚨【世論乖離警報】世界とお茶の間の見解が激突中⚡️
 「${titleJa}」
 
-🌍 世界のリアルマネー予測（Polymarket）：YES ${probYes}%
+🌍 世界のリアルマネー（Polymarket）：YES ${worldProb}%
+🇯🇵 日本の生活者世論（未来レーダー）：YES ${japanProb}%
+⚡️ 世論ギャップ：【 ${gap}% の乖離 】が発生中！
+
 💰 24h取引高：$${Math.round(volume24h).toLocaleString()}（約${Math.round(volume24h * 155 / 10000).toLocaleString()}万円）
 
-世界の予測市場で大口スマートマネーが集中しています。
-日本の皆さんの見解はどうですか？
+海外のスマートマネーと日本の世論で大きな温度差が生まれています。
+あなたの直感はどちらが正しいと思いますか？
 
-※本投稿は統計データの速報であり、投資勧誘ではありません。
+※統計データの客観的速報であり、賭博や投資勧誘ではありません。
 #未来レーダー #MiraiRadar #Polymarket #世論調査`;
 
     const { data: mainTweet } = await twitterClient.v2.tweet(mainTweetText, {
       media: { media_ids: [mediaId] },
     });
-    console.log(`🎉 1投稿目（親ポスト・画像付き）投稿完了: Tweet ID = ${mainTweet.id}`);
+    console.log(`🎉 1投稿目（親ポスト・世論乖離画像付き）投稿完了: Tweet ID = ${mainTweet.id}`);
 
-    // 【2投稿目】自己リプライ（ツリー）としてURLを投稿
+    // 【2投稿目】自己リプライ（ツリー）として個別銘柄URLを投稿
     const replyTweetText = `👇 1クリックで世論調査に参加（完全無料・登録不要）
-https://mirairadar.com/topic/${event.slug}
+https://mirairadar.com/market/${event.slug}
 
-あなたの直感は世界のお金と一致しているか？投票後に世論スプレッドが開示されます。`;
+投票すると、世界のオッズと日本のリアルタイム世論スプレッドが開示されます。`;
 
     const { data: replyTweet } = await twitterClient.v2.tweet(replyTweetText, {
       reply: { in_reply_to_tweet_id: mainTweet.id },
     });
     console.log(`💬 2投稿目（ツリー・URLリプライ）投稿完了: Tweet ID = ${replyTweet.id}`);
 
-    savePostedEvent(eventId);
+    savePostedEvent(topCandidate.eventId);
+    console.log('✅ 世論乖離警報Botの投稿が正常に完了しました！');
   } catch (err) {
     console.error('Twitter Bot 実行エラー:', err);
   }
 }
 
-runTwitterBotAutoPost();
+runTwitterSpreadAlertBot();
