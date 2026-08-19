@@ -355,6 +355,8 @@ export function App() {
             <AllMarketsGrid
               events={events}
               userVotes={userVotes}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
               onVote={handleVote}
               onSelectEvent={(event) => {
                 setActiveTopicId(event.id);

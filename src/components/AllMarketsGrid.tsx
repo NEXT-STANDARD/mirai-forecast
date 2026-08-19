@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { MarketItem } from '../types';
+import type { MarketItem, CategoryType } from '../types';
 import { 
   Sparkles, 
   TrendingUp, 
@@ -17,6 +17,8 @@ import {
 interface AllMarketsGridProps {
   events: MarketItem[];
   userVotes: Record<string, 'YES' | 'NO'>;
+  selectedCategory: CategoryType;
+  onSelectCategory: (category: CategoryType) => void;
   onVote: (eventId: string, choice: 'YES' | 'NO') => void;
   onSelectEvent: (event: MarketItem) => void;
   onOpenDetail?: (event: MarketItem) => void;
@@ -24,24 +26,37 @@ interface AllMarketsGridProps {
 
 type SortOption = 'volume' | 'gap' | 'trending' | 'newest';
 
-const TOPIC_TAGS = [
-  { id: 'all', label: 'すべて' },
-  { id: 'ohtani', label: '🔥 大谷翔平・MLB', keywords: ['大谷', '本塁打', 'ホームラン', 'ドジャース', 'mlb'] },
-  { id: 'boj', label: '📊 日銀・金利・為替', keywords: ['日銀', '利上げ', '政策金利', '円相場', '植田'] },
-  { id: 'ai', label: '⚡ 次世代AI・テック', keywords: ['ai', 'gpt', 'openai', 'apple', 'nvidia', 'spacex', '半導体'] },
-  { id: 'game', label: '🎮 任天堂・ゲーム', keywords: ['任天堂', 'switch', 'ゲーム', 'gta', 'カプコン'] },
-  { id: 'crypto', label: '🪙 ビットコイン・暗号資産', keywords: ['ビットコイン', 'btc', 'イーサリアム', '暗号資産', '仮想通貨'] },
-  { id: 'global', label: '🌍 国際情勢・社会', keywords: ['大統領', 'トランプ', 'イラン', 'ホルムズ', '選挙', '万博'] },
+// ⭐️ ヘッダーと100%完全一致するカテゴリー定義
+const UNIFIED_CATEGORIES: { id: CategoryType; label: string }[] = [
+  { id: 'all', label: '☀️ 全銘柄' },
+  { id: 'trending', label: '🔥 人気急上昇' },
+  { id: 'economy', label: '📊 経済・金利・暗号資産' },
+  { id: 'tech', label: '⚡ AI・テック' },
+  { id: 'politics', label: '🌐 国際・社会' },
+  { id: 'sports', label: '⚾ スポーツ' },
+  { id: 'entertainment', label: '🎬 エンタメ' },
+];
+
+// 話題のホットキーワード（クイック検索タグ）
+const HOT_KEYWORDS = [
+  { label: '大谷翔平', keyword: '大谷' },
+  { label: '日銀利上げ', keyword: '日銀' },
+  { label: 'Switch 2', keyword: 'switch' },
+  { label: 'GPT-5', keyword: 'gpt' },
+  { label: 'ビットコイン', keyword: 'ビットコイン' },
+  { label: 'Apple AI', keyword: 'apple' },
+  { label: '米大統領選', keyword: '大統領' },
 ];
 
 export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
   events,
   userVotes,
+  selectedCategory,
+  onSelectCategory,
   onVote,
   onSelectEvent,
   onOpenDetail,
 }) => {
-  const [selectedTopic, setSelectedTopic] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('volume');
 
@@ -49,14 +64,12 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
   const filteredEvents = useMemo(() => {
     let result = [...events];
 
-    // 1. トピックタグによる絞り込み
-    if (selectedTopic !== 'all') {
-      const topicObj = TOPIC_TAGS.find(t => t.id === selectedTopic);
-      if (topicObj && topicObj.keywords) {
-        result = result.filter(ev => {
-          const text = (ev.titleJa + ' ' + ev.questionJa + ' ' + ev.categoryLabel + ' ' + ev.slug).toLowerCase();
-          return topicObj.keywords!.some(kw => text.includes(kw.toLowerCase()));
-        });
+    // 1. ヘッダー同期カテゴリーによる絞り込み
+    if (selectedCategory !== 'all') {
+      if (selectedCategory === 'trending') {
+        result = result.filter(m => m.isTrending || m.volume24hUsd > 80000 || Math.abs(m.probChange24h) >= 6);
+      } else {
+        result = result.filter(m => m.category === selectedCategory);
       }
     }
 
@@ -66,7 +79,8 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
       result = result.filter(ev => 
         ev.titleJa.toLowerCase().includes(query) ||
         ev.questionJa.toLowerCase().includes(query) ||
-        ev.categoryLabel.toLowerCase().includes(query)
+        ev.categoryLabel.toLowerCase().includes(query) ||
+        (ev.slug || '').toLowerCase().includes(query)
       );
     }
 
@@ -87,7 +101,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
     });
 
     return result;
-  }, [events, selectedTopic, searchQuery, sortBy]);
+  }, [events, selectedCategory, searchQuery, sortBy]);
 
   return (
     <section className="all-markets-section">
@@ -136,22 +150,41 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
         </div>
       </div>
 
-      {/* 水平スクロール・トピックピルタグ */}
+      {/* ⭐️ ヘッダー完全同期・カテゴリーピルタグ */}
       <div className="topic-pills-scroll-container">
         <div className="topic-pills-bar">
-          {TOPIC_TAGS.map((tag) => (
+          {UNIFIED_CATEGORIES.map((cat) => (
             <button
-              key={tag.id}
-              onClick={() => setSelectedTopic(tag.id)}
-              className={`topic-pill-btn ${selectedTopic === tag.id ? 'active' : ''}`}
+              key={cat.id}
+              onClick={() => onSelectCategory(cat.id)}
+              className={`topic-pill-btn ${selectedCategory === cat.id ? 'active' : ''}`}
             >
-              {tag.label}
+              {cat.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 4カラム・マーケットカードグリッド */}
+      {/* 話題のホットキーワード（クイック絞り込み） */}
+      <div className="hot-keywords-row">
+        <span className="hot-keywords-label">注目の話題:</span>
+        <div className="hot-keywords-list">
+          {HOT_KEYWORDS.map((hk) => {
+            const isSelected = searchQuery === hk.keyword;
+            return (
+              <button
+                key={hk.keyword}
+                onClick={() => setSearchQuery(isSelected ? '' : hk.keyword)}
+                className={`hot-keyword-chip ${isSelected ? 'active' : ''}`}
+              >
+                #{hk.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 自動フィット・マーケットカードグリッド */}
       <div className="markets-cards-grid">
         {filteredEvents.map((event) => {
           const userVote = userVotes[event.id] || userVotes[event.slug];
@@ -297,7 +330,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
       {filteredEvents.length === 0 && (
         <div className="empty-markets-card">
           <p className="text-sm text-slate-400">該当する未来マーケットが見つかりませんでした。</p>
-          <button onClick={() => { setSelectedTopic('all'); setSearchQuery(''); }} className="btn-reset-filters">
+          <button onClick={() => { onSelectCategory('all'); setSearchQuery(''); }} className="btn-reset-filters">
             すべての銘柄を表示
           </button>
         </div>

@@ -5768,6 +5768,55 @@ body {
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
 }
 
+/* ホットキーワード行 */
+.hot-keywords-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 0.1rem 0 0.3rem 0;
+}
+
+.hot-keywords-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.hot-keywords-list {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.hot-keyword-chip {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.hot-keyword-chip:hover {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.hot-keyword-chip.active {
+  background: #fbbf24;
+  border-color: #fbbf24;
+  color: #020617;
+  font-weight: 800;
+}
+
 /* ⭐️ 画面内に100%収まる自動フィット・レスポンシブグリッド */
 .markets-cards-grid {
   display: grid;
