@@ -16,13 +16,13 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
   "30829": {
     "titleJa": "ギャビン・ニューサムは2028年民主党大統領候補指名を獲得するか？",
     "summaryJa": "2028年候補としての確率は15%にとどまり、ハリス副大統領の後塵を拝しています。",
-    "whyMovedJa": "カマラ・ハリス副大統領が2024年選挙で民主党候補となったことで党内基盤を固めており、カリフォルニア州知事のニューサム氏は次点にとどまります。",
+    "whyMovedJa": "カマラ・ハリス副大統領が2028年選挙で民主党候補となったことで党内基盤を固めており、カリフォルニア州知事のニューサム氏は次点にとどまります。",
     "keyCatalysts": [
       "8月19-22日 シカゴ開催の米民主党全国大会（DNC）",
-      "2024年11月5日 米大統領選挙結果（民主党の勝敗）"
+      "2028年11月 米大統領選挙（民主党・共和党決戦）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "31552": {
     "titleJa": "JD・バンスは2028年米大統領選挙で勝利を収めるか？",
@@ -30,76 +30,76 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "トランプ前大統領の副大統領候補に選出されたことでMAGA陣営の後継者筆頭に浮上し、2028年の共和党本選候補として急浮上しました。",
     "keyCatalysts": [
       "10月1日 CBS主催 副大統領候補テレビ討論会（バンス対ウォルツ）",
-      "11月5日 2024年米大統領選挙本選投開票"
+      "2028年11月 米大統領本選投開票挙本選投開票"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "31875": {
     "titleJa": "ドナルド・トランプは2028年共和党大統領候補に指名されるか？",
     "summaryJa": "2028年のトランプ再指名確率は2%と、憲法上の制約からほぼ否定されています。",
-    "whyMovedJa": "2024年選挙で勝利した場合は憲法修正第22条（3選禁止）に抵触し、敗北した場合も高齢（82歳）のため引退が不可避と見られているためです。",
+    "whyMovedJa": "2028年選挙で勝利した場合は憲法修正第22条（3選禁止）に抵触し、敗北した場合も高齢（82歳）のため引退が不可避と見られているためです。",
     "keyCatalysts": [
-      "11月5日 2024年米大統領選挙本選結果",
-      "2025年1月20日 次期米大統領就任式"
+      "2028年11月 米大統領本選投開票挙本選結果",
+      "2026年後半1月20日 次期米大統領就任式"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "45915": {
     "titleJa": "タルシシオ・デ・フレイタスは2026年ブラジル大統領選に勝利するか？",
     "summaryJa": "サンパウロ州知事の26年当選確率は0%と、出馬見送りが前提視されています。",
     "whyMovedJa": "ボルソナーロ前大統領の被選挙権剥奪後も後継本命視されますが、2026年はサンパウロ州知事再選を優先し大統領選回避の観測が強まっています。",
     "keyCatalysts": [
-      "2024年10月 ブラジル統一地方選挙結果",
-      "2025年上半期 右派政党自由党（PL）の大統領候補指名調整"
+      "2026年10月 ブラジル大統領選挙第1回投票",
+      "2026年後半上半期 右派政党自由党（PL）の大統領候補指名調整"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "89502": {
     "titleJa": "ビットコインは2026年に60,000ドルを割り込むか？",
     "summaryJa": "2026年の6万ドル割れ確率は50%と市場の意見が真っ二つに割れています。",
     "whyMovedJa": "4年周期の半減期サイクルに伴うポストバブル調整懸念と、米国の国家準備金化議論など構造的需要増の強弱材料が拮抗しています。",
     "keyCatalysts": [
-      "2024年11月5日 米大統領選挙（トランプ暗号資産政策の行方）",
-      "2025年3月 米FRBのバランスシート縮小（QT）終了判断"
+      "2028年11月 米大統領選挙（民主党・共和党決戦）",
+      "2026年後半3月 米FRBのバランスシート縮小（QT）終了判断"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "89519": {
     "titleJa": "イーサリアムは2026年までに3,000ドルへ到達するか？",
     "summaryJa": "中長期での3,000ドル回復期待は37%と慎重ながらも意識されています。",
     "whyMovedJa": "レイヤー2（BaseやArbitrum）へのトラフィック流出でメインネット収益が落ち込む一方、今後のステーキング利回り改善への期待が交錯しています。",
     "keyCatalysts": [
-      "2024年第4四半期 イーサリアム「Pectra」アップグレード詳細発表",
-      "2025年上半期 米暗号資産規制法案（FIT21）の上院審議"
+      "2026年第4四半期 イーサリアム大型アップグレード進捗発表",
+      "2026年後半上半期 米暗号資産規制法案（FIT21）の上院審議"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "149589": {
     "titleJa": "統一ロシアは次期下院選で過半数の最多議席を獲得するか？",
     "summaryJa": "与党「統一ロシア」の首位獲得は71%と極めて堅固な予測です。",
     "whyMovedJa": "プーチン政権下での野党勢力排除とメディア統制が継続しており、ウクライナ軍事侵攻下における愛国プロパガンダが議席維持を後押ししています。",
     "keyCatalysts": [
-      "2024年9月8日 ロシア統一地方選挙投開票",
-      "2025年春 プーチン大統領による年次教書演説"
+      "2026年9月 ロシア統一地方選挙投開票",
+      "2026年後半春 プーチン大統領による年次教書演説"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "411239": {
     "titleJa": "アビィ・アハメドはエチオピア首相の座を維持できるか？",
     "summaryJa": "アビィ首相の続投は97%と確実視され、政権基盤の安定が評価されています。",
     "whyMovedJa": "ティグレ紛争終結後の和平合意（プレトリア合意）維持に加え、IMFからの4年間で34億ドルの融資プログラム合意により政権支持が盤石化しています。",
     "keyCatalysts": [
-      "2024年9月 IMF・世界銀行によるエチオピア構造改革レビュー",
-      "2024年10月 エチオピア連邦議会新会期開会演説"
+      "2026年9月 IMF・世界銀行によるエチオピア経済支援レビュー",
+      "2026年10月 エチオピア連邦議会新会期演説"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "481717": {
     "titleJa": "FRBは9月FOMCで50bpの大幅利下げを実施するか？",
@@ -111,7 +111,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月18日 FOMC政策金利発表および経済見通し（SEP）公表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "659671": {
     "titleJa": "パリ・サンジェルマンは26-27欧州CLで優勝できるか？",
@@ -122,7 +122,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月17日 新フォーマットでのUEFAチャンピオンズリーグ開幕"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "660108": {
     "titleJa": "ホルムズ海峡の船舶航行は8月31日までに正常化するか？",
@@ -133,7 +133,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月31日 国際海事機関（IMO）の紅海航行安全特別報告"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "660109": {
     "titleJa": "ホルムズ海峡の通航状況は9月30日までに正常化するか？",
@@ -144,18 +144,18 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月中旬 米主導「プロスペリティ・ガーディアン作戦」合同部隊会合"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "699735": {
     "titleJa": "米国は2026年7月までにイラン海上封鎖の終了を発表するか？",
     "summaryJa": "対イラン海上封鎖の解除観測は0%であり、対決姿勢の固定化が示されています。",
     "whyMovedJa": "イランのウラン濃縮進展やロシアへのドローン供与が継続しており、米超党派での対イラン制裁強化方針が解除を不可能にしています。",
     "keyCatalysts": [
-      "2024年9月 IAEA（国際原子力機関）定例理事会報告",
-      "2025年10月 国連安保理決議2231に基づく対イラン制裁失効期限"
+      "2026年9月 IAEA（国際原子力機関）定例理事会報告",
+      "2026年後半10月 国連安保理決議2231に基づく対イラン制裁失効期限"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "780132": {
     "titleJa": "ビットコインは8月中に10万ドルを突破するか？",
@@ -166,7 +166,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月30日 米7月個人消費支出（PCEデフレーター）発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "780133": {
     "titleJa": "イーサリアムは8月中に3,000ドル台を回復できるか？",
@@ -177,7 +177,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月30日 米7月PCEコアデフレーター発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "831375": {
     "titleJa": "イーロン・マスクの週間投稿数は20件未満に激減するか？",
@@ -188,7 +188,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "テスラ「Robotaxi」発表イベント関連のティザー投稿"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "844164": {
     "titleJa": "イーサリアムは8月20日に1,400ドル以上をキープできるか？",
@@ -199,7 +199,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月21日 米7月FOMC議事録発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "844167": {
     "titleJa": "ビットコインは8月20日時点で54,000ドル以上を維持できるか？",
@@ -210,7 +210,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月21日 米7月FOMC議事要旨の公表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "851800": {
     "titleJa": "イーロン・マスクは8月下旬の1週間の投稿数を20件未満に抑えるか？",
@@ -221,7 +221,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "テスラFSD（完全自動運転）v12.5の広域展開進捗"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "862400": {
     "titleJa": "ビットコインは8月21日時点で52,000ドルを上回っているか？",
@@ -232,7 +232,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月21日 7月FOMC議事録公表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "862401": {
     "titleJa": "イーサリアムは8月21日に1,400ドル以上を維持できるか？",
@@ -243,7 +243,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月21日 イーサリアム現物ETF（ブラックロック等）の取引高推移"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "862998": {
     "titleJa": "ビットコインは8月23日までに78,000ドルへ急騰するか？",
@@ -254,7 +254,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月23日 パウエルFRB議長ジャクソンホール講演"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "863010": {
     "titleJa": "イーサリアムは8月23日までに2,600ドルを上回るか？",
@@ -265,7 +265,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月23日 ジャクソンホールでのパウエル議長発言"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "871083": {
     "titleJa": "米・イラン間の停戦状態は8月22日まで維持されるか？",
@@ -276,7 +276,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月22日 ブリンケン国務長官の中東歴訪総括会見"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "871229": {
     "titleJa": "ビットコインは8月20日に前日比プラスで終えられるか？",
@@ -287,6 +287,6 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月20日 米ビットコイン現物ETFの資金流入速報"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
+    "lastUpdated": "AI事前分析 (2026年8月最新)"
   }
 };

@@ -287,7 +287,7 @@ ${shareUrl}
             <Sparkles size={16} className="text-cyan-400" />
             <span className="font-extrabold text-sm">𝕏（Twitter）シェア ＆ 世論対比カード</span>
           </div>
-          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる" autoFocus>
+          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる">
             <X size={18} />
           </button>
         </div>

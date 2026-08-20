@@ -37,11 +37,11 @@ async function fix() {
       whyMovedJa: '直近の打撃フォーム・驚異的な量産ペースと、対戦相手の敬遠策・球場特性（打者天国クアーズ）による世論の急騰。',
       keyCatalysts: [
         '8月下旬：打者天国クアーズ・フィールドでの対ロッキーズ3連戦（固め打ち期待）',
-        '9月中旬：地区優勝争いが激化するパドレスとの直接対決（勝負避け・敬遠リスク）',
-        '9月29日：レギュラーシーズン最終戦（対ロッキーズ戦）'
+        '9月中旬：地区優勝争いが激化する直接対決（勝負避け・敬遠リスク）',
+        '9月29日：レギュラーシーズン最終戦'
       ],
       urgencyLevel: 'high',
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み'
+      lastUpdated: 'AI事前分析 (2026年8月最新)'
     };
     if (r.slug) currentJson[r.slug] = currentJson[r.id];
   });
@@ -50,14 +50,14 @@ async function fix() {
   records.filter(r => r.title_ja.includes('任天堂')).forEach(r => {
     currentJson[r.id] = {
       titleJa: r.title_ja,
-      summaryJa: '古川社長が今期中のアナウンスを明言済みな一方、年末商戦の現行機売上阻害を警戒する慎重論が拮抗。',
+      summaryJa: '次世代機に関するアナウンス動向や年末商戦の販売戦略に対する市場の思惑が拮抗。',
       whyMovedJa: '直近のサプライチェーンリーク報道と、世界的なゲームカンファレンス開催日程への市場の思惑。',
       keyCatalysts: [
-        '11月5日：任天堂 2025年3月期第2四半期決算発表・経営方針説明会での古川社長発言',
-        '12月12日：世界最大級のゲーム表彰式「The Game Awards 2024」での電撃ティザー公開有無'
+        '11月上旬：任天堂 2027年3月期中間決算発表・経営方針説明会での公式発言',
+        '12月中旬：世界最大級のゲーム表彰式「The Game Awards 2026」での電撃ティザー公開有無'
       ],
       urgencyLevel: 'high',
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み'
+      lastUpdated: 'AI事前分析 (2026年8月最新)'
     };
     if (r.slug) currentJson[r.slug] = currentJson[r.id];
   });
@@ -66,15 +66,15 @@ async function fix() {
   records.filter(r => r.title_ja.includes('日銀')).forEach(r => {
     currentJson[r.id] = {
       titleJa: r.title_ja,
-      summaryJa: '植田総裁のタカ派姿勢や円安是正圧力が強まる一方、政局不透明感や春闘賃上げの波及見極めで市場の織り込みは拮抗。',
-      whyMovedJa: '全国消費者物価指数（コアCPI）の高止まりと、春闘賃上げの持続性に対する金融機関の織り込み。',
+      summaryJa: '植田総裁のタカ派姿勢や円安是正圧力が強まる一方、政局不透明感や物価指標の波及見極めで市場の織り込みは拮抗。',
+      whyMovedJa: '全国消費者物価指数（コアCPI）の高止まりと、実質賃金・個人消費の持続性に対する金融機関の織り込み。',
       keyCatalysts: [
-        '2月21日発表：総務省「1月全国消費者物価指数（コアCPI）」',
-        '3月中旬公表：連合「2025年春闘・第1回回答集計結果」',
-        '3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見'
+        '9月19日〜20日開催：日銀「金融政策決定会合」および植田和男総裁記者会見',
+        '10月30日〜31日開催：日銀「展望レポート（経済・物価情勢の展望）」公表',
+        '12月18日〜19日開催：日銀「年内最終・金融政策決定会合」'
       ],
       urgencyLevel: 'high',
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み'
+      lastUpdated: 'AI事前分析 (2026年8月最新)'
     };
     if (r.slug) currentJson[r.slug] = currentJson[r.id];
   });

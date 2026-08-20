@@ -33,7 +33,7 @@ export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
             <Code2 size={18} className="text-cyan-400" />
             <span className="font-extrabold text-sm">記事・ブログ埋め込みウィジェット（Embed）</span>
           </div>
-          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる" autoFocus>
+          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる">
             <X size={18} />
           </button>
         </div>

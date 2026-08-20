@@ -146,7 +146,7 @@ async function approveProposal(proposalId) {
     whyMovedJa: insight.whyMovedJa,
     keyCatalysts: insight.keyCatalysts,
     urgencyLevel: 'high',
-    lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み'
+    lastUpdated: 'AI事前分析 (2026年8月最新)'
   };
   fs.writeFileSync(jsonPath, JSON.stringify(currentJson, null, 2));
 
@@ -225,7 +225,7 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
     whyMovedJa: insight.whyMovedJa,
     keyCatalysts: insight.keyCatalysts,
     urgencyLevel: 'high',
-    lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み'
+    lastUpdated: 'AI事前分析 (2026年8月最新)'
   };
   fs.writeFileSync(jsonPath, JSON.stringify(currentJson, null, 2));
 

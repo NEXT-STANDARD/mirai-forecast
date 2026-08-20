@@ -5715,7 +5715,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 3.5rem;
   background: #030712;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2.5rem 0 7.5rem 0;
+  padding: 2.5rem 0 9rem 0;
 }
 
 .compliance-container {
@@ -9778,7 +9778,10 @@ body::after {
   .sort-selector-box,
   .hot-keyword-chip,
   .btn-card-detail-link,
-  .footer-link-btn {
+  .footer-link-btn,
+  .btn-pwa-notify,
+  .btn-pwa-install,
+  .pwa-action-btn {
     position: relative;
     min-height: 38px;
   }
@@ -9809,7 +9812,10 @@ body::after {
   .sort-selector-box::after,
   .hot-keyword-chip::after,
   .btn-card-detail-link::after,
-  .footer-link-btn::after {
+  .footer-link-btn::after,
+  .btn-pwa-notify::after,
+  .btn-pwa-install::after,
+  .pwa-action-btn::after {
     content: '';
     position: absolute;
     top: 50%;

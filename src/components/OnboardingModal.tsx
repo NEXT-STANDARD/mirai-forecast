@@ -42,8 +42,8 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
             <Sparkles size={13} className="text-amber-400" />
             <span>WELCOME TO MIRAIRADAR // 10秒クイックガイド</span>
           </div>
-          <button onClick={handleClose} className="forecast-close-btn" aria-label="閉じる" autoFocus>
-            <X size={16} />
+          <button onClick={handleClose} className="forecast-close-btn" aria-label="閉じる">
+            <X size={18} />
           </button>
         </div>
 
