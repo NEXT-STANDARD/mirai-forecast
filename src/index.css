@@ -5950,10 +5950,16 @@ h1, h2, h3, h4, h5, h6 {
    Compliance Footer Banner Dedicated Styles
    ======================================================== */
 .compliance-footer {
-  margin-top: 3.5rem;
+  margin-top: 3rem;
   background: #030712;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2.5rem 0 9rem 0;
+  padding: 2.5rem 0 2rem 0;
+}
+
+@media (max-width: 768px) {
+  .compliance-footer {
+    padding: 2rem 0 calc(4.5rem + env(safe-area-inset-bottom, 0px)) 0;
+  }
 }
 
 .compliance-container {
@@ -7832,7 +7838,7 @@ img, canvas, svg, video {
 
   .main-content {
     padding-top: 0.25rem !important;
-    padding-bottom: 5.5rem !important; /* モバイル投票スティッキーバーのスペース確保 */
+    padding-bottom: 1.5rem !important;
     max-width: 100vw !important;
     overflow-x: clip !important;
     width: 100% !important;
