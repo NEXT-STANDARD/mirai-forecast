@@ -60,15 +60,16 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
         </div>
 
         {/* フッター規約リンク ＆ コピーライト */}
-        <div className="footer-bottom-row flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80 text-xs text-slate-400">
-          <div className="flex items-center gap-4">
+        <div className="footer-bottom-row">
+          <div className="footer-links-group">
             {onOpenTerms && (
-              <button onClick={onOpenTerms} className="hover:text-cyan-400 underline transition-all">
+              <button onClick={onOpenTerms} className="footer-link-btn">
                 利用規約
               </button>
             )}
+            <span className="footer-link-divider">｜</span>
             {onOpenPrivacy && (
-              <button onClick={onOpenPrivacy} className="hover:text-cyan-400 underline transition-all">
+              <button onClick={onOpenPrivacy} className="footer-link-btn">
                 プライバシーポリシー
               </button>
             )}

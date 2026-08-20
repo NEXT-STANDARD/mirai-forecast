@@ -5796,12 +5796,49 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0;
 }
 
-.footer-bottom-copy {
-  text-align: center;
+.footer-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
   padding-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  font-size: 0.68rem;
-  color: #64748b;
+  margin-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-links-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.footer-link-btn {
+  background: transparent;
+  border: none;
+  color: #8a96a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.2rem 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: all 0.15s ease;
+}
+
+.footer-link-btn:hover {
+  color: #38bdf8;
+}
+
+.footer-link-divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.75rem;
+  user-select: none;
+}
+
+.footer-bottom-copy {
+  font-size: 0.72rem;
+  color: #8a96a8;
   font-family: var(--font-mono);
 }
 
