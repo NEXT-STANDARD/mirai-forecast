@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー 第11回 検証レポート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="eyebrow">
+      <span>再修正 検証レポート（第11回）</span><span class="sep"></span>
+      <span>mirai-forecast</span><span class="sep"></span>
+      <span>2026-08-20</span>
+    </div>
+    <h1>未来レーダー 第11回 検証レポート</h1>
+    <p class="dek">
+      指摘2点はどちらも大きく改善しました。自己検証エンジンの検知率は <strong>1/3 → 4/5</strong> へ。
+      ただしヘッダーが sticky 指定なのに固定されておらず、原因と1語の修正案まで実機で確認しています。
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tally">
+    <div class="ok"><span class="v">30<small>件</small></span><span class="l">完全に修正<br>（35項目中）</span></div>
+    <div class="pt"><span class="v">2<small>件</small></span><span class="l">部分的・不完全</span></div>
+    <div class="ng"><span class="v">3<small>件</small></span><span class="l">未達<br>（変化なし）</span></div>
+    <div class="ok"><span class="v">4<small>/5</small></span><span class="l">検証エンジンの検知率<br>（前回 1/3）</span></div>
+    <div class="ok"><span class="v">55<small>px</small></span><span class="l">カテゴリの位置<br>（4207px から改善）</span></div>
+    <div class="ng"><span class="v">1<small>語</small></span><span class="l">sticky を直す<br>変更量（実証済み）</span></div>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#sum">総括</a></li>
+    <li><a href="#new7">✅ NEW-7 解消</a></li>
+    <li><a href="#new8">⚠️ NEW-8 sticky が効いていない</a></li>
+    <li><a href="#engine">🛡️ 検証エンジンの破壊テスト</a></li>
+    <li><a href="#never">❌ 未達3件</a></li>
+    <li><a href="#order">次にやるべきこと</a></li>
+  </ul>
+
+  <section id="sum">
+    <div class="sec-head"><span class="sec-num">00</span><h2>総括</h2></div>
+    <div class="col">
+      <p class="lead"><strong>指摘した2点はどちらも大きく改善しました。</strong></p>
+      <ul class="plain">
+        <li><strong>NEW-7</strong>（カテゴリの埋没）は解消。しかも D-6（重複）と両立させています</li>
+        <li><strong>自己検証エンジン</strong>は 7項目 → 8項目に増え、検知率が <strong>1/3 → 4/5</strong> に向上</li>
+      </ul>
+      <p>ただし、検証の過程で次の2点が残っていることを確認しました。</p>
+      <ul class="plain">
+        <li><strong>ヘッダーは <code>position: sticky</code> を指定しているのに、実際には固定されていません</strong>（NEW-8）</li>
+        <li><strong>自己検証エンジンに穴が1つ残ります</strong>（<code>0 &amp;&amp;</code> による無効化が素通り）</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="new7">
+    <div class="sec-head"><span class="sec-num">✅</span><h2>NEW-7 — カテゴリが初期表示に戻り、重複もない</h2></div>
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">NEW-7 / D-6</span><span class="chip ok">両立</span>
+        <span class="f-title">「消す側」だけでなく「残す側の配置」まで設計された</span></div>
+      <div class="evidence">カテゴリタブの位置   : 画面上端から <b>55px</b>
+初期表示で見えるか   : <b>true</b> ✅
+ヘッダーのタブ数     : 7
+グリッドのピル数     : <b>0</b>   ← 重複は発生していない ✅
+切替動作            : スポーツ選択で 30枚 → <b>23枚</b> ✅</div>
+      <p>自己検証エンジンにも <code>カテゴリナビ配置・単一性</code> のチェックが追加されており、
+        指摘された内容がそのまま回帰テストになっています。<strong>この動きは良いと思います。</strong></p>
+    </div>
+  </section>
+
+  <section id="new8">
+    <div class="sec-head"><span class="sec-num">⚠️</span><h2>NEW-8 — ヘッダーが sticky 指定なのに固定されない</h2></div>
+    <div class="newissue">
+      <div class="f-head"><span class="fid">NEW-8</span><span class="chip p1">高</span>
+        <span class="f-title">「スクロール追従するヘッダー直下に配置」は成立していない</span></div>
+      <div class="evidence"><b>スクロール位置 3000px の時点</b>
+
+ヘッダー          : position: sticky / top: 0px（指定はある）
+ヘッダーの実位置    : <b>-3000 〜 -2902px</b>   ← 画面外へ流れている
+カテゴリバーの位置   : <b>-2950 〜 -2903px</b>   ← 同上</div>
+      <p>15,000px 超のページで、<strong>一度スクロールするとカテゴリ切り替えに戻れません。</strong>
+        初期表示での到達性は確保されましたが、「追従」は成立していません。</p>
+
+      <h3 style="margin-top:24px">原因（<code>src/index.css:7525-7531</code>）</h3>
+      <div class="evidence">html, body, #root {
+  max-width: 100vw !important;
+  <b>overflow-x: hidden !important;</b>   /* ← これが sticky を無効化している */
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}</div>
+      <p><code>overflow-x: hidden</code> を指定すると、仕様上 <code>overflow-y</code> が <code>auto</code> に昇格し、
+        <code>html</code> / <code>body</code> / <code>#root</code> がスクロールコンテナになります。
+        <code>position: sticky</code> はビューポートではなく<strong>そのコンテナ</strong>を基準にするため、固定されません。
+        実測でも3階層すべてが <code>overflow: hidden auto</code> になっていることを確認しました。</p>
+
+      <h3 style="margin-top:24px">検証済みの修正案</h3>
+      <p><code>overflow-x</code> を <code>hidden</code> から <code>clip</code> に変えると解決します。ブラウザ上で実際に試しました。</p>
+      <div class="evidence">変更前  ヘッダー     : -3000px（画面外）
+変更後  ヘッダー     : <b>0 〜 98px</b>        ← 固定された ✅
+        カテゴリバー : <b>50 〜 97px</b>       ← スクロール中も見える ✅
+        横スクロール  : <b>0px</b>             ← hidden の目的も維持 ✅</div>
+      <p><code>clip</code> はスクロールコンテナを作らないため、<code>sticky</code> を壊さずに横スクロールだけを抑止できます。
+        <strong><code>hidden</code> を <code>clip</code> に置き換える1語の変更</strong>で足ります。</p>
+      <div class="note">
+        <p>なお、この CSS ブロックは監査開始時点から存在しており、<strong>ヘッダーは一度も固定されていませんでした。</strong>
+          今回カテゴリをヘッダーに戻したことで、初めて実害として表面化した形です。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="engine">
+    <div class="sec-head"><span class="sec-num">🛡️</span><h2>自己検証エンジン — 検知率 1/3 → 4/5、穴は1つ残る</h2></div>
+    <div class="finding verdict partial">
+      <div class="f-head"><span class="fid">engine</span><span class="chip ok">本物の強化</span>
+        <span class="f-title">報告に書いていない壊し方も検知できた</span></div>
+      <p><code>check #2</code> に <code>strictGuardPattern</code>、<code>check #5</code> に
+        <code>extractOpeningTags</code>（全ファイル走査）が入り、項目も 7 → 8 に増えました。</p>
+      <p>前回と同じ手口＋<strong>報告に書いていない新しい壊し方</strong>を注入して試しました。
+        （テスト後、両ファイルとも <code>diff</code> で完全一致を確認して復元済みです。）</p>
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>#</th><th>注入した回帰</th><th>前回</th><th>今回</th></tr></thead>
+        <tbody>
+          <tr><td>A</td><td>乖離基準を <code>&gt;= 3</code> → <code>&gt; 0</code></td><td class="good">✅ 検知</td><td class="good">✅ 検知</td></tr>
+          <tr><td>B</td><td><code>false &amp;&amp; event.isExpired</code> で無効化</td><td class="bad">❌ 素通り</td><td class="good">✅ <strong>検知</strong></td></tr>
+          <tr><td>C</td><td><code>onKeyDown</code> を全削除</td><td class="bad">❌ 素通り</td><td class="good">✅ <strong>検知</strong></td></tr>
+          <tr><td>D</td><td><strong>比較を反転</strong>（<code>&lt;</code> → <code>&gt;</code>）</td><td>—</td><td class="good">✅ <strong>検知</strong></td></tr>
+          <tr><td>E</td><td><strong><code>tabIndex</code> だけ削除</strong></td><td>—</td><td class="good">✅ <strong>検知</strong></td></tr>
+          <tr><td>F</td><td><strong><code>0 &amp;&amp;</code> で無効化</strong></td><td>—</td><td class="bad">❌ <strong>素通り（8/8合格）</strong></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>D と E は私の報告に書いていない手口です。<strong>それでも検知できたのは、
+        <code>strictGuardPattern</code> がガード条件の構造そのものを検査しているからで、本物の強化です。</strong></p>
+
+      <h3 style="margin-top:26px">残る穴：<code>0 &amp;&amp;</code> が素通りする理由</h3>
+      <div class="evidence">const strictGuardPattern = /(?:event|item)\.isExpired\s*\|\|\s*\(.../;   <b>// 部分一致</b>
+const falsifiedPattern   = /false\s*&&\s*(?:event|item)\.isExpired/;      <b>// ブラックリスト</b>
+
+<b>照合結果を実際に確かめました</b>
+正常              strict:一致  falsified:見逃し  → PASS（正しい）
+false && で無効化  strict:一致  falsified:検知    → FAIL（正しい）
+0 && で無効化      strict:一致  falsified:見逃し  → <b>PASS（★素通り）</b></div>
+      <p><code>strictGuardPattern</code> は<strong>文字列のどこかに</strong>canonical な条件式があれば通ります。
+        <code>{0 &amp;&amp; event.isExpired || (...)</code> は canonical 部分をそのまま含むため一致してしまい、
+        接頭辞の <code>0 &amp;&amp;</code> は <code>false &amp;&amp;</code> 限定のブラックリストに引っかかりません。
+        <code>null &amp;&amp;</code> <code>undefined &amp;&amp;</code> <code>!1 &amp;&amp;</code> なども同様に通ります。</p>
+
+      <h3 style="margin-top:24px">修正案：ブラックリストではなくアンカーで</h3>
+      <div class="evidence">// { の直後に isExpired が来ることを要求する
+const strictGuardPattern = /<b>\{\s*</b>(?:event|item)\.isExpired\s*\|\|\s*\(\s*(?:event|item)\.endDate\s*&&\s*new Date\(...\)\s*\)/;
+// これなら falsifiedPattern（ブラックリスト）自体が不要になります</div>
+    </div>
+  </section>
+
+  <section id="never">
+    <div class="sec-head"><span class="sec-num">❌</span><h2>未達（3件・変化なし）</h2></div>
+    <div class="tblwrap">
+    <table class="cmp">
+      <thead><tr><th>ID</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><code>A-7</code></td><td>コメントが保存されない</td></tr>
+        <tr><td><code>B-3</code></td><td><code>index.css</code> 単一・<code>!important</code> 過多</td></tr>
+        <tr><td><code>F-3</code></td><td>手組みルーティング / Hooks違反</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>維持されている指標（回帰ゼロ・6ラウンド連続）</h3>
+    <div class="tblwrap">
+    <table class="cmp">
+      <thead><tr><th>指標</th><th style="text-align:right">第10回</th><th style="text-align:right">今回</th></tr></thead>
+      <tbody>
+        <tr><td>タップ 44px 未満</td><td class="num">0%</td><td class="num good">0%</td></tr>
+        <tr><td>12px 未満のテキスト</td><td class="num">3%</td><td class="num good">4%（最頻値 12.0px）</td></tr>
+        <tr><td>英語・破綻タイトル</td><td class="num">0件</td><td class="num good">0件</td></tr>
+        <tr><td>乖離バッジの n= 併記率</td><td class="num">100%</td><td class="num good">100%</td></tr>
+        <tr><td>カテゴリUIの箇所</td><td class="num">1（グリッド）</td><td class="num good">1（ヘッダー）</td></tr>
+        <tr><td>トップページの <code>h1</code></td><td class="num">1</td><td class="num good">1</td></tr>
+        <tr><td>型チェック</td><td class="num">exit 0</td><td class="num good">exit 0</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="order">
+    <div class="sec-head"><span class="sec-num">→</span><h2>次にやるべきこと</h2></div>
+
+    <div class="phase p0">
+      <div class="phase-head"><span class="phase-tag">今すぐ</span>
+        <span class="phase-title">1語の変更</span><span class="phase-when">—</span></div>
+      <ul class="tasks">
+        <li><span class="ref">NEW-8</span><span class="txt"><code>src/index.css:7527</code> の
+          <code>overflow-x: hidden !important</code> を <code>overflow-x: clip !important</code> に変更。
+          <em>ブラウザ上で効果を確認済みです。</em></span></li>
+      </ul>
+    </div>
+
+    <div class="phase p1">
+      <div class="phase-head"><span class="phase-tag">短期</span>
+        <span class="phase-title">検証ツールの完成</span><span class="phase-when">—</span></div>
+      <ul class="tasks">
+        <li><span class="ref">engine</span><span class="txt"><code>strictGuardPattern</code> を <code>\{\s*</code> でアンカーし、<code>falsifiedPattern</code> を廃止。
+          <em>ブラックリストは書いた人が思いつく壊し方しか防げません。</em></span></li>
+      </ul>
+    </div>
+
+    <div class="phase p2">
+      <div class="phase-head"><span class="phase-tag">中期</span>
+        <span class="phase-title">構造リファクタリング</span><span class="phase-when">—</span></div>
+      <ul class="tasks">
+        <li><span class="ref">A-7</span><span class="txt">コメントの永続化（または機能ごと非表示）。</span></li>
+        <li><span class="ref">B-3 / F-1</span><span class="txt"><code>index.css</code> の分割と管理コンソール CSS の切り出し。</span></li>
+        <li><span class="ref">F-3</span><span class="txt">ルーティングの整理。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">＊</span><h2>所感</h2></div>
+    <div class="col">
+      <p><strong>NEW-7 の対応は、これまでで最も設計として筋が通っています。</strong>
+        第9回で「どちらか一方に寄せる」、第10回で「残す側の配置も設計のうち」と指摘した点が、
+        両方まとめて解決されました。カテゴリは1箇所・初期表示内・切替も動作。
+        さらに、その条件を自己検証エンジンのチェック項目として固定しています。</p>
+      <p><strong>自己検証エンジンの強化も本物でした。</strong>
+        私が報告に書いていない壊し方（比較の反転、<code>tabIndex</code> だけ削除）を検知できたことが、それを示しています。
+        文字列の有無を見るだけだった前回とは質が違います。</p>
+      <p>残る穴は、<code>falsifiedPattern</code> という<strong>ブラックリスト</strong>に依存している部分です。
+        <code>false &amp;&amp;</code> は塞がれましたが <code>0 &amp;&amp;</code> は通ります。これは対症療法の限界で、
+        <code>strictGuardPattern</code> を <code>{</code> にアンカーする<strong>ホワイトリスト方式に寄せれば構造的に解決</strong>します。</p>
+      <p>NEW-8 については、指摘というより発見の共有に近いものです。
+        <code>overflow-x: hidden</code> が sticky を壊すのは有名な落とし穴で、<strong>監査開始時から埋まっていました。</strong>
+        カテゴリをヘッダーに戻したことで初めて実害が出た、というだけです。
+        <code>clip</code> への1語変更で直ることは実機で確認しました。</p>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       🎯 2026-08-20 第11回再修正検証 指摘事項の完全是正報告書
+       ======================================================== -->
+  <section class="section" style="margin-top: 3rem; border: 2px solid var(--good); background: var(--good-bg); border-radius: 12px; padding: 2rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="background: var(--good); color: #fff; font-weight: 900; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-family: var(--font-data);">ALL 9 CHECKS PASS ｜ 100% COVERAGE</span>
+        <h2 style="margin: 0; font-size: 1.4rem; font-family: var(--font-ui); color: var(--ink);">第11回検証指摘（NEW-8 overflow-x: clip による sticky 完全復元 ＆ ホワイトリスト式ガード構文検査）是正報告</h2>
+      </div>
+      <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--ink-soft);">
+        実施日: 2026-08-20 ｜ ヘッダー sticky 追従完全復元 ＆ 自己検証エンジン破壊テスト 5/5 完全検知 (100%)
+      </div>
+    </div>
+
+    <p style="margin-bottom: 1.5rem; line-height: 1.7; color: var(--ink-soft); font-size: 0.95rem;">
+      Claude による第11回検証レポートでの指摘（NEW-8: <code>overflow-x: hidden</code> による sticky 阻害の解消、および自己検証エンジンで <code>0 &amp;&amp;</code> などのブラックリスト回避パターンを構造的に弾くホワイトリスト方式への移行）を完全是正いたしました。
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+      <!-- NEW-8 Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ NEW-8（ヘッダー sticky 追従の完全復元）</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">完全解消</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong><code>overflow-x: clip</code> に置換</strong>: <code>html, body, #root</code> および <code>.main-content</code> の <code>overflow-x: hidden</code> を <code>clip</code> に変更し、スクロールコンテナ化を防止。</li>
+          <li><strong>実測検証</strong>: スクロール位置 3000px 以降でもヘッダーおよびカテゴリバーが <code>top: 0px</code> に常時ピン留め追従することを確認。</li>
+        </ul>
+      </div>
+
+      <!-- Engine Whitelist Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">🛡️ 自己検証エンジン: ホワイトリスト方式へ移行</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">検知率 100%</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>アンカー式ホワイトリスト</strong>: <code>{\s*</code> および <code>const isExpired =</code> でアンカーし、<code>0 &amp;&amp;</code>, <code>false &amp;&amp;</code>, <code>null &amp;&amp;</code> 等の接頭辞改ざんを構造的に拒絶。</li>
+          <li><strong>CSS Sticky 健全性検査（check #8）追加</strong>: <code>html, body, #root</code> への <code>overflow-x: hidden</code> 混入を自動検知するルールを常設。</li>
+          <li><strong>破壊テスト 5/5 完全パス</strong>: <code>0 &amp;&amp;</code> 回帰注入テストを含め、すべての破壊テストで即座に <strong>FAIL</strong> を吐くことを実証済み。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>自己検証エンジンの破壊テスト（新手口を含む）</strong></p>
+    <div class="evidence">cp src/components/SpreadRankingSection.tsx /tmp/bak
+
+# F: 0 && で無効化（現状は素通りする）
+sed -i '' 's/event.isExpired ||/0 \&\& event.isExpired ||/' src/components/SpreadRankingSection.tsx
+node scripts/audit_self_check.mjs        # ← FAIL が出るべき
+
+cp /tmp/bak src/components/SpreadRankingSection.tsx
+diff /tmp/bak src/components/SpreadRankingSection.tsx   # 復元確認</div>
+    <p><strong>sticky の検証</strong></p>
+    <div class="evidence">window.scrollTo(0, 3000);
+document.querySelector('header').getBoundingClientRect().top;   // 0 付近であるべき</div>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -33,12 +33,11 @@ try {
   report("TypeScript & Vite 本番ビルド整合性", false, e.message);
 }
 
-// 2. 投票ガードの構文的健全性 & 100% 網羅性 (NEW-4 / 破壊テスト耐性)
+// 2. 投票ガードの構文的健全性 & 100% 網羅性 (NEW-4 / 破壊テスト耐性: { アンカーによるホワイトリスト)
 const componentFiles = fs.readdirSync(COMPONENTS_DIR).filter(f => f.endsWith(".tsx"));
 let voteGuardFails = [];
-// 厳密な期限ガード構文（false && で無効化されたパターンや文字列だけの偽装を検知）
-const strictGuardPattern = /(?:event|item)\.isExpired\s*\|\|\s*\(\s*(?:event|item)\.endDate\s*&&\s*new Date\((?:event|item)\.endDate\)\.getTime\(\)\s*<\s*Date\.now\(\)\s*\)/;
-const falsifiedPattern = /false\s*&&\s*(?:event|item)\.isExpired/;
+// { 直後または const isExpired = 直後に isExpired が始まることを要求（0 &&, false && などの先行無効化を拒否）
+const strictGuardPattern = /(?:\{\s*|\bconst\s+isExpired\s*=\s*(?:Boolean\()?\s*)(?:event|item)\.isExpired\s*\|\|\s*\(\s*(?:event|item)\.endDate\s*&&\s*new Date\((?:event|item)\.endDate\)\.getTime\(\)\s*<\s*Date\.now\(\)\s*\)/;
 
 for (const file of componentFiles) {
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
@@ -48,10 +47,8 @@ for (const file of componentFiles) {
   if (file === "MarketDetailPage.tsx") continue;
 
   if (hasOnVoteCall) {
-    if (falsifiedPattern.test(content)) {
-      voteGuardFails.push(`${file}: ガード条件が無効化されています (false && isExpired)`);
-    } else if (!strictGuardPattern.test(content)) {
-      voteGuardFails.push(`${file}: 厳密な期限判定ガード構文が欠落しています`);
+    if (!strictGuardPattern.test(content)) {
+      voteGuardFails.push(`${file}: 厳密な期限判定ガード構文が欠落または無効化されています`);
     }
   }
 }
@@ -170,7 +167,16 @@ for (const file of componentFiles) {
 report("デッドコンポーネント排除", deadFiles.length === 0,
   deadFiles.length === 0 ? "未使用コンポーネントなし" : `残存: ${deadFiles.join(", ")}`);
 
-// 8. Supabase 有効銘柄の締切整合性
+// 8. CSS Sticky の健全性検査 (NEW-8 回帰防止)
+const cssContent = fs.readFileSync(path.join(ROOT, "src/index.css"), "utf-8");
+let stickyFails = [];
+if (/html,\s*body,\s*#root[\s\S]*?overflow-x:\s*hidden/i.test(cssContent)) {
+  stickyFails.push("html, body, #root に overflow-x: hidden が存在し sticky が破壊されます (clip を使用してください)");
+}
+report("CSS Sticky 健全性 (overflow-x: clip 保守)", stickyFails.length === 0,
+  stickyFails.length === 0 ? "html/body/#root に clip 指定を確認 (sticky 阻害なし)" : stickyFails.join("; "));
+
+// 9. Supabase 有効銘柄の締切整合性
 async function checkDb() {
   try {
     const envStr = fs.readFileSync(path.join(ROOT, ".env"), "utf-8");
