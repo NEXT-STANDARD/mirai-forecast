@@ -21,13 +21,32 @@ if (fs.existsSync(envPath)) {
 }
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || localEnv.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY || localEnv.GEMINI_API_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Supabase credentials missing, skipping sync');
   process.exit(0);
 }
+
+// 使用中の鍵のロールを検証する。
+// anon に落ちると RLS が書き込みを黙って捨て、「成功したのに0件」という失敗の仕方をするため、ここで止める。
+const supabaseKeyRole = (() => {
+  try {
+    const payload = supabaseKey.split('.')[1];
+    return JSON.parse(Buffer.from(payload, 'base64').toString()).role || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+})();
+
+if (supabaseKeyRole !== 'service_role') {
+  console.error(`Supabase key role is "${supabaseKeyRole}", expected "service_role".`);
+  console.error('SUPABASE_SERVICE_ROLE_KEY を .env または GitHub Actions Secrets に設定してください。');
+  process.exit(1);
+}
+
+console.log(`Supabase auth role: ${supabaseKeyRole}`);
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
