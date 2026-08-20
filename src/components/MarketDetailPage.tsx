@@ -9,7 +9,9 @@ import {
   FileText,
   Layers,
   ChevronRight,
-  Flame
+  Flame,
+  Share2,
+  Code2
 } from 'lucide-react';
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
@@ -22,6 +24,7 @@ interface MarketDetailPageProps {
   userVote: 'YES' | 'NO' | null;
   onVote: (eventId: string, choice: 'YES' | 'NO') => void;
   onOpenShare: (item: MarketItem) => void;
+  onOpenEmbed?: (item: MarketItem) => void;
   onBack: () => void;
   onSelectRelatedEvent: (item: MarketItem) => void;
 }
@@ -32,6 +35,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   userVote,
   onVote,
   onOpenShare,
+  onOpenEmbed,
   onBack,
   onSelectRelatedEvent,
 }) => {
@@ -115,24 +119,48 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   return (
     <div className="market-detail-container animate-fade-in">
       {/* パンくず ＆ 戻るバー */}
-      <div className="market-detail-nav">
+      <div className="market-detail-nav flex justify-between items-center flex-wrap gap-2">
         <button onClick={onBack} className="btn-back-link">
           <ArrowLeft size={16} />
           <span>マーケット一覧へ戻る</span>
         </button>
 
-        <div className="detail-meta-tags">
-          <span className="detail-cat-badge">{item.categoryLabel}</span>
-          {item.isTrending && (
-            <span className="detail-hot-badge">
-              <Flame size={12} className="fill-amber-400 text-amber-400" />
-              HOT
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="detail-meta-tags">
+            <span className="detail-cat-badge">{item.categoryLabel}</span>
+            {item.isTrending && (
+              <span className="detail-hot-badge">
+                <Flame size={12} className="fill-amber-400 text-amber-400" />
+                HOT
+              </span>
+            )}
+            <span className="detail-date-badge">
+              <Calendar size={12} />
+              締切: {item.endDate}
             </span>
-          )}
-          <span className="detail-date-badge">
-            <Calendar size={12} />
-            締切: {item.endDate}
-          </span>
+          </div>
+
+          <div className="detail-top-action-group flex items-center gap-1.5 ml-auto">
+            {onOpenEmbed && (
+              <button 
+                onClick={() => onOpenEmbed(item)} 
+                className="btn-market-embed-trigger"
+                title="ブログや記事にこの世論チャートを埋め込む"
+              >
+                <Code2 size={13} className="text-cyan-400" />
+                <span>記事に埋め込む</span>
+              </button>
+            )}
+
+            <button 
+              onClick={() => onOpenShare(item)} 
+              className="btn-market-share-trigger"
+              title="X（Twitter）でシェア"
+            >
+              <Share2 size={13} />
+              <span>Xでシェア</span>
+            </button>
+          </div>
         </div>
       </div>
 

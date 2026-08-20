@@ -15,6 +15,8 @@ import { MyForecastModal } from './components/MyForecastModal';
 import { MarketDetailPage } from './components/MarketDetailPage';
 import { OnboardingModal } from './components/OnboardingModal';
 import { AiConnectorPage } from './components/AiConnectorPage';
+import { EmbedWidgetPage } from './components/EmbedWidgetPage';
+import { EmbedModal } from './components/EmbedModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -22,10 +24,20 @@ import { cyberSound } from './utils/cyberSound';
 import type { MarketItem, CategoryType, StreakData } from './types';
 
 export function App() {
+  // 🔌 外部メディア・ブログ用 /embed/:slug ルーティング
+  const embedSlug = typeof window !== 'undefined' && window.location.pathname.startsWith('/embed/')
+    ? window.location.pathname.replace(/^\/embed\//, '')
+    : null;
+
+  if (embedSlug) {
+    return <EmbedWidgetPage slugOrId={decodeURIComponent(embedSlug)} />;
+  }
+
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('trending');
   const [events, setEvents] = useState<MarketItem[]>(INITIAL_EVENTS);
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
+  const [selectedEmbedEvent, setSelectedEmbedEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
   
@@ -380,6 +392,7 @@ export function App() {
             userVote={userVotes[events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!.id] || null}
             onVote={handleVote}
             onOpenShare={(event) => setSelectedShareEvent(event)}
+            onOpenEmbed={(event) => setSelectedEmbedEvent(event)}
             onBack={handleCloseMarketDetail}
             onSelectRelatedEvent={handleOpenMarketDetail}
           />
@@ -466,6 +479,12 @@ export function App() {
         item={selectedShareEvent}
         onClose={() => setSelectedShareEvent(null)}
         userVote={selectedShareEvent ? userVotes[selectedShareEvent.id] || null : null}
+      />
+
+      {/* </> 記事・ブログ埋め込みウィジェットモーダル */}
+      <EmbedModal
+        item={selectedEmbedEvent}
+        onClose={() => setSelectedEmbedEvent(null)}
       />
 
       {/* 🏆 未来予報士プロファイル ＆ 的中履歴モーダル */}
