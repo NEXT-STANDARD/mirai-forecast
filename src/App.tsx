@@ -18,6 +18,7 @@ import { AiConnectorPage } from './components/AiConnectorPage';
 import { EmbedWidgetPage } from './components/EmbedWidgetPage';
 import { EmbedModal } from './components/EmbedModal';
 import { DataExportModal } from './components/DataExportModal';
+import { PwaInstallBanner } from './components/PwaInstallBanner';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -525,6 +526,9 @@ export function App() {
       />
 
       <ComplianceBanner />
+
+      {/* 📱 PWA インストール ＆ WebPush 的中通知バナー */}
+      <PwaInstallBanner />
 
       {/* ローカル開発用/管理者用 司令室アクセスボタン (開発環境またはキーボードショートカットで表示) */}
       {import.meta.env.DEV && !isAdminOpen && (
