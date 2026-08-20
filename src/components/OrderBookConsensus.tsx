@@ -130,8 +130,18 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         </div>
       </div>
 
-      {/* 🏛️ 公選法第138条の3 選挙期間中ブラックアウト安全バナー */}
-      {event.isElectionBlackout ? (
+      {/* 🏁 締切終了 または 🏛️ 公選法第138条の3 選挙期間中ブラックアウト安全バナー */}
+      {event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()) ? (
+        <div className="election-blackout-banner opacity-80">
+          <div className="blackout-icon">🏁</div>
+          <div className="blackout-text">
+            <strong>投票受付終了（判定結果確定・アーカイブ）</strong>
+            <p>
+              このテーマは対象期日（{event.endDate ? event.endDate.split('T')[0] : ''}）を満了したため、新たな世論投票の受付を終了しました。世界のオッズ推移および事前分析の記録を閲覧いただけます。
+            </p>
+          </div>
+        </div>
+      ) : event.isElectionBlackout ? (
         <div className="election-blackout-banner">
           <div className="blackout-icon">🏛️</div>
           <div className="blackout-text">

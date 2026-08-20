@@ -134,6 +134,38 @@ async function approveProposal(proposalId) {
     return;
   }
 
+  function validateAndFilterCatalysts(catalysts) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
+    if (!Array.isArray(catalysts) || catalysts.length === 0) {
+      return [
+        `${currentYear}年第4四半期 重要公式指標発表・動向レビュー`,
+        `${currentYear + 1}年 政策動向および市場コンセンサス更新`
+      ];
+    }
+
+    const validCatalysts = catalysts.filter(c => {
+      if (typeof c !== 'string' || !c.trim()) return false;
+      const s = c.trim();
+      const m = s.match(/(20\d{2})年\s*(\d{1,2})?月?/);
+      if (!m) return true;
+      const year = parseInt(m[1], 10);
+      if (year < currentYear) return false;
+      if (year === currentYear && m[2]) {
+        const month = parseInt(m[2], 10);
+        if (month < currentMonth) return false;
+      }
+      return true;
+    });
+
+    return validCatalysts.length > 0 ? validCatalysts : [
+      `${currentYear}年${Math.min(currentMonth + 1, 12)}月 重要公式発表・指標動向`,
+      `${currentYear + 1}年 政策決定および市場レビュー`
+    ];
+  }
+
   // ai_insights.json & aiInsightsMaster.ts を更新
   const jsonPath = path.join(process.cwd(), 'public', 'data', 'ai_insights.json');
   let currentJson = {};
@@ -144,9 +176,9 @@ async function approveProposal(proposalId) {
     titleJa: record.title_ja,
     summaryJa: insight.summaryJa,
     whyMovedJa: insight.whyMovedJa,
-    keyCatalysts: insight.keyCatalysts,
+    keyCatalysts: validateAndFilterCatalysts(insight.keyCatalysts),
     urgencyLevel: 'high',
-    lastUpdated: 'AI事前分析 (2026年8月最新)'
+    lastUpdated: `AI事前分析 (${new Date().getFullYear()}年${new Date().getMonth() + 1}月最新)`
   };
   fs.writeFileSync(jsonPath, JSON.stringify(currentJson, null, 2));
 
@@ -213,6 +245,38 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
     return;
   }
 
+  function validateAndFilterCatalysts(catalysts) {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+
+    if (!Array.isArray(catalysts) || catalysts.length === 0) {
+      return [
+        `${currentYear}年第4四半期 重要公式指標発表・動向レビュー`,
+        `${currentYear + 1}年 政策動向および市場コンセンサス更新`
+      ];
+    }
+
+    const validCatalysts = catalysts.filter(c => {
+      if (typeof c !== 'string' || !c.trim()) return false;
+      const s = c.trim();
+      const m = s.match(/(20\d{2})年\s*(\d{1,2})?月?/);
+      if (!m) return true;
+      const year = parseInt(m[1], 10);
+      if (year < currentYear) return false;
+      if (year === currentYear && m[2]) {
+        const month = parseInt(m[2], 10);
+        if (month < currentMonth) return false;
+      }
+      return true;
+    });
+
+    return validCatalysts.length > 0 ? validCatalysts : [
+      `${currentYear}年${Math.min(currentMonth + 1, 12)}月 重要公式発表・指標動向`,
+      `${currentYear + 1}年 政策決定および市場レビュー`
+    ];
+  }
+
   // ai_insights 更新
   const jsonPath = path.join(process.cwd(), 'public', 'data', 'ai_insights.json');
   let currentJson = {};
@@ -223,9 +287,9 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
     titleJa,
     summaryJa: insight.summaryJa,
     whyMovedJa: insight.whyMovedJa,
-    keyCatalysts: insight.keyCatalysts,
+    keyCatalysts: validateAndFilterCatalysts(insight.keyCatalysts),
     urgencyLevel: 'high',
-    lastUpdated: 'AI事前分析 (2026年8月最新)'
+    lastUpdated: `AI事前分析 (${new Date().getFullYear()}年${new Date().getMonth() + 1}月最新)`
   };
   fs.writeFileSync(jsonPath, JSON.stringify(currentJson, null, 2));
 

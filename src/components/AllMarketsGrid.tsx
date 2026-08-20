@@ -260,8 +260,12 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                 </div>
               </div>
 
-              {/* 🎯 1タップ即時投票ボタングループ または 🏛️ 公選法ブラックアウト */}
-              {event.isElectionBlackout ? (
+              {/* 🎯 1タップ即時投票ボタングループ または 🏛️ 公選法ブラックアウト または 🏁 締切終了 */}
+              {event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()) ? (
+                <div className="card-blackout-badge opacity-80" onClick={(e) => e.stopPropagation()}>
+                  <span className="text-slate-400 font-mono">🏁 投票受付終了（結果確定）</span>
+                </div>
+              ) : event.isElectionBlackout ? (
                 <div className="card-blackout-badge" onClick={(e) => e.stopPropagation()}>
                   <span>🏛️ 公選法第138条の3 遵守（選挙期間中受付休止）</span>
                 </div>
@@ -303,9 +307,15 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                     <span>
                       {(() => {
                         const raw = event.endDate || '';
-                        if (raw.includes('T')) {
-                          const datePart = raw.split('T')[0];
-                          const [, m, d] = datePart.split('-');
+                        if (!raw) return '随時';
+                        const clean = raw.split('T')[0];
+                        const parts = clean.split('-');
+                        if (parts.length === 3) {
+                          const [y, m, d] = parts;
+                          const currentYear = String(new Date().getFullYear());
+                          if (y !== currentYear) {
+                            return `${y}/${m}/${d}`;
+                          }
                           return `${m}/${d}`;
                         }
                         return raw.replace('2026年', '').replace('2026-', '');

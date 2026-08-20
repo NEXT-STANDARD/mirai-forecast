@@ -331,6 +331,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           totalVolumeUsd: totalVolume,
           endDate: db.end_date || '2026-12-31',
           isTrending,
+          isExpired: db.end_date ? new Date(db.end_date).getTime() < Date.now() : false,
           clobTokenId,
           japanVotes: {
             yes: 0,

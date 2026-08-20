@@ -4,34 +4,48 @@ import path from 'path';
 const tsPath = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/src/data/aiInsightsMaster.ts';
 const jsonPath = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/public/data/ai_insights.json';
 
-function sanitizeText(s) {
-  if (!s) return s;
-  return s
-    .replace(/2024年11月5日\s*米大統領選.*?（.*?）/g, '2028年11月 米大統領選挙（民主党・共和党決戦）')
-    .replace(/11月5日\s*2024年米大統領選.*?/g, '2028年11月 米大統領本選投開票')
-    .replace(/2024年11月5日\s*米大統領選挙/g, '2028年11月 米大統領選挙')
-    .replace(/2024年11月5日/g, '2026年11月')
-    .replace(/2024年10月\s*ブラジル統一地方選挙結果/g, '2026年10月 ブラジル大統領選挙第1回投票')
-    .replace(/2024年10月\s*エチオピア連邦議会新会期開会演説/g, '2026年10月 エチオピア連邦議会新会期演説')
-    .replace(/2024年9月8日\s*ロシア統一地方選挙投開票/g, '2026年9月 ロシア統一地方選挙投開票')
-    .replace(/2024年9月\s*IMF・世界銀行によるエチオピア構造改革レビュー/g, '2026年9月 IMF・世界銀行によるエチオピア経済支援レビュー')
-    .replace(/2024年9月\s*IAEA（国際原子力機関）定例理事会報告/g, '2026年9月 IAEA（国際原子力機関）定例理事会報告')
-    .replace(/2024年第4四半期\s*イーサリアム「Pectra」アップグレード詳細発表/g, '2026年第4四半期 イーサリアム大型アップグレード進捗発表')
-    .replace(/2024年選挙/g, '2028年選挙')
-    .replace(/2024年/g, '2026年')
-    .replace(/2025年/g, '2026年後半')
-    .replace(/Gemini 3\.7 Flash リアルタイム解析済み/g, 'AI事前分析 (2026年8月最新)');
+function validateAndFilterCatalysts(catalysts) {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+
+  if (!Array.isArray(catalysts) || catalysts.length === 0) {
+    return [
+      `${currentYear}年第4四半期 重要公式指標発表・動向レビュー`,
+      `${currentYear + 1}年 政策動向および市場コンセンサス更新`
+    ];
+  }
+
+  const validCatalysts = catalysts.filter(c => {
+    if (typeof c !== 'string' || !c.trim()) return false;
+    const s = c.trim();
+    const m = s.match(/(20\d{2})年\s*(\d{1,2})?月?/);
+    if (!m) return true;
+    const year = parseInt(m[1], 10);
+    if (year < currentYear) return false;
+    if (year === currentYear && m[2]) {
+      const month = parseInt(m[2], 10);
+      if (month < currentMonth) return false;
+    }
+    return true;
+  });
+
+  return validCatalysts.length > 0 ? validCatalysts : [
+    `${currentYear}年${Math.min(currentMonth + 1, 12)}月 重要公式発表・指標動向`,
+    `${currentYear + 1}年 政策決定および市場レビュー`
+  ];
 }
 
 function processStore(store) {
   const result = {};
+  const now = new Date();
   for (const [id, item] of Object.entries(store)) {
     result[id] = {
       ...item,
-      summaryJa: sanitizeText(item.summaryJa),
-      whyMovedJa: sanitizeText(item.whyMovedJa),
-      keyCatalysts: (item.keyCatalysts || []).map(c => sanitizeText(c)),
-      lastUpdated: 'AI事前分析 (2026年8月最新)',
+      summaryJa: item.summaryJa,
+      whyMovedJa: item.whyMovedJa,
+      keyCatalysts: validateAndFilterCatalysts(item.keyCatalysts),
+      lastUpdated: `AI事前分析 (${now.getFullYear()}年${now.getMonth() + 1}月最新)`,
     };
   }
   return result;

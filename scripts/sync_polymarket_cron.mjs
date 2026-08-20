@@ -271,33 +271,54 @@ async function syncPolymarket() {
     const insightMap = new Map();
     const insightsJsonStore = {};
 
-    function sanitizeText(s) {
-      if (!s) return s;
-      return s
-        .replace(/2024年11月5日\s*米大統領選.*?（.*?）/g, '2028年11月 米大統領選挙（民主党・共和党決戦）')
-        .replace(/11月5日\s*2024年米大統領選.*?/g, '2028年11月 米大統領本選投開票')
-        .replace(/2024年11月5日\s*米大統領選挙/g, '2028年11月 米大統領選挙')
-        .replace(/2024年11月5日/g, '2026年11月')
-        .replace(/2024年10月\s*ブラジル統一地方選挙結果/g, '2026年10月 ブラジル大統領選挙第1回投票')
-        .replace(/2024年10月\s*エチオピア連邦議会新会期開会演説/g, '2026年10月 エチオピア連邦議会新会期演説')
-        .replace(/2024年9月8日\s*ロシア統一地方選挙投開票/g, '2026年9月 ロシア統一地方選挙投開票')
-        .replace(/2024年9月\s*IMF・世界銀行によるエチオピア構造改革レビュー/g, '2026年9月 IMF・世界銀行によるエチオピア経済支援レビュー')
-        .replace(/2024年9月\s*IAEA（国際原子力機関）定例理事会報告/g, '2026年9月 IAEA（国際原子力機関）定例理事会報告')
-        .replace(/2024年第4四半期\s*イーサリアム「Pectra」アップグレード詳細発表/g, '2026年第4四半期 イーサリアム大型アップグレード進捗発表')
-        .replace(/2024年選挙/g, '2028年選挙')
-        .replace(/2024年/g, '2026年')
-        .replace(/2025年/g, '2026年後半');
+    function validateAndFilterCatalysts(catalysts, fallbackTopic = '') {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth() + 1; // 1-12
+
+      if (!Array.isArray(catalysts) || catalysts.length === 0) {
+        return [
+          `${currentYear}年第4四半期 重要公式指標発表・動向レビュー`,
+          `${currentYear + 1}年 政策動向および市場コンセンサス更新`
+        ];
+      }
+
+      const validCatalysts = catalysts.filter(c => {
+        if (typeof c !== 'string' || !c.trim()) return false;
+        const s = c.trim();
+        // 年月パターンを抽出（例: 2024年11月, 2025年9月, 2026年3月）
+        const m = s.match(/(20\d{2})年\s*(\d{1,2})?月?/);
+        if (!m) return true; // 年が明示されていない場合は保持
+        
+        const year = parseInt(m[1], 10);
+        if (year < currentYear) return false; // 過去の年は破棄
+        if (year === currentYear && m[2]) {
+          const month = parseInt(m[2], 10);
+          if (month < currentMonth) return false; // 今月より前の月は破棄
+        }
+        return true;
+      });
+
+      if (validCatalysts.length === 0) {
+        return [
+          `${currentYear}年${Math.min(currentMonth + 1, 12)}月 重要公式発表・指標動向`,
+          `${currentYear + 1}年 政策決定および市場レビュー`
+        ];
+      }
+
+      return validCatalysts;
     }
 
     insights.forEach(item => {
       insightMap.set(item.id, item);
+      const validCatalysts = validateAndFilterCatalysts(item.keyCatalysts, item.titleJa);
       insightsJsonStore[item.id] = {
         titleJa: item.titleJa,
-        summaryJa: sanitizeText(item.summaryJa),
-        whyMovedJa: sanitizeText(item.whyMovedJa),
-        keyCatalysts: (item.keyCatalysts || []).map(c => sanitizeText(c)),
+        summaryJa: item.summaryJa,
+        whyMovedJa: item.whyMovedJa,
+        keyCatalysts: validCatalysts,
         urgencyLevel: 'high',
-        lastUpdated: 'AI事前分析 (2026年8月最新)'
+        lastUpdated: `AI事前分析 (${new Date().getFullYear()}年${new Date().getMonth() + 1}月最新)`
       };
     });
 
@@ -518,6 +539,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         entertainment: '🎬 エンタメ',
       };
 
+      const endDateStr = c.market.endDate || '2026-12-31';
+      const isExpired = new Date(endDateStr) < new Date();
+
       return {
         id: c.id,
         slug: c.ev.slug,
@@ -528,8 +552,8 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         category: finalCat,
         category_label: catLabels[finalCat] || c.catLabel,
         icon_url: c.ev.image || c.ev.icon || '',
-        end_date: c.market.endDate || '2026-12-31',
-        is_active: true,
+        end_date: endDateStr,
+        is_active: !isExpired,
         updated_at: new Date().toISOString(),
       };
     });

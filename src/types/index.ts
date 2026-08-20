@@ -18,6 +18,7 @@ export interface MarketItem {
   endDate: string;
   isTrending?: boolean; // 🔥 人気急上昇フラグ
   isElectionBlackout?: boolean; // 🏛️ 公選法第138条の3遵守（選挙公示・投票期間中の安全ロック）
+  isExpired?: boolean; // 🏁 投票締切終了フラグ
   resolvedChoice?: 'YES' | 'NO' | null; // 🏁 結果確定（的中判定用）
   clobTokenId?: string; // 📈 Polymarket CLOB prices-history 用のアセットID
   
