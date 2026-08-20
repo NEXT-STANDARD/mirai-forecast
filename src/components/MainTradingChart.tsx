@@ -345,16 +345,42 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
                 strokeLinejoin="round"
               />
 
+              {/* 🎯 TradingView調 ホバー時の縦横クロスヘア（Crosshair） */}
+              {hoverIndex !== null && (
+                <g className="chart-crosshair-group">
+                  <line
+                    x1={getX(hoverIndex)}
+                    y1={paddingT}
+                    x2={getX(hoverIndex)}
+                    y2={height - paddingB}
+                    stroke="#38bdf8"
+                    strokeWidth="1"
+                    strokeDasharray="2 2"
+                    opacity="0.75"
+                  />
+                  <line
+                    x1={paddingL}
+                    y1={getY(data[hoverIndex].prob)}
+                    x2={width - paddingR}
+                    y2={getY(data[hoverIndex].prob)}
+                    stroke="#38bdf8"
+                    strokeWidth="1"
+                    strokeDasharray="2 2"
+                    opacity="0.5"
+                  />
+                </g>
+              )}
+
               {/* データポイント ＆ ホバー判定サークル */}
               {data.map((d, i) => (
                 <g key={i}>
                   <circle
                     cx={getX(i)}
                     cy={getY(d.prob)}
-                    r={hoverIndex === i ? 5 : (i === data.length - 1 ? 4 : 2.5)}
+                    r={hoverIndex === i ? 5.5 : (i === data.length - 1 ? 4 : 2.5)}
                     fill={i === data.length - 1 ? lineColor : '#020617'}
                     stroke={lineColor}
-                    strokeWidth="2"
+                    strokeWidth={hoverIndex === i ? '2.5' : '2'}
                   />
                   <rect
                     x={getX(i) - 15}
