@@ -167,11 +167,12 @@ for (const file of componentFiles) {
 report("デッドコンポーネント排除", deadFiles.length === 0,
   deadFiles.length === 0 ? "未使用コンポーネントなし" : `残存: ${deadFiles.join(", ")}`);
 
-// 8. CSS Sticky の健全性検査 (NEW-8 回帰防止)
+// 8. CSS Sticky の健全性検査 (NEW-8 回帰防止: html, body, #root に対する overflow-x: hidden 混入を厳密検知)
 const cssContent = fs.readFileSync(path.join(ROOT, "src/index.css"), "utf-8");
 let stickyFails = [];
-if (/html,\s*body,\s*#root[\s\S]*?overflow-x:\s*hidden/i.test(cssContent)) {
-  stickyFails.push("html, body, #root に overflow-x: hidden が存在し sticky が破壊されます (clip を使用してください)");
+const rootBlockRegex = /(?:html|body|#root)[^{]*\{[^}]*overflow-x:\s*hidden/gi;
+if (rootBlockRegex.test(cssContent)) {
+  stickyFails.push("html, body, #root セレクタブロックに overflow-x: hidden が存在し sticky が破壊されます (clip を使用してください)");
 }
 report("CSS Sticky 健全性 (overflow-x: clip 保守)", stickyFails.length === 0,
   stickyFails.length === 0 ? "html/body/#root に clip 指定を確認 (sticky 阻害なし)" : stickyFails.join("; "));
