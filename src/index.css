@@ -229,8 +229,8 @@ h1, h2, h3, h4, h5, h6 {
   top: 0;
   z-index: 40;
   background: rgba(2, 6, 23, 0.96);
-  backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
@@ -1523,6 +1523,8 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.25rem;
+  flex-wrap: wrap;
+  gap: 0.2rem;
 }
 
 .depth-label {
@@ -1559,6 +1561,8 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   font-family: var(--font-mono);
   color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 0.2rem;
 }
 
 .spread-divider {
@@ -1826,8 +1830,8 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   inset: 0;
   background: rgba(2, 6, 23, 0.85);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   display: flex;
   align-items: center;
   justify-content: center;

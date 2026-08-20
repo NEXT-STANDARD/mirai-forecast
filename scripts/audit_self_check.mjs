@@ -177,7 +177,21 @@ if (rootBlockRegex.test(cssContent)) {
 report("CSS Sticky 健全性 (overflow-x: clip 保守)", stickyFails.length === 0,
   stickyFails.length === 0 ? "html/body/#root に clip 指定を確認 (sticky 阻害なし)" : stickyFails.join("; "));
 
-// 9. Supabase 有効銘柄の締切整合性
+// 9. ビルド CSS Backdrop-Filter 保持検査 (NEW-9 回帰防止: 無印 backdrop-filter の出力確認)
+let backdropFails = [];
+const distAssets = fs.existsSync(path.join(ROOT, "dist/assets")) 
+  ? fs.readdirSync(path.join(ROOT, "dist/assets")).filter(f => f.endsWith(".css"))
+  : [];
+if (distAssets.length > 0) {
+  const distCss = fs.readFileSync(path.join(ROOT, "dist/assets", distAssets[0]), "utf-8");
+  if (!distCss.includes(".header-container-slim") || !distCss.includes("backdrop-filter:blur")) {
+    backdropFails.push("dist CSS の .header-container-slim に無印 backdrop-filter:blur が欠落しています");
+  }
+}
+report("ビルド CSS Backdrop-Filter 保持検査 (NEW-9)", backdropFails.length === 0,
+  backdropFails.length === 0 ? "本番 CSS に .header-container-slim の無印 backdrop-filter を確認" : backdropFails.join("; "));
+
+// 10. Supabase 有効銘柄の締切整合性
 async function checkDb() {
   try {
     const envStr = fs.readFileSync(path.join(ROOT, ".env"), "utf-8");
