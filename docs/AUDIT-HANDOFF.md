@@ -54,11 +54,40 @@ Polymarket のリアルマネー確率と、日本の生活者による無料投
 | ID | 実測 |
 |---|---|
 | **N-18** | 埋め込み **69/69 でタイトル一致・票数一致**、誤表示0・エラー0。DB検算も期待値と完全一致（n≥3 が 12→**6**、n分布 {0:49,1:8,2:6,3:4,4:1,5:1}） |
-| **インラインリンク除外** | `p a::after: content:none`、行の上下被りも解消。**独立ボタンは `::after` 44px を維持**。インライン以外の44px未満 **0/319** |�た新規問題24件のうち：✅23件 解決 / 1件 保留（NEW-2）**
+| **インラインリンク除外** | `p a::after: content:none`、行の上下被りも解消。**独立ボタンは `::after` 44px を維持**。インライン以外の44px未満 **0/319** |
 
 ---
 
 ## 3. 解決済み・残件一覧
+
+### 🔐 セキュリティ対応（2026-08-20・GitGuardian 検知）
+
+**完了**：Supabase の RLS を修正し、公開 anon キーでの書き込みを塞ぎました。
+
+| 項目 | 内容 |
+|---|---|
+| 原因 | `patch_sync_permissions.sql` が `events` に公開 INSERT/UPDATE ポリシーを付与していた（同期が anon で書いていたため）。公開リポジトリの anon キーで**誰でも銘柄を改ざん可能**な状態だった |
+| 修正 | 公開 UPDATE を廃止 ／ 公開 INSERT は `WITH CHECK (is_active = false)` に限定 ／ `polymarket_price_history` の公開 INSERT を廃止 |
+| 実測 | anon の UPDATE: 23502（可能）→ **0件マッチ（拒否）**。`is_active: true` の INSERT: **42501 拒否**。提案（false）と投票は維持 |
+| 同期 | GH Secret `SUPABASE_SERVICE_ROLE_KEY` を登録。CI ログで `Supabase auth role: service_role` ＋ 25件同期成功を確認 |
+| ガード | `sync_polymarket_cron.mjs` / `manage_custom_topics.mjs` に JWT ロール検証を追加（anon なら exit 1）。anon フォールバックは「成功したのに0件」になるため |
+
+> **`scripts/patch_sync_permissions.sql` は削除して構いません**（再適用すると穴が戻ります）。現状は残置。
+
+`/admin` はブラウザから anon で書いていたため、承認・削除が使えなくなりました。
+代替は `node scripts/manage_custom_topics.mjs`（list / approve / reject / add・要 service_role）。
+
+### 📌 次の検証レポートに残す項目（急がない）
+
+**`functions/market/[slug].ts` / `functions/topic/[slug].ts` の Supabase URL・anon キーのハードコード。**
+
+- GitGuardian が検知したのはこれ（role: anon ／ 公開リポジトリ ／ commit `23d5252` で混入）
+- anon キーはクライアントバンドルにも入る公開鍵で、**RLS を閉じた今は実害なし**
+- 現在は `context.env` 優先＋ハードコードはフォールバック
+- **消す場合は、先に Cloudflare Pages 側へ `SUPABASE_URL` / `SUPABASE_ANON_KEY` を設定すること。**
+  先に消すと OGP が既定タイトルに落ちる
+- 併せて `VITE_GEMINI_API_KEY` の `VITE_` 接頭辞も外したい。現在は `geminiService.ts` が
+  どこからも import されずツリーシェイクされているだけで、**誰かが import した瞬間に課金鍵がブラウザへ配布される**
 
 ### 🔴 いま残っているもの（第17回の実測ベース）
 
