@@ -8,13 +8,36 @@ export const PwaInstallBanner: React.FC = () => {
   const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
-    // すでに閉じたか、スタンドアロンなら非表示
     try {
-      const dismissed = localStorage.getItem('mirairadar_pwa_dismissed');
-      if (!dismissed && !pwaManager.getIsInstalled()) {
-        const timer = setTimeout(() => setIsVisible(true), 3000);
-        return () => clearTimeout(timer);
+      // 閉じた場合は7日間非表示
+      const dismissedTime = localStorage.getItem('mirairadar_pwa_dismissed_time');
+      if (dismissedTime) {
+        const passedDays = (Date.now() - parseInt(dismissedTime, 10)) / (1000 * 60 * 60 * 24);
+        if (passedDays < 7) return;
       }
+
+      if (pwaManager.getIsInstalled()) return;
+
+      // ユーザーが投票した実績があるか、またはスクロールした際に控えめに表示
+      const checkEngagement = () => {
+        const votesRaw = localStorage.getItem('mirairadar_user_votes');
+        const hasVoted = votesRaw && Object.keys(JSON.parse(votesRaw)).length > 0;
+        const hasScrolled = window.scrollY > 400;
+
+        if (hasVoted || hasScrolled) {
+          setIsVisible(true);
+          window.removeEventListener('scroll', checkEngagement);
+        }
+      };
+
+      // 5秒後に一度チェック、またはスクロール検知
+      const timer = setTimeout(checkEngagement, 5000);
+      window.addEventListener('scroll', checkEngagement, { passive: true });
+
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener('scroll', checkEngagement);
+      };
     } catch {
       // ignore
     }
@@ -29,7 +52,7 @@ export const PwaInstallBanner: React.FC = () => {
   const handleDismiss = () => {
     setIsVisible(false);
     try {
-      localStorage.setItem('mirairadar_pwa_dismissed', 'true');
+      localStorage.setItem('mirairadar_pwa_dismissed_time', Date.now().toString());
     } catch {
       // ignore
     }

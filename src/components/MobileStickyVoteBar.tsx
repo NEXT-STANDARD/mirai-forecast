@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { MarketItem } from '../types';
-import { Share2, CheckCircle2, Lock, ArrowRight } from 'lucide-react';
+import { Share2, CheckCircle2, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface MobileStickyVoteBarProps {
@@ -44,9 +44,9 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
         {isLocked ? (
           <div className="sticky-unvoted-layout">
             <div className="sticky-topic-peek">
-              <span className="lock-tag"><Lock size={10} /> 未投票</span>
-              <span className="topic-title-short" title={event.titleJa}>
-                {event.titleJa.length > 20 ? event.titleJa.slice(0, 19) + '...' : event.titleJa}
+              <span className="lock-tag font-mono">🎯 観測中: </span>
+              <span className="topic-title-short font-bold" title={event.titleJa}>
+                {event.titleJa.length > 22 ? event.titleJa.slice(0, 21) + '...' : event.titleJa}
               </span>
             </div>
 
@@ -54,12 +54,14 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
               <button
                 onClick={() => handleVote('YES')}
                 className={`sticky-btn yes ${animatingChoice === 'YES' ? 'pop' : ''}`}
+                title={`YESに投票: ${event.titleJa}`}
               >
                 YES
               </button>
               <button
                 onClick={() => handleVote('NO')}
                 className={`sticky-btn no ${animatingChoice === 'NO' ? 'pop' : ''}`}
+                title={`NOに投票: ${event.titleJa}`}
               >
                 NO
               </button>

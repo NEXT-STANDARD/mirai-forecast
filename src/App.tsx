@@ -1,24 +1,26 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Header } from './components/Header';
 import { TradingTerminal } from './components/TradingTerminal';
 import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
 import { EventModal } from './components/EventModal';
 import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
-import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { SpreadRankingSection } from './components/SpreadRankingSection';
-import { AdminConsolePage } from './components/AdminConsolePage';
 import { AllMarketsGrid } from './components/AllMarketsGrid';
-import { MarketDetailPage } from './components/MarketDetailPage';
 import { OnboardingModal } from './components/OnboardingModal';
-import { AiConnectorPage } from './components/AiConnectorPage';
-import { ForecastHubPage } from './components/ForecastHubPage';
-import { EmbedWidgetPage } from './components/EmbedWidgetPage';
 import { EmbedModal } from './components/EmbedModal';
 import { DataExportModal } from './components/DataExportModal';
 import { PwaInstallBanner } from './components/PwaInstallBanner';
 import { TermsModal } from './components/TermsModal';
+
+// 🚀 コードスプリッティング（初期ロード爆速化）
+const LetterToMikePage = lazy(() => import('./components/LetterToMikePage').then(m => ({ default: m.LetterToMikePage })));
+const AdminConsolePage = lazy(() => import('./components/AdminConsolePage').then(m => ({ default: m.AdminConsolePage })));
+const AiConnectorPage = lazy(() => import('./components/AiConnectorPage').then(m => ({ default: m.AiConnectorPage })));
+const ForecastHubPage = lazy(() => import('./components/ForecastHubPage').then(m => ({ default: m.ForecastHubPage })));
+const MarketDetailPage = lazy(() => import('./components/MarketDetailPage').then(m => ({ default: m.MarketDetailPage })));
+const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m => ({ default: m.EmbedWidgetPage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -32,7 +34,11 @@ export function App() {
     : null;
 
   if (embedSlug) {
-    return <EmbedWidgetPage slugOrId={decodeURIComponent(embedSlug)} />;
+    return (
+      <Suspense fallback={<div className="p-8 text-center text-cyan-400 font-mono text-xs">⚡ LOADING EMBED...</div>}>
+        <EmbedWidgetPage slugOrId={decodeURIComponent(embedSlug)} />
+      </Suspense>
+    );
   }
 
   const [selectedCategory, setSelectedCategory] = useState<CategoryType>('trending');
@@ -431,45 +437,55 @@ export function App() {
       />
 
       {isAdminOpen && isLocalhost ? (
-        <main className="container main-content">
-          <AdminConsolePage
-            onBack={handleCloseAdmin}
-            events={events}
-            onRefreshMarkets={loadMarketData}
-          />
-        </main>
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING MISSION CONTROL...</div>}>
+          <main className="container main-content">
+            <AdminConsolePage
+              onBack={handleCloseAdmin}
+              events={events}
+              onRefreshMarkets={loadMarketData}
+            />
+          </main>
+        </Suspense>
       ) : isLetterPageOpen ? (
-        <main className="container main-content">
-          <LetterToMikePage onBack={handleCloseLetter} />
-        </main>
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING PROTOCOL...</div>}>
+          <main className="container main-content">
+            <LetterToMikePage onBack={handleCloseLetter} />
+          </main>
+        </Suspense>
       ) : isAiConnectorOpen ? (
-        <main className="container main-content">
-          <AiConnectorPage onBack={() => setIsAiConnectorOpen(false)} />
-        </main>
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING CONNECTOR...</div>}>
+          <main className="container main-content">
+            <AiConnectorPage onBack={() => setIsAiConnectorOpen(false)} />
+          </main>
+        </Suspense>
       ) : isForecastHubOpen ? (
-        <main className="container main-content">
-          <ForecastHubPage
-            userVotes={userVotes}
-            events={events}
-            streak={streak}
-            onBack={handleCloseForecastHub}
-            onSelectEvent={(ev) => handleOpenMarketDetail(ev)}
-          />
-        </main>
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING HUB...</div>}>
+          <main className="container main-content">
+            <ForecastHubPage
+              userVotes={userVotes}
+              events={events}
+              streak={streak}
+              onBack={handleCloseForecastHub}
+              onSelectEvent={(ev) => handleOpenMarketDetail(ev)}
+            />
+          </main>
+        </Suspense>
       ) : detailMarketId && events.find(e => e.id === detailMarketId || e.slug === detailMarketId) ? (
-        <main className="container main-content">
-          <MarketDetailPage
-            item={events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!}
-            allEvents={events}
-            userVote={userVotes[events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!.id] || null}
-            onVote={handleVote}
-            onOpenShare={(event) => setSelectedShareEvent(event)}
-            onOpenEmbed={(event) => setSelectedEmbedEvent(event)}
-            onOpenDataExport={(event) => setSelectedDataExportEvent(event)}
-            onBack={handleCloseMarketDetail}
-            onSelectRelatedEvent={handleOpenMarketDetail}
-          />
-        </main>
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING MARKET...</div>}>
+          <main className="container main-content">
+            <MarketDetailPage
+              item={events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!}
+              allEvents={events}
+              userVote={userVotes[events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!.id] || null}
+              onVote={handleVote}
+              onOpenShare={(event) => setSelectedShareEvent(event)}
+              onOpenEmbed={(event) => setSelectedEmbedEvent(event)}
+              onOpenDataExport={(event) => setSelectedDataExportEvent(event)}
+              onBack={handleCloseMarketDetail}
+              onSelectRelatedEvent={handleOpenMarketDetail}
+            />
+          </main>
+        </Suspense>
       ) : (
         <>
           <main className="container main-content">

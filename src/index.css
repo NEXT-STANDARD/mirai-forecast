@@ -963,7 +963,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .metric-lbl {
   font-size: 0.58rem;
-  color: #64748b;
+  color: #8a96a8;
   font-family: var(--font-mono);
   font-weight: 600;
 }
@@ -1280,7 +1280,7 @@ h1, h2, h3, h4, h5, h6 {
   bottom: 8px;
   left: 14px;
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
   pointer-events: none;
   font-weight: 600;
 }
@@ -1875,7 +1875,7 @@ h1, h2, h3, h4, h5, h6 {
 .modal-close-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   cursor: pointer;
   padding: 0.35rem;
   border-radius: var(--radius-xs);
@@ -2001,7 +2001,7 @@ h1, h2, h3, h4, h5, h6 {
 .ogp-col-sub {
   font-family: var(--font-mono);
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .ogp-vs-middle {
@@ -2025,7 +2025,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: space-between;
   align-items: center;
   font-size: 0.68rem;
-  color: #64748b;
+  color: #8a96a8;
   padding-top: 0.4rem;
 }
 
@@ -2250,7 +2250,7 @@ h1, h2, h3, h4, h5, h6 {
 .dismiss-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   cursor: pointer;
   padding: 0.2rem;
   display: flex;
@@ -2660,7 +2660,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-dismiss {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   font-size: 0.65rem;
   padding: 0.25rem;
   cursor: pointer;
@@ -2731,7 +2731,7 @@ h1, h2, h3, h4, h5, h6 {
 .lang-btn {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   font-size: 0.68rem;
   font-weight: 700;
   padding: 0.2rem 0.45rem;
@@ -3142,7 +3142,7 @@ h1, h2, h3, h4, h5, h6 {
 .form-hint {
   display: block;
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
   margin-top: 0.25rem;
 }
 
@@ -3413,7 +3413,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-back-to-site {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   font-size: 0.72rem;
   margin-top: 1.2rem;
   cursor: pointer;
@@ -3516,7 +3516,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-mono);
   font-size: 0.52rem;
   font-weight: 800;
-  color: #64748b;
+  color: #8a96a8;
   letter-spacing: 0.5px;
 }
 
@@ -3722,7 +3722,7 @@ h1, h2, h3, h4, h5, h6 {
 .timestamp-tag {
   font-family: var(--font-mono);
   font-size: 0.58rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .proposal-title-admin {
@@ -3965,7 +3965,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .admin-data-table th {
   background: #0f172a;
-  color: #64748b;
+  color: #8a96a8;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 800;
@@ -4047,7 +4047,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-mono);
   font-size: 0.58rem;
   font-weight: 800;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .stat-value-sub {
@@ -4466,14 +4466,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .stat-unit {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #8a96a8;
   margin-left: 0.2rem;
   font-weight: normal;
 }
 
 .stat-card-sub {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 /* 投票履歴リスト */
@@ -4558,7 +4558,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .history-item-meta {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .history-arrow {
@@ -4727,7 +4727,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .leaderboard-stat-sub {
   font-size: 0.58rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .leaderboard-stat-val {
@@ -4839,7 +4839,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .forecast-footer-security {
   font-size: 0.68rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .forecast-footer-btn {
@@ -4874,7 +4874,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .forecast-empty-sub {
   font-size: 0.68rem;
-  color: #64748b;
+  color: #8a96a8;
   margin-top: 0.35rem;
 }
 
@@ -5354,7 +5354,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .comment-time {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #8a96a8;
   font-family: var(--font-mono);
 }
 
@@ -5368,7 +5368,7 @@ h1, h2, h3, h4, h5, h6 {
 .empty-comments-box {
   padding: 1.5rem;
   text-align: center;
-  color: #64748b;
+  color: #8a96a8;
   font-size: 0.75rem;
 }
 
@@ -5609,7 +5609,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .rank-arrow {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .onboarding-footer {
@@ -5652,7 +5652,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-onboarding-skip {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
@@ -5918,7 +5918,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .search-icon {
-  color: #64748b;
+  color: #8a96a8;
   flex-shrink: 0;
 }
 
@@ -6017,7 +6017,7 @@ h1, h2, h3, h4, h5, h6 {
 .hot-keywords-label {
   font-size: 0.65rem;
   font-weight: 800;
-  color: #64748b;
+  color: #8a96a8;
   flex-shrink: 0;
 }
 
@@ -6099,7 +6099,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-category-tag {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
   font-weight: 700;
 }
 
@@ -6210,7 +6210,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   gap: 0.25rem;
   font-size: 0.58rem;
-  color: #64748b;
+  color: #8a96a8;
   font-weight: 600;
 }
 
@@ -6307,7 +6307,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   gap: 0.4rem;
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .btn-card-detail-link {
@@ -6490,7 +6490,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .spread-category-label {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
   font-weight: 700;
 }
 
@@ -7148,7 +7148,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .tool-args {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .security-notice-card {
@@ -7348,7 +7348,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .kgi-target {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .kgi-progress-track {
@@ -7422,7 +7422,7 @@ h1, h2, h3, h4, h5, h6 {
 .stage-step-num {
   font-size: 0.6rem;
   font-weight: 800;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .stage-name {
@@ -7456,7 +7456,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .stage-desc {
   font-size: 0.6rem;
-  color: #64748b;
+  color: #8a96a8;
   margin: 0;
   line-height: 1.35;
 }
@@ -8094,7 +8094,7 @@ img, canvas, svg, video {
 
 .step-tag {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #8a96a8;
   background: rgba(255, 255, 255, 0.04);
   padding: 0.15rem 0.45rem;
   border-radius: 4px;
@@ -8664,7 +8664,7 @@ body::after {
 .embed-vs-center {
   font-size: 0.65rem;
   font-weight: 900;
-  color: #64748b;
+  color: #8a96a8;
   font-family: monospace;
 }
 
@@ -9221,7 +9221,7 @@ body::after {
   right: 8px;
   background: transparent;
   border: none;
-  color: #64748b;
+  color: #8a96a8;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -9469,7 +9469,7 @@ body::after {
 
 .hub-stat-sub {
   font-size: 0.7rem;
-  color: #64748b;
+  color: #8a96a8;
 }
 
 .forecast-hub-tabs {
