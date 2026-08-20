@@ -31,11 +31,29 @@ export const onRequest = async (context: {
   let worldProb: number | null = null;
 
   try {
+    // A. まず Supabase から日本語タイトルを取得
+    const supaUrl = `https://wdpygtmqehoepgrueeda.supabase.co/rest/v1/events?or=(slug.eq.${encodeURIComponent(slug)},id.eq.${encodeURIComponent(slug)})&select=title_ja,title_en,question_ja&limit=1`;
+    const supaRes = await fetch(supaUrl, {
+      headers: {
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU'
+      }
+    });
+    if (supaRes.ok) {
+      const dbData: any = await supaRes.json();
+      if (Array.isArray(dbData) && dbData[0]?.title_ja) {
+        title = dbData[0].title_ja;
+      }
+    }
+
+    // B. Polymarket APIからリアルタイムオッズを取得
     const polyRes = await fetch(`https://gamma-api.polymarket.com/events?slug=${slug}`);
     if (polyRes.ok) {
-      const events = await polyRes.json();
+      const events: any = await polyRes.json();
       if (events && events[0] && events[0].markets && events[0].markets[0]) {
-        title = events[0].title;
+        if (!title || title === '世界の集合知 × 日本の世論 金融ターミナル') {
+          title = events[0].title || title;
+        }
         const market = events[0].markets[0];
         if (market.outcomePrices) {
           const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
@@ -43,6 +61,23 @@ export const onRequest = async (context: {
             worldProb = Math.round(parseFloat(parsed[0]) * 100);
           }
         }
+      }
+    }
+
+    // C. 英語タイトルの動的日本語化フォールバック
+    if (title && !/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(title)) {
+      if (/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i.test(title)) {
+        const m = title.match(/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i)!;
+        const nameMap: Record<string, string> = { Bitcoin: 'ビットコイン', BTC: 'ビットコイン', Ethereum: 'イーサリアム', ETH: 'イーサリアム', Solana: 'ソラナ', SOL: 'ソラナ' };
+        const monthMap: Record<string, string> = { January: '1月', February: '2月', March: '3月', April: '4月', May: '5月', June: '6月', July: '7月', August: '8月', September: '9月', October: '10月', November: '11月', December: '12月' };
+        const name = nameMap[m[1]] || m[1];
+        const month = monthMap[m[2]] || m[2];
+        const day = m[3] ? `${m[3]}日` : '';
+        const target = m[4].replace(/^[<>=]+/, '').replace(/[?？]+$/, '').trim();
+        const symbol = m[4].includes('<') ? '未満' : m[4].includes('>') ? '以上' : '到達';
+        title = `${name}価格：${month}${day}に${target}ドル${symbol}となるか？`;
+      } else {
+        title = `【国際市場動向】${title}`;
       }
     }
   } catch {}

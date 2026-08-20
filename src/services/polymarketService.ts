@@ -248,7 +248,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             const name = nameMap[m[1]] || m[1];
             const month = monthMap[m[2]] || m[2];
             const day = m[3] ? `${m[3]}日` : '';
-            const target = m[4].replace(/^[<>=]+/, '').trim();
+            const target = m[4].replace(/^[<>=]+/, '').replace(/[?？]+$/, '').trim();
             const symbol = m[4].includes('<') ? '未満' : m[4].includes('>') ? '以上' : '到達';
             resolvedTitleJa = `${name}価格：${month}${day}に${target}ドル${symbol}となるか？`;
           } else if (/Bitcoin above ___ on August (\d+)/i.test(t)) {

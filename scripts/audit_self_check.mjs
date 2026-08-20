@@ -55,7 +55,7 @@ for (const file of componentFiles) {
 report("投票ガード (isExpired) 構文健全性 & 100% 網羅性", voteGuardFails.length === 0, 
   voteGuardFails.length === 0 ? "投票を持つ全コンポーネントで厳格な期限判定ガード構文を検証完了" : voteGuardFails.join("; "));
 
-// 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12)
+// 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12 / 破壊テストA・B両適合)
 const GAP_TARGET_COMPONENTS = [
   "AllMarketsGrid.tsx",
   "SpreadRankingSection.tsx",
@@ -67,14 +67,20 @@ const GAP_TARGET_COMPONENTS = [
   "DataExportModal.tsx"
 ];
 let gapCheckFails = [];
+// 有効なガード構文パターン（三項演算子、変数束縛、filter、if文にアンカー）
+const strictActiveGapGuardPattern = /(?:\{\s*|\bconst\s+\w+\s*=\s*|\.filter\s*\(\s*\w+\s*=>\s*|if\s*\(\s*)(?:event|item|ev|a|b)\.japanVotes(?:\?\.|\.)total\s*>=\s*3/;
+
 for (const file of GAP_TARGET_COMPONENTS) {
   if (!fs.existsSync(path.join(COMPONENTS_DIR, file))) continue;
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
-  const hasVotesTotalGuard = /japanVotes\.total\s*>=\s*3/.test(content);
-  const hasSampleCountNotation = /n=/.test(content);
+  // コメントアウト偽装（/* ... */ や // ...）による誤検知パスを防止
+  const contentWithoutComments = content.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
+
+  const hasVotesTotalGuard = strictActiveGapGuardPattern.test(contentWithoutComments);
+  const hasSampleCountNotation = /n=/.test(contentWithoutComments);
 
   if (!hasVotesTotalGuard) {
-    gapCheckFails.push(`${file}: japanVotes.total >= 3 ガード未適用`);
+    gapCheckFails.push(`${file}: 有効な japanVotes.total >= 3 ガードが未適用または無効化されています`);
   }
   if (!hasSampleCountNotation) {
     gapCheckFails.push(`${file}: サンプル数 (n=) 表示なし`);

@@ -102,11 +102,15 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                   <td className="td-gap text-right">
                     {item.japanVotes.total >= 3 ? (
                       <span className="gap-mono-val" title={`サンプル数: ${item.japanVotes.total}票`}>
-                        {gap > 0 ? `${gap}%` : '0%'} <small className="text-[10px] text-slate-400 font-mono">(n={item.japanVotes.total})</small>
+                        {gap > 0 ? `${gap}%` : '0%'} <span className="text-xs text-slate-400 font-mono">(n={item.japanVotes.total})</span>
+                      </span>
+                    ) : item.japanVotes.total > 0 ? (
+                      <span className="text-slate-400 text-xs font-mono" title="最低3票以上の集計が必要">
+                        — <span className="text-xs text-slate-400 font-mono">(n={item.japanVotes.total})</span>
                       </span>
                     ) : (
-                      <span className="text-slate-400 text-xs font-mono" title="最低3票以上の集計が必要">
-                        — <small className="text-[10px] text-slate-400 font-mono">(n={item.japanVotes.total})</small>
+                      <span className="text-slate-400 text-xs font-mono" title="投票受付中">
+                        —
                       </span>
                     )}
                   </td>

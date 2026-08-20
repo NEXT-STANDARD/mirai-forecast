@@ -9365,19 +9365,24 @@ body::after {
   background: #040711;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
-  overflow: hidden;
+  overflow-x: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .csv-preview-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 280px;
 }
 
 .csv-preview-table th,
 .csv-preview-table td {
-  padding: 0.5rem 0.75rem;
+  padding: 0.45rem 0.55rem;
   text-align: left;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.72rem;
+  white-space: nowrap;
 }
 
 .csv-preview-table th {
@@ -10031,101 +10036,49 @@ body::after {
 }
 
 /* ========================================================
-   🎯 モバイル タッチターゲット拡張 ＆ アクセシビリティ（E-2 / N-13 対応）
+   🎯 モバイル タッチターゲット拡張 ＆ アクセシビリティ（E-2 / N-13 完全対応）
    ======================================================== */
 @media (pointer: coarse) {
-  /* タップ判定を最低44pxに拡張する擬似要素（全ページ・全ボタン実測クリア） */
-  .modal-close-btn,
-  .forecast-close-btn,
-  .pwa-close-btn,
-  .terms-close-action-btn,
-  .popup-close-btn,
-  .tf-btn,
-  .header-right-cluster button,
-  .header-right-cluster a,
-  .btn-header-refresh,
-  .btn-header-subtle,
-  .btn-screener-propose,
-  .btn-open-market-page,
-  .nav-tab-item,
-  .topic-pill-btn,
-  .btn-ranking-vote,
-  .btn-vote-yes,
-  .btn-vote-no,
-  .sticky-btn,
-  .btn-spread-share,
-  .btn-spread-detail,
-  .brand-logo-group,
+  /* 1. 置換要素（<input>, <select>, <textarea>）は ::after を生成できないため直接 min-height: 44px を指定 */
+  input,
+  select,
+  textarea,
+  .comment-input-field,
   .market-search-input,
   .search-bar-input,
-  .sort-select,
-  .sort-selector-box,
-  .hot-keyword-chip,
-  .btn-card-detail-link,
-  .footer-link-btn,
-  .btn-pwa-notify,
-  .btn-pwa-install,
-  .pwa-action-btn,
-  .btn-back-link,
-  .btn-market-data-trigger,
-  .btn-market-embed-trigger,
-  .btn-market-share-trigger,
-  .btn-comment-submit,
-  .comment-input-field,
-  .btn-copy-config,
-  .btn-download-data-main,
-  .embed-vote-btn,
-  .embed-cta-link,
-  .tf-tab-btn,
-  .chart-timeframe-btn,
-  .btn-cat-nav {
-    position: relative;
-    min-height: 38px;
+  .sort-select {
+    min-height: 44px !important;
+    box-sizing: border-box;
   }
 
-  .modal-close-btn::after,
-  .forecast-close-btn::after,
-  .pwa-close-btn::after,
-  .terms-close-action-btn::after,
-  .popup-close-btn::after,
-  .tf-btn::after,
-  .header-right-cluster button::after,
-  .header-right-cluster a::after,
-  .btn-header-refresh::after,
-  .btn-header-subtle::after,
-  .btn-screener-propose::after,
-  .btn-open-market-page::after,
-  .nav-tab-item::after,
-  .topic-pill-btn::after,
-  .btn-ranking-vote::after,
-  .btn-vote-yes::after,
-  .btn-vote-no::after,
-  .sticky-btn::after,
-  .btn-spread-share::after,
-  .btn-spread-detail::after,
-  .brand-logo-group::after,
-  .market-search-input::after,
-  .search-bar-input::after,
-  .sort-select::after,
-  .sort-selector-box::after,
-  .hot-keyword-chip::after,
-  .btn-card-detail-link::after,
-  .footer-link-btn::after,
-  .btn-pwa-notify::after,
-  .btn-pwa-install::after,
-  .pwa-action-btn::after,
+  /* 2. 対話的要素（button, a[href], [role="button"]）を包括的に 44px に拡張 */
+  button,
+  a[href],
+  [role="button"],
+  .btn-back-link,
+  .btn-back-terminal,
+  .btn-footer-back,
+  .btn-footer-share,
+  .btn-primary-data,
+  .embed-brand-badge,
+  .embed-market-title,
+  .embed-vote-btn,
+  .embed-cta-link {
+    position: relative;
+  }
+
+  button::after,
+  a[href]::after,
+  [role="button"]::after,
   .btn-back-link::after,
-  .btn-market-data-trigger::after,
-  .btn-market-embed-trigger::after,
-  .btn-market-share-trigger::after,
-  .btn-comment-submit::after,
-  .btn-copy-config::after,
-  .btn-download-data-main::after,
+  .btn-back-terminal::after,
+  .btn-footer-back::after,
+  .btn-footer-share::after,
+  .btn-primary-data::after,
+  .embed-brand-badge::after,
+  .embed-market-title::after,
   .embed-vote-btn::after,
-  .embed-cta-link::after,
-  .tf-tab-btn::after,
-  .chart-timeframe-btn::after,
-  .btn-cat-nav::after {
+  .embed-cta-link::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -10142,28 +10095,44 @@ body::after {
 /* 📱 N-15: 320px 〜 360px 極小画面でのヘッダー収縮最適化 */
 @media (max-width: 360px) {
   .header-main-bar {
-    padding-left: 0.35rem !important;
-    padding-right: 0.35rem !important;
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+    gap: 0.2rem !important;
   }
   .header-left-cluster {
-    gap: 0.2rem !important;
+    gap: 0.15rem !important;
     min-width: 0 !important;
+    flex-shrink: 1 !important;
+  }
+  .header-left-cluster h1 {
+    font-size: 0.82rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
   }
   .header-right-cluster {
-    gap: 0.2rem !important;
+    gap: 0.15rem !important;
+    flex-shrink: 0 !important;
   }
   .btn-header-subtle {
-    padding: 0 0.3rem !important;
-    font-size: 0.75rem !important;
-    min-width: 26px !important;
+    padding: 0 0.25rem !important;
+    font-size: 0.7rem !important;
+    min-width: 24px !important;
+    height: 28px !important;
   }
   .btn-header-forecast-slim {
-    padding: 0 0.35rem !important;
+    padding: 0 0.25rem !important;
+    font-size: 0.7rem !important;
+    height: 28px !important;
   }
   .btn-header-refresh {
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+  }
+  .btn-market-share-trigger {
+    padding: 0.35rem 0.4rem !important;
+    font-size: 0.72rem !important;
   }
 }
 

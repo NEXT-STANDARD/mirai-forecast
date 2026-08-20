@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { MarketItem } from '../types';
 import { Globe2, ExternalLink, ArrowRight } from 'lucide-react';
 import { INITIAL_EVENTS } from '../data/initialEvents';
-import { fetchLivePolymarketMarkets } from '../services/polymarketService';
+import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from '../services/polymarketService';
 
 interface EmbedWidgetPageProps {
   slugOrId: string;
@@ -25,26 +25,29 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
       setIsLoading(false);
     }
 
-    // 2. Supabase ＆ Polymarket 実測統合データをフェッチ
-    fetchLivePolymarketMarkets()
-      .then((events) => {
+    // 2. Supabase ＆ Polymarket 実測統合データをフェッチ ＆ 実票同期
+    async function loadData() {
+      try {
+        const events = await fetchLivePolymarketMarkets();
         if (!isMounted) return;
         const match = events.find(
           (e) => e.slug === slugOrId || e.id === slugOrId || e.slug.replace(/-\d+$/, '') === slugOrId.replace(/-\d+$/, '')
         );
-        if (match) {
-          setItem(match);
-        } else if (initialFound) {
-          setItem(initialFound);
+        const target = match || initialFound;
+        if (target) {
+          const [withVotes] = await syncVotesFromSupabase([target]);
+          if (!isMounted) return;
+          setItem(withVotes || target);
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.warn('Embed live fetch fallback:', err);
-        if (initialFound) setItem(initialFound);
-      })
-      .finally(() => {
+        if (initialFound && isMounted) setItem(initialFound);
+      } finally {
         if (isMounted) setIsLoading(false);
-      });
+      }
+    }
+
+    loadData();
 
     return () => {
       isMounted = false;
