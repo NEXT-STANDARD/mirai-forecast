@@ -24,7 +24,19 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const modalRef = useFocusTrap(isOpen, () => handleReset());
+  const handleReset = React.useCallback(() => {
+    setTitle('');
+    setReason('');
+    setContributor('');
+    setAgreeElectionLaw(false);
+    setAgreeNonGambling(false);
+    setAgreeNoDefamation(false);
+    setIsSuccess(false);
+    setErrorMsg('');
+    onClose();
+  }, [onClose]);
+
+  const modalRef = useFocusTrap(isOpen, handleReset);
 
   if (!isOpen) return null;
 
@@ -87,18 +99,6 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleReset = () => {
-    setTitle('');
-    setReason('');
-    setContributor('');
-    setAgreeElectionLaw(false);
-    setAgreeNonGambling(false);
-    setAgreeNoDefamation(false);
-    setIsSuccess(false);
-    setErrorMsg('');
-    onClose();
   };
 
   return (

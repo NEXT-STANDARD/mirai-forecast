@@ -5951,7 +5951,8 @@ h1, h2, h3, h4, h5, h6 {
   background: #090e1a;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
-  padding: 0.35rem 0.65rem;
+  padding: 0.45rem 0.75rem;
+  min-height: 44px;
 }
 
 .sort-select {
@@ -5962,6 +5963,8 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   outline: none;
   cursor: pointer;
+  min-height: 38px;
+  padding: 0.25rem 0.5rem;
 }
 
 .sort-select option {
@@ -9770,7 +9773,10 @@ body::after {
   .btn-spread-detail,
   .brand-logo-group,
   .market-search-input,
-  .search-bar-input {
+  .search-bar-input,
+  .sort-select,
+  .sort-selector-box,
+  .hot-keyword-chip {
     position: relative;
     min-height: 38px;
   }
@@ -9796,7 +9802,10 @@ body::after {
   .btn-spread-detail::after,
   .brand-logo-group::after,
   .market-search-input::after,
-  .search-bar-input::after {
+  .search-bar-input::after,
+  .sort-select::after,
+  .sort-selector-box::after,
+  .hot-keyword-chip::after {
     content: '';
     position: absolute;
     top: 50%;

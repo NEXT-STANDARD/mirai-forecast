@@ -4,6 +4,7 @@ import { pwaManager } from '../utils/pwaManager';
 
 export const PwaInstallBanner: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [isFooterOverlapping, setIsFooterOverlapping] = useState(false);
   const [notificationState, setNotificationState] = useState<NotificationPermission>('default');
   const [isInstalling, setIsInstalling] = useState(false);
 
@@ -47,7 +48,26 @@ export const PwaInstallBanner: React.FC = () => {
     }
   }, []);
 
-  if (!isVisible) return null;
+  // フッターが表示領域に入ったときは、フッターリンクのタップを妨げないよう即時非表示
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const footer = document.getElementById('compliance-footer');
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsFooterOverlapping(entry.isIntersecting);
+      },
+      { rootMargin: '0px 0px 80px 0px', threshold: 0 }
+    );
+
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  if (!isVisible || isFooterOverlapping) return null;
 
   const handleDismiss = () => {
     setIsVisible(false);

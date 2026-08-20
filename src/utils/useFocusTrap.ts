@@ -7,6 +7,12 @@ import { useEffect, useRef } from 'react';
 export function useFocusTrap(isOpen: boolean, onClose?: () => void) {
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocusedElement = useRef<HTMLElement | null>(null);
+  const onCloseRef = useRef(onClose);
+
+  // 常に最新の onClose を保持（依存配列に入れない）
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     if (!isOpen) return;
@@ -19,19 +25,36 @@ export function useFocusTrap(isOpen: boolean, onClose?: () => void) {
 
     // フォーカス可能な要素を抽出
     const getFocusableElements = () => {
-      return modal.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      );
+      if (!modalRef.current) return [];
+      return Array.from(
+        modalRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter(el => el.offsetParent !== null || el.offsetWidth > 0 || el.offsetHeight > 0);
     };
 
-    const focusables = getFocusableElements();
-    if (focusables.length > 0) {
-      focusables[0].focus();
+    // 初期フォーカス設定: 既にモーダル内部にフォーカスがある場合は絶対に奪わない
+    const isAlreadyInside = modal.contains(document.activeElement);
+    if (!isAlreadyInside) {
+      const focusables = getFocusableElements();
+      // 入力欄（input/textarea）があれば優先、なければ最初の操作要素へ
+      const preferredTarget = focusables.find(el => el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') || focusables[0];
+      if (preferredTarget) {
+        // 微小ディレイでマウント完了後にフォーカス
+        requestAnimationFrame(() => {
+          if (modalRef.current && !modalRef.current.contains(document.activeElement)) {
+            preferredTarget.focus();
+          }
+        });
+      }
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        if (onClose) onClose();
+        if (onCloseRef.current) {
+          e.preventDefault();
+          onCloseRef.current();
+        }
         return;
       }
 
@@ -62,12 +85,12 @@ export function useFocusTrap(isOpen: boolean, onClose?: () => void) {
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      // モーダルが閉じたときにフォーカスを復帰
+      // モーダルが閉じたときにフォーカスを元の要素へ復帰
       if (previousFocusedElement.current && typeof previousFocusedElement.current.focus === 'function') {
         previousFocusedElement.current.focus();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   return modalRef;
 }

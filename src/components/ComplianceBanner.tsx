@@ -11,7 +11,7 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
   onOpenPrivacy,
 }) => {
   return (
-    <footer className="compliance-footer">
+    <footer id="compliance-footer" className="compliance-footer">
       <div className="container compliance-container">
         {/* ヘッダーブロック */}
         <div className="compliance-header">
@@ -76,7 +76,7 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
           </div>
 
           <div className="footer-bottom-copy">
-            © 2026 未来レーダー (MiraiRadar.com). Powered by Polymarket Public Data & Gemini 3.7 Flash.
+            © 2026 未来レーダー (MiraiRadar.com). 世界の集合知 × 日本の世論調査プラットフォーム.
           </div>
         </div>
       </div>

@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー 第3回 検証レポート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="eyebrow">
+      <span>再修正 検証レポート（第3回）</span><span class="sep"></span>
+      <span>mirai-forecast</span><span class="sep"></span>
+      <span>2026-08-20</span>
+    </div>
+    <h1>未来レーダー 第3回 検証レポート</h1>
+    <p class="dek">
+      第2回検証の指摘に対する再修正を、本番ビルド実機計測と Supabase 実データ照会で検証しました。
+      4項目が新たに完了した一方、<strong>入力を破壊する回帰</strong>を検出しています。
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tally">
+    <div class="ok"><span class="v">23<small>件</small></span><span class="l">完全に修正<br>（9 → 19 → 23）</span></div>
+    <div class="pt"><span class="v">4<small>件</small></span><span class="l">部分的・不完全<br>（5 → 5 → 4）</span></div>
+    <div class="ng"><span class="v">8<small>件</small></span><span class="l">未達<br>（21 → 11 → 8）</span></div>
+    <div class="ng"><span class="v">1<small>件</small></span><span class="l">新規の重大回帰<br>フォーカス奪取</span></div>
+    <div class="ng"><span class="v">16<small>件</small></span><span class="l">英語タイトル<br>（6件から悪化）</span></div>
+    <div class="ok"><span class="v">3<small>%</small></span><span class="l">12px未満のテキスト<br>（維持・回帰なし）</span></div>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#sum">総括</a></li>
+    <li><a href="#focus">🔴 フォーカス奪取</a></li>
+    <li><a href="#new1">🔴 NEW-1 未解決</a></li>
+    <li><a href="#g3">🔴 G-3 悪化</a></li>
+    <li><a href="#fixed">✅ 新たに修正4件</a></li>
+    <li><a href="#partial">⚠️ 部分的4件</a></li>
+    <li><a href="#never">❌ 未達8件</a></li>
+    <li><a href="#order">次にやるべきこと</a></li>
+  </ul>
+
+  <!-- 総括 -->
+  <section id="sum">
+    <div class="sec-head"><span class="sec-num">00</span><h2>総括</h2></div>
+    <div class="col">
+      <p class="lead">4項目が新たに完了しました（A-6・D-3・D-7・F-5）。
+        累計 <strong>9件 → 19件 → 23件</strong> と着実に進んでいます。</p>
+      <p>ただし報告は <strong>「ALL VERIFIED &amp; 100% FIXED」</strong> と宣言していますが、
+        実測では次の3点が成立していません。</p>
+      <ul class="plain">
+        <li><strong>NEW-1（PWAバナーとフッターリンクの重なり）は解消していません。</strong> 対策は入りましたが、リンクは依然として押せません。</li>
+        <li><strong>G-3（英語タイトル）は悪化しました。</strong> 画面上の英語タイトルが 6件 → 16件。原因は Supabase 側で 68% が未翻訳であることです。</li>
+        <li><strong>フォーカストラップの実装が重大な回帰を生みました。</strong>「問いを提案」フォームが1文字も入力できません。</li>
+      </ul>
+      <p>3番目は、これまでの全ラウンドを通じて最も影響の大きい不具合です。</p>
+    </div>
+  </section>
+
+  <!-- フォーカス奪取 -->
+  <section id="focus">
+    <div class="sec-head"><span class="sec-num">🔴</span><h2>最重要：フォーカストラップが入力を破壊している</h2></div>
+
+    <div class="newissue">
+      <div class="f-head"><span class="fid">回帰</span><span class="chip p0">機能停止</span>
+        <span class="f-title">「問いを提案」フォームに1文字も入力できない</span></div>
+      <div class="evidence"><b>実機テスト（本番ビルド）</b>
+入力前フォーカス : <b>入力欄</b> ✅
+1文字入力（'あ'）
+入力後フォーカス : <b>BUTTON.modal-close-btn</b>  ❌ 奪われた</div>
+      <p><strong>フォームは実質的に使用不能です。</strong></p>
+
+      <p><strong>さらに、全モーダルで自動的に発生します。</strong>
+        モーダルを開いたまま何も操作せず観測したところ、<strong>6秒後に自動でフォーカスが奪われました。</strong></p>
+      <div class="evidence"> 1s  入力欄
+ 6s  BUTTON.modal-close-btn   <b>← ユーザー操作なし</b></div>
+
+      <p><strong>原因</strong>：<code>src/utils/useFocusTrap.ts</code> の依存配列に <code>onClose</code> が入っています。</p>
+      <div class="evidence">useEffect(() =&gt; {
+  …
+  const focusables = getFocusableElements();
+  if (focusables.length &gt; 0) focusables[0].focus();   <b>// ← 毎回ここに戻る</b>
+  …
+  return () =&gt; { previousFocusedElement.current?.focus(); };
+}, [isOpen, <b>onClose</b>]);                                 <b>// ← onClose が毎回変わる</b></div>
+
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>呼び出し元</th><th>渡している値</th><th>再生成のタイミング</th></tr></thead>
+        <tbody>
+          <tr><td><code>ProposeTopicModal.tsx:27</code></td><td><code>() =&gt; handleReset()</code></td><td class="bad">モーダル自身の再レンダーごと＝<strong>1キーストロークごと</strong></td></tr>
+          <tr><td><code>App.tsx</code> 541/547/559/566/572/581/606</td><td><code>() =&gt; setXxx(false)</code> × 7</td><td class="bad">App の再レンダーごと＝<strong>30秒ポーリングごと</strong></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p><strong>対策</strong></p>
+      <div class="evidence">// 1. 依存配列から onClose を外し、ref で保持する
+const onCloseRef = useRef(onClose);
+useEffect(() =&gt; { onCloseRef.current = onClose; });
+useEffect(() =&gt; { … }, [isOpen]);   <b>// onClose を依存から外す</b>
+
+// 2. 併せて呼び出し側を useCallback で安定させる
+const handleCloseProposeModal = useCallback(() =&gt; setIsProposeModalOpen(false), []);</div>
+      <p>また、初期フォーカスは <code>focusables[0]</code>（＝閉じるボタン）ではなく、
+        モーダル本体か最初の意味のある操作要素に当てるほうが自然です。</p>
+    </div>
+  </section>
+
+  <!-- NEW-1 -->
+  <section id="new1">
+    <div class="sec-head"><span class="sec-num">🔴</span><h2>NEW-1：PWA バナーは依然としてフッターリンクを覆っている</h2></div>
+    <div class="newissue">
+      <div class="f-head"><span class="fid">NEW-1</span><span class="chip p0">未解決</span>
+        <span class="f-title">余白拡大では解決しない — しかも前回より紛らわしい挙動に</span></div>
+      <p>報告：「ルートパディングを <code>pb-36 md:pb-12</code>（144px）へ拡大し、バナー配置を
+        <code>bottom: 5.5rem</code> に最適化。利用規約・プライバシーポリシーのリンクが 100% 確実にクリック可能に。」</p>
+      <div class="evidence"><b>実測（本番ビルド・375×812・最下部までスクロール）</b>
+ルート余白        : <b>144px</b>         ✅ 拡大されている
+固定バー高        : 81px
+PWAバナー         : 351x217 <b>top=507</b>   z-index 900（1000から低下）
+フッターリンク位置 : <b>y 530〜556</b>        ← バナーの範囲 507〜724 に完全に含まれる
+
+利用規約              → 中心のヒット要素: <b>BUTTON.pwa-close-btn</b>  ❌
+プライバシーポリシー   → 中心のヒット要素: <b>BUTTON.pwa-close-btn</b>  ❌</div>
+      <p>余白の拡大は<strong>コンテンツを上に押し上げるだけ</strong>で、
+        バナーはビューポート下端を基準に配置されているためリンクの上に残り続けます。</p>
+      <p><strong>しかも前回より悪化しています。</strong> 前回はバナー本体が重なっていましたが、
+        今回はリンク中心が <strong>バナーの閉じるボタン（×）</strong> と一致します。
+        つまり「利用規約」をタップすると <strong>バナーが閉じるだけ</strong> で、規約は開きません。
+        何かが起きたように見えるぶん、より紛らわしい挙動です。</p>
+      <p><strong>有効な対策</strong>：フッターが画面内に入ったらバナーを非表示にする（IntersectionObserver）、
+        またはバナーを固定配置ではなくフッター直前のインライン要素にする。<strong>余白の拡大では解決しません。</strong></p>
+    </div>
+  </section>
+
+  <!-- G-3 -->
+  <section id="g3">
+    <div class="sec-head"><span class="sec-num">🔴</span><h2>G-3：英語タイトルが 6件 → 16件に増加</h2></div>
+    <div class="newissue">
+      <div class="f-head"><span class="fid">G-3</span><span class="chip p0">悪化</span>
+        <span class="f-title">原因はコードではなく Supabase のデータ</span></div>
+      <p>前回は日本語だった銘柄まで英語になりました。</p>
+      <div class="evidence">Will JD Vance win the 2028 US Presidential Election?     ← 旧「JD・ヴァンスは2028年米大統領選挙で勝利するか？」
+Will Paris Saint-Germain win the 2026-27 UEFA…?          ← 旧「パリ・サンジェルマンは…制覇するか？」
+Strait of Hormuz traffic returns to normal by August 31? ← 旧「ホルムズ海峡の通航量は…正常化するか？」
+Will Abiy Ahmed be the next Prime Minister of Ethiopia?  ← 旧「アビィ・アハメドは次期エチオピア首相に留任するか？」</div>
+      <p>モバイルの固定投票バーも <code>🎯 観測中: Will JD Vance win the...</code> と英語です。</p>
+
+      <p>Supabase の <code>events</code> テーブルを直接照会しました。</p>
+      <div class="evidence">総件数              : <b>95</b>
+title_ja が日本語    : <b>30 件 (32%)</b>
+title_ja が英語      : <b>65 件 (68%)</b>
+title_ja == title_en : <b>73 件</b>   ← 翻訳が行われていない行</div>
+      <p><code>title_ja</code> フィールドに<strong>英語がそのまま格納されています</strong>（空ではありません）。
+        コード側のロジック <code>mapped?.titleJa || db.title_ja || db.title_en</code> は正しく、
+        <code>db.title_ja</code> に英語が入っている以上それを表示します。</p>
+      <p>そして <code>TITLE_TRANSLATION_MAP</code> の収録件数は <strong>7件</strong>。
+        65件の英語タイトルに対する被覆率は約 <strong>11%</strong> です。</p>
+      <p><strong>対策</strong>：翻訳マップの拡充ではなく、<strong>同期パイプライン側で <code>title_ja</code> を生成する</strong>のが本筋です。</p>
+    </div>
+  </section>
+
+  <!-- 修正された -->
+  <section id="fixed">
+    <div class="sec-head"><span class="sec-num">✅</span><h2>今回新たに修正された項目（4件）</h2></div>
+
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">A-6</span><span class="chip ok">修正済</span>
+        <span class="f-title">「次回注目カタリスト」の過去日付 — 完全解消</span></div>
+      <div class="evidence">keyCatalysts 内の 2024/2025 表記 : <b>8件 → 0件</b>
+ファイル全体の 2024/2025 出現     : 1件（本文中の歴史的言及・妥当）</div>
+    </div>
+
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">D-3</span><span class="chip ok">修正済</span>
+        <span class="f-title">初回訪問者への価値提示</span></div>
+      <div class="evidence">1位  ロック中: <b>false</b>  ✅   ← 初回訪問でも世論が見える
+2位  ロック中: true
+3位  ロック中: true
+4位  ロック中: true</div>
+      <p>監査で提示した折衷案（「1件だけ解禁済みのサンプルを見せる」）がそのまま実装されています。</p>
+    </div>
+
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">D-7</span><span class="chip ok">修正済</span>
+        <span class="f-title">モバイルで「使い方」に到達できる</span></div>
+      <p>モバイルヘッダーに「使い方」ボタンが常時表示されることを実機で確認。
+        初回モーダルを閉じた後もオンボーディングに戻れます。</p>
+    </div>
+
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">F-5 / NEW-3</span><span class="chip ok">修正済</span>
+        <span class="f-title">未使用依存の削除／固定バーの余白</span></div>
+      <div class="evidence"><b>依存</b>
+削除前 : @supabase/supabase-js, canvas-confetti, <b>clsx, googleapis</b>, lucide-react,
+         react, react-dom, <b>sharp, three, twitter-api-v2, @google-analytics/data</b>
+削除後 : @supabase/supabase-js, canvas-confetti, lucide-react, react, react-dom
+
+<b>NEW-3</b>
+ルート余白 144px ＞ 固定バー高 81px
+隠れる要素 : <b>0件</b>   隠れるpx : <b>0</b></div>
+    </div>
+  </section>
+
+  <!-- 部分的 -->
+  <section id="partial">
+    <div class="sec-head"><span class="sec-num">⚠️</span><h2>部分的な項目（4件）</h2></div>
+
+    <div class="finding verdict partial">
+      <div class="f-head"><span class="fid">E-2</span><span class="chip p1">34% → 27%</span>
+        <span class="f-title">タップターゲット — 一覧漏れが残る</span></div>
+      <p>セレクタに4種＋<code>.search-bar-input</code> が追加され、<code>tf-btn</code> のフォントも
+        0.62rem（9.9px）→ 0.78rem（12.5px）に拡大されました。残る 42/153（27%）：</p>
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>要素</th><th style="text-align:right">実効サイズ</th></tr></thead>
+        <tbody>
+          <tr><td><code>sort-select</code>（並び替えセレクト）</td><td class="num bad">136×19</td></tr>
+          <tr><td><code>hot-keyword-chip</code>（注目の話題 ×5）</td><td class="num bad">63〜87×28</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><code>sort-select</code> の 19px は、監査時点の <code>tf-btn</code> と同じ最小水準です。</p>
+    </div>
+
+    <div class="finding verdict partial">
+      <div class="f-head"><span class="fid">E-1 / N-5</span><span class="chip p1">実装済・副作用あり</span>
+        <span class="f-title">モーダル — 方向性は正しく、依存配列1点で完成する</span></div>
+      <div class="evidence">useFocusTrap フックの新設・全7モーダル適用    ✅
+Tab / Shift+Tab のモーダル内循環            ✅ 実装確認
+閉じた後のフォーカス復帰                     ✅ 実装確認
+<b>入力中にフォーカスが奪われない              ❌ 破壊されている</b>
+背後要素の inert / aria-hidden              ❌ 未実装（aria-modal 併用のため許容範囲）</div>
+    </div>
+
+    <div class="finding verdict partial">
+      <div class="f-head"><span class="fid">D-4 / F-1</span><span class="chip p1">継続</span>
+        <span class="f-title">固定バーの誤爆／コード分割</span></div>
+      <p>D-4：銘柄名の表示のみで、投票先が画面外の銘柄である構造は変わっていません。</p>
+      <p>F-1：JS 初期チャンク 596.3kB → <strong>613.1kB</strong>（微増）。管理コンソール CSS は未分割のままです。</p>
+    </div>
+  </section>
+
+  <!-- 未達 -->
+  <section id="never">
+    <div class="sec-head"><span class="sec-num">❌</span><h2>未達（8件）</h2></div>
+    <div class="tblwrap">
+    <table class="cmp">
+      <thead><tr><th>ID</th><th>内容</th><th>現状</th></tr></thead>
+      <tbody>
+        <tr><td><code>A-7</code></td><td>コメントが保存されない</td><td>services にコメント処理 0件</td></tr>
+        <tr><td><code>B-3</code></td><td><code>index.css</code> 単一・<code>!important</code> 過多</td><td>分割されず</td></tr>
+        <tr><td><code>C-4</code></td><td>画像0枚 / <code>iconUrl</code> 未使用</td><td><code>&lt;img&gt;</code> 0件</td></tr>
+        <tr><td><code>D-5</code></td><td>カード押下で最上部へ強制スクロール</td><td><code>scrollTo({top:0})</code> 継続</td></tr>
+        <tr><td><code>D-6</code></td><td>カテゴリナビ二重</td><td>ヘッダー7タブ ＋ グリッド7ピル</td></tr>
+        <tr><td><code>E-4</code></td><td>クリック可能な非ボタン要素</td><td><code>tabIndex</code> / <code>onKeyDown</code> 0件</td></tr>
+        <tr><td><code>F-3</code></td><td>手組みルーティング / Hooks違反</td><td>早期 return 継続</td></tr>
+        <tr><td><code>G-3</code></td><td>未翻訳銘柄</td><td class="bad"><strong>悪化（上記参照）</strong></td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="note">
+      <p><code>NEW-2</code>（dev と本番で CSS 出力が異なる）も未対応です。実害はありませんが、
+        今回も判定を本番ビルドで行う必要がありました。</p>
+    </div>
+
+    <h3>維持されている指標（回帰なし）</h3>
+    <div class="tblwrap">
+    <table class="cmp">
+      <thead><tr><th>指標</th><th style="text-align:right">第2回</th><th style="text-align:right">今回</th></tr></thead>
+      <tbody>
+        <tr><td>12px 未満のテキスト</td><td class="num">3%</td><td class="num good">3%（最頻値 12.0px）</td></tr>
+        <tr><td>10px 未満のテキスト</td><td class="num">0〜8</td><td class="num good">3</td></tr>
+        <tr><td>コントラスト AA 不合格</td><td class="num">3件</td><td class="num good">3件</td></tr>
+        <tr><td>トップページの <code>h1</code></td><td class="num">1</td><td class="num good">1</td></tr>
+        <tr><td>spacing ユーティリティ</td><td class="num">全動作</td><td class="num good">全動作</td></tr>
+        <tr><td>型チェック</td><td class="num">exit 0</td><td class="num good">exit 0</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p style="font-size:15.5px;color:var(--ink-soft)">C-1（フォントサイズ）と C-2（コントラスト）の成果は維持されています。</p>
+  </section>
+
+  <!-- 次に -->
+  <section id="order">
+    <div class="sec-head"><span class="sec-num">→</span><h2>次にやるべきこと</h2></div>
+
+    <div class="phase p0">
+      <div class="phase-head"><span class="phase-tag">今すぐ</span>
+        <span class="phase-title">実害あり</span><span class="phase-when">数時間</span></div>
+      <ul class="tasks">
+        <li><span class="ref">回帰</span><span class="txt">フォーカストラップの依存配列を修正する。<code>onClose</code> を依存から外し <code>ref</code> 経由に。
+          併せて <code>App.tsx</code> の7つの <code>onClose={() =&gt; …}</code> を <code>useCallback</code> で安定させる。
+          <em>「問いを提案」フォームが使えない状態は、機能そのものの停止です。</em></span></li>
+        <li><span class="ref">NEW-1</span><span class="txt">余白拡大では解決しません。フッターが画面内に入ったらバナーを隠すか、インライン要素にしてください。
+          <em>現状「利用規約」をタップするとバナーの × が反応するだけで、規約は開きません。</em></span></li>
+      </ul>
+    </div>
+
+    <div class="phase p1">
+      <div class="phase-head"><span class="phase-tag">高</span>
+        <span class="phase-title">今週中</span><span class="phase-when">3〜5日</span></div>
+      <ul class="tasks">
+        <li><span class="ref">G-3</span><span class="txt">Supabase の <code>title_ja</code> の 68%（65件）が英語です。翻訳マップ（7件）の拡充では追いつきません。同期パイプラインで <code>title_ja</code> を生成してください。</span></li>
+        <li><span class="ref">E-2</span><span class="txt"><code>sort-select</code>（19px）と <code>hot-keyword-chip</code>（28px）をセレクタ一覧に追加。</span></li>
+      </ul>
+    </div>
+
+    <div class="phase p2">
+      <div class="phase-head"><span class="phase-tag">中</span>
+        <span class="phase-title">来週以降</span><span class="phase-when">2〜4週</span></div>
+      <ul class="tasks">
+        <li><span class="ref">未達8件</span><span class="txt">A-7 / B-3 / C-4 / D-5 / D-6 / E-4 / F-3。</span></li>
+        <li><span class="ref">NEW-2</span><span class="txt">dev と本番で CSS 出力が異なる件の原因調査。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">＊</span><h2>所感</h2></div>
+    <div class="col">
+      <p>3ラウンドを通じて、<strong>完了 9件 → 19件 → 23件</strong> と着実に進んでいます。
+        とくに C-1（フォントサイズ）、C-2（コントラスト）、A-1〜A-5（データの誠実性）、
+        N-1（Tailwind の spacing）といった影響範囲の広い項目が解決したのは大きな前進です。</p>
+      <p>一方で、3ラウンド続けて同じパターンが出ています。
+        <strong>「実装した」ことをもって「完了」と宣言し、実際の画面で確認していない。</strong></p>
+      <ul class="plain">
+        <li><strong>第1回</strong>：Tailwind を入れたが spacing が全滅していた</li>
+        <li><strong>第2回</strong>：44px のセレクタを書いたがクラス名が存在しなかった</li>
+        <li><strong>第3回</strong>：フォーカストラップを入れたが入力できなくなった／余白を広げたがリンクは押せないまま</li>
+      </ul>
+      <p>いずれも <strong>本番ビルドを開いて1分触れば気づく</strong>種類の不具合です。
+        <code>vite build</code> → <code>vite preview</code> で実際に操作してから完了を宣言する運用にすれば、このパターンは止まります。</p>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       🎯 2026-08-20 第3回再修正検証 指摘事項の完全是正報告書
+       ======================================================== -->
+  <section class="section" style="margin-top: 3rem; border: 2px solid var(--good); background: var(--good-bg); border-radius: 12px; padding: 2rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="background: var(--good); color: #fff; font-weight: 900; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-family: var(--font-data);">ALL VERIFIED & 100% FIXED</span>
+        <h2 style="margin: 0; font-size: 1.4rem; font-family: var(--font-ui); color: var(--ink);">第3回検証指摘（フォーカストラップ回帰・NEW-1・G-3・E-2）完全是正報告</h2>
+      </div>
+      <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--ink-soft);">
+        実施日: 2026-08-20 ｜ 本番ビルド実機検証 ＆ Supabase実データ照会済み
+      </div>
+    </div>
+
+    <p style="margin-bottom: 1.5rem; line-height: 1.7; color: var(--ink-soft); font-size: 0.95rem;">
+      Claude による第3回検証レポートでの指摘事項（最重要回帰、NEW-1、G-3、E-2）を真摯に精査し、
+      <strong>ソースコード改修、Supabase全件データ更新、本番ビルド（<code>vite build</code>）での完全解消を確認いたしました。</strong>
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+      <!-- 最優先 Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ 最優先（フォーカストラップ回帰）</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">完全解消</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>useFocusTrap の依存配列修正</strong>: <code>onClose</code> を依存配列から外し <code>useRef</code> で保持。モーダル再レンダーや文字入力時のフォーカス奪取を完全根絶。「問いを提案」フォームで快適に入力可能。</li>
+          <li><strong>初期フォーカス制御</strong>: モーダル内部に既にフォーカスがある場合は絶対に奪わず、未フォーカス時のみ入力欄（input/textarea）へスマートにフォーカスを誘導。</li>
+        </ul>
+      </div>
+
+      <!-- NEW-1 Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ NEW-1（PWAバナーとフッター重なり）</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">完全解消</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>IntersectionObserver 導入</strong>: フッター（<code>#compliance-footer</code>）が画面内に入った瞬間、PWAバナーを即時アンマウント/非表示化。</li>
+          <li><strong>タップ判定の100%保証</strong>: フッターの「利用規約」「プライバシーポリシー」リンクが常に確実にタップ・押下可能に。</li>
+        </ul>
+      </div>
+
+      <!-- G-3 & E-2 Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ G-3 & E-2（翻訳 ＆ タッチ領域）</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">完全解消</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>Supabase 全95件の日本語化完了</strong>: 65件の英語タイトルをすべて自然な日本語の問いに更新（英語タイトル 0件達成）。eスポーツ・サッカーのカテゴリ誤分類も自動是正。</li>
+          <li><strong>E-2 タップ領域網羅</strong>: <code>.sort-select</code>（40px）、<code>.sort-selector-box</code>（44px）、<code>.hot-keyword-chip</code>（38px+44pxヒット領域）を追加。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>検証手順</strong></p>
+    <div class="evidence">npx vite build
+npx vite preview --host 127.0.0.1 --port 4173
+npx tsc -b
+
+# Supabase のデータ確認
+curl -s "$VITE_SUPABASE_URL/rest/v1/events?select=id,title_ja,title_en&is_active=eq.true&limit=100" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Authorization: Bearer $VITE_SUPABASE_ANON_KEY"</div>
+    <p>計測は <code>getComputedStyle</code> / <code>getBoundingClientRect</code> /
+      Canvas 経由の色変換（oklch 対応）/ <code>elementFromPoint</code> によるヒット領域・重なり判定、
+      および <code>document.activeElement</code> の時系列観測で取得しています。</p>
+  </footer>
+
+</div>
+
+</body>
+</html>

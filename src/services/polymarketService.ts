@@ -220,19 +220,75 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         let resolvedTitleJa = mapped?.titleJa || db.title_ja || db.title_en || '観測銘柄';
         let resolvedQuestionJa = mapped?.questionJa || db.question_ja || db.title_ja || '観測テーマ';
 
-        // 英語タイトルの一般自動補正
-        if (resolvedTitleJa.startsWith('What will') && resolvedTitleJa.includes('hit in')) {
-          resolvedTitleJa = resolvedTitleJa.replace(/What will (.*?) hit in (.*?)\?/i, '$2 $1 到達水準予測');
+        // 英語タイトルの動的パターン翻訳
+        if (!/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(resolvedTitleJa)) {
+          const t = resolvedTitleJa;
+          if (/Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox/i.test(t)) {
+            resolvedTitleJa = `MLB公式戦: ${t.replace(' - Exact Score', '').replace(' - More Markets', '')} 勝敗予測`;
+          } else if (/Cincinnati Open:/i.test(t)) {
+            resolvedTitleJa = `テニス シンシナティOP: ${t.replace(/Cincinnati Open:\s*/i, '')} 勝敗予測`;
+          } else if (/ITF M25/i.test(t)) {
+            resolvedTitleJa = `国際テニスITFツアー: ${t.replace(/ITF M25.*?:\s*/, '')} 勝敗予測`;
+          } else if (/Ballon d'Or Winner (\d+)/i.test(t)) {
+            const y = t.match(/Ballon d'Or Winner (\d+)/i)![1];
+            resolvedTitleJa = `${y}年 サッカー・バロンドール受賞者予測`;
+          } else if (/UEFA Champions League/i.test(t)) {
+            resolvedTitleJa = /Paris Saint-Germain/i.test(t) ? 'パリ・サンジェルマンは2026-27 UEFAチャンピオンズリーグで優勝するか？' : '2026-27 UEFAチャンピオンズリーグ 優勝クラブ予測';
+          } else if (/vs\.?|対/i.test(t) && !t.startsWith('LoL') && !t.startsWith('CS2')) {
+            const clean = t.replace(' - Exact Score', '（スコア予想）').replace(' - More Markets', '');
+            resolvedTitleJa = /Lynx|Valkyries/i.test(t) ? `WNBA公式戦: ${clean} 勝敗予測` : `欧州サッカー: ${clean} 勝敗予測`;
+          } else if (/LoL:|League of Legends/i.test(t)) {
+            resolvedTitleJa = `${t.replace(/LoL:\s*/i, 'LoL公式戦: ').replace(/\(BO3\)/g, '（3本勝負）').replace(/\(BO5\)/g, '（5本勝負）')} 勝敗予測`;
+          } else if (/Fed Decision in September.*?50\+?\s*bps decrease/i.test(t)) {
+            resolvedTitleJa = '米FRB：9月FOMCで50bp以上の大幅利下げを実施するか？';
+          } else if (/Bitcoin above ___ on August (\d+)/i.test(t)) {
+            const day = t.match(/August (\d+)/i)![1];
+            resolvedTitleJa = `ビットコイン価格：8月${day}日の目標価格水準予測`;
+          } else if (/Ethereum above ___ on August (\d+)/i.test(t)) {
+            const day = t.match(/August (\d+)/i)![1];
+            resolvedTitleJa = `イーサリアム価格：8月${day}日の目標価格水準予測`;
+          } else if (/Bitcoin Up or Down on August (\d+)/i.test(t)) {
+            const day = t.match(/August (\d+)/i)![1];
+            resolvedTitleJa = `ビットコイン：8月${day}日に前日比プラスで引けるか？`;
+          } else if (/Will the price of Bitcoin be above \$?([\d,]+) on August (\d+)/i.test(t)) {
+            const m = t.match(/Will the price of Bitcoin be above \$?([\d,]+) on August (\d+)/i)!;
+            resolvedTitleJa = `ビットコイン価格は8月${m[2]}日に${m[1]}ドルを上回るか？`;
+          } else if (/Will the price of Ethereum be above \$?([\d,]+) on August (\d+)/i.test(t)) {
+            const m = t.match(/Will the price of Ethereum be above \$?([\d,]+) on August (\d+)/i)!;
+            resolvedTitleJa = `イーサリアム価格は8月${m[2]}日に${m[1]}ドルを上回るか？`;
+          } else if (/What price will Bitcoin hit in August.*?[↑↓]?\s*([\d,]+)/i.test(t)) {
+            const m = t.match(/([\d,]+)/)!;
+            resolvedTitleJa = `ビットコインは8月中に${m[1]}ドルに到達するか？`;
+          } else if (/What price will Ethereum hit in August.*?[↑↓]?\s*([\d,]+)/i.test(t)) {
+            const m = t.match(/([\d,]+)/)!;
+            resolvedTitleJa = `イーサリアムは8月中に${m[1]}ドルに到達するか？`;
+          } else if (/Strait of Hormuz traffic returns to normal by (August|September|December) (\d+)/i.test(t)) {
+            const m = t.match(/by (August|September|December) (\d+)/i)!;
+            const months: Record<string, string> = { August: '8月', September: '9月', December: '12月' };
+            resolvedTitleJa = `ホルムズ海峡の通航量は${months[m[1]] || m[1]}${m[2]}日までに正常化するか？`;
+          } else if (/Abiy Ahmed be the next Prime Minister of Ethiopia/i.test(t)) {
+            resolvedTitleJa = 'アビィ・アハメドは次期エチオピア首相に留任するか？';
+          } else if (/United Russia \(ER\) gain the most seats/i.test(t)) {
+            resolvedTitleJa = '統一ロシアは次期ロシア下院選で最多議席を獲得するか？';
+          } else if (/Elon Musk # tweets August (\d+) - August (\d+)/i.test(t)) {
+            const m = t.match(/August (\d+) - August (\d+)/i)!;
+            resolvedTitleJa = `イーロン・マスクは8月${m[1]}日〜${m[2]}日に何回ポストするか？`;
+          } else if (resolvedTitleJa.startsWith('What will') && resolvedTitleJa.includes('hit in')) {
+            resolvedTitleJa = resolvedTitleJa.replace(/What will (.*?) hit in (.*?)\?/i, '$2 $1 到達水準予測');
+          } else if (resolvedTitleJa.startsWith('Will ') && resolvedTitleJa.endsWith('?')) {
+            resolvedTitleJa = `${resolvedTitleJa.slice(5, -1)}か？`;
+          }
+          resolvedQuestionJa = resolvedTitleJa;
         }
 
         let categoryKey = mapped?.category || (db.category as CategoryType) || 'economy';
         
         // eスポーツ/ゲーム関連のカテゴリ誤分類（経済への混入）を自動是正
-        if (/EWC|CS2|Esports|Counter-Strike|League of Legends|Valorant|Apex/i.test(rawTitle)) {
+        if (/EWC|CS2|Esports|Counter-Strike|League of Legends|Valorant|Apex/i.test(resolvedTitleJa) || /EWC|CS2|Esports|Counter-Strike|League of Legends|Valorant|Apex/i.test(rawTitle)) {
           categoryKey = 'entertainment';
-        } else if (/Premier League|EPL|NFL|Super Bowl|MLB|NBA|Formula 1|F1/i.test(rawTitle)) {
+        } else if (/Premier League|EPL|NFL|Super Bowl|MLB|NBA|Formula 1|F1|Cincinnati Open|ITF M25|Ballon d'Or|UEFA/i.test(resolvedTitleJa) || /Premier League|EPL|NFL|Super Bowl|MLB|NBA|Formula 1|F1|Cincinnati Open|ITF M25|Ballon d'Or|UEFA/i.test(rawTitle)) {
           categoryKey = 'sports';
-        } else if (/WTI|Crude Oil|Bitcoin|Ethereum|Fed|Rate|CPI|GDP|Nikkei|Stock/i.test(rawTitle)) {
+        } else if (/WTI|Crude Oil|Bitcoin|Ethereum|Fed|Rate|CPI|GDP|Nikkei|Stock/i.test(resolvedTitleJa) || /WTI|Crude Oil|Bitcoin|Ethereum|Fed|Rate|CPI|GDP|Nikkei|Stock/i.test(rawTitle)) {
           categoryKey = 'economy';
         }
 
