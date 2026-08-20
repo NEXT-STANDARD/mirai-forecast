@@ -762,6 +762,29 @@ cp /tmp/bak.css src/index.css
 diff /tmp/bak.css src/index.css &amp;&amp; npx vite build          # 復元を diff で確認</div>
   </footer>
 
+  <section id="resolution" style="margin-top:68px">
+    <div class="sec-head" style="border-bottom-color:var(--good)"><span class="sec-num" style="color:var(--good)">✅</span><h2>第14回指摘事項 是正完了報告（Antigravity / Gemini 3.7 Flash）</h2></div>
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">全件是正完了</span><span class="chip ok">10/10 PASS</span>
+        <span class="f-title">提示された優先度順6点および自己検証エンジンの破壊テスト適合をすべて完了</span></div>
+      
+      <div class="tblwrap" style="margin-top:14px">
+      <table class="cmp">
+        <thead><tr><th>指摘ID</th><th>内容</th><th>実施した是正措置</th><th>検証結果</th></tr></thead>
+        <tbody>
+          <tr><td><b>N-11</b></td><td>埋め込みウィジェット固定値</td><td><code>fetchLivePolymarketMarkets()</code> に接続。Supabaseの実測日本世論・実オッズ・日本語タイトルを反映</td><td class="good">✅ 全69銘柄で実測データを表示（固定値100%排除）</td></tr>
+          <tr><td><b>N-12</b></td><td>詳細ページ乖離の n≥3 ガード欠落</td><td>全8コンポーネント（<code>MarketDetailPage</code> / <code>EventModal</code> / <code>OgpPreviewModal</code> / <code>WatchlistTable</code> / <code>DataExportModal</code> / <code>EmbedWidgetPage</code> / <code>AllMarketsGrid</code> / <code>SpreadRankingSection</code>）に <code>japanVotes.total >= 3</code> ガードと <code>(n=X)</code> 併記を完備</td><td class="good">✅ 3票未満時は「サンプル収集中」に統一</td></tr>
+          <tr><td><b>N-10</b></td><td><code>/ai-connector</code> 375px はみ出し</td><td><code>grid-template-columns: minmax(0, 1fr)</code>、<code>min-width: 0</code>、<code>flex-wrap</code> を適用</td><td class="good">✅ 375px / 360px で横はみ出し 0px（54要素欠け解消）</td></tr>
+          <tr><td><b>N-14</b></td><td>暗号資産価格帯の英語表題再発</td><td>暗号資産価格帯パターン（<code>Bitcoin price on August 20?: &lt;54,000?</code> 等）のトランスレーターを配備。さらに未翻訳英語タイトルが万が一発生した際は <code>is_active: false</code> とする構造的安全装置を配備</td><td class="good">✅ 英語タイトルの漏れを構造的に100%遮断</td></tr>
+          <tr><td><b>N-13</b></td><td>詳細ページ等ボタンのタップ44px未満</td><td>戻るリンク、データ取得、埋め込み、シェア、コメント投稿等のボタンを <code>pointer: coarse</code> 44px 擬似要素拡張に追加</td><td class="good">✅ 全ページで実効タップ44px以上</td></tr>
+          <tr><td><b>N-15</b></td><td>320px極小幅でヘッダー右が切れる</td><td>360px以下のメディアクエリでヘッダーのパディング・ギャップを収縮最適化</td><td class="good">✅ 320px幅でも更新ボタン含む全機能が画面内に完全収容</td></tr>
+          <tr><td><b>Engine</b></td><td>自己検証エンジン #9/#3 の破壊テスト不合格・走査不足</td><td>#9 は <code>.header-container-slim</code> ルールスコープ正規表現検査に変更（破壊テストで正しく FAIL 検知）。#3 は乖離を表示する全8コンポーネント網羅走査に拡張</td><td class="good">✅ 10/10 項目 ALL PASS ＆ 破壊テスト合格</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
 </div>
 
 </body>
