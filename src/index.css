@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* ========================================================
    未来レーダー (MiraiRadar) - プロ金融クォンツ・デザインシステム
    Cyber-Bloomberg Terminal × Linear Minimalist Neo-Tokyo
@@ -26,10 +28,10 @@
   --color-danger: #f43f5e;      /* NO (Rose) */
   --color-gold: #fbbf24;        /* 乖離 / 称号 / HOT (Amber Gold) */
 
-  /* ✍️ タイポグラフィ階層 */
+  /* ✍️ タイポグラフィ階層 (WCAG AA 4.5:1 クリア済みの高コントラスト) */
   --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-secondary: #cbd5e1;
+  --text-muted: #8a96a8;        /* WCAG AA 4.5:1 クリア基準 */
 
   --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
   --font-sans: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP', sans-serif;
@@ -98,10 +100,24 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-sans);
+  font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-x: hidden;
+  word-break: auto-phrase;
+  line-break: strict;
+  overflow-wrap: break-word;
+}
+
+@supports not (word-break: auto-phrase) {
+  body {
+    word-break: normal;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
 }
 
 .container {

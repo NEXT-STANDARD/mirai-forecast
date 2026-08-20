@@ -17,7 +17,7 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
       whyMovedJa: insight.whyMovedJa,
       keyCatalysts: insight.keyCatalysts || ['重要公式発表・関連報道', '世論および市場流動性の集中'],
       urgencyLevel: insight.urgencyLevel || 'high',
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
@@ -28,20 +28,20 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
     return {
       summaryJa: '前人未到の記録到達へファンの期待が最高潮に達する一方、敬遠・四球増や残り日程を慎重に見極める動き。',
       whyMovedJa: '直近の打撃フォーム・量産ペースと、対戦相手の敬遠策・球場特性（打者天国）による世論の急騰。',
-      keyCatalysts: ['8月下旬：打者天国クアーズ・フィールド3連戦', '9月中旬：パドレスとの直接対決（勝負避けリスク）', '9月29日：レギュラーシーズン最終戦'],
+      keyCatalysts: ['8月下旬：打者天国クアーズ・フィールド3連戦', '9月中旬：地区首位争い直接対決（勝負避けリスク）', '9月下旬：レギュラーシーズン最終盤'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
   // 3. セマンティック・キーワード判定（任天堂・ゲーム・テック）
   if (title.includes('任天堂') || title.includes('switch') || title.includes('次世代機') || title.includes('ゲーム')) {
     return {
-      summaryJa: '公式による今期中アナウンス予告と、年末商戦の現行機販売への影響を巡り意見が真っ二つに拮抗。',
+      summaryJa: '公式によるアナウンス予告と、年末商戦の現行機販売への影響を巡り意見が真っ二つに拮抗。',
       whyMovedJa: '直近のサプライチェーンリーク報道と、世界的なゲームカンファレンス開催日程への市場の思惑。',
-      keyCatalysts: ['11月5日：任天堂 決算発表・経営方針説明会での古川社長発言', '12月12日：The Game Awards 2024 での電撃ティザー公開有無'],
+      keyCatalysts: ['任天堂 決算発表・経営方針説明会での古川社長発言', 'ゲームカンファレンスでの電撃ティザー公開有無'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
@@ -49,21 +49,21 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
   if (title.includes('日銀') || title.includes('利上げ') || title.includes('植田') || title.includes('政策金利') || title.includes('最低賃金')) {
     return {
       summaryJa: '植田総裁の物価見通し発言や為替円安を受けた追加利上げ観測と、政局・実体経済見極めの慎重論が交錯。',
-      whyMovedJa: '全国消費者物価指数（コアCPI）の高止まりと、春闘賃上げの持続性に対する金融機関の織り込み。',
-      keyCatalysts: ['総務省：全国消費者物価指数（コアCPI）発表', '連合：春闘回答集計結果', '日銀：金融政策決定会合および植田総裁記者会見'],
+      whyMovedJa: '全国消費者物価指数（コアCPI）の高止まりと、賃上げの持続性に対する金融機関の織り込み。',
+      keyCatalysts: ['総務省：全国消費者物価指数（コアCPI）発表', '日銀：金融政策決定会合および植田総裁記者会見'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
   // 5. セマンティック・キーワード判定（ビットコイン・暗号資産・ETF）
   if (title.includes('ビットコイン') || title.includes('btc') || title.includes('暗号資産') || title.includes('仮想通貨') || title.includes('イーサリアム')) {
     return {
-      summaryJa: '機関投資家向け現物ETFへの巨額資金流入と、マクロ金利環境の緩和期待で強気シナリオが優勢。',
-      whyMovedJa: '米規制当局（SEC）のスタンス変化と、大統領候補による暗号資産フレンドリー公約の発表。',
-      keyCatalysts: ['米FRB：FOMC政策金利発表', '主要暗号資産ETFの資金流出入データ', '暗号資産関連法案の米議会審議'],
+      summaryJa: '米現物ETFへの大口資金流入継続と、半減期サイクル後の供給逼迫への強気論が市場を牽引。',
+      whyMovedJa: '主要取引所でのステーブルコイン残高増加と、FRB利下げシナリオによるリスクオン相場の再燃。',
+      keyCatalysts: ['米SEC：暗号資産オプション取引の承認審査日程', 'FRB：FOMC政策金利発表とパウエル議長会見'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
@@ -74,7 +74,7 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
       whyMovedJa: '主要テック企業の四半期決算におけるAIインフラ投資額の引き上げ発表と新機能リリース。',
       keyCatalysts: ['OpenAI / Google 次世代フロンティアモデル発表イベント', 'NVIDIA 四半期決算および次世代GPU出荷時期'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
@@ -85,16 +85,16 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
       whyMovedJa: '主要メディア報道、新作発表イベント、およびSNS上での爆発的トレンド入り。',
       keyCatalysts: ['公式プレスリリース・特報映像公開', '主要エンタメアワード受賞結果発表'],
       urgencyLevel: 'high' as const,
-      lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+      lastUpdated: 'AI事前分析 (2026年8月最新)',
     };
   }
 
   return {
-    summaryJa: '主要メディア報道と最新のファンダメンタルズ動向を受け、確率がリアルタイムに織り込まれています。',
+    summaryJa: '主要メディア報道と最新のファンダメンタルズ動向を受け、市場オッズが形成されています。',
     whyMovedJa: '直近の政策動向、要人発言、および市場流動性の集中に伴うポジション調整。',
     keyCatalysts: ['重要公式発表・統計指標', '市場流動性および世論の集中推移'],
     urgencyLevel: 'high' as const,
-    lastUpdated: 'Gemini 3.7 Flash リアルタイム解析済み',
+    lastUpdated: 'AI事前分析 (2026年8月最新)',
   };
 }
 

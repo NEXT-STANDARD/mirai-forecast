@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー UI/UX 監査</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="eyebrow">
+      <span>設計 / UI / UX 監査</span><span class="sep"></span>
+      <span>mirai-forecast</span><span class="sep"></span>
+      <span>2026-08-20</span>
+    </div>
+    <h1>未来レーダー UI/UX 監査</h1>
+    <p class="dek">
+      ソース全ファイルの読解に加え、開発サーバーを起動して実画面を計測した結果です。
+      指摘は 7 分類・35 項目。すべて実測値または該当コード行に紐づけています。
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="metrics">
+    <div class="metric bad">
+      <span class="val">86<small>%</small></span>
+      <span class="lbl">可視テキストが 12px 未満<br>（580 / 675 箇所・最頻値 9.9px）</span>
+    </div>
+    <div class="metric bad">
+      <span class="val">23<small>%</small></span>
+      <span class="lbl">CSS が 1 件も当たらない要素<br>（322 / 1,376 要素）</span>
+    </div>
+    <div class="metric bad">
+      <span class="val">28<small>%</small></span>
+      <span class="lbl">コントラスト WCAG AA 不合格<br>（186 / 675 箇所）</span>
+    </div>
+    <div class="metric warn">
+      <span class="val">90<small>%</small></span>
+      <span class="lbl">タップ領域が 44px 未満<br>（112 / 124・最小 19px）</span>
+    </div>
+    <div class="metric warn">
+      <span class="val">700<small>kB</small></span>
+      <span class="lbl">JS 単一チャンク<br>（gzip 201kB・分割ゼロ）</span>
+    </div>
+    <div class="metric bad">
+      <span class="val">0</span>
+      <span class="lbl">トップページの h1 /<br>Esc で閉じるモーダル（7 種中）</span>
+    </div>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#verdict">総評</a></li>
+    <li><a href="#a">A. データの誠実性</a></li>
+    <li><a href="#b">B. スタイル基盤</a></li>
+    <li><a href="#c">C. 可読性</a></li>
+    <li><a href="#d">D. 体験設計</a></li>
+    <li><a href="#e">E. アクセシビリティ</a></li>
+    <li><a href="#f">F. 実装・性能</a></li>
+    <li><a href="#g">G. SEO・法務</a></li>
+    <li><a href="#keep">残すべき点</a></li>
+    <li><a href="#plan">改善プラン</a></li>
+  </ul>
+
+  <!-- ============ 総評 ============ -->
+  <section id="verdict">
+    <div class="sec-head"><span class="sec-num">00</span><h2>総評</h2></div>
+    <div class="col">
+      <p class="lead">
+        このプロダクトの弱点は「デザインの好みが悪い」ことではありません。
+        <strong>2 つの構造的な問題</strong>が、良い部分をすべて打ち消しています。
+      </p>
+      <p>
+        <strong>1 つめは、情報密度という前提が日本語で成立していないこと。</strong>
+        「Cyber-Bloomberg Terminal」というコンセプト自体は明確で、方向性としては筋が通っています。
+        ただしブルームバーグ端末が成立するのは、大型モニタで英数字を扱うからです。
+        同じ密度を漢字かな交じり文で再現しようとした結果、画面上のテキストの 86% が 12px 未満、
+        最頻値は 9.9px になりました。9.9px の漢字は、多くの利用者にとって「読みにくい」ではなく「読めない」水準です。
+        皮肉なことに、このサイトで最も読みやすいのは一番下のコンプライアンス免責文でした。
+      </p>
+      <p>
+        <strong>2 つめは、信頼性を売り物にしながら、表示データの一部が実在しないこと。</strong>
+        「実測」「REAL DATA ONLY」「リアルタイム解析済み」というラベルが各所に置かれている一方で、
+        全国ランキングは架空の 7 人、X シェアカードの「日本の世論」は常に 50% 固定、
+        乖離ランキングの 1 位は 1 票から算出されています。
+        これは UI の問題であると同時に、ブランドの問題です。1 人でも気づけば、
+        サイト全体の数字が疑われます。
+      </p>
+      <p>
+        逆に言えば、直すべき順番ははっきりしています。
+        <strong>捏造データを止める → スタイル基盤を直す → 文字を読める大きさにする</strong>。
+        この 3 つを終えるまで、新機能を足す意味はほとんどありません。
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ A ============ -->
+  <section id="a">
+    <div class="sec-head"><span class="sec-num">A</span><h2>データの誠実性</h2></div>
+    <div class="col"><p class="lead">
+      最優先。UI の見た目ではなく、UI が主張している内容の問題です。
+    </p></div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">A-1</span><span class="chip p0">P0</span>
+        <span class="f-title">「全国クォンツ・リーダーボード」が完全な架空データ。しかも未投票ユーザーの的中率が 75% と表示され、そのまま X にシェアできる</span></div>
+      <p><code>ForecastHubPage.tsx:73</code> の <code>leaderboardData</code> は 7 人分のハードコード配列です。
+        画面の説明文は「全国のトップアナリスト・予報士たちの的中率と活動ランキングです」と、実在の利用者として提示しています。
+        アカウント機能が存在しない以上、全国ランキングは原理的に成立しません。</p>
+      <p>さらに深刻なのが <code>accuracy: accuracyRate ?? 75</code> です。
+        <strong>投票数 0 の新規ユーザーにも「的中率 75%」が表示され</strong>、同じ画面の「自慢シェア」ボタンから
+        その数字を添えて X に投稿できます。捏造した実績を利用者本人に発信させる導線になっています。</p>
+      <div class="evidence">{ rank: 4, name: 'あなた (You)', accuracy: <b>accuracyRate ?? 75</b>, ... }
+→ 投票 0 件でも「的中率 75%」。X シェア文面にそのまま埋め込まれる</div>
+    </div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">A-2</span><span class="chip p0">P0</span>
+        <span class="f-title">X シェアカードの「日本の世論」が常に 50% 固定。拡散されるカードすべてが実データではない</span></div>
+      <p><code>functions/market/[slug].ts</code> はクローラー向け OGP を生成しますが、
+        <code>japanProb</code> は <code>50</code> の初期値のまま一度も更新されません。
+        結果、OGP と Twitter Card の説明文は必ず
+        「🇯🇵 日本の世論：YES 50%（ギャップ <code>|world-50|</code>%）」になります。</p>
+      <p>本サイトの成長ループはシェアです。<strong>そのループが毎回、実在しない世論値を配信しています。</strong>
+        A-1 が「サイト内で見つかると痛い」問題なら、これは「サイト外に出て行く」問題です。</p>
+    </div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">A-3</span><span class="chip p0">P0</span>
+        <span class="f-title">看板機能「乖離ランキング」が n=1 と 0 票で成立している</span></div>
+      <p><code>SpreadRankingSection.tsx:39</code>:
+        <code>const japanYes = ev.japanVotes.total &gt; 0 ? ev.japanVotes.percentYes : 50;</code></p>
+      <p>実測画面での 1 位は「パリ・サンジェルマンが CL 制覇するか？ / <strong>86% 乖離</strong>」でした。
+        世界オッズ 14%、日本側は <strong>YES 1 票のみ</strong>（＝100%）。差の 86% が
+        「世界のスマートマネーとお茶の間の直感が最も激突しているテーマ」として最上位に出ています。</p>
+      <p>0 票の銘柄も「日本は 50%」と仮定して順位に入るため、
+        <strong>誰も投票していない銘柄が「世論が激突している」と表示され得ます。</strong>
+        個別ページには「（1票）」と正直に併記されているのに、ランキングカードには件数がありません。同じ数字の扱いが画面間で不一致です。</p>
+    </div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">A-4</span><span class="chip p0">P0</span>
+        <span class="f-title">「Gemini 3.7 Flash リアルタイム解析済み」の実体はキーワード分岐の固定文。API 呼び出しコードはデッドコード</span></div>
+      <p><code>polymarketService.ts</code> の <code>resolveAiInsight()</code> は、
+        タイトルに「大谷」「日銀」「ビットコイン」等が含まれるかを <code>if</code> で判定し、
+        あらかじめ書かれた文章を返す関数です。<code>lastUpdated</code> には
+        文字列 <code>'Gemini 3.7 Flash リアルタイム解析済み'</code> がハードコードされています。</p>
+      <p>実際に Gemini を呼ぶ <code>geminiService.ts</code> は <strong>src 内から一度も import されていません</strong>（呼び出し 0 件）。
+        UI 側は「LIVE ANALYTICS」バッジ付きで表示し、フッターは「Powered by … Gemini 3.7 Flash」と署名しています。</p>
+      <p>事前生成した分析を使うこと自体は妥当です。問題は<strong>静的なテーブルに「リアルタイム」と書いていること</strong>です。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">A-5</span><span class="chip p1">P1</span>
+        <span class="f-title">チャートの始値・高値・安値は合成値。それを「● Polymarket 実測同期済み」と表示している</span></div>
+      <p><code>MainTradingChart.tsx</code> の OHLC は
+        <code>open: prob-1 / high: prob+2 / low: prob-2</code> で機械的に作られています。
+        出来高バーも 24h 累計値に係数を掛けた飾りです。株価チャートの体裁を借りているため、
+        利用者は本物の四本値だと解釈します。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">A-6</span><span class="chip p1">P1</span>
+        <span class="f-title">「次回注目カタリスト」に過去日付が並んでいる</span></div>
+      <p><code>aiInsightsMaster.ts</code>（38 銘柄）に 2024/2025 年基準の日程が 20 箇所残っています。
+        現在 2026-08-20 の画面に、<code>「12月12日：The Game Awards 2024 での電撃ティザー公開有無」</code>
+        <code>「11月5日：任天堂 2025年3月期第2四半期決算」</code>
+        <code>「2月21日発表：総務省 1月全国消費者物価指数」</code> が「次回」として表示されます。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">A-7</span><span class="chip p1">P1</span>
+        <span class="f-title">コメントが保存されない。投稿してもリロードで消える</span></div>
+      <p><code>MarketDetailPage.tsx</code> の <code>handleAddComment</code> は <code>setComments</code> のみで、
+        永続化処理がどこにもありません（services 内にコメント関連コード 0 件）。
+        アバターは Unsplash の他人の顔写真が全員共通で固定されています。</p>
+      <p>加えて <code>useState(item.comments || [])</code> は初期化時にしか評価されないため、
+        関連銘柄へ遷移しても<strong>前の銘柄のコメントが残り続けます</strong>。</p>
+    </div>
+  </section>
+
+  <!-- ============ B ============ -->
+  <section id="b">
+    <div class="sec-head"><span class="sec-num">B</span><h2>スタイル基盤の破綻</h2></div>
+    <div class="col"><p class="lead">
+      C 以降の見た目の問題の多くは、ここが原因です。単一の根本原因から派生しています。
+    </p></div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">B-1</span><span class="chip p0">P0</span>
+        <span class="f-title">Tailwind を導入していないのに Tailwind のクラス名を使っている。全要素の 23% が完全に無スタイル</span></div>
+      <p><code>package.json</code> に tailwindcss はありません。CSS は手書きの <code>index.css</code> 単体です。
+        にもかかわらず JSX には <code>flex items-center gap-2 text-[10px] text-slate-400 md:grid-cols-3</code> のような
+        Tailwind 記法が大量に書かれています。これらは<strong>1 行も CSS に存在しません</strong>。</p>
+      <div class="evidence">クラス付き要素            <b>1,376</b>
+うち CSS が 1 件も当たらない  <b>322 (23%)</b>
+うち一部のクラスが無効       <b>234 (17%)</b>
+────────────────────────────
+影響を受けている要素        <b>556 (40%)</b>
+無効な Tailwind トークン     <b>52 種</b>
+無効な独自クラス            <b>32 種</b>（例: card-vote-btns, modal-title, comment-list）</div>
+      <p>「使われていない CSS」ではなく「<strong>意図した見た目が出ていない要素</strong>」です。実害は次項のとおりです。</p>
+    </div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">B-2</span><span class="chip p0">P0</span>
+        <span class="f-title">実害：設計意図と実際の描画のズレ（実測）</span></div>
+      <div class="spread">
+        <div class="spread-row head"><div>箇所</div><div>設計意図</div><div>実際の描画</div></div>
+        <div class="spread-row">
+          <div>チャート凡例<br><code>MainTradingChart.tsx:434</code></div>
+          <div class="want">10px / flex 横並び<br>slate-400</div>
+          <div class="got">16px / block 縦積み<br>既定色</div>
+        </div>
+        <div class="spread-row">
+          <div>ページ下部余白<br><code>App.tsx:394 pb-16</code></div>
+          <div class="want">padding-bottom 64px</div>
+          <div class="got">0px</div>
+        </div>
+        <div class="spread-row">
+          <div>管理者ボタン<br><code>App.tsx:576</code></div>
+          <div class="want">bg-slate-900 / amber</div>
+          <div class="got">ブラウザ既定の灰ボタン</div>
+        </div>
+      </div>
+      <p>1 行目が、モバイルで「REALTIME MARKET FEED [30D] ● Polymarket 実測同期済み」が
+        巨大な見出しのように崩れて表示される直接原因です。10px の目立たない凡例のつもりが 16px のブロック要素になっています。</p>
+      <p>2 行目はさらに具体的な不具合を生んでいます。モバイルの固定投票バーは高さ 71px。
+        <code>pb-16</code> が効かないため回避余白が 0 で、<strong>ページ最下部の 45px が恒久的にバーの下に隠れます</strong>。
+        実際にコピーライト行の後半「Polymarket Public Data &amp; Gemini 3.7 Flash.」が読めません。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">B-3</span><span class="chip p1">P1</span>
+        <span class="f-title">index.css が 9,512 行の単一ファイル、<code>!important</code> 204 個</span></div>
+      <p>CSS 変数によるトークン定義（色・角丸・トランジション）は<strong>きちんと設計されています</strong>。
+        問題はその後の運用で、7,500 行目付近に <code>!important</code> だらけのモバイル上書きブロックが積み上がっています。
+        後から書いたルールが前のルールと戦っている状態で、1 箇所直すと別の箇所が崩れます。</p>
+      <p>内訳として、管理コンソール専用のスタイルが <strong>3,275 行（全体の 34%）</strong>を占めています。
+        <code>/admin</code> は localhost 限定なのに、全訪問者に配信されています。</p>
+    </div>
+
+    <div class="finding p3">
+      <div class="f-head"><span class="fid">B-4</span><span class="chip p3">P3</span>
+        <span class="f-title"><code>App.css</code> が Vite テンプレートの残骸のまま</span></div>
+      <p>184 行の <code>.counter</code> / <code>.hero .vite</code> 等。どこからも import されていません。
+        <code>README.md</code> も Vite テンプレートの英語原文のままです。</p>
+    </div>
+  </section>
+
+  <!-- ============ C ============ -->
+  <section id="c">
+    <div class="sec-head"><span class="sec-num">C</span><h2>可読性・日本語組版</h2></div>
+    <div class="col"><p class="lead">
+      日本語サイトとして、ここが最も影響範囲の広い問題です。
+    </p></div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">C-1</span><span class="chip p0">P0</span>
+        <span class="f-title">画面上のテキストの 86% が 12px 未満。最頻値 9.9px（257 箇所）</span></div>
+      <div class="evidence">実測フォントサイズ分布（トップページ・可視テキストノード 675 件）
+
+ <b>9.3px</b>  ▓▓▓▓▓▓                      66
+ <b>9.9px</b>  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  257  ← 最頻値
+<b>10.4px</b>  ▓▓▓▓▓                       54
+<b>10.9px</b>  ▓▓▓▓▓▓▓▓▓▓▓                117
+<b>11.5px</b>  ▓▓▓▓▓▓                      69
+<b>12px 以上</b> ▓▓▓▓▓▓▓▓                   95
+
+ 12px 未満: <b>580 / 675 = 86%</b></div>
+      <p>ラテン文字なら 10px でも判読できます。漢字は画数が多く、同じサイズでは字形が潰れます。
+        日本語の本文は 16px 前後、補助情報でも 13〜14px が下限というのが一般的な指針です。
+        <strong>9.9px は補助情報のサイズではなく、判読不能のサイズです。</strong></p>
+      <p>これは装飾の問題ではなくコンセプトの帰結です。ブルームバーグ端末の密度を日本語で再現しようとすると、
+        必ずここに突き当たります。<strong>密度を捨てるか、日本語を捨てるかの二択</strong>で、前者を選ぶべきです。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">C-2</span><span class="chip p1">P1</span>
+        <span class="f-title">コントラスト WCAG AA 不合格が 186 箇所（28%）。主犯は <code>--text-muted: #64748b</code></span></div>
+      <p>ダーク背景に対して 3.4〜4.05:1。AA の基準 4.5:1 に届きません。
+        カテゴリタグ、日付、出来高、パーセント記号、「いいえ、一般の訪問者です」など、
+        <strong>低優先度として意図的に薄くした要素がまとめて落ちています</strong>。</p>
+      <p>単純に <code>--text-muted</code> を <code>#8A96A8</code> 程度まで持ち上げるだけで大半が解決します。
+        C-1 の文字サイズ拡大と同時に行えば、階層の見え方は保てます。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">C-3</span><span class="chip p1">P1</span>
+        <span class="f-title">禁則処理の設定がゼロ。見出しが「日／本の世論」で改行される</span></div>
+      <div class="evidence">index.css 内の出現数
+
+word-break     <b>0</b>
+line-break     <b>0</b>
+overflow-wrap  <b>0</b>
+text-wrap      <b>0</b></div>
+      <p>実機（375px 幅）のオンボーディング見出しで
+        <code>世界のスマートマネー vs 日</code> / <code>本の世論</code> と、
+        <strong>「日本」が分断されて改行されました。</strong>
+        カラム幅が狭い箇所が多いため、同様の破綻が各所で起きています。</p>
+      <p>対策は 1 箇所です。<code>body</code> に
+        <code>word-break: auto-phrase; line-break: strict; overflow-wrap: break-word;</code>、
+        見出しに <code>text-wrap: balance</code>。<strong>この監査ページ自体に同じ設定を入れてあります。</strong></p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">C-4</span><span class="chip p2">P2</span>
+        <span class="f-title">画像が 1 枚もない。<code>iconUrl</code> は型に定義されているが未使用</span></div>
+      <p>実測で <code>&lt;img&gt;</code> 0 件、background-image 0 件。
+        <code>MarketItem.iconUrl</code> はどこからも参照されていません。
+        極小テキストと絵文字だけで 84 銘柄が並ぶため、視覚的な取っかかりがなく、走査性が著しく低い状態です。</p>
+    </div>
+  </section>
+
+  <!-- ============ D ============ -->
+  <section id="d">
+    <div class="sec-head"><span class="sec-num">D</span><h2>体験設計・ナビゲーション</h2></div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">D-1</span><span class="chip p0">P0</span>
+        <span class="f-title">初回訪問で 4 つのオーバーレイが連続。z-index が逆転していて操作不能になる</span></div>
+      <div class="evidence">0.0s  OnboardingModal      z-index <b>100</b>
+1.5s  MikeNoticePopup      z-index <b>1000</b>  ← モーダルの上
+3.0s  PwaInstallBanner     z-index <b>1000</b>  ← モーダルの上
++     ComplianceBanner（フッター常設）</div>
+      <p>主役であるオンボーディングモーダルが最背面にあるため、
+        <strong>実機で「スキップ」「次へ」ボタンが後発のポップアップに覆われ、押せません。</strong>
+        Mike ポップアップを閉じると、今度は PWA バナーが同じ位置に出て再び覆います。</p>
+      <p>閉じるボタンは 22×22 / 19×22 / 21×24px。WCAG 2.5.8（AA）の最小 24×24px を下回っています。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">D-2</span><span class="chip p1">P1</span>
+        <span class="f-title">全訪問者に「あなたはマイク・エイドリン氏ですか？」を出している</span></div>
+      <p>初回訪問の一等地に、Polymarket Japan 代表 1 名に宛てた公開書簡の案内が出ます。
+        主 CTA（金色）が「手紙を読む」、離脱側が低コントラストの「いいえ、一般の訪問者です」。
+        <strong>1 人のための導線が、全員のデフォルトになっています。</strong></p>
+      <p>公開書簡というアイデア自体は面白いので、ヘッダーの導線は残しつつ、初回モーダルからは外すのが妥当です。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">D-3</span><span class="chip p1">P1</span>
+        <span class="f-title">「投票で解禁」ゲートが全カードに掛かり、サイトの価値が一度も見えないまま離脱する</span></div>
+      <p>初回訪問者の画面は、日本世論の欄がすべて「🔒 投票で解禁」で埋まります。
+        バイアス回避という設計意図は理解できますが、
+        <strong>OGP で「比較・可視化」と約束したものが、着地後に 1 件も見えない</strong>状態です。</p>
+      <p>折衷案：<strong>1 件だけ解禁済みのサンプルを見せる</strong>（この画面で何が起きるかを体験させる）→
+        残りはゲート、という形にすれば、意図を保ったまま価値が伝わります。</p>
+    </div>
+
+    <div class="finding p0">
+      <div class="f-head"><span class="fid">D-4</span><span class="chip p0">P0</span>
+        <span class="f-title">モバイルの固定投票バーが、画面に映っていない別銘柄に投票する</span></div>
+      <p>固定バーの対象は <code>currentFocusedEvent</code>（ターミナルで選択中の銘柄）で固定されています。
+        利用者が下部のカードグリッドまでスクロールすると、<strong>画面にはカードの YES/NO、
+        最下部には別銘柄の YES/NO が同時に並びます。</strong></p>
+      <p>実機で確認した状態：画面には「統一ロシアは次期下院選で…」のカード、
+        固定バーは「ホルムズ海峡の通航量は…」。大きく目立つ後者を押すと、読んでいない銘柄に投票が入ります。
+        <strong>本アプリで最も誤操作リスクが高い箇所です。</strong></p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">D-5</span><span class="chip p2">P2</span>
+        <span class="f-title">カードを押すとページ最上部へ強制スクロールされる</span></div>
+      <p><code>App.tsx:489</code>。グリッド最下部のカードをクリックすると
+        <code>window.scrollTo({top:0})</code> でターミナルまで引き戻されます。
+        「押した → 上に飛ばされた」の因果が画面上に見えないため、不具合と受け取られます。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">D-6</span><span class="chip p2">P2</span>
+        <span class="f-title">カテゴリナビが同一ページに 2 セット。定義も 2 箇所にコピペされている</span></div>
+      <p>ヘッダーの <code>categories</code>（Header.tsx:49）と
+        グリッドの <code>UNIFIED_CATEGORIES</code>（AllMarketsGrid.tsx:30）は同じ内容の別配列です。
+        利用者から見れば同じタブが 2 つあり、どちらを押せばよいか分かりません。</p>
+      <p>あわせて、ソートの <code>'newest'</code> は型にあるだけで選択肢に無く、選ばれても <code>return 0</code> の空実装です。
+        クイック検索タグ（大谷翔平 / Switch 2 / GPT-5 …）もハードコードで、鮮度管理の仕組みがありません。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">D-7</span><span class="chip p2">P2</span>
+        <span class="f-title">モバイルではヘッダー機能の大半が消え、「使い方」に二度と到達できない</span></div>
+      <p><code>hide-on-mobile</code> / <code>hide-on-xs</code> により、
+        「使い方」「問いを提案」「AI連携」「to Mike」がモバイルで非表示になります。代替のメニューはありません。</p>
+      <p>とくに「使い方」はオンボーディング再表示の唯一の入口です。
+        <strong>初回モーダルを一度閉じたモバイル利用者は、説明に永久に戻れません。</strong>
+        また各所で <code>title</code> 属性を唯一のラベルにしていますが、タッチ端末では表示されません。</p>
+    </div>
+  </section>
+
+  <!-- ============ E ============ -->
+  <section id="e">
+    <div class="sec-head"><span class="sec-num">E</span><h2>アクセシビリティ</h2></div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">E-1</span><span class="chip p1">P1</span>
+        <span class="f-title">モーダル 7 種すべてに Esc・フォーカストラップ・<code>role="dialog"</code> が無い</span></div>
+      <p>Onboarding / Event / OgpPreview / Embed / DataExport / ProposeTopic / MyForecast のいずれにも、
+        <code>Escape</code> ハンドラ、<code>aria-modal</code>、フォーカス移動・復帰の実装がありません（該当コード 0 件）。
+        キーボード利用者はモーダルを開いた瞬間に背後のページへタブが抜け、閉じる手段を失います。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">E-2</span><span class="chip p1">P1</span>
+        <span class="f-title">タップ領域 124 個中 112 個が 44px 未満。最小は 19px</span></div>
+      <div class="evidence">時間軸ボタン (1H/24H/7D)   <b>27×19</b>
+「＋ 問いを提案」            <b>79×22</b>
+「個別ページ」              <b>79×21</b>
+カテゴリタブ                <b>73×28</b>
+ヘッダー各ボタン            <b>77×32</b>
+同期ボタン                  <b>27×24</b></div>
+      <p>19px はスマートフォンでの確実な操作が難しい水準です。WCAG 2.5.8（AA）の 24×24px 下限も割っています。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">E-3</span><span class="chip p2">P2</span>
+        <span class="f-title">トップページに <code>h1</code> が存在しない。見出し階層も飛んでいる</span></div>
+      <p>実測した見出し構造は <code>h2 → h3 → h4</code> で始まり、<code>h1</code> がありません。
+        <code>h1</code> があるのは詳細ページ・書簡・AI連携・予報士ハブ・管理画面のみです。
+        ロゴは <code>&lt;div onClick&gt;</code> で、リンクでもボタンでもありません（<code>Logo.tsx:17</code>）。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">E-4</span><span class="chip p2">P2</span>
+        <span class="f-title">クリック可能な非ボタン要素が 27 箇所。キーボードで操作できない</span></div>
+      <p>スクリーナーの <code>&lt;tr onClick&gt;</code>、カードの <code>&lt;div onClick&gt;</code> など。
+        <code>tabIndex</code> 0 件、<code>onKeyDown</code> 0 件、<code>role=</code> 0 件。
+        <code>aria-label</code> はボタン 138 個に対し 10 個です。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">E-5</span><span class="chip p2">P2</span>
+        <span class="f-title"><code>prefers-reduced-motion</code> 未対応。グリッチ・点滅アニメーションを多用している</span></div>
+      <p><code>@keyframes</code> は 11 種（<code>cyberGlitch</code>、<code>rgbChromaWave</code>、
+        <code>laserShimmer</code>、<code>rgbBorderFlow</code> ほか）。
+        <code>animate-pulse</code> 相当の点滅も各所にあります。
+        減光設定を尊重するメディアクエリは 1 件もありません。前庭障害・光過敏の利用者に配慮が必要です。</p>
+      <p><code>:focus-visible</code> の定義も 0 件で、キーボードフォーカスの視認手段がありません。</p>
+    </div>
+  </section>
+
+  <!-- ============ F ============ -->
+  <section id="f">
+    <div class="sec-head"><span class="sec-num">F</span><h2>実装・パフォーマンス</h2></div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">F-1</span><span class="chip p1">P1</span>
+        <span class="f-title">単一チャンク 700kB。管理コンソール一式が全訪問者に配信されている</span></div>
+      <div class="evidence">dist/assets/index.js   <b>700.61 kB</b>  (gzip 201.04 kB)
+dist/assets/index.css  <b>139.74 kB</b>  (gzip  23.51 kB)
+コード分割 (lazy/import())  <b>0 箇所</b>
+
+同梱されている非公開ページ:
+  AdminConsolePage.tsx   1,394 行
+  管理コンソール CSS      3,275 行（index.css の 34%）</div>
+      <p><code>React.lazy</code> が 1 箇所も無いため、
+        localhost 限定の <code>/admin</code>、書簡ページ、AI 連携ページ、全モーダルが初回ロードに含まれます。</p>
+      <p>また <code>dist</code> に <code>test_ogp_output.png</code>（96kB）を含む X 用画像 320kB が配信されています。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">F-2</span><span class="chip p1">P1</span>
+        <span class="f-title">30 秒ポーリングが 2 系統。バックグラウンドでも止まらない</span></div>
+      <p><code>App.tsx:297</code>（全銘柄）と <code>MainTradingChart.tsx:59</code>（価格履歴）が
+        それぞれ 30 秒間隔で走ります。<code>visibilitychange</code> / <code>document.hidden</code> のガードは 0 件です。</p>
+      <p>タブを開いたまま放置すると、<strong>Polymarket の公開 API と Supabase を無期限に叩き続けます。</strong>
+        ブラウザから直接叩いているため、キャッシュ層もレート制御もありません。
+        Cloudflare Functions が既にあるので、そこに集約するのが自然です。</p>
+      <p>加えて、30 秒ごとに <code>isRefreshing</code> が true になり、ヘッダーの同期アイコンが
+        利用者の操作と無関係に回り続けます。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">F-3</span><span class="chip p2">P2</span>
+        <span class="f-title">ルーティングが真偽値 5 個の手組み。Hooks のルール違反もある</span></div>
+      <p><code>isAdminOpen</code> / <code>isLetterPageOpen</code> / <code>isAiConnectorOpen</code> /
+        <code>isForecastHubOpen</code> / <code>detailMarketId</code> の 5 状態が排他であるべきなのに、
+        遷移関数のたびに 4 つを手で <code>false</code> にしています（<code>App.tsx:127-182</code>）。
+        1 つ書き忘れれば 2 ページが同時表示されます。</p>
+      <p>さらに <code>App.tsx:34</code> で、<strong>すべての <code>useState</code> より前に
+        <code>if (embedSlug) return ...</code> の早期 return</strong> があります。
+        現状は動作しますが Rules of Hooks 違反で、条件が動的になった瞬間に壊れます。
+        単一の <code>route</code> 状態、または react-router へ寄せるべき箇所です。</p>
+    </div>
+
+    <div class="finding p2">
+      <div class="f-head"><span class="fid">F-4</span><span class="chip p2">P2</span>
+        <span class="f-title"><code>.gitignore</code> の <code>*.json</code> が <code>manifest.json</code> を巻き込んでいる</span></div>
+      <p><code>.gitignore:32</code> の一括除外により、
+        <code>public/manifest.json</code> と <code>public/data/ai_insights.json</code> が
+        <strong>git 管理外</strong>です（<code>git check-ignore</code> で確認済み）。
+        クリーンな clone からビルドすると PWA マニフェストが欠落します。</p>
+    </div>
+
+    <div class="finding p3">
+      <div class="f-head"><span class="fid">F-5</span><span class="chip p3">P3</span>
+        <span class="f-title">未使用の重量級依存が dependencies に 6 つ</span></div>
+      <p><code>three</code>、<code>googleapis</code>、<code>sharp</code>、<code>twitter-api-v2</code>、
+        <code>@google-analytics/data</code>、<code>clsx</code> は src から一度も import されていません
+        （<code>node_modules</code> は 444MB）。スクリプト用途のものは devDependencies へ移すのが適切です。</p>
+      <p>あわせて、<code>PwaInstallBanner.tsx</code> の <code>Notification.permission</code> 初期化は
+        早期 return の後ろにあり、初回訪問者では実行されません。通知許可済みでも「的中通知をON」が出続けます。</p>
+    </div>
+  </section>
+
+  <!-- ============ G ============ -->
+  <section id="g">
+    <div class="sec-head"><span class="sec-num">G</span><h2>SEO・法務</h2></div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">G-1</span><span class="chip p1">P1</span>
+        <span class="f-title">Googlebot に本文ゼロのスタブを返している。自己参照の meta refresh 付き</span></div>
+      <p><code>functions/market/[slug].ts</code> は User-Agent で分岐し、
+        正規表現に <strong><code>googlebot</code> が含まれています</strong>。
+        Googlebot が受け取る HTML の <code>&lt;body&gt;</code> は次の 1 行だけです。</p>
+      <div class="evidence">&lt;meta http-equiv="refresh" content="0;url=<b>${url.href}</b>"&gt;   ← 自分自身へ
+&lt;body&gt;
+  &lt;p&gt;リダイレクト中... &lt;a href="..."&gt;タイトル&lt;/a&gt;&lt;/p&gt;
+&lt;/body&gt;</div>
+      <p>sitemap.xml に登録した <strong>179 URL すべてが、検索エンジンから見て実質的に空</strong>です。
+        しかも遷移先が同一 URL のため、meta refresh を追うクローラーは同じスタブに戻ります。
+        利用者とクローラーに別内容を返す構造は、クローキングと判定されるリスクもあります。</p>
+      <p>OGP 生成は残し、<strong>ボット判定は Twitterbot 等の SNS クローラーに限定</strong>、
+        検索エンジンには実コンテンツを返す（プリレンダー等）方針に変えるべきです。</p>
+    </div>
+
+    <div class="finding p1">
+      <div class="f-head"><span class="fid">G-2</span><span class="chip p1">P1</span>
+        <span class="f-title">利用規約とプライバシーポリシーのページが存在しない</span></div>
+      <p>フッターの見出しは「コンプライアンス及び<strong>利用規約</strong>に関する重要事項」ですが、
+        規約本体もプライバシーポリシーもリンクがありません。
+        実際には GA4（<code>G-B4LW25DWX9</code>）を読み込み、Supabase に
+        投票・端末種別・リファラを送信しています。</p>
+      <p>賭博法・公選法への配慮を前面に出しているサイトとしては、
+        <strong>この 2 ページの欠落が最も目につく穴</strong>です。技術的には最も安く塞げます。</p>
+    </div>
+
+    <div class="finding p3">
+      <div class="f-head"><span class="fid">G-3</span><span class="chip p3">P3</span>
+        <span class="f-title">日本語化されていない銘柄と誤カテゴリが混在している</span></div>
+      <p>実画面で確認：<code>What will WTI Crude Oil (WTI) hit in August 2026?</code>、
+        <code>Pro Football: 2027 Champion</code>、<code>EWC 2026 CS2: Winner</code>、
+        <code>EPL: 2027 Champion</code> が英語のまま表示されています。</p>
+      <p>また <code>Pro Football: 2027 Champion</code> と <code>EWC 2026 CS2: Winner</code>（e スポーツ）が
+        <strong>「📊 経済・金利・暗号資産」に分類</strong>されています。
+        歩み値には銘柄名を解決できなかった <code>銘柄 #814068</code> <code>銘柄 #official</code> が流れています。</p>
+    </div>
+  </section>
+
+  <!-- ============ 残すべき点 ============ -->
+  <section id="keep">
+    <div class="sec-head"><span class="sec-num">＋</span><h2>残すべき点</h2></div>
+    <div class="col"><p class="lead">
+      作り直しではなく修正で進められる理由です。土台は悪くありません。
+    </p></div>
+    <div class="keeps">
+      <div class="keep"><h4>コンセプトが一言で言える</h4>
+        <p>「世界のリアルマネー確率 × 日本の世論」は、説明不要で伝わる強い軸です。ここは動かす必要がありません。</p></div>
+      <div class="keep"><h4>デザイントークンが定義されている</h4>
+        <p>色・角丸・トランジションが CSS 変数で整理済み。C-1 / C-2 の修正は変数の値を変えるだけで広範囲に効きます。</p></div>
+      <div class="keep"><h4>モバイルのカードグリッドは良い</h4>
+        <p>本文が読めるサイズで、YES/NO も十分に大きい。<strong>ここを全体の基準にすべきです。</strong></p></div>
+      <div class="keep"><h4>歩み値は本物のデータ</h4>
+        <p>LiveTape は Supabase の実投票ログと実出来高を表示しています。A 群の中でここだけは表示と実体が一致しています。</p></div>
+      <div class="keep"><h4>法令配慮の設計思想</h4>
+        <p>公選法ブラックアウト、非賭博の明示は、日本市場で先に手を打つべき点を正しく押さえています。</p></div>
+      <div class="keep"><h4>型安全</h4>
+        <p><code>tsc -b</code> がエラー 0 で通ります。型定義も丁寧で、リファクタリングの土台があります。</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 改善プラン ============ -->
+  <section id="plan">
+    <div class="sec-head"><span class="sec-num">→</span><h2>改善プラン</h2></div>
+    <div class="col">
+      <p class="lead">
+        優先度は「実装コスト」ではなく「<strong>放置した場合の損害</strong>」で並べています。
+        工数は 1 人開発の粗い目安です。
+      </p>
+      <div class="note">
+        <p><strong>P0 を終えるまで新機能を作らないことを推奨します。</strong>
+          A 群を残したまま集客すると、露出が増えるほど「数字が怪しいサイト」という評価が積み上がります。
+          B-1 を残したまま UI を足すと、無スタイル要素の割合が増えるだけです。</p>
+      </div>
+    </div>
+
+    <div class="phase p0">
+      <div class="phase-head">
+        <span class="phase-tag">P0</span>
+        <span class="phase-title">嘘をやめる・壊れているものを直す</span>
+        <span class="phase-when">2〜4 日</span>
+      </div>
+      <ul class="tasks">
+        <li><span class="ref">A-1</span><span class="txt">リーダーボードを削除、または「サンプル表示」と明示。<code>accuracy ?? 75</code> を削除し、実績が無い場合は「—」を表示する。
+          <em>最優先。捏造した実績を利用者本人にシェアさせている状態を止める。</em></span></li>
+        <li><span class="ref">A-2</span><span class="txt">OGP の <code>japanProb</code> を Supabase の実集計に接続。取得できない場合は日本側の数値を出さず、世界オッズのみのカードにする。
+          <em>拡散するすべてのカードが対象。修正は 1 ファイル。</em></span></li>
+        <li><span class="ref">A-3</span><span class="txt">乖離ランキングに最低票数（例：10 票）の足切りを入れ、カードに「n=◯票」を必ず併記。0 票時の 50% 仮定を廃止。</span></li>
+        <li><span class="ref">A-4</span><span class="txt">「リアルタイム解析済み」「LIVE ANALYTICS」を実態に合わせた表記へ（例：「AI 分析・最終更新 2026-08-XX」）。<code>geminiService.ts</code> は接続するか削除する。</span></li>
+        <li><span class="ref">B-1/B-2</span><span class="txt">Tailwind を導入するか、Tailwind 記法を独自クラスへ置換する。<strong>導入を推奨</strong>（既存の 305 トークンがそのまま生きる）。
+          <em>これを先にやらないと、以降の CSS 修正がすべて空振りする。</em></span></li>
+        <li><span class="ref">C-1</span><span class="txt">最小フォントサイズを 12px に設定し、本文系は 14〜16px へ。まずグローバルに下限を敷いてから、崩れた箇所を個別調整する。</span></li>
+        <li><span class="ref">D-1</span><span class="txt">初回オーバーレイを 1 つに絞る。PWA バナーは「2 回目の訪問以降」、Mike ポップアップは初回モーダルから外す。z-index を階層順に整理。</span></li>
+        <li><span class="ref">D-4</span><span class="txt">モバイル固定バーの対象を、画面内で最も見えている銘柄に追従させる（IntersectionObserver）。困難なら銘柄名を大きく出して誤操作を防ぐ。</span></li>
+      </ul>
+    </div>
+
+    <div class="phase p1">
+      <div class="phase-head">
+        <span class="phase-tag">P1</span>
+        <span class="phase-title">読める・触れる状態にする</span>
+        <span class="phase-when">1〜2 週</span>
+      </div>
+      <ul class="tasks">
+        <li><span class="ref">C-2</span><span class="txt"><code>--text-muted</code> を <code>#8A96A8</code> 前後へ引き上げ、AA 4.5:1 を全面クリア。金色・シアン系の小文字も背景とセットで再検証。</span></li>
+        <li><span class="ref">C-3</span><span class="txt"><code>body</code> に <code>word-break: auto-phrase / line-break: strict / overflow-wrap: anywhere</code>、見出しに <code>text-wrap: balance</code> を追加。
+          <em>1 コミットで全画面に効く、最も費用対効果の高い修正。</em></span></li>
+        <li><span class="ref">E-2</span><span class="txt">タップ領域の下限を 44×44px に。時間軸ボタン（19px）とモーダル閉じるボタン（22px）を最優先。</span></li>
+        <li><span class="ref">E-1</span><span class="txt">共通 <code>Modal</code> コンポーネントを作り、<code>role="dialog"</code> / <code>aria-modal</code> / Esc / フォーカストラップ / フォーカス復帰を 1 箇所に実装して 7 種を差し替える。</span></li>
+        <li><span class="ref">D-3</span><span class="txt">初回訪問時にサンプル 1 件を解禁済みで見せる。ゲートの意図を保ったまま、着地直後に価値を伝える。</span></li>
+        <li><span class="ref">D-2/D-7</span><span class="txt">モバイルにメニュー（またはボトムナビ）を追加し、「使い方」への恒久的な導線を確保。<code>title</code> 頼みのラベルを可視テキストか <code>aria-label</code> へ。</span></li>
+        <li><span class="ref">G-1</span><span class="txt">ボット判定から <code>googlebot</code> を外す。自己参照 meta refresh を削除し、検索エンジンには実コンテンツを返す。</span></li>
+        <li><span class="ref">G-2</span><span class="txt">利用規約・プライバシーポリシーを作成しフッターにリンク。GA4 と Supabase での取得情報を明記する。</span></li>
+        <li><span class="ref">F-2</span><span class="txt">ポーリングに <code>document.hidden</code> ガードを追加。API 呼び出しを Cloudflare Functions 経由に寄せてキャッシュを効かせる。同期スピナーは手動更新時のみ回す。</span></li>
+        <li><span class="ref">A-5/A-6/A-7</span><span class="txt">合成 OHLC の表示をやめて確率推移のみに。カタリスト日程を現在時点で再生成。コメントを Supabase に永続化するか、機能ごと隠す。</span></li>
+      </ul>
+    </div>
+
+    <div class="phase p2">
+      <div class="phase-head">
+        <span class="phase-tag">P2</span>
+        <span class="phase-title">情報設計を組み直す</span>
+        <span class="phase-when">2〜4 週</span>
+      </div>
+      <ul class="tasks">
+        <li><span class="ref">C-1</span><span class="txt">「ターミナル 3 ペイン」をモバイルの<strong>カードグリッド基準</strong>へ寄せる。3 ペインは 1280px 以上限定の表示に格下げし、既定はカード + 詳細ページの 2 階層にする。
+          <em>最大の設計判断。密度を捨てて日本語を取る。</em></span></li>
+        <li><span class="ref">D-6</span><span class="txt">カテゴリ定義を 1 箇所に統合し、ナビも 1 セットに。未実装の <code>'newest'</code> ソートを削除、ホットキーワードをデータ駆動化。</span></li>
+        <li><span class="ref">D-5</span><span class="txt">カード押下の遷移先を詳細ページに統一し、強制スクロールを廃止。</span></li>
+        <li><span class="ref">C-4</span><span class="txt"><code>iconUrl</code> を描画してカードに視覚的な手がかりを与える。84 銘柄を絵文字だけで走査させない。</span></li>
+        <li><span class="ref">E-3/E-4</span><span class="txt">トップに <code>h1</code> を置き、見出し階層を整理。ロゴを <code>&lt;a&gt;</code> へ、<code>tr</code>/<code>div</code> の <code>onClick</code> をボタン化またはキーボード対応。</span></li>
+        <li><span class="ref">F-1</span><span class="txt"><code>React.lazy</code> で管理コンソール・書簡・AI 連携・各モーダルを分割。管理用 CSS（3,275 行）を別ファイルへ切り出す。</span></li>
+        <li><span class="ref">F-3</span><span class="txt">ルーティングを単一の <code>route</code> 状態か react-router へ。<code>App.tsx:34</code> の早期 return を解消する。</span></li>
+      </ul>
+    </div>
+
+    <div class="phase p3">
+      <div class="phase-head">
+        <span class="phase-tag">P3</span>
+        <span class="phase-title">継続的な整備</span>
+        <span class="phase-when">随時</span>
+      </div>
+      <ul class="tasks">
+        <li><span class="ref">B-3</span><span class="txt"><code>index.css</code> を機能単位に分割し、<code>!important</code> 204 個を段階的に解消。</span></li>
+        <li><span class="ref">E-5</span><span class="txt"><code>prefers-reduced-motion</code> 対応と <code>:focus-visible</code> の定義を追加。</span></li>
+        <li><span class="ref">G-3</span><span class="txt">未翻訳銘柄と誤カテゴリの検出をパイプラインに組み込む。歩み値の銘柄名解決フォールバックを修正。</span></li>
+        <li><span class="ref">F-4/F-5</span><span class="txt"><code>.gitignore</code> の <code>*.json</code> を見直し、未使用依存を整理。<code>App.css</code>・<code>test_ogp_output.png</code>・テンプレート <code>README</code> を削除。</span></li>
+        <li><span class="ref">—</span><span class="txt">Lighthouse と axe を CI に組み込み、コントラスト・フォントサイズ・タップ領域を回帰させない仕組みを作る。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>調査方法：全ソース読解 ＋ <code>vite dev</code> 実機計測（デスクトップ 1280×720 / モバイル 375×812）。
+      数値は実行時の <code>getComputedStyle</code>・<code>getBoundingClientRect</code>・WCAG 相対輝度計算による実測値です。</p>
+    <p>コントラスト計測は半透明背景を祖先方向に合成して算出。グラデーション背景の要素は個別に目視確認しました。</p>
+  </footer>
+
+</div>
+
+</body>
+</html>

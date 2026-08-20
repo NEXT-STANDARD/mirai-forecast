@@ -16,19 +16,19 @@ export const onRequest = async (context: {
   env: Env;
 }) => {
   const userAgent = context.request.headers.get('user-agent') || '';
-  const isBot = /twitterbot|facebookexternalhit|line|discordbot|slackbot|applebot|googlebot/i.test(userAgent);
+  // ⭐️ SNSクローラー（Twitter, Facebook, LINE, Discord, Slack等）のみを対象にし、検索エンジンボット（Googlebot等）はSPA index.htmlへ通す
+  const isSnsBot = /twitterbot|facebookexternalhit|line|discordbot|slackbot|applebot|telegrambot/i.test(userAgent);
   const url = new URL(context.request.url);
   const slug = context.params.slug as string;
 
-  // 1. 一般ユーザー（ブラウザ）からのアクセスの場合は、SPAの index.html を返す
-  if (!isBot) {
+  // 1. 一般ユーザー（ブラウザ）および検索エンジンクローラー（Googlebot等）は、SPAの index.html を返す（クローキング回避）
+  if (!isSnsBot) {
     return context.env.ASSETS.fetch(new URL('/', context.request.url));
   }
 
-  // 2. クローラー（Twitterbot等）の場合は、動的OGPメタタグ付きHTMLを生成して返す
+  // 2. SNSクローラー（Twitterbot等）の場合は、動的OGPメタタグ付きHTMLを生成して返す
   let title = '世界の集合知 × 日本の世論 金融ターミナル';
   let worldProb = 50;
-  let japanProb = 50;
 
   try {
     const polyRes = await fetch(`https://gamma-api.polymarket.com/events?slug=${slug}`);
@@ -47,21 +47,20 @@ export const onRequest = async (context: {
     }
   } catch {}
 
-  const ogImageUrl = `https://mirairadar.com/api/og?title=${encodeURIComponent(title)}&world=${worldProb}&japan=${japanProb}`;
-  const gap = Math.abs(worldProb - japanProb);
+  const ogImageUrl = `https://mirairadar.com/api/og?title=${encodeURIComponent(title)}&world=${worldProb}`;
 
   const html = `<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>${escapeHtml(title)} ｜ 未来レーダー (MiraiRadar.com)</title>
-  <meta name="description" content="世界のリアルマネー予測（YES ${worldProb}%）と日本の世論（YES ${japanProb}%）。世論ギャップ ${gap}% を観測中。あなたはどう思う？">
+  <meta name="description" content="世界のスマートマネー予測（YES ${worldProb}%）と日本の生活者世論。未来レーダーで1秒直感投票！">
   
   <!-- Open Graph / X Card Meta Tags -->
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="未来レーダー ｜ MiraiRadar">
-  <meta property="og:title" content="【世界の確率 vs 日本の世論】${escapeHtml(title)}">
-  <meta property="og:description" content="🌍 世界のリアルマネー：YES ${worldProb}% ⚡ 🇯🇵 日本の世論：YES ${japanProb}%（ギャップ ${gap}%）">
+  <meta property="og:title" content="【世界の確率】${escapeHtml(title)}">
+  <meta property="og:description" content="🌍 世界のリアルマネー予測：YES ${worldProb}% ｜ あなたの直感は？未来レーダーで世論投票！">
   <meta property="og:image" content="${ogImageUrl}">
   <meta property="og:url" content="${url.href}">
 
@@ -69,14 +68,14 @@ export const onRequest = async (context: {
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@MiraiRadar">
   <meta name="twitter:creator" content="@MiraiRadar">
-  <meta name="twitter:title" content="【世界の確率 vs 日本の世論】${escapeHtml(title)}">
-  <meta name="twitter:description" content="🌍 世界のリアルマネー：YES ${worldProb}% ⚡ 🇯🇵 日本の世論：YES ${japanProb}%">
+  <meta name="twitter:title" content="【世界の確率】${escapeHtml(title)}">
+  <meta name="twitter:description" content="🌍 世界のリアルマネー予測：YES ${worldProb}% ｜ あなたの直感は？未来レーダーで世論投票！">
   <meta name="twitter:image" content="${ogImageUrl}">
-
-  <meta http-equiv="refresh" content="0;url=${url.href}">
 </head>
 <body>
-  <p>リダイレクト中... <a href="${url.href}">${escapeHtml(title)}</a></p>
+  <h1>${escapeHtml(title)}</h1>
+  <p>世界のリアルマネー確率: YES ${worldProb}%</p>
+  <p><a href="${url.href}">未来レーダーで詳細と世論投票を見る</a></p>
 </body>
 </html>`;
 

@@ -5,7 +5,6 @@ import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
 import { EventModal } from './components/EventModal';
 import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
-import { MikeNoticePopup } from './components/MikeNoticePopup';
 import { LetterToMikePage } from './components/LetterToMikePage';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { SpreadRankingSection } from './components/SpreadRankingSection';
@@ -512,9 +511,6 @@ export function App() {
         isOpen={isProposeModalOpen}
         onClose={() => setIsProposeModalOpen(false)}
       />
-
-      {/* 初回訪問時のサイバーパンク風通知ポップアップ */}
-      <MikeNoticePopup onOpenLetter={handleOpenLetter} />
 
       {/* 詳細分析モーダル */}
       <EventModal

@@ -69,20 +69,11 @@ export const ForecastHubPage: React.FC<ForecastHubPageProps> = ({
   // 🏆 サイバー予報士ランク計算 (Lv.1〜Lv.10)
   const currentRank = calculateUserRank(votedCount);
 
-  // 🏆 リーダーボード（全国ランキング）
-  const leaderboardData = [
-    { rank: 1, name: 'Tokyo_Alpha_Quant', badge: '👑 Lv.10 伝説の予報神', accuracy: 88, votes: 124, streak: 18, isUser: false },
-    { rank: 2, name: '兜町マクロウォッチャー', badge: '⏳ Lv.9 時間軸支配者', accuracy: 83, votes: 88, streak: 12, isUser: false },
-    { rank: 3, name: 'シリコンバレー観測員', badge: '🧬 Lv.8 特異点サイファー', accuracy: 79, votes: 62, streak: 9, isUser: false },
-    { rank: 4, name: 'あなた (You)', badge: `${currentRank.icon} Lv.${currentRank.level} ${currentRank.title}`, accuracy: accuracyRate ?? 75, votes: votedCount, streak: streak.currentStreak, isUser: true },
-    { rank: 5, name: 'Crypto_Oracle_JP', badge: '🌐 Lv.7 深層シンジケート', accuracy: 72, votes: 35, streak: 5, isUser: false },
-    { rank: 6, name: 'AI_Trend_Hunter', badge: '🔥 Lv.6 マーケット預言者', accuracy: 68, votes: 24, streak: 4, isUser: false },
-    { rank: 7, name: 'Nagoya_Trader', badge: '🔮 Lv.5 凄腕オラクル', accuracy: 65, votes: 16, streak: 2, isUser: false },
-  ];
-
-  // X自慢シェアリンク生成
+  // X自慢シェアリンク生成（実データのみ反映）
   const handleShareToX = () => {
-    const accText = accuracyRate !== null ? `的中率: 🎯 ${accuracyRate}%` : `投票総数: 📊 ${votedCount}件`;
+    const accText = accuracyRate !== null 
+      ? `的中率: 🎯 ${accuracyRate}% (${resolvedCount}件確定中 ${correctCount}件的中)` 
+      : `観測投票実績: 📊 ${votedCount}件`;
     const shareText = `【未来レーダー】私のサイバー予報士ステータス
 称号: ${currentRank.icon} [ Lv.${currentRank.level} ${currentRank.title} ]
 ${accText}
@@ -352,36 +343,42 @@ https://mirairadar.com/forecast
           <div className="forecast-hub-card">
             <h2 className="text-base font-bold text-slate-100 mb-2 flex items-center gap-2">
               <Trophy size={18} className="text-amber-400" />
-              <span>全国クォンツ・リーダーボード</span>
+              <span>全国クォンツ・リーダーボード（β版）</span>
             </h2>
             <p className="text-xs text-slate-400 mb-4">
-              全国のトップアナリスト・予報士たちの的中率と活動ランキングです。
+              あなたの現在の観測実績と階級ステータスです。※ 全国ユーザーとのリアルタイムランキングはアカウント機能と連携して公開予定です。
             </p>
 
             <div className="leaderboard-table">
-              {leaderboardData.map((item) => (
-                <div
-                  key={item.rank}
-                  className={`leaderboard-row ${item.isUser ? 'user-row' : ''}`}
-                >
-                  <div className="leaderboard-rank font-mono font-black text-base">
-                    {item.rank === 1 ? '👑 1' : item.rank === 2 ? '🥈 2' : item.rank === 3 ? '🥉 3' : item.rank}
-                  </div>
+              <div className="leaderboard-row user-row">
+                <div className="leaderboard-rank font-mono font-black text-base text-amber-400">
+                  {currentRank.icon}
+                </div>
 
-                  <div className="leaderboard-user-info">
-                    <div className="leaderboard-name font-bold text-sm flex items-center gap-2">
-                      <span>{item.name}</span>
-                      {item.isUser && <span className="you-badge font-mono">YOU</span>}
-                    </div>
-                    <div className="leaderboard-badge text-xs text-slate-400">{item.badge}</div>
+                <div className="leaderboard-user-info">
+                  <div className="leaderboard-name font-bold text-sm flex items-center gap-2">
+                    <span>あなた (ローカル実績)</span>
+                    <span className="you-badge font-mono">YOU</span>
                   </div>
-
-                  <div className="leaderboard-stats font-mono text-right">
-                    <div className="stat-acc text-cyan-400 font-bold text-base">{item.accuracy}%</div>
-                    <div className="stat-sub text-xs text-slate-400">{item.votes}票 / 🔥{item.streak}日</div>
+                  <div className="leaderboard-badge text-xs text-slate-400">
+                    Lv.{currentRank.level} {currentRank.title}
                   </div>
                 </div>
-              ))}
+
+                <div className="leaderboard-stats font-mono text-right">
+                  <div className="stat-acc text-cyan-400 font-bold text-base">
+                    {accuracyRate !== null ? `${accuracyRate}%` : '—'}
+                  </div>
+                  <div className="stat-sub text-xs text-slate-400">
+                    {votedCount}票 / 🔥{streak.currentStreak}日連続
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 bg-slate-900/60 border border-slate-800 rounded-lg text-xs text-slate-400 flex items-center gap-2">
+              <span className="text-amber-400">ℹ️</span>
+              <span>投票数と的中実績を積み上げることで、階級バッジと限定称号がアンロックされます。</span>
             </div>
           </div>
         )}

@@ -30,12 +30,19 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
   onOpenDetail,
   onOpenShare,
 }) => {
-  // ⭐️ 世界オッズ vs 日本世論の乖離度（Gap）が大きいTOP 3〜4銘柄を自動抽出
+  // ⭐️ 世界オッズ vs 日本世論の乖離度（Gap）が大きい銘柄を実測データに基づいて抽出
   const topSpreadEvents = useMemo(() => {
-    const scored = events.map(ev => {
+    // 実際に日本国内での投票がある銘柄のみを対象（信頼性のあるサンプル）
+    const validEvents = events.filter(ev => ev.japanVotes.total >= 3);
+    
+    // もし3票以上の銘柄が少ない場合は、1票以上の銘柄も含めてフォールバック
+    const pool = validEvents.length >= 3 
+      ? validEvents 
+      : events.filter(ev => ev.japanVotes.total > 0);
+
+    const scored = pool.map(ev => {
       const worldYes = ev.worldProbYes;
-      // 日本の投票があればその実数値、なければ50%を仮定
-      const japanYes = ev.japanVotes.total > 0 ? ev.japanVotes.percentYes : 50;
+      const japanYes = ev.japanVotes.percentYes;
       const gap = Math.abs(worldYes - japanYes);
       const totalVol = ev.volume24hUsd || 0;
       return {
@@ -44,12 +51,14 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
         worldYes,
         japanYes,
         totalVol,
+        votesCount: ev.japanVotes.total,
       };
     });
 
-    // ギャップが大きい順（同率なら出来高順）にソート
+    // ギャップが大きい順（同率なら投票数・出来高順）にソート
     scored.sort((a, b) => {
       if (b.gap !== a.gap) return b.gap - a.gap;
+      if (b.votesCount !== a.votesCount) return b.votesCount - a.votesCount;
       return b.totalVol - a.totalVol;
     });
 
@@ -141,7 +150,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 <div className="spread-meter-row">
                   <div className="spread-meter-label">
                     <span className="text-xs">🇯🇵</span>
-                    <span>日本世論</span>
+                    <span>日本世論 <small className="text-[10px] text-slate-400 font-mono">(n={event.japanVotes.total})</small></span>
                   </div>
                   {hasVoted ? (
                     <>
