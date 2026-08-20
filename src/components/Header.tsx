@@ -1,17 +1,13 @@
 import React from 'react';
-import { RefreshCw, Flame, HelpCircle, PlusCircle, Volume2, VolumeX } from 'lucide-react';
+import { RefreshCw, HelpCircle, PlusCircle, Volume2, VolumeX, Flame } from 'lucide-react';
 import { Logo } from './Logo';
 import { cyberSound } from '../utils/cyberSound';
-import { UNIFIED_CATEGORIES, type CategoryType } from '../types';
-
 import { calculateUserRank } from '../utils/rankSystem';
 
 interface HeaderProps {
   totalMarketsCount: number;
   totalJapanVotes: number;
   totalVolume: number;
-  selectedCategory: CategoryType;
-  onSelectCategory: (category: CategoryType) => void;
   isRefreshing: boolean;
   onRefresh: () => void;
   onOpenLetter?: () => void;
@@ -29,8 +25,6 @@ export const Header: React.FC<HeaderProps> = ({
   totalMarketsCount,
   totalJapanVotes,
   totalVolume,
-  selectedCategory,
-  onSelectCategory,
   isRefreshing,
   onRefresh,
   onOpenLetter,
@@ -45,8 +39,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [isMuted, setIsMuted] = React.useState(() => cyberSound.getIsMuted());
   const currentRank = calculateUserRank(userVotesCount);
-
-  const categories = UNIFIED_CATEGORIES;
 
   return (
     <header className="header-container-slim">
@@ -163,21 +155,6 @@ export const Header: React.FC<HeaderProps> = ({
             <RefreshCw size={11} />
           </button>
         </div>
-      </div>
-
-      {/* 2. カテゴリナビバー */}
-      <div className="container nav-container-slim">
-        <nav className="category-nav-slim custom-scroll">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
-              className={`nav-tab-item ${selectedCategory === cat.id ? 'active' : ''}`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </nav>
       </div>
     </header>
   );

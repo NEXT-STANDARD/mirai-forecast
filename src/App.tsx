@@ -418,8 +418,6 @@ export function App() {
   return (
     <div className="min-h-screen bg-primary pb-36 md:pb-12">
       <Header
-        selectedCategory={selectedCategory}
-        onSelectCategory={setSelectedCategory}
         onRefresh={loadMarketData}
         isRefreshing={isRefreshing}
         totalVolume={totalVolume}

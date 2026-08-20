@@ -67,6 +67,15 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                   <tr
                     key={item.id}
                     onClick={() => onSelectEvent(item)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelectEvent(item);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${item.titleJa || item.title}を選択`}
                     className={`terminal-tr ${isSelected ? 'selected' : ''}`}
                   >
                     <td className="td-name">

@@ -106,7 +106,17 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
             <div
               key={event.id}
               className={`spread-ranking-card ${rankNumber === 1 ? 'rank-first-card' : ''}`}
-              onClick={() => onSelectEvent(event)}
+              onClick={() => (onOpenDetail ? onOpenDetail(event) : onSelectEvent(event))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  if (onOpenDetail) onOpenDetail(event);
+                  else onSelectEvent(event);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`${rankNumber}位 ${event.titleJa}の詳細を見る`}
             >
               {/* カード上部：順位バッジ ＆ 乖離ギャップ値 */}
               <div className="spread-card-header">
@@ -119,6 +129,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                     <img 
                       src={event.iconUrl} 
                       alt="" 
+                      loading="lazy"
                       className="w-4 h-4 rounded-full object-cover flex-shrink-0 bg-slate-800 border border-slate-700/60"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';

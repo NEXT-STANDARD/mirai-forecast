@@ -181,7 +181,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
           const worldYes = event.worldProbYes;
           const japanYes = event.japanVotes.percentYes;
           const gap = Math.abs(worldYes - japanYes);
-          const hasGap = event.japanVotes.total > 0 && gap >= 10;
+          const hasGap = event.japanVotes.total >= 3 && gap >= 10;
           const isUp = event.probChange24h >= 0;
 
           // AI 次回カタリスト
@@ -192,6 +192,16 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
               key={event.id}
               className={`market-card-item ${hasVoted ? 'voted-card' : ''}`}
               onClick={() => (onOpenDetail ? onOpenDetail(event) : onSelectEvent(event))}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  if (onOpenDetail) onOpenDetail(event);
+                  else onSelectEvent(event);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-label={`${event.titleJa || event.title}の詳細を見る`}
             >
               {/* カードヘッダー：カテゴリ ＆ 変動率 */}
               <div className="card-top-row">
@@ -200,6 +210,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                     <img 
                       src={event.iconUrl} 
                       alt="" 
+                      loading="lazy"
                       className="w-4 h-4 rounded-full object-cover flex-shrink-0 bg-slate-800 border border-slate-700/60"
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = 'none';
@@ -210,9 +221,9 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                 </div>
                 <div className="flex items-center gap-1.5">
                   {hasGap && (
-                    <span className="card-gap-badge" title="世界とお茶の間の見解に大きな乖離があります">
+                    <span className="card-gap-badge" title={`世界とお茶の間の見解に大きな乖離があります（サンプル数: ${event.japanVotes.total}票）`}>
                       <Zap size={10} />
-                      <span>{gap}% 乖離</span>
+                      <span>{gap}% 乖離 (n={event.japanVotes.total})</span>
                     </span>
                   )}
                   <span className={`card-delta-tag ${isUp ? 'pos' : 'neg'}`}>
