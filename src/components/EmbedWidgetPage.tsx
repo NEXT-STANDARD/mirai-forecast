@@ -18,7 +18,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
 
     // 1. 初期データから即時キャッシュ表示
     const initialFound = INITIAL_EVENTS.find(
-      (e) => e.slug === slugOrId || e.id === slugOrId || e.slug.replace(/-\d+$/, '') === slugOrId.replace(/-\d+$/, '')
+      (e) => e.slug === slugOrId || e.id === slugOrId
     );
     if (initialFound) {
       setItem(initialFound);
@@ -31,7 +31,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
         const events = await fetchLivePolymarketMarkets();
         if (!isMounted) return;
         const match = events.find(
-          (e) => e.slug === slugOrId || e.id === slugOrId || e.slug.replace(/-\d+$/, '') === slugOrId.replace(/-\d+$/, '')
+          (e) => e.slug === slugOrId || e.id === slugOrId
         );
         const target = match || initialFound;
         if (target) {

@@ -206,6 +206,15 @@ if (distAssets.length > 0) {
 report("ビルド CSS Backdrop-Filter 保持検査 (NEW-9)", backdropFails.length === 0,
   backdropFails.length === 0 ? "本番 CSS の .header-container-slim ルール内に無印 backdrop-filter の存在を確認" : backdropFails.join("; "));
 
+// 9.5 埋め込みウィジェットのスラッグ厳密照合検査 (N-18 回帰防止: 前方一致・末尾除去による誤照合防止)
+const embedCode = fs.readFileSync(path.join(COMPONENTS_DIR, "EmbedWidgetPage.tsx"), "utf-8");
+let embedSlugFails = [];
+if (/replace\(\/-\\\\d\+\$\/|replace\(\/-\d\+\$\//.test(embedCode)) {
+  embedSlugFails.push("EmbedWidgetPage に末尾数字除去の緩和ロジックが存在し、同名プレフィックス銘柄の誤表示が発生します");
+}
+report("埋め込みウィジェット スラッグ厳密照合 (N-18)", embedSlugFails.length === 0,
+  embedSlugFails.length === 0 ? "完全一致照合 (slug === slugOrId || id === slugOrId) を確認" : embedSlugFails.join("; "));
+
 // 10. Supabase 有効銘柄の締切整合性
 async function checkDb() {
   try {

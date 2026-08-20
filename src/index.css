@@ -10096,6 +10096,13 @@ body::after {
     height: 100%;
     pointer-events: auto;
   }
+
+  /* 3. 本文中のインラインリンクは行間重なりを防ぐため擬似要素を解除 (WCAG 2.5.8 Inline Exception) */
+  p a::after,
+  .prose a::after,
+  .inline-link::after {
+    content: none !important;
+  }
 }
 
 /* 📱 N-15: 320px 〜 360px 極小画面でのヘッダー収縮最適化 */

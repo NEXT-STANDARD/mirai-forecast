@@ -8,6 +8,10 @@ interface Env {
   ASSETS: {
     fetch: (request: Request | URL) => Promise<Response>;
   };
+  VITE_SUPABASE_URL?: string;
+  VITE_SUPABASE_ANON_KEY?: string;
+  SUPABASE_URL?: string;
+  SUPABASE_ANON_KEY?: string;
 }
 
 export const onRequest = async (context: {
@@ -30,13 +34,16 @@ export const onRequest = async (context: {
   let title = '世界の集合知 × 日本の世論 金融ターミナル';
   let worldProb: number | null = null;
 
+  const supabaseUrl = context.env.SUPABASE_URL || context.env.VITE_SUPABASE_URL || 'https://wdpygtmqehoepgrueeda.supabase.co';
+  const supabaseAnonKey = context.env.SUPABASE_ANON_KEY || context.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU';
+
   try {
     // A. まず Supabase から日本語タイトルを取得
-    const supaUrl = `https://wdpygtmqehoepgrueeda.supabase.co/rest/v1/events?or=(slug.eq.${encodeURIComponent(slug)},id.eq.${encodeURIComponent(slug)})&select=title_ja,title_en,question_ja&limit=1`;
+    const supaUrl = `${supabaseUrl}/rest/v1/events?or=(slug.eq.${encodeURIComponent(slug)},id.eq.${encodeURIComponent(slug)})&select=title_ja,title_en,question_ja&limit=1`;
     const supaRes = await fetch(supaUrl, {
       headers: {
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU'
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`
       }
     });
     if (supaRes.ok) {
