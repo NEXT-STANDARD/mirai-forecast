@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, FileText, Lock, Scale, AlertCircle } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface TermsModalProps {
   isOpen: boolean;
@@ -13,28 +14,17 @@ export const TermsModal: React.FC<TermsModalProps> = ({
   initialTab = 'terms',
 }) => {
   const [activeTab, setActiveTab] = useState<'terms' | 'privacy'>(initialTab);
+  const modalRef = useFocusTrap(isOpen, onClose);
 
   useEffect(() => {
     setActiveTab(initialTab);
   }, [initialTab]);
 
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
   if (!isOpen) return null;
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="terms-modal-card" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label="利用規約およびプライバシーポリシー">
+      <div className="terms-modal-card" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">
           <div className="terms-header-title">

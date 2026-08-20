@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lightbulb, AlertTriangle, ShieldCheck, Send, X, CheckCircle2 } from 'lucide-react';
 import { supabase } from '../services/supabaseClient';
 import type { CategoryType } from '../types';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface ProposeTopicModalProps {
   isOpen: boolean;
@@ -23,17 +24,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleReset();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  const modalRef = useFocusTrap(isOpen, () => handleReset());
 
   if (!isOpen) return null;
 
@@ -111,8 +102,8 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleReset} role="dialog" aria-modal="true">
-      <div className="modal-card proposal-modal-card" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={handleReset} role="dialog" aria-modal="true" aria-label="未来の問いを提案する">
+      <div className="modal-card proposal-modal-card" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="modal-header">
           <div className="flex items-center gap-2">

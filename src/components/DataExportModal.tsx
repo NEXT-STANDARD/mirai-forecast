@@ -12,6 +12,7 @@ import {
   ExternalLink,
   Layers
 } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface DataExportModalProps {
   item: MarketItem | null;
@@ -27,18 +28,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   const [activeTab, setActiveTab] = useState<'csv' | 'mcp' | 'json'>('csv');
   const [copiedMcp, setCopiedMcp] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
-
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!item) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [item, onClose]);
+  const modalRef = useFocusTrap(Boolean(item), onClose);
 
   if (!item) return null;
 
@@ -167,7 +157,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
 
   return (
     <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="data-export-modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="data-export-modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">
           <div className="title-wrap flex items-center gap-2">

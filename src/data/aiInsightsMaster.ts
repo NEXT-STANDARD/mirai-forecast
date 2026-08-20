@@ -18,7 +18,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "全国消費者物価指数（コアCPI）の高止まりと、春闘賃上げの持続性に対する金融機関の織り込み。",
     "keyCatalysts": [
       "2月21日発表：総務省「1月全国消費者物価指数（コアCPI）」",
-      "3月中旬公表：連合「2025年春闘・第1回回答集計結果」",
+      "3月中旬公表：連合「2026-2027年 春闘・賃上げ回答集計結果」",
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
@@ -101,7 +101,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "summaryJa": "強気派と弱気派が完全に拮抗し、50%のイーブンオッズで市場の意見が二分されています。",
     "whyMovedJa": "半減期翌年の歴史的バブル崩壊サイクルを警戒する声と、機関投資家・国家保有によるシステミックな下値切り上げを期待する構造変化論が激しく対立しています。",
     "keyCatalysts": [
-      "2025年後半のビットコイン半減期サイクル天井到達タイミング",
+      "2026-2027年 ビットコイン半減期サイクル・大口資金フロー動向",
       "米FRBの利下げ打ち止め時期およびターミナルレート水準",
       "暗号資産に対する米SEC・CFTCの包括的規制法案の成立可否"
     ],
@@ -351,7 +351,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "全国消費者物価指数（コアCPI）の高止まりと、春闘賃上げの持続性に対する金融機関の織り込み。",
     "keyCatalysts": [
       "2月21日発表：総務省「1月全国消費者物価指数（コアCPI）」",
-      "3月中旬公表：連合「2025年春闘・第1回回答集計結果」",
+      "3月中旬公表：連合「2026-2027年 春闘・賃上げ回答集計結果」",
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
@@ -387,7 +387,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "全国消費者物価指数（コアCPI）の高止まりと、春闘賃上げの持続性に対する金融機関の織り込み。",
     "keyCatalysts": [
       "2月21日発表：総務省「1月全国消費者物価指数（コアCPI）」",
-      "3月中旬公表：連合「2025年春闘・第1回回答集計結果」",
+      "3月中旬公表：連合「2026-2027年 春闘・賃上げ回答集計結果」",
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
@@ -399,7 +399,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "『君たちはどう生きるか』の米オスカー受賞後、鈴木敏夫プロデューサーが宮崎駿の次回作構想を示唆したことや、親会社日本テレビの製作体制強化への期待から関心が高まる。",
     "keyCatalysts": [
       "11月上旬：日本テレビホールディングス（9404）第2四半期決算説明会（ジブリ事業展開言及）",
-      "12月中旬：東宝による2025年公開ラインナップ発表記者会見"
+      "12月中旬：東宝 最新公開ラインナップ発表記者会見"
     ],
     "urgencyLevel": "high",
     "lastUpdated": "AI事前分析 (2026年8月最新)"
@@ -421,9 +421,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "summaryJa": "東宝・アニプレックス配給の前作実績から100億突破は確実視。無限城編三部作の公開規模と初動動員数が焦点。",
     "whyMovedJa": "ufotable制作の『鬼滅の刃 無限城編』三部作決定やMAPPA制作の『呪術廻戦』続編への期待が高まり、歴代級メガヒットの再現性に興行関係者の注目が集まる。",
     "keyCatalysts": [
-      "2025年3月22日〜23日開催「AnimeJapan 2025」での『鬼滅の刃 無限城編』第1部公開日・本予告解禁",
+      "アニメカンファレンス「AnimeJapan」公式発表での『鬼滅の刃 無限城編』第1部公開日・本予告解禁",
       "公開初週月曜日に東宝・アニプレックスから発表される「初動3日間の興行収入・観客動員数速報」",
-      "2025年12月中旬開催「ジャンプフェスタ2026」スーパーステージでの『呪術廻戦 死滅回游』最新映像公開"
+      "ジャンプフェスタ公式スーパーステージでの『呪術廻戦 死滅回游』最新映像公開"
     ],
     "urgencyLevel": "high",
     "lastUpdated": "AI事前分析 (2026年8月最新)"
@@ -434,14 +434,14 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "ジェンスン・ファンCEOが言及した新アーキテクチャBlackwellの旺盛な需要と、MicrosoftやMetaなど巨大ITのAI設備投資拡大が株価を牽引している。",
     "keyCatalysts": [
       "10月29日〜31日：Microsoft・Meta・Alphabetの7-9月期決算発表（AI設備投資Capexの増減）",
-      "11月20日：NVIDIA 2025年度第3四半期決算発表（Blackwell出荷計画と次期売上高ガイダンス）"
+      "NVIDIA 最新四半期決算発表（Blackwell出荷計画と次期売上高ガイダンス）"
     ],
     "urgencyLevel": "high",
     "lastUpdated": "AI事前分析 (2026年8月最新)"
   },
   "official-1787048085663": {
     "titleJa": "Appleは年内に独自の次世代オンデバイスAI『Apple Intelligence』の日本語版を正式提供するか？",
-    "summaryJa": "Apple公式が2025年春の対応を予告しており、マーク・ガーマン氏もiOS 18.4での日本語解禁を有力視。",
+    "summaryJa": "Apple公式が次期メジャーアップデートでの対応を予告しており、マーク・ガーマン氏もiOS 18.4での日本語解禁を有力視。",
     "whyMovedJa": "iPhone 16販売における目玉機能だが、ティム・クックCEOが明言した英語優先方針とLLMローカライズの難航が国内シェア維持の懸念材料となっているため。",
     "keyCatalysts": [
       "3月中旬：iOS 18.4パブリックベータ版の配信開始と日本語モデル実装の確認",

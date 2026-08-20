@@ -82,7 +82,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
       <div className="spread-ranking-grid">
         {topSpreadEvents.map(({ event, gap, worldYes, japanYes }, index) => {
           const userVote = userVotes[event.id] || userVotes[event.slug];
-          const hasVoted = Boolean(userVote);
+          const hasVoted = Boolean(userVote) || index === 0; // 🥇 1位銘柄は初回プレビュー解禁（価値の即時体感）
           const rankNumber = index + 1;
 
           // 順位メダル・バッジ装飾（数字重複の解消）

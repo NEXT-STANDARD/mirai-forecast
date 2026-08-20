@@ -10,6 +10,7 @@ import {
   Download, 
   Globe2 
 } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface OgpPreviewModalProps {
   item: MarketItem | null;
@@ -25,18 +26,7 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
   const [copied, setCopied] = useState(false);
   const [copiedImage, setCopiedImage] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!item) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [item, onClose]);
+  const modalRef = useFocusTrap(Boolean(item), onClose);
 
   if (!item) return null;
 
@@ -289,8 +279,8 @@ ${shareUrl}
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="ogp-modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label="𝕏シェア＆世論対比カード">
+      <div className="ogp-modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">
           <div className="title-wrap flex items-center gap-2">

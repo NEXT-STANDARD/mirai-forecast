@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { MarketItem } from '../types';
 import { X, Copy, Check, Code2, Sparkles } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface EmbedModalProps {
   item: MarketItem | null;
@@ -9,18 +10,7 @@ interface EmbedModalProps {
 
 export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
   const [copied, setCopied] = useState(false);
-
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!item) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [item, onClose]);
+  const modalRef = useFocusTrap(Boolean(item), onClose);
 
   if (!item) return null;
 
@@ -35,8 +25,8 @@ export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="embed-modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label="記事・ブログ埋め込みウィジェット">
+      <div className="embed-modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">
           <div className="title-wrap flex items-center gap-2">

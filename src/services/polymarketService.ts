@@ -168,10 +168,74 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
 
         const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
 
-        // ⭐️ メモリから100%確実に深層カタリスト分析を即時解決 (セマンティック完全対応)
-        const aiInsight = resolveAiInsight(String(db.id), db.slug, db.title_ja, db.category);
+        // ⭐️ G-3: 英語タイトルの高精度日本語翻訳＆カテゴリ自動補正テーブル
+        const TITLE_TRANSLATION_MAP: Record<string, { titleJa: string; questionJa?: string; category?: CategoryType; categoryLabel?: string }> = {
+          'EPL: 2027 Champion': {
+            titleJa: 'イングランド・プレミアリーグ 2026-27 優勝クラブ予測',
+            questionJa: '2026-27シーズンのプレミアリーグで優勝するクラブは？',
+            category: 'sports',
+            categoryLabel: '⚾ スポーツ',
+          },
+          'Premier League Champion 2026-2027': {
+            titleJa: 'プレミアリーグ 2026-27 優勝クラブ予測',
+            questionJa: '2026-27シーズンのプレミアリーグで優勝するクラブは？',
+            category: 'sports',
+            categoryLabel: '⚾ スポーツ',
+          },
+          'Pro Football: 2027 Champion': {
+            titleJa: 'NFL 第61回スーパーボウル 優勝チーム予測',
+            questionJa: '2027年開催の第61回スーパーボウルで優勝するチームは？',
+            category: 'sports',
+            categoryLabel: '⚾ スポーツ',
+          },
+          'Super Bowl LXI Champion': {
+            titleJa: 'NFL 第61回スーパーボウル 優勝チーム予測',
+            questionJa: '2027年開催の第61回スーパーボウルで優勝するチームは？',
+            category: 'sports',
+            categoryLabel: '⚾ スポーツ',
+          },
+          'What will WTI Crude Oil (WTI) hit in August 2026?': {
+            titleJa: '2026年8月 WTI原油先物価格の到達水準予測',
+            questionJa: '2026年8月時点でWTI原油先物価格はどの水準に到達するか？',
+            category: 'economy',
+            categoryLabel: '📊 経済・金利・暗号資産',
+          },
+          'EWC 2026 CS2: Winner': {
+            titleJa: 'EWC 2026（eスポーツW杯）CS2部門 優勝チーム予測',
+            questionJa: 'Esports World Cup 2026 CS2部門で優勝するチームは？',
+            category: 'entertainment',
+            categoryLabel: '🎬 エンタメ',
+          },
+          'Esports World Cup 2026: CS2 Winner': {
+            titleJa: 'EWC 2026（eスポーツW杯）CS2部門 優勝チーム予測',
+            questionJa: 'Esports World Cup 2026 CS2部門で優勝するチームは？',
+            category: 'entertainment',
+            categoryLabel: '🎬 エンタメ',
+          },
+        };
 
-        const categoryKey = (db.category as CategoryType) || 'economy';
+        const rawTitle = db.title_ja || db.title_en || '';
+        const mapped = TITLE_TRANSLATION_MAP[rawTitle] || TITLE_TRANSLATION_MAP[db.title_en || ''];
+
+        let resolvedTitleJa = mapped?.titleJa || db.title_ja || db.title_en || '観測銘柄';
+        let resolvedQuestionJa = mapped?.questionJa || db.question_ja || db.title_ja || '観測テーマ';
+
+        // 英語タイトルの一般自動補正
+        if (resolvedTitleJa.startsWith('What will') && resolvedTitleJa.includes('hit in')) {
+          resolvedTitleJa = resolvedTitleJa.replace(/What will (.*?) hit in (.*?)\?/i, '$2 $1 到達水準予測');
+        }
+
+        let categoryKey = mapped?.category || (db.category as CategoryType) || 'economy';
+        
+        // eスポーツ/ゲーム関連のカテゴリ誤分類（経済への混入）を自動是正
+        if (/EWC|CS2|Esports|Counter-Strike|League of Legends|Valorant|Apex/i.test(rawTitle)) {
+          categoryKey = 'entertainment';
+        } else if (/Premier League|EPL|NFL|Super Bowl|MLB|NBA|Formula 1|F1/i.test(rawTitle)) {
+          categoryKey = 'sports';
+        } else if (/WTI|Crude Oil|Bitcoin|Ethereum|Fed|Rate|CPI|GDP|Nikkei|Stock/i.test(rawTitle)) {
+          categoryKey = 'economy';
+        }
+
         const categoryLabels: Record<string, string> = {
           economy: '📊 経済・金利・暗号資産',
           tech: '⚡ AI・テック',
@@ -180,15 +244,18 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           entertainment: '🎬 エンタメ',
         };
 
+        // ⭐️ メモリから100%確実に深層カタリスト分析を即時解決 (セマンティック完全対応)
+        const aiInsight = resolveAiInsight(String(db.id), db.slug, resolvedTitleJa, categoryKey);
+
         return {
           id: String(db.id),
           slug: db.slug || `topic-${db.id}`,
           title: db.title_en || db.title_ja || 'Market Topic',
-          titleJa: db.title_ja || db.title_en || '観測銘柄',
+          titleJa: resolvedTitleJa,
           question: db.question_en || db.title_ja || 'Question',
-          questionJa: db.question_ja || db.title_ja || '観測テーマ',
+          questionJa: resolvedQuestionJa,
           category: categoryKey,
-          categoryLabel: db.category_label || categoryLabels[categoryKey] || '📊 経済・金利・暗号資産',
+          categoryLabel: mapped?.categoryLabel || categoryLabels[categoryKey] || '📊 経済・金利・暗号資産',
           iconUrl: db.icon_url || '',
           worldProbYes: probYes,
           worldProbNo: 100 - probYes,

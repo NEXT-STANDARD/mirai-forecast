@@ -113,11 +113,12 @@ export const Header: React.FC<HeaderProps> = ({
           {onOpenOnboarding && (
             <button
               onClick={onOpenOnboarding}
-              className="btn-header-subtle hide-on-mobile"
-              title="未来レーダーの使い方"
+              className="btn-header-subtle"
+              title="未来レーダーの使い方・ガイド"
+              aria-label="未来レーダーの使い方"
             >
-              <HelpCircle size={12} className="text-cyan-400" />
-              <span>使い方</span>
+              <HelpCircle size={14} className="text-cyan-400" />
+              <span className="hide-on-xs">使い方</span>
             </button>
           )}
 

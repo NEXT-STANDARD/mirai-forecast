@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Globe, ShieldCheck, Flame, Trophy, ArrowRight, Zap, CheckCircle2 } from 'lucide-react';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface OnboardingModalProps {
   isOpen: boolean;
@@ -13,18 +14,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   onStartPredicting,
 }) => {
   const [step, setStep] = useState<number>(1);
-
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  const modalRef = useFocusTrap(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -45,7 +35,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 
   return (
     <div className="modal-backdrop" onClick={handleClose} role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
-      <div className="modal-card onboarding-modal-dialog" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card onboarding-modal-dialog" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="onboarding-header">
           <div className="onboarding-header-tag">

@@ -7662,8 +7662,8 @@ img, canvas, svg, video {
   .tf-btn {
     flex: 1 !important;
     text-align: center !important;
-    padding: 0.15rem 0.2rem !important;
-    font-size: 0.62rem !important;
+    padding: 0.25rem 0.2rem !important;
+    font-size: 0.78rem !important;
   }
 
   .svg-chart-container {
@@ -9192,16 +9192,16 @@ body::after {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
-  z-index: 1000;
-  max-width: 420px;
+  z-index: 900;
+  max-width: 400px;
   width: calc(100% - 3rem);
 }
 
 @media (max-width: 640px) {
   .pwa-floating-banner {
-    bottom: 4.5rem;
-    left: 1rem;
-    right: 1rem;
+    bottom: 5.5rem;
+    left: 0.75rem;
+    right: 0.75rem;
     width: auto;
   }
 }
@@ -9765,7 +9765,12 @@ body::after {
   .btn-ranking-vote,
   .btn-vote-yes,
   .btn-vote-no,
-  .sticky-btn {
+  .sticky-btn,
+  .btn-spread-share,
+  .btn-spread-detail,
+  .brand-logo-group,
+  .market-search-input,
+  .search-bar-input {
     position: relative;
     min-height: 38px;
   }
@@ -9786,7 +9791,12 @@ body::after {
   .btn-ranking-vote::after,
   .btn-vote-yes::after,
   .btn-vote-no::after,
-  .sticky-btn::after {
+  .sticky-btn::after,
+  .btn-spread-share::after,
+  .btn-spread-detail::after,
+  .brand-logo-group::after,
+  .market-search-input::after,
+  .search-bar-input::after {
     content: '';
     position: absolute;
     top: 50%;

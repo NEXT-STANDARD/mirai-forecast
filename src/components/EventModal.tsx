@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { MarketItem } from '../types';
 import { X, Sparkles, Share2, MessageSquare, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { TerminalChart } from './TerminalChart';
+import { useFocusTrap } from '../utils/useFocusTrap';
 
 interface EventModalProps {
   item: MarketItem | null;
@@ -18,17 +19,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   onVote,
   onOpenShare,
 }) => {
-  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
-  React.useEffect(() => {
-    if (!item) return;
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [item, onClose]);
+  const modalRef = useFocusTrap(Boolean(item), onClose);
 
   if (!item) return null;
 
@@ -56,8 +47,8 @@ export const EventModal: React.FC<EventModalProps> = ({
   const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-label={item.titleJa}>
+      <div className="modal-content" ref={modalRef} onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">
           <div className="modal-header-badges">

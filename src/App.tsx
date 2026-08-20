@@ -416,7 +416,7 @@ export function App() {
   const currentFocusedEvent = events.find(e => e.id === activeTopicId) || filteredEvents[0] || events[0];
 
   return (
-    <div className="min-h-screen bg-primary pb-16 md:pb-0">
+    <div className="min-h-screen bg-primary pb-36 md:pb-12">
       <Header
         selectedCategory={selectedCategory}
         onSelectCategory={setSelectedCategory}
