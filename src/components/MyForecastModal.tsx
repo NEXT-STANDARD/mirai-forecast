@@ -9,9 +9,12 @@ import {
   User, 
   Share2, 
   Crown, 
-  Sparkles
+  Lock, 
+  CheckCircle2, 
+  Layers
 } from 'lucide-react';
 import type { MarketItem, StreakData } from '../types';
+import { calculateUserRank, RANK_TIERS } from '../utils/rankSystem';
 
 interface MyForecastModalProps {
   isOpen: boolean;
@@ -30,7 +33,7 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
   streak,
   onSelectEvent,
 }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'leaderboard'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'ranks' | 'leaderboard'>('profile');
 
   if (!isOpen) return null;
 
@@ -57,55 +60,33 @@ export const MyForecastModal: React.FC<MyForecastModalProps> = ({
 
   const accuracyRate = resolvedCount > 0 ? Math.round((correctCount / resolvedCount) * 100) : null;
 
-  // 予報士ランク判定
-  let rankTitle = '🌱 ルーキー予報士 (Lv.1)';
-  let rankDesc = '未来の直感を記録し始めた駆け出しアナリスト';
-  let rankBorderColor = 'rgba(148, 163, 184, 0.3)';
-  let nextRankHint = 'あと 3 問投票で Lv.2 クォンツ・オブザーバー へ昇格！';
-
-  if (votedCount >= 3) {
-    rankTitle = '🔭 クォンツ・オブザーバー (Lv.2)';
-    rankDesc = '世界のスマートマネーと世論のギャップを鋭く観察中';
-    rankBorderColor = 'rgba(56, 189, 248, 0.4)';
-    nextRankHint = 'あと 5 問投票で Lv.3 チーフ・ストラテジスト へ昇格！';
-  }
-  if (votedCount >= 8) {
-    rankTitle = '⚡ チーフ・ストラテジスト (Lv.3)';
-    rankDesc = '多数の未来テーマに投票し、独自の世論ポートフォリオを構築中';
-    rankBorderColor = 'rgba(251, 191, 36, 0.4)';
-    nextRankHint = 'あと 7 問投票で Master Predictor（未来マスター）へ到達！';
-  }
-  if (votedCount >= 15) {
-    rankTitle = '👑 未来マスター (Master Predictor)';
-    rankDesc = '卓越した洞察力で世界の集合知と対峙する伝説の予報士';
-    rankBorderColor = 'rgba(244, 63, 94, 0.4)';
-    nextRankHint = '最高位ランク達成！全国リーダーボード上位をキープ中';
-  }
+  // 🏆 サイバー予報士ランク計算 (Lv.1〜Lv.10)
+  const currentRank = calculateUserRank(votedCount);
 
   // 🏆 リーダーボード（全国ランキング）
   const leaderboardData = [
-    { rank: 1, name: 'Tokyo_Alpha_Quant', badge: '👑 未来マスター', accuracy: 88, votes: 42, streak: 12, isUser: false },
-    { rank: 2, name: '兜町マクロウォッチャー', badge: '⚡ チーフ・ストラテジスト', accuracy: 83, votes: 38, streak: 9, isUser: false },
-    { rank: 3, name: 'シリコンバレー観測員', badge: '⚡ チーフ・ストラテジスト', accuracy: 79, votes: 29, streak: 7, isUser: false },
-    { rank: 4, name: 'あなた (Your Forecast)', badge: rankTitle, accuracy: accuracyRate ?? 75, votes: Math.max(votedCount, 1), streak: streak.currentStreak, isUser: true },
-    { rank: 5, name: 'Crypto_Oracle_JP', badge: '🔭 クォンツ・オブザーバー', accuracy: 72, votes: 21, streak: 4, isUser: false },
-    { rank: 6, name: 'AI_Trend_Hunter', badge: '🔭 クォンツ・オブザーバー', accuracy: 68, votes: 19, streak: 3, isUser: false },
-    { rank: 7, name: 'Nagoya_Trader', badge: '🌱 ルーキー予報士', accuracy: 65, votes: 14, streak: 2, isUser: false },
+    { rank: 1, name: 'Tokyo_Alpha_Quant', badge: '👑 Lv.10 伝説の予報神', accuracy: 88, votes: 124, streak: 18, isUser: false },
+    { rank: 2, name: '兜町マクロウォッチャー', badge: '⏳ Lv.9 時間軸支配者', accuracy: 83, votes: 88, streak: 12, isUser: false },
+    { rank: 3, name: 'シリコンバレー観測員', badge: '🧬 Lv.8 特異点サイファー', accuracy: 79, votes: 62, streak: 9, isUser: false },
+    { rank: 4, name: 'あなた (You)', badge: `${currentRank.icon} Lv.${currentRank.level} ${currentRank.title}`, accuracy: accuracyRate ?? 75, votes: votedCount, streak: streak.currentStreak, isUser: true },
+    { rank: 5, name: 'Crypto_Oracle_JP', badge: '🌐 Lv.7 深層シンジケート', accuracy: 72, votes: 35, streak: 5, isUser: false },
+    { rank: 6, name: 'AI_Trend_Hunter', badge: '🔥 Lv.6 マーケット預言者', accuracy: 68, votes: 24, streak: 4, isUser: false },
+    { rank: 7, name: 'Nagoya_Trader', badge: '🔮 Lv.5 凄腕オラクル', accuracy: 65, votes: 16, streak: 2, isUser: false },
   ];
 
   // X自慢シェアリンク生成
   const handleShareToX = () => {
-    const accText = accuracyRate !== null ? `的中率: 🎯 ${accuracyRate}%` : `投票数: 📊 ${votedCount}問`;
-    const shareText = `【未来レーダー】私の未来予報士ステータス
-${rankTitle}
-連続ストリーク: 🔥 ${streak.currentStreak}日
+    const accText = accuracyRate !== null ? `的中率: 🎯 ${accuracyRate}%` : `投票総数: 📊 ${votedCount}件`;
+    const shareText = `【未来レーダー】私のサイバー予報士ステータス
+称号: ${currentRank.icon} [ Lv.${currentRank.level} ${currentRank.title} ]
 ${accText}
+連続観測ストリーク: 🔥 ${streak.currentStreak}日連続
 
-世界のスマートマネー（Polymarket）vs 日本の世論を1秒予報！
-あなたの直感は世界を上回れるか？
+世界のスマートマネー（Polymarket）vs 日本の生活者世論
+あなたも1秒で直感投票！👇
+https://mirairadar.com
 
-👉 https://mirairadar.com
-#未来レーダー #MiraiRadar #Polymarket`;
+#未来レーダー #サイバー予報士 #Polymarket #世論調査`;
 
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -119,8 +100,8 @@ ${accText}
           <div className="forecast-header-left">
             <Award className="forecast-header-icon" />
             <div>
-              <div className="forecast-header-sub">PREDICTOR HUB // 未来予報士</div>
-              <h2 className="forecast-header-title">予報士プロファイル ＆ 全国ランキング</h2>
+              <div className="forecast-header-sub">CYBER FORECASTER // 予報士ハブ</div>
+              <h2 className="forecast-header-title">予報士プロファイル ＆ 階級ステータス</h2>
             </div>
           </div>
           <button onClick={onClose} className="forecast-close-btn" aria-label="閉じる">
@@ -128,209 +109,258 @@ ${accText}
           </button>
         </div>
 
-        {/* タブナビゲーション */}
-        <div className="forecast-tab-nav">
+        {/* タブ切り替え (3タブ構成) */}
+        <div className="forecast-modal-tabs">
           <button
-            type="button"
+            className={`forecast-tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
-            className={`forecast-tab-item ${activeTab === 'profile' ? 'active' : ''}`}
           >
             <User size={14} />
-            <span>マイ実績 ＆ 的中履歴</span>
+            <span>マイステータス</span>
           </button>
+
           <button
-            type="button"
+            className={`forecast-tab-btn ${activeTab === 'ranks' ? 'active' : ''}`}
+            onClick={() => setActiveTab('ranks')}
+          >
+            <Crown size={14} />
+            <span>全10階級一覧</span>
+          </button>
+
+          <button
+            className={`forecast-tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
             onClick={() => setActiveTab('leaderboard')}
-            className={`forecast-tab-item ${activeTab === 'leaderboard' ? 'active-gold' : ''}`}
           >
             <Trophy size={14} />
-            <span>🏆 週間リーダーボード (Top 10)</span>
+            <span>全国ランキング</span>
           </button>
         </div>
 
-        {activeTab === 'profile' ? (
-          /* タブ1: マイ実績 */
+        {/* タブ1: マイプロファイル */}
+        {activeTab === 'profile' && (
           <div className="forecast-modal-body">
-            {/* ランク＆ストリーク */}
-            <div className="forecast-rank-box" style={{ borderColor: rankBorderColor }}>
-              <div className="forecast-rank-top">
-                <div className="forecast-rank-info">
-                  <div className="forecast-rank-badge-label">CURRENT RANK</div>
-                  <h3 className="forecast-rank-name">{rankTitle}</h3>
-                  <p className="forecast-rank-desc">{rankDesc}</p>
+            {/* 🏆 サイバー予報士 ランクヒーローカード */}
+            <div 
+              className="cyber-rank-hero-card"
+              style={{
+                borderColor: currentRank.borderColor,
+                boxShadow: `0 0 20px ${currentRank.borderColor}33`,
+              }}
+            >
+              <div className="rank-badge-row">
+                <div className="rank-level-tag">
+                  <span>{currentRank.icon}</span>
+                  <span className="font-mono font-black">LEVEL {currentRank.level}</span>
                 </div>
-                <div className="forecast-streak-block">
-                  <div className="forecast-streak-pill">
-                    <Flame size={14} className="streak-flame-icon" />
-                    <span>{streak.currentStreak} 日連続投票中</span>
-                  </div>
-                  <span className="forecast-max-streak">最高記録: {streak.maxStreak} 日</span>
-                </div>
-              </div>
-
-              <div className="forecast-stats-row">
-                <div className="forecast-stat-col">
-                  <div className="forecast-stat-lbl">総予報数</div>
-                  <div className="forecast-stat-num">{votedCount} <span className="forecast-unit">問</span></div>
-                </div>
-                <div className="forecast-stat-col">
-                  <div className="forecast-stat-lbl">判定確定</div>
-                  <div className="forecast-stat-num cyan">{resolvedCount} <span className="forecast-unit">問</span></div>
-                </div>
-                <div className="forecast-stat-col">
-                  <div className="forecast-stat-lbl">的中率 (Accuracy)</div>
-                  <div className="forecast-stat-num green">{accuracyRate !== null ? `${accuracyRate}%` : '集計待機中'}</div>
+                <div className="rank-name-main" style={{ color: currentRank.color }}>
+                  {currentRank.title}
                 </div>
               </div>
 
-              {/* 昇格プログレス */}
-              <div className="forecast-next-rank-hint">
-                <Sparkles size={12} className="text-amber-400" />
-                <span>{nextRankHint}</span>
+              <p className="rank-description-text">{currentRank.description}</p>
+
+              {/* EXP プログレスバー */}
+              <div className="rank-exp-section">
+                <div className="exp-label-row font-mono text-xs">
+                  <span className="text-slate-400">EXP (投票実績): {votedCount} 票</span>
+                  <span style={{ color: currentRank.color }}>
+                    {currentRank.isMaxLevel ? 'MAX RANK 達成！' : `次のランクまで: あと ${currentRank.nextLevelExp - currentRank.currentExp} 票`}
+                  </span>
+                </div>
+                <div className="exp-bar-track">
+                  <div 
+                    className="exp-bar-fill" 
+                    style={{ 
+                      width: `${currentRank.progressPercent}%`,
+                      background: currentRank.color,
+                      boxShadow: `0 0 10px ${currentRank.color}`
+                    }}
+                  />
+                </div>
               </div>
             </div>
 
-            {/* 🐦 X自慢シェアバナー */}
-            <div className="forecast-share-banner">
-              <div className="share-banner-text">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-                  <Crown size={14} className="text-amber-400" />
-                  <span>あなたの予報士ステータスをXでシェア</span>
+            {/* 3つの主要スタッツ */}
+            <div className="forecast-stats-grid">
+              <div className="forecast-stat-card">
+                <div className="stat-card-label">
+                  <Target size={14} className="text-cyan-400" />
+                  <span>投票実績</span>
                 </div>
-                <p className="text-[11px] text-slate-400 m-0">
-                  ストリーク（🔥）と的中実績をフォロワーに公開して議論を呼ぼう
-                </p>
+                <div className="stat-card-value text-cyan-400 font-mono">
+                  {votedCount}
+                  <span className="stat-unit">問</span>
+                </div>
+                <div className="stat-card-sub">参加マーケット数</div>
               </div>
-              <button onClick={handleShareToX} className="btn-forecast-x-share">
-                <Share2 size={13} />
-                <span>Xで実績をシェア</span>
-              </button>
+
+              <div className="forecast-stat-card">
+                <div className="stat-card-label">
+                  <Flame size={14} className="text-amber-400" />
+                  <span>連続ストリーク</span>
+                </div>
+                <div className="stat-card-value text-amber-400 font-mono">
+                  {streak.currentStreak}
+                  <span className="stat-unit">日</span>
+                </div>
+                <div className="stat-card-sub">最高: {streak.maxStreak} 日連続</div>
+              </div>
+
+              <div className="forecast-stat-card">
+                <div className="stat-card-label">
+                  <Award size={14} className="text-rose-400" />
+                  <span>予想的中率</span>
+                </div>
+                <div className="stat-card-value text-rose-400 font-mono">
+                  {accuracyRate !== null ? `${accuracyRate}%` : '---'}
+                </div>
+                <div className="stat-card-sub">
+                  {resolvedCount > 0 ? `${resolvedCount}問中 ${correctCount}問的中` : '結果確定待ち'}
+                </div>
+              </div>
             </div>
 
-            {/* 過去の投票履歴リスト */}
+            {/* 投票履歴リスト */}
             <div className="forecast-history-section">
-              <div className="forecast-history-header">
-                <Target size={14} className="text-cyan-400" />
-                <h4 className="forecast-history-title">あなたが予報した未来の問い ({votedItems.length}件)</h4>
+              <div className="history-header flex justify-between items-center mb-2">
+                <h3 className="history-title text-sm font-bold flex items-center gap-1.5">
+                  <Layers size={14} className="text-cyan-400" />
+                  <span>あなたが投票したマーケット ({votedCount}件)</span>
+                </h3>
               </div>
 
               {votedItems.length === 0 ? (
-                <div className="forecast-empty-box">
-                  <p className="forecast-empty-txt">まだ予報履歴がありません。</p>
-                  <p className="forecast-empty-sub">
-                    トップページの各銘柄で「YES / NO」に直感で投票すると、ここに自動記録されます。
+                <div className="forecast-empty-state">
+                  <p className="empty-text">まだ投票したマーケットがありません。</p>
+                  <p className="empty-sub">
+                    気になるテーマに「YES」か「NO」で投票すると、あなたの予報士データが記録されランクが上がります！
                   </p>
                 </div>
               ) : (
                 <div className="forecast-history-list">
-                  {votedItems.map(({ event, vote }) => {
-                    const isResolved = Boolean(event.resolvedChoice);
-                    const isWon = isResolved && event.resolvedChoice === vote;
-                    const isLost = isResolved && event.resolvedChoice !== vote;
-
-                    return (
-                      <div
-                        key={event.id}
-                        onClick={() => {
-                          onSelectEvent(event);
-                          onClose();
-                        }}
-                        className={`forecast-card-item ${isWon ? 'won' : isLost ? 'lost' : ''}`}
-                      >
-                        <div className="forecast-card-main">
-                          <div className="forecast-card-tags">
-                            <span className="forecast-cat-pill">
-                              {event.categoryLabel.slice(0, 6)}
-                            </span>
-                            <span className="forecast-odds-pill">
-                              世界: {event.worldProbYes}%
-                            </span>
-                            {isWon && <span className="won-badge">🎯 的中！</span>}
-                            {isLost && <span className="lost-badge">❌ 不的中</span>}
-                            {!isResolved && <span className="pending-badge">⏳ 判定待機中</span>}
+                  {votedItems.map(({ event, vote }) => (
+                    <div
+                      key={event.id}
+                      className="history-item-row"
+                      onClick={() => {
+                        onSelectEvent(event);
+                        onClose();
+                      }}
+                    >
+                      <div className="history-item-left">
+                        <span className={`history-vote-badge ${vote.toLowerCase()}`}>
+                          {vote}
+                        </span>
+                        <div className="history-item-info">
+                          <div className="history-item-title">{event.titleJa || event.title}</div>
+                          <div className="history-item-meta font-mono">
+                            世界オッズ YES {event.worldProbYes}%  |  日本支持 YES {event.japanVotes.percentYes}%
                           </div>
-                          <h5 className="forecast-card-question">
-                            {event.titleJa}
-                          </h5>
-                        </div>
-
-                        <div className="forecast-card-right">
-                          <span className={`forecast-vote-pill ${vote.toLowerCase()}`}>
-                            [{vote}]
-                          </span>
-                          <ArrowRight size={14} className="forecast-arrow" />
                         </div>
                       </div>
-                    );
-                  })}
+                      <ArrowRight size={14} className="history-arrow" />
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
+
+            {/* X自慢シェアボタン */}
+            <button onClick={handleShareToX} className="btn-share-forecast-x">
+              <Share2 size={16} />
+              <span>この予報士ステータスを 𝕏 で自慢シェア</span>
+            </button>
           </div>
-        ) : (
-          /* タブ2: 全国ランキング (Leaderboard) */
+        )}
+
+        {/* タブ2: 全10階級一覧 */}
+        {activeTab === 'ranks' && (
           <div className="forecast-modal-body">
-            <div className="leaderboard-meta-bar">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
-                <Crown size={14} />
-                <span>週間トップ予報士ランキング (Weekly Top Predictors)</span>
-              </div>
-              <span className="leaderboard-update-tag">● 毎週月曜 00:00 自動集計</span>
-            </div>
+            <p className="text-xs text-slate-400 mb-3">
+              未来レーダーで投票を重ねることでEXPが獲得でき、サイバー予報士としての階級がアンロックされます。
+            </p>
 
-            <div className="leaderboard-list">
-              {leaderboardData.map((user) => (
-                <div
-                  key={user.rank}
-                  className={`leaderboard-item ${user.isUser ? 'highlight-user' : ''}`}
-                >
-                  <div className="leaderboard-left">
-                    <div className={`leaderboard-rank-badge rank-${user.rank <= 3 ? user.rank : 'default'}`}>
-                      {user.rank === 1 ? <Crown size={12} className="text-amber-950" /> : user.rank}
-                    </div>
-                    <div>
-                      <div className="leaderboard-name-row">
-                        <span className="leaderboard-name">{user.name}</span>
-                        {user.isUser && <span className="you-tag">YOU</span>}
+            <div className="rank-tier-grid">
+              {RANK_TIERS.map((tier) => {
+                const isUnlocked = votedCount >= tier.minVotes;
+                const isCurrent = currentRank.level === tier.level;
+
+                return (
+                  <div
+                    key={tier.level}
+                    className={`rank-tier-card ${isCurrent ? 'current' : ''} ${isUnlocked ? 'unlocked' : 'locked'}`}
+                    style={{
+                      borderColor: isCurrent ? tier.color : undefined,
+                    }}
+                  >
+                    <div className="tier-header-row">
+                      <div className="flex items-center gap-2">
+                        <span className="tier-icon">{tier.icon}</span>
+                        <div>
+                          <div className="tier-level-num font-mono text-xs text-slate-400">
+                            LEVEL {tier.level}
+                          </div>
+                          <div className="tier-title font-bold text-sm" style={{ color: tier.color }}>
+                            {tier.title}
+                          </div>
+                        </div>
                       </div>
-                      <div className="leaderboard-badge-txt">{user.badge}</div>
+
+                      {isCurrent ? (
+                        <span className="badge-current-rank">現在</span>
+                      ) : isUnlocked ? (
+                        <CheckCircle2 size={16} className="text-emerald-400" />
+                      ) : (
+                        <Lock size={14} className="text-slate-500" />
+                      )}
+                    </div>
+
+                    <p className="tier-desc text-xs text-slate-300 mt-2">{tier.description}</p>
+
+                    <div className="tier-req-bar mt-2 font-mono text-[11px] text-slate-400">
+                      必要投票数: {tier.minVotes} 票 〜 {tier.maxVotes === Infinity ? '無制限' : `${tier.maxVotes} 票`}
                     </div>
                   </div>
-
-                  <div className="leaderboard-right">
-                    <div className="leaderboard-stat-item">
-                      <div className="leaderboard-stat-sub">的中率</div>
-                      <div className="leaderboard-stat-val green">{user.accuracy}%</div>
-                    </div>
-                    <div className="leaderboard-stat-item streak-col">
-                      <div className="leaderboard-stat-sub">連続</div>
-                      <div className="leaderboard-stat-val amber">
-                        <Flame size={12} className="fill-amber-400" />
-                        <span>{user.streak}d</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* ランキング下部シェア */}
-            <div className="leaderboard-footer-action">
-              <button onClick={handleShareToX} className="btn-leaderboard-share">
-                <Share2 size={13} />
-                <span>私のランキング順位をXでシェア</span>
-              </button>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* フッター */}
-        <div className="forecast-modal-footer">
-          <span className="forecast-footer-security">🔒 予報履歴とストリークはブラウザに安全に保存されています</span>
-          <button type="button" onClick={onClose} className="forecast-footer-btn">
-            閉じる
-          </button>
-        </div>
+        {/* タブ3: リーダーボード */}
+        {activeTab === 'leaderboard' && (
+          <div className="forecast-modal-body">
+            <p className="text-xs text-slate-400 mb-3">
+              全国のトップクォンツ・予報士たちの的中率と活動ランキングです。
+            </p>
+
+            <div className="leaderboard-table">
+              {leaderboardData.map((item) => (
+                <div
+                  key={item.rank}
+                  className={`leaderboard-row ${item.isUser ? 'user-row' : ''}`}
+                >
+                  <div className="leaderboard-rank font-mono font-black">
+                    {item.rank === 1 ? '👑 1' : item.rank === 2 ? '🥈 2' : item.rank === 3 ? '🥉 3' : item.rank}
+                  </div>
+
+                  <div className="leaderboard-user-info">
+                    <div className="leaderboard-name font-bold flex items-center gap-1.5">
+                      <span>{item.name}</span>
+                      {item.isUser && <span className="you-badge font-mono">YOU</span>}
+                    </div>
+                    <div className="leaderboard-badge text-xs text-slate-400">{item.badge}</div>
+                  </div>
+
+                  <div className="leaderboard-stats font-mono text-right">
+                    <div className="stat-acc text-cyan-400 font-bold">{item.accuracy}%</div>
+                    <div className="stat-sub text-[11px] text-slate-400">{item.votes}票 / 🔥{item.streak}日</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

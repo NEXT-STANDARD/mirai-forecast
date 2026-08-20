@@ -4,6 +4,8 @@ import { Logo } from './Logo';
 import { cyberSound } from '../utils/cyberSound';
 import type { CategoryType } from '../types';
 
+import { calculateUserRank } from '../utils/rankSystem';
+
 interface HeaderProps {
   totalMarketsCount: number;
   totalJapanVotes: number;
@@ -42,6 +44,7 @@ export const Header: React.FC<HeaderProps> = ({
   onGoHome,
 }) => {
   const [isMuted, setIsMuted] = React.useState(() => cyberSound.getIsMuted());
+  const currentRank = calculateUserRank(userVotesCount);
 
   const categories: { id: CategoryType; label: string }[] = [
     { id: 'all', label: '☀️ 全銘柄' },
@@ -127,16 +130,22 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* 🏆 マイ予報ハブ */}
+          {/* 🏆 サイバー予報士ランク ＆ マイ予報ハブ */}
           {onOpenMyForecast && (
             <button
               onClick={onOpenMyForecast}
               className="btn-header-forecast-slim relative"
-              title="あなたの投票履歴・ストリーク・全国ランキング"
+              title={`あなたの予報士ランク: [ Lv.${currentRank.level} ${currentRank.title} ] (投票実績: ${userVotesCount}件)`}
             >
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs">🏆 マイ予報</span>
-                <span className="text-cyan-400 font-mono text-[11px]">({userVotesCount})</span>
+                <span className="font-bold text-xs flex items-center gap-1">
+                  <span>{currentRank.icon}</span>
+                  <span className="font-mono text-[11px] font-black" style={{ color: currentRank.color }}>
+                    Lv.{currentRank.level}
+                  </span>
+                  <span className="hide-on-mobile">{currentRank.title}</span>
+                </span>
+                <span className="text-slate-400 font-mono text-[10px]">({userVotesCount})</span>
                 {streakDays > 0 && (
                   <span className="streak-mini-badge">
                     <Flame size={9} className="fill-amber-400 text-amber-400" />

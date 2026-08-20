@@ -8815,6 +8815,150 @@ body::after {
   box-shadow: 0 6px 18px rgba(2, 132, 199, 0.6);
 }
 
+/* ========================================================
+   🏆 Cyber Forecaster Rank System (Lv.1〜Lv.10) Styles
+   ======================================================== */
+.cyber-rank-hero-card {
+  background: linear-gradient(135deg, #091024 0%, #040711 100%);
+  border: 1.5px solid #38bdf8;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.rank-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.rank-level-tag {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 0.35rem 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  color: #f8fafc;
+}
+
+.rank-name-main {
+  font-size: 1.25rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.rank-description-text {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.rank-exp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+}
+
+.exp-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exp-bar-track {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.exp-bar-fill {
+  height: 100%;
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rank-tier-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.rank-tier-card {
+  background: #080e1e;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.rank-tier-card.current {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), #080e1e);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+.rank-tier-card.locked {
+  opacity: 0.65;
+}
+
+.tier-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-current-rank {
+  background: #38bdf8;
+  color: #020617;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: monospace;
+}
+
+.btn-share-forecast-x {
+  width: 100%;
+  background: linear-gradient(135deg, #1d9bf0 0%, #0284c7 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: 1.25rem;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+  transition: all 0.15s;
+}
+
+.btn-share-forecast-x:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #1d9bf0 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.5);
+}
+
 
 
 

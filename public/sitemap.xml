@@ -346,18 +346,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/atp-fritz-oconnel-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/872994</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/val-g21-m80-2026-08-19</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -1055,6 +1043,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/868899</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/dota2-ngx-flc-2026-08-20</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/859111</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
