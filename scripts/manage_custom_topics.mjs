@@ -23,7 +23,25 @@ envContent.split('\n').forEach(line => {
   if (k && !k.startsWith('#')) localEnv[k.trim()] = v.join('=').trim();
 });
 
-const supabase = createClient(localEnv.VITE_SUPABASE_URL, localEnv.SUPABASE_SERVICE_ROLE_KEY || localEnv.VITE_SUPABASE_ANON_KEY);
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || localEnv.SUPABASE_SERVICE_ROLE_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
+
+// events への書き込みは service_role 専用（公開 UPDATE / DELETE ポリシーは廃止済み）。
+// anon のままだと RLS が対象行を見せず「成功したのに0件」になるため、ここで止める。
+const supabaseKeyRole = (() => {
+  try {
+    return JSON.parse(Buffer.from(supabaseKey.split('.')[1], 'base64').toString()).role || 'unknown';
+  } catch {
+    return 'unknown';
+  }
+})();
+
+if (supabaseKeyRole !== 'service_role') {
+  console.error(`❌ Supabase の鍵ロールが "${supabaseKeyRole}" です（必要: "service_role"）。`);
+  console.error('   .env の SUPABASE_SERVICE_ROLE_KEY を設定してください。');
+  process.exit(1);
+}
+
+const supabase = createClient(localEnv.VITE_SUPABASE_URL, supabaseKey);
 const geminiApiKey = localEnv.GEMINI_API_KEY;
 
 async function listPendingProposals() {
@@ -44,14 +62,33 @@ async function listPendingProposals() {
     return;
   }
 
-  data.forEach((p, idx) => {
-    console.log(`[${idx + 1}] ID: ${p.id}`);
+  // is_active: false には「ユーザー提案」と「同期が締切切れで無効化した銘柄」が混在する。
+  // 却下（削除）を誤爆させないため、種別を明示する。
+  const isUserProposal = (p) => String(p.id).startsWith('prop-') || String(p.slug || '').startsWith('user-topic-');
+
+  const proposals = data.filter(isUserProposal);
+  const deactivated = data.filter(p => !isUserProposal(p));
+
+  if (proposals.length === 0) {
+    console.log('ユーザーからの審査待ち提案はありません。');
+  }
+
+  proposals.forEach((p, idx) => {
+    console.log(`[${idx + 1}] 💡 ユーザー提案  ID: ${p.id}`);
     console.log(`    タイトル: ${p.title_ja}`);
     console.log(`    カテゴリ: ${p.category_label}`);
     console.log(`    詳細/背景: ${p.question_en}`);
     console.log(`    提案日時: ${p.updated_at}`);
     console.log('----------------------------------------------------');
   });
+
+  if (deactivated.length > 0) {
+    console.log(`\n📦 同期により無効化された銘柄: ${deactivated.length}件（締切切れ等。通常は操作不要）`);
+    deactivated.slice(0, 5).forEach(p => {
+      console.log(`    ${p.id}  ${String(p.title_ja).slice(0, 40)}`);
+    });
+    if (deactivated.length > 5) console.log(`    … 他 ${deactivated.length - 5}件`);
+  }
 }
 
 async function generateDeepInsightForCustom(titleJa, category) {
@@ -207,6 +244,49 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
   console.log(`  カタリスト: ${insight.keyCatalysts.join(' ｜ ')}`);
 }
 
+async function rejectProposal(proposalId, confirmed) {
+  const { data: rows, error: fetchError } = await supabase
+    .from('events')
+    .select('id, title_ja, is_active, updated_at')
+    .eq('id', proposalId);
+
+  if (fetchError) {
+    console.error('❌ 取得エラー:', fetchError.message);
+    process.exit(1);
+  }
+
+  const record = rows && rows[0];
+  if (!record) {
+    console.error(`❌ id="${proposalId}" の銘柄が見つかりません。`);
+    process.exit(1);
+  }
+
+  // 公開中の銘柄は、このコマンドでは消さない（誤操作で本番から銘柄が消えるのを防ぐ）
+  if (record.is_active) {
+    console.error(`❌ "${record.title_ja}" は公開中（is_active: true）です。`);
+    console.error('   却下は審査待ちの提案にのみ使用してください。');
+    process.exit(1);
+  }
+
+  if (!confirmed) {
+    console.log('\n🗑️  削除対象:');
+    console.log(`  id       : ${record.id}`);
+    console.log(`  タイトル : ${record.title_ja}`);
+    console.log(`  最終更新 : ${record.updated_at}`);
+    console.log(`\n実行するには --yes を付けてください:`);
+    console.log(`  node scripts/manage_custom_topics.mjs reject ${record.id} --yes\n`);
+    return;
+  }
+
+  const { error } = await supabase.from('events').delete().eq('id', proposalId);
+  if (error) {
+    console.error('❌ 削除エラー:', error.message);
+    process.exit(1);
+  }
+
+  console.log(`\n🗑️  【却下完了】「${record.title_ja}」を削除しました。`);
+}
+
 async function addOfficialCustomTopic(titleJa, category, reason) {
   console.log(`\n👑 運営公式オリジナル銘柄「${titleJa}」を即時投下中...`);
 
@@ -325,13 +405,16 @@ if (action === 'list') {
   listPendingProposals();
 } else if (action === 'approve' && arg1) {
   approveProposal(arg1);
+} else if (action === 'reject' && arg1) {
+  rejectProposal(arg1, arg2 === '--yes');
 } else if (action === 'add' && arg1) {
   addOfficialCustomTopic(arg1, arg2 || 'economy', arg3 || '運営公式選定トピック');
 } else {
   console.log(`
-未来レーダー 運営用トピック管理ツール:
+未来レーダー 運営用トピック管理ツール（要 service_role）:
   - 審査待ち提案一覧 : node scripts/manage_custom_topics.mjs list
   - 提案の承認・公開 : node scripts/manage_custom_topics.mjs approve <id>
+  - 提案の却下・削除 : node scripts/manage_custom_topics.mjs reject <id> --yes
   - 公式銘柄の追加   : node scripts/manage_custom_topics.mjs add "タイトル" "category" "背景"
 `);
 }
