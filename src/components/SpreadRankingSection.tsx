@@ -141,7 +141,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
 
                 <div className="spread-gap-pill">
                   <Zap size={11} className="text-amber-400" />
-                  <span className="font-mono font-extrabold">{gap}% 乖離</span>
+                  <span className="font-mono font-extrabold">{gap}% 乖離 (n={event.japanVotes.total})</span>
                 </div>
               </div>
 
@@ -166,7 +166,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 <div className="spread-meter-row">
                   <div className="spread-meter-label">
                     <span className="text-xs">🇯🇵</span>
-                    <span>日本世論 <small className="text-[10px] text-slate-400 font-mono">(n={event.japanVotes.total})</small></span>
+                    <span>日本世論</span>
                   </div>
                   {hasVoted ? (
                     <>
