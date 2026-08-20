@@ -1995,7 +1995,7 @@ body {
 
 .ogp-modal-actions {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 0.65rem;
 }
 
@@ -2006,26 +2006,41 @@ body {
 }
 
 .btn-download-ogp-image {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.25) 100%);
   color: #fde68a;
   border: 1px solid rgba(245, 158, 11, 0.4);
-  border-radius: 6px;
-  padding: 0.65rem 0.5rem;
-  font-size: 0.72rem;
+  border-radius: 8px;
+  min-height: 46px;
+  padding: 0.65rem 0.6rem;
+  font-size: 0.78rem;
   font-weight: 800;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  transition: all 0.15s ease;
+  gap: 0.4rem;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
+}
+
+.btn-download-ogp-image.highlight-copy {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.35) 100%);
+  color: #a7f3d0;
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.15);
+}
+
+.btn-download-ogp-image.highlight-copy:hover {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #020617;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.5);
+  transform: translateY(-1px);
 }
 
 .btn-download-ogp-image:hover {
   background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
   color: #020617;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.4);
   transform: translateY(-1px);
 }
 

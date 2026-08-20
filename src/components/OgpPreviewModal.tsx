@@ -25,24 +25,25 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
   if (!item) return null;
 
   const [copied, setCopied] = useState(false);
+  const [copiedImage, setCopiedImage] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const worldYes = item.worldProbYes;
   const japanYes = item.japanVotes.percentYes;
   const gap = Math.abs(worldYes - japanYes);
-  const shareUrl = `https://mirairadar.com/market/${item.slug}`;
+  const shareUrl = `https://mirairadar.com/market/${item.slug || item.id}`;
 
   // ユーザーの立場（YES/NO/未投票）に応じた熱いパーソナライズ文面
   let stanceHeadline = '🚨【世論乖離警報】世界とお茶の間の見解が激突中⚡️';
   let opinionHook = `海外のスマートマネーと日本の世論で大きな温度差が生まれています。\nあなたの直感はどちらが正しいと思いますか？👇`;
 
   if (userVote === 'YES') {
-    stanceHeadline = '【私はYES（そう思う）に投票しました⚡️】';
+    stanceHeadline = '【私はYESに投票しました⚡️】';
     opinionHook = worldYes < 50
       ? `世界（Polymarket）はYES ${worldYes}%と慎重派だけど、私は絶対起きる派！\nあなたの直感は世界を上回れるか？👇`
       : `世界マネーもYES ${worldYes}%で過熱中！あなたも同じ見解？👇`;
   } else if (userVote === 'NO') {
-    stanceHeadline = '【私はNO（起きない）に投票しました⚡️】';
+    stanceHeadline = '【私はNOに投票しました⚡️】';
     opinionHook = worldYes >= 50
       ? `世界（Polymarket）はYES ${worldYes}%と強気だけど、私は逆張りのNO派！\nあなたの直感はどちらを支持する？👇`
       : `世界もNO ${item.worldProbNo}%で一致！日本の皆さんはどう思いますか？👇`;
@@ -71,121 +72,208 @@ ${shareUrl}
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
-  // 🎨 HTML5 Canvas による 1200x630px 高画質 OGP カード画像のクライアント側即時生成＆ダウンロード
-  const handleDownloadImage = () => {
-    setIsGeneratingImage(true);
+  // 🎨 1200x630px 高解像度 CyberQuant ＆ RGB Chroma Canvas 画像を生成
+  const generateCanvasImage = (): HTMLCanvasElement => {
     const canvas = document.createElement('canvas');
     canvas.width = 1200;
     canvas.height = 630;
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) return canvas;
 
-    // 1. 背景グラデーション
+    // 1. 背景（超深層ダークグラデーション）
     const bgGrad = ctx.createLinearGradient(0, 0, 1200, 630);
-    bgGrad.addColorStop(0, '#050811');
-    bgGrad.addColorStop(0.5, '#0b1329');
-    bgGrad.addColorStop(1, '#03050a');
+    bgGrad.addColorStop(0, '#020617');
+    bgGrad.addColorStop(0.5, '#070d1e');
+    bgGrad.addColorStop(1, '#030712');
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, 1200, 630);
 
-    // 2. 外枠ボーダー
-    ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
-    ctx.lineWidth = 2;
+    // 2. サイバーグリッド背景
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.04)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x < 1200; x += 40) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 630);
+      ctx.stroke();
+    }
+    for (let y = 0; y < 630; y += 40) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(1200, y);
+      ctx.stroke();
+    }
+
+    // 3. RGB レインボー外枠ボーダー
+    const borderGrad = ctx.createLinearGradient(30, 30, 1170, 600);
+    borderGrad.addColorStop(0, '#38bdf8');
+    borderGrad.addColorStop(0.25, '#a855f7');
+    borderGrad.addColorStop(0.5, '#f43f5e');
+    borderGrad.addColorStop(0.75, '#fbbf24');
+    borderGrad.addColorStop(1, '#10b981');
+
+    ctx.strokeStyle = borderGrad;
+    ctx.lineWidth = 3;
     ctx.strokeRect(30, 30, 1140, 570);
 
-    // 3. ヘッダー (ロゴ ＆ ブランド)
+    // 4. ヘッダー（ブランドロゴ ＆ 乖離アラート）
+    // ブランドピル
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+    ctx.fillRect(60, 55, 330, 42);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(60, 55, 330, 42);
+
+    ctx.fillStyle = '#34d399';
+    ctx.beginPath();
+    ctx.arc(82, 76, 5, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 24px sans-serif';
-    ctx.fillText('未来レーダー', 70, 85);
+    ctx.font = 'bold 18px "Noto Sans JP", sans-serif';
+    ctx.fillText('未来レーダー', 100, 83);
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 16px monospace';
-    ctx.fillText('MiraiRadar.com', 230, 85);
+    ctx.font = 'bold 15px monospace';
+    ctx.fillText('// MIRAIRADAR.COM', 220, 82);
 
-    // 乖離バッジ
+    // 乖離アラートバッジ
     ctx.fillStyle = 'rgba(245, 158, 11, 0.2)';
-    ctx.fillRect(800, 55, 330, 42);
+    ctx.fillRect(800, 55, 340, 42);
     ctx.strokeStyle = '#fbbf24';
-    ctx.strokeRect(800, 55, 330, 42);
-    ctx.fillStyle = '#fef08a';
-    ctx.font = 'bold 18px monospace';
-    ctx.fillText(`⚡ SPREAD ALERT: ${gap}% GAP`, 820, 82);
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(800, 55, 340, 42);
 
-    // 4. タイトルボックス
-    ctx.fillStyle = '#080e1e';
-    ctx.fillRect(70, 130, 1060, 120);
-    ctx.strokeStyle = '#1e293b';
-    ctx.strokeRect(70, 130, 1060, 120);
+    ctx.fillStyle = '#fef08a';
+    ctx.font = '900 18px monospace';
+    ctx.fillText(`⚡ SPREAD GAP: ${gap}% 乖離`, 825, 82);
+
+    // 5. 銘柄タイトルブロック
+    ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+    ctx.fillRect(60, 120, 1080, 120);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeRect(60, 120, 1080, 120);
 
     ctx.fillStyle = '#fbbf24';
-    ctx.font = 'bold 14px sans-serif';
-    ctx.fillText('⚡ 世界とお茶の間の見解が激突中！', 100, 165);
+    ctx.font = 'bold 14px "Noto Sans JP", sans-serif';
+    ctx.fillText(item.categoryLabel || '📊 観測マーケット', 85, 152);
+
+    if (userVote) {
+      ctx.fillStyle = userVote === 'YES' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(244, 63, 94, 0.25)';
+      ctx.fillRect(850, 135, 270, 36);
+      ctx.strokeStyle = userVote === 'YES' ? '#10b981' : '#f43f5e';
+      ctx.strokeRect(850, 135, 270, 36);
+
+      ctx.fillStyle = userVote === 'YES' ? '#34d399' : '#fb7185';
+      ctx.font = 'bold 15px monospace';
+      ctx.fillText(`あなたの投票: [ ${userVote} ]`, 870, 159);
+    }
 
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 30px sans-serif';
-    const displayTitle = item.titleJa.length > 34 ? item.titleJa.slice(0, 32) + '...' : item.titleJa;
-    ctx.fillText(displayTitle, 100, 215);
+    ctx.font = 'bold 28px "Noto Sans JP", sans-serif';
+    const displayTitle = item.titleJa.length > 38 ? item.titleJa.slice(0, 37) + '...' : item.titleJa;
+    ctx.fillText(displayTitle, 85, 205);
 
-    // 5. 対比ボックス（左: 世界マネー / 右: 日本世論）
+    // 6. デュアル対比ブロック（世界 vs 日本）
     // 世界マネー
-    ctx.fillStyle = '#080e1e';
-    ctx.fillRect(70, 280, 510, 200);
-    ctx.strokeStyle = '#1e3a8a';
-    ctx.strokeRect(70, 280, 510, 200);
+    ctx.fillStyle = 'rgba(8, 14, 30, 0.95)';
+    ctx.fillRect(60, 260, 520, 230);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.strokeRect(60, 260, 520, 230);
 
     ctx.fillStyle = '#94a3b8';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText('世界のリアルマネー確率 (Polymarket)', 100, 320);
+    ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
+    ctx.fillText('🌍 世界のスマートマネー (Polymarket)', 85, 298);
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 58px monospace';
-    ctx.fillText(`YES ${worldYes}%`, 100, 390);
+    ctx.font = '900 64px monospace';
+    ctx.fillText(`YES ${worldYes}%`, 85, 375);
 
-    ctx.fillStyle = '#050811';
-    ctx.fillRect(100, 420, 450, 14);
+    // 世界バー
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.fillRect(85, 410, 470, 16);
     ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(100, 420, (worldYes / 100) * 450, 14);
+    ctx.fillRect(85, 410, (worldYes / 100) * 470, 16);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText(`24h取引高: $${Math.round((item.volume24hUsd || 0) / 1000).toLocaleString()}k  |  NO: ${100 - worldYes}%`, 85, 455);
 
     // 日本世論
-    ctx.fillStyle = '#080e1e';
-    ctx.fillRect(620, 280, 510, 200);
-    ctx.strokeStyle = '#065f46';
-    ctx.strokeRect(620, 280, 510, 200);
+    ctx.fillStyle = 'rgba(8, 14, 30, 0.95)';
+    ctx.fillRect(620, 260, 520, 230);
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.35)';
+    ctx.strokeRect(620, 260, 520, 230);
 
     ctx.fillStyle = '#94a3b8';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText('日本の生活者世論 (未来レーダー)', 650, 320);
+    ctx.font = 'bold 16px "Noto Sans JP", sans-serif';
+    ctx.fillText('🇯🇵 日本の生活者世論 (未来レーダー)', 645, 298);
 
     ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 58px monospace';
-    ctx.fillText(`YES ${japanYes}%`, 650, 390);
+    ctx.font = '900 64px monospace';
+    ctx.fillText(`YES ${japanYes}%`, 645, 375);
 
-    ctx.fillStyle = '#050811';
-    ctx.fillRect(650, 420, 450, 14);
+    // 日本バー
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.fillRect(645, 410, 470, 16);
     ctx.fillStyle = '#10b981';
-    ctx.fillRect(650, 420, (japanYes / 100) * 450, 14);
+    ctx.fillRect(645, 410, (japanYes / 100) * 470, 16);
 
-    // 6. フッター
-    ctx.fillStyle = '#080d1a';
-    ctx.fillRect(70, 510, 1060, 55);
-    ctx.strokeStyle = '#1e293b';
-    ctx.strokeRect(70, 510, 1060, 55);
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 13px monospace';
+    ctx.fillText(`投票総数: ${item.japanVotes.total.toLocaleString()} 票  |  NO: ${100 - japanYes}%`, 645, 455);
+
+    // 7. フッター
+    ctx.fillStyle = 'rgba(8, 13, 26, 0.98)';
+    ctx.fillRect(60, 510, 1080, 65);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.strokeRect(60, 510, 1080, 65);
 
     ctx.fillStyle = '#fbbf24';
-    ctx.font = 'bold 16px sans-serif';
-    ctx.fillText('⚡ あなたの直感はどちらが正しいと思いますか？', 100, 545);
+    ctx.font = 'bold 17px "Noto Sans JP", sans-serif';
+    ctx.fillText('⚡ あなたの直感はどちらを支持する？ 1秒で投票参加（登録不要・完全無料）', 85, 549);
 
     ctx.fillStyle = '#38bdf8';
-    ctx.font = 'bold 16px monospace';
-    ctx.fillText('1秒投票 ➔ mirairadar.com', 820, 545);
+    ctx.font = 'bold 17px monospace';
+    ctx.fillText('https://mirairadar.com', 890, 549);
 
-    // ダウンロード実行
+    return canvas;
+  };
+
+  // 画像ダウンロード
+  const handleDownloadImage = () => {
+    setIsGeneratingImage(true);
+    const canvas = generateCanvasImage();
     const dataUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = `mirairadar_${item.slug}_spread.png`;
+    a.download = `mirairadar_${item.slug || item.id}_spread.png`;
     a.click();
     setIsGeneratingImage(false);
+  };
+
+  // 画像をクリップボードに直接コピー（Twitter等に即座にCtrl+V可能）
+  const handleCopyImage = async () => {
+    setIsGeneratingImage(true);
+    try {
+      const canvas = generateCanvasImage();
+      canvas.toBlob(async (blob) => {
+        if (blob && navigator.clipboard && (window as any).ClipboardItem) {
+          await navigator.clipboard.write([
+            new (window as any).ClipboardItem({ 'image/png': blob })
+          ]);
+          setCopiedImage(true);
+          setTimeout(() => setCopiedImage(false), 2500);
+        } else {
+          // フォールバック: 通常ダウンロード
+          handleDownloadImage();
+        }
+        setIsGeneratingImage(false);
+      });
+    } catch {
+      handleDownloadImage();
+      setIsGeneratingImage(false);
+    }
   };
 
   return (
@@ -269,20 +357,26 @@ ${shareUrl}
           </div>
 
           {/* アクションボタングループ */}
+          {/* アクションボタングループ */}
           <div className="ogp-modal-actions">
+            <button onClick={handleCopyImage} className="btn-download-ogp-image highlight-copy">
+              {copiedImage ? <Check size={15} className="text-emerald-300" /> : <Copy size={15} />}
+              <span>{copiedImage ? '画像をコピーしました！' : '🖼️ 画像をコピー (X貼付用)'}</span>
+            </button>
+
             <button onClick={handleDownloadImage} className="btn-download-ogp-image">
               <Download size={15} />
-              <span>{isGeneratingImage ? '画像生成中...' : '対比画像を保存 (1200x630)'}</span>
+              <span>{isGeneratingImage ? '生成中...' : '💾 画像保存 (1200x630)'}</span>
             </button>
 
             <button onClick={handleCopy} className="copy-btn">
               {copied ? <Check size={15} /> : <Copy size={15} />}
-              <span>{copied ? 'コピー完了！' : '文章をコピー'}</span>
+              <span>{copied ? 'コピー完了！' : '📝 文章をコピー'}</span>
             </button>
 
             <button onClick={handleTwitterShare} className="x-post-btn">
               <Share2 size={15} />
-              <span>𝕏 でポストする</span>
+              <span>🚀 𝕏 でポストする</span>
               <ExternalLink size={13} />
             </button>
           </div>
