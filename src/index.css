@@ -294,28 +294,31 @@ body {
   font-weight: 700;
 }
 
-/* 右側アクション群 */
+/* 右側アクション群（完全な高さ32px統一） */
 .header-right-cluster {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-/* 高コントラスト・見やすいボタン群 */
+/* 高コントラスト・見やすいボタン群 (共通: height 32px) */
 .btn-header-subtle {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
-  padding: 0.32rem 0.65rem;
+  height: 32px;
+  padding: 0 0.65rem;
   background: rgba(30, 41, 59, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #f1f5f9;
   font-size: 0.72rem;
   font-weight: 700;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .btn-header-subtle:hover {
@@ -335,17 +338,20 @@ body {
 .btn-header-amber {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.35rem;
-  padding: 0.32rem 0.75rem;
+  height: 32px;
+  padding: 0 0.75rem;
   background: rgba(245, 158, 11, 0.18);
   border: 1px solid rgba(245, 158, 11, 0.55);
   color: #fef08a;
   font-size: 0.72rem;
   font-weight: 800;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .btn-header-amber:hover {
@@ -355,20 +361,23 @@ body {
   transform: translateY(-1px);
 }
 
-/* 🏆 マイ予報ボタン：高コントラスト・美しいシアン＆ゴールド */
+/* 🏆 マイ予報ボタン：高コントラスト・美しいシアン＆ゴールド (共通: height 32px) */
 .btn-header-forecast-slim {
   position: relative;
   display: inline-flex;
   align-items: center;
-  padding: 0.32rem 0.85rem;
+  justify-content: center;
+  height: 32px;
+  padding: 0 0.85rem;
   background: linear-gradient(135deg, rgba(8, 145, 178, 0.35) 0%, rgba(2, 132, 199, 0.45) 100%);
   border: 1px solid rgba(56, 189, 248, 0.6);
   color: #ffffff;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
 }
 
 .btn-header-forecast-slim:hover {
