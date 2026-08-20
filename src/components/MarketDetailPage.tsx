@@ -215,7 +215,16 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
           <div className="header-stat-box">
             <span className="stat-sub">世論スプレッド (Gap)</span>
-            <span className="stat-main text-amber-400">⚡ {gap}% 乖離</span>
+            {item.japanVotes.total >= 3 ? (
+              <span className="stat-main text-amber-400">
+                ⚡ {gap}% 乖離 <span className="stat-sub-prob font-mono text-[11px]">(n={item.japanVotes.total})</span>
+              </span>
+            ) : (
+              <span className="stat-main text-slate-400 text-sm flex items-center gap-1">
+                <span>サンプル収集中</span>
+                <span className="stat-sub-prob font-mono text-[11px]">(n={item.japanVotes.total})</span>
+              </span>
+            )}
           </div>
 
           <div className="header-stat-box">

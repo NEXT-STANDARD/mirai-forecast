@@ -241,6 +241,16 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             resolvedTitleJa = `${t.replace(/LoL:\s*/i, 'LoL公式戦: ').replace(/\(BO3\)/g, '（3本勝負）').replace(/\(BO5\)/g, '（5本勝負）')} 勝敗予測`;
           } else if (/Fed Decision in September.*?50\+?\s*bps decrease/i.test(t)) {
             resolvedTitleJa = '米FRB：9月FOMCで50bp以上の大幅利下げを実施するか？';
+          } else if (/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i.test(t)) {
+            const m = t.match(/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i)!;
+            const nameMap: Record<string, string> = { Bitcoin: 'ビットコイン', BTC: 'ビットコイン', Ethereum: 'イーサリアム', ETH: 'イーサリアム', Solana: 'ソラナ', SOL: 'ソラナ' };
+            const monthMap: Record<string, string> = { January: '1月', February: '2月', March: '3月', April: '4月', May: '5月', June: '6月', July: '7月', August: '8月', September: '9月', October: '10月', November: '11月', December: '12月' };
+            const name = nameMap[m[1]] || m[1];
+            const month = monthMap[m[2]] || m[2];
+            const day = m[3] ? `${m[3]}日` : '';
+            const target = m[4].replace(/^[<>=]+/, '').trim();
+            const symbol = m[4].includes('<') ? '未満' : m[4].includes('>') ? '以上' : '到達';
+            resolvedTitleJa = `${name}価格：${month}${day}に${target}ドル${symbol}となるか？`;
           } else if (/Bitcoin above ___ on August (\d+)/i.test(t)) {
             const day = t.match(/August (\d+)/i)![1];
             resolvedTitleJa = `ビットコイン価格：8月${day}日の目標価格水準予測`;

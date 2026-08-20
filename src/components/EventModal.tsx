@@ -109,14 +109,21 @@ export const EventModal: React.FC<EventModalProps> = ({
           </div>
 
           {/* 乖離度の解説 */}
-          <div className="gap-explanation-banner">
-            <strong>⚡ 世論ギャップ：{gap}%</strong>
-            <p>
-              {item.worldProbYes > item.japanVotes.percentYes
-                ? '世界の予測市場は「実現の可能性が高い」と見ていますが、国内世論は慎重な姿勢を示しています。'
-                : '日本の世論調査では高い支持・実現予測が集まっていますが、世界のリアルマネーはより冷静な確率をつけています。'}
-            </p>
-          </div>
+          {item.japanVotes.total >= 3 ? (
+            <div className="gap-explanation-banner">
+              <strong>⚡ 世論ギャップ：{gap}% (n={item.japanVotes.total})</strong>
+              <p>
+                {item.worldProbYes > item.japanVotes.percentYes
+                  ? '世界の予測市場は「実現の可能性が高い」と見ていますが、国内世論は慎重な姿勢を示しています。'
+                  : '日本の世論調査では高い支持・実現予測が集まっていますが、世界のリアルマネーはより冷静な確率をつけています。'}
+              </p>
+            </div>
+          ) : (
+            <div className="gap-explanation-banner opacity-85">
+              <strong>🇯🇵 日本世論サンプル収集中 (n={item.japanVotes.total})</strong>
+              <p>信頼性の高い世論スプレッド分析を行うため、一定数（3票以上）の投票データを集計中です。あなたの直感見解をぜひ投票してください。</p>
+            </div>
+          )}
 
           {/* AI要因分析セクション */}
           {item.aiInsight && (

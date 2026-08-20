@@ -55,26 +55,33 @@ for (const file of componentFiles) {
 report("投票ガード (isExpired) 構文健全性 & 100% 網羅性", voteGuardFails.length === 0, 
   voteGuardFails.length === 0 ? "投票を持つ全コンポーネントで厳格な期限判定ガード構文を検証完了" : voteGuardFails.join("; "));
 
-// 3. 乖離ギャップ（Gap/乖離）基準の統一性 (NEW-6 / A-3)
+// 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12)
+const GAP_TARGET_COMPONENTS = [
+  "AllMarketsGrid.tsx",
+  "SpreadRankingSection.tsx",
+  "MarketDetailPage.tsx",
+  "EmbedWidgetPage.tsx",
+  "EventModal.tsx",
+  "OgpPreviewModal.tsx",
+  "WatchlistTable.tsx",
+  "DataExportModal.tsx"
+];
 let gapCheckFails = [];
-for (const file of componentFiles) {
+for (const file of GAP_TARGET_COMPONENTS) {
+  if (!fs.existsSync(path.join(COMPONENTS_DIR, file))) continue;
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
-  if (file === "AllMarketsGrid.tsx") {
-    if (!content.includes("event.japanVotes.total >= 3")) {
-      gapCheckFails.push("AllMarketsGrid: japanVotes.total >= 3 未適用");
-    }
-    if (!content.includes("n=")) {
-      gapCheckFails.push("AllMarketsGrid: サンプル数 n= 表示なし");
-    }
+  const hasVotesTotalGuard = /japanVotes\.total\s*>=\s*3/.test(content);
+  const hasSampleCountNotation = /n=/.test(content);
+
+  if (!hasVotesTotalGuard) {
+    gapCheckFails.push(`${file}: japanVotes.total >= 3 ガード未適用`);
   }
-  if (file === "SpreadRankingSection.tsx") {
-    if (!content.includes("japanVotes.total >= 3")) {
-      gapCheckFails.push("SpreadRankingSection: japanVotes.total >= 3 未適用");
-    }
+  if (!hasSampleCountNotation) {
+    gapCheckFails.push(`${file}: サンプル数 (n=) 表示なし`);
   }
 }
-report("乖離基準 (japanVotes >= 3 & n=併記) の統一性", gapCheckFails.length === 0,
-  gapCheckFails.length === 0 ? "全セクションで信頼サンプル数(n>=3)基準に統一完了" : gapCheckFails.join("; "));
+report("乖離基準 (japanVotes >= 3 & n=併記) の全8コンポーネント統一性", gapCheckFails.length === 0,
+  gapCheckFails.length === 0 ? "乖離を表示する全8コンポーネントで n>=3 ガード & n= 併記を検証完了" : gapCheckFails.join("; "));
 
 // 4. 画像属性 (loading=\"lazy\" & onError) (C-4)
 let imgFails = [];
@@ -177,19 +184,21 @@ if (rootBlockRegex.test(cssContent)) {
 report("CSS Sticky 健全性 (overflow-x: clip 保守)", stickyFails.length === 0,
   stickyFails.length === 0 ? "html/body/#root に clip 指定を確認 (sticky 阻害なし)" : stickyFails.join("; "));
 
-// 9. ビルド CSS Backdrop-Filter 保持検査 (NEW-9 回帰防止: 無印 backdrop-filter の出力確認)
+// 9. ビルド CSS Backdrop-Filter 保持検査 (NEW-9 回帰防止: ルール内スコープ検査)
 let backdropFails = [];
 const distAssets = fs.existsSync(path.join(ROOT, "dist/assets")) 
   ? fs.readdirSync(path.join(ROOT, "dist/assets")).filter(f => f.endsWith(".css"))
   : [];
 if (distAssets.length > 0) {
   const distCss = fs.readFileSync(path.join(ROOT, "dist/assets", distAssets[0]), "utf-8");
-  if (!distCss.includes(".header-container-slim") || !distCss.includes("backdrop-filter:blur")) {
-    backdropFails.push("dist CSS の .header-container-slim に無印 backdrop-filter:blur が欠落しています");
+  const ruleMatch = distCss.match(/\.header-container-slim\{[^}]*\}/);
+  const rule = ruleMatch ? ruleMatch[0] : "";
+  if (!rule || !/[^-]backdrop-filter:\s*blur/.test(rule)) {
+    backdropFails.push("dist CSS の .header-container-slim ルール内に無印 backdrop-filter:blur が出力されていません");
   }
 }
 report("ビルド CSS Backdrop-Filter 保持検査 (NEW-9)", backdropFails.length === 0,
-  backdropFails.length === 0 ? "本番 CSS に .header-container-slim の無印 backdrop-filter を確認" : backdropFails.join("; "));
+  backdropFails.length === 0 ? "本番 CSS の .header-container-slim ルール内に無印 backdrop-filter の存在を確認" : backdropFails.join("; "));
 
 // 10. Supabase 有効銘柄の締切整合性
 async function checkDb() {

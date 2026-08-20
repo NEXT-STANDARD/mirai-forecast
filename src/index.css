@@ -7258,11 +7258,13 @@ h1, h2, h3, h4, h5, h6 {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 1.25rem;
+  min-width: 0;
+  width: 100%;
 }
 
 @media (max-width: 860px) {
   .connector-content-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -7271,6 +7273,8 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-width: 0;
+  width: 100%;
 }
 
 .connector-section-title {
@@ -7288,12 +7292,18 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .setup-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  min-width: 0;
 }
 
 .setup-num {
@@ -10021,10 +10031,10 @@ body::after {
 }
 
 /* ========================================================
-   🎯 モバイル タッチターゲット拡張 ＆ アクセシビリティ（E-2 対応）
+   🎯 モバイル タッチターゲット拡張 ＆ アクセシビリティ（E-2 / N-13 対応）
    ======================================================== */
 @media (pointer: coarse) {
-  /* タップ判定を最低44pxに拡張する擬似要素（モバイル実測クリア） */
+  /* タップ判定を最低44pxに拡張する擬似要素（全ページ・全ボタン実測クリア） */
   .modal-close-btn,
   .forecast-close-btn,
   .pwa-close-btn,
@@ -10034,6 +10044,7 @@ body::after {
   .header-right-cluster button,
   .header-right-cluster a,
   .btn-header-refresh,
+  .btn-header-subtle,
   .btn-screener-propose,
   .btn-open-market-page,
   .nav-tab-item,
@@ -10054,7 +10065,20 @@ body::after {
   .footer-link-btn,
   .btn-pwa-notify,
   .btn-pwa-install,
-  .pwa-action-btn {
+  .pwa-action-btn,
+  .btn-back-link,
+  .btn-market-data-trigger,
+  .btn-market-embed-trigger,
+  .btn-market-share-trigger,
+  .btn-comment-submit,
+  .comment-input-field,
+  .btn-copy-config,
+  .btn-download-data-main,
+  .embed-vote-btn,
+  .embed-cta-link,
+  .tf-tab-btn,
+  .chart-timeframe-btn,
+  .btn-cat-nav {
     position: relative;
     min-height: 38px;
   }
@@ -10068,6 +10092,7 @@ body::after {
   .header-right-cluster button::after,
   .header-right-cluster a::after,
   .btn-header-refresh::after,
+  .btn-header-subtle::after,
   .btn-screener-propose::after,
   .btn-open-market-page::after,
   .nav-tab-item::after,
@@ -10088,7 +10113,19 @@ body::after {
   .footer-link-btn::after,
   .btn-pwa-notify::after,
   .btn-pwa-install::after,
-  .pwa-action-btn::after {
+  .pwa-action-btn::after,
+  .btn-back-link::after,
+  .btn-market-data-trigger::after,
+  .btn-market-embed-trigger::after,
+  .btn-market-share-trigger::after,
+  .btn-comment-submit::after,
+  .btn-copy-config::after,
+  .btn-download-data-main::after,
+  .embed-vote-btn::after,
+  .embed-cta-link::after,
+  .tf-tab-btn::after,
+  .chart-timeframe-btn::after,
+  .btn-cat-nav::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -10099,6 +10136,34 @@ body::after {
     width: 100%;
     height: 100%;
     pointer-events: auto;
+  }
+}
+
+/* 📱 N-15: 320px 〜 360px 極小画面でのヘッダー収縮最適化 */
+@media (max-width: 360px) {
+  .header-main-bar {
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+  }
+  .header-left-cluster {
+    gap: 0.2rem !important;
+    min-width: 0 !important;
+  }
+  .header-right-cluster {
+    gap: 0.2rem !important;
+  }
+  .btn-header-subtle {
+    padding: 0 0.3rem !important;
+    font-size: 0.75rem !important;
+    min-width: 26px !important;
+  }
+  .btn-header-forecast-slim {
+    padding: 0 0.35rem !important;
+  }
+  .btn-header-refresh {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
   }
 }
 

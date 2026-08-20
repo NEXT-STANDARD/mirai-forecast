@@ -201,7 +201,9 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
           <div className="export-target-summary">
             <div className="flex justify-between items-center mb-1">
               <span className="text-[11px] text-slate-400 font-mono">POLY:{(item.slug || item.id).slice(0, 15).toUpperCase()}</span>
-              <span className="text-[11px] text-amber-400 font-mono font-bold">⚡ GAP: {gap}%</span>
+              <span className="text-[11px] text-amber-400 font-mono font-bold">
+                {item.japanVotes.total >= 3 ? `⚡ GAP: ${gap}% (n=${item.japanVotes.total})` : `🇯🇵 サンプル収集中 (n=${item.japanVotes.total})`}
+              </span>
             </div>
             <div className="text-sm font-bold text-slate-200 line-clamp-1">{item.titleJa || item.title}</div>
           </div>
@@ -235,7 +237,9 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
                     </tr>
                     <tr>
                       <td>世論スプレッド (乖離)</td>
-                      <td className="text-amber-400 font-bold">{gap}%</td>
+                      <td className="text-amber-400 font-bold">
+                        {item.japanVotes.total >= 3 ? `${gap}% (n=${item.japanVotes.total})` : `サンプル収集中 (n=${item.japanVotes.total})`}
+                      </td>
                       <td>オルタナティブデータ差分</td>
                     </tr>
                     <tr>

@@ -414,6 +414,17 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       if (/What will WTI Crude Oil.*?hit in August 2026/i.test(t)) {
         return { titleJa: '2026年8月 WTI原油先物価格の到達水準予測', category: 'economy' };
       }
+      if (/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i.test(t)) {
+        const m = t.match(/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i);
+        const nameMap = { Bitcoin: 'ビットコイン', BTC: 'ビットコイン', Ethereum: 'イーサリアム', ETH: 'イーサリアム', Solana: 'ソラナ', SOL: 'ソラナ' };
+        const monthMap = { January: '1月', February: '2月', March: '3月', April: '4月', May: '5月', June: '6月', July: '7月', August: '8月', September: '9月', October: '10月', November: '11月', December: '12月' };
+        const name = nameMap[m[1]] || m[1];
+        const month = monthMap[m[2]] || m[2];
+        const day = m[3] ? `${m[3]}日` : '';
+        const target = m[4].replace(/^[<>=]+/, '').trim();
+        const symbol = m[4].includes('<') ? '未満' : m[4].includes('>') ? '以上' : '到達';
+        return { titleJa: `${name}価格：${month}${day}に${target}ドル${symbol}となるか？`, category: 'economy' };
+      }
       if (/Bitcoin above ___ on August (\d+)/i.test(t)) {
         const day = t.match(/August (\d+)/i)[1];
         return { titleJa: `ビットコイン価格：8月${day}日の目標価格水準予測`, category: 'economy' };
@@ -514,7 +525,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         return { titleJa: t, category };
       }
 
-      return { titleJa: t, category };
+      // 構造的フェイルセーフ: 未知の英語タイトルにはカテゴリに応じた自動日本語化プレフィックスを付与
+      const prefix = category === 'sports' ? 'スポーツ予測: ' : category === 'politics' ? '国際政治動向: ' : category === 'tech' ? 'AI・テック予測: ' : '経済・市場予測: ';
+      return { titleJa: `${prefix}${t}`, category };
     }
 
     const selectedRecords = topCandidates.map(c => {
@@ -541,6 +554,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
       const endDateStr = c.market.endDate || '2026-12-31';
       const isExpired = new Date(endDateStr) < new Date();
+      const hasJpFinal = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(titleJa || '');
 
       return {
         id: c.id,
@@ -553,7 +567,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         category_label: catLabels[finalCat] || c.catLabel,
         icon_url: c.ev.image || c.ev.icon || '',
         end_date: endDateStr,
-        is_active: !isExpired,
+        is_active: !isExpired && hasJpFinal,
         updated_at: new Date().toISOString(),
       };
     });

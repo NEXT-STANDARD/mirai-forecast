@@ -51,12 +51,17 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
       : `世界もNO ${item.worldProbNo}%で一致！日本の皆さんはどう思いますか？👇`;
   }
 
+  const hasValidJapanVotes = item.japanVotes.total >= 3;
+  const gapText = hasValidJapanVotes
+    ? `⚡️ 世論ギャップ：【 ${gap}% の乖離 (n=${item.japanVotes.total}) 】`
+    : `🇯🇵 日本世論：サンプル収集中 (n=${item.japanVotes.total})`;
+
   const shareText = `${stanceHeadline}
 「${item.titleJa}」
 
 🌍 世界のリアルマネー（Polymarket）：YES ${worldYes}%
 🇯🇵 日本の生活者世論（未来レーダー）：YES ${japanYes}%
-⚡️ 世論ギャップ：【 ${gap}% の乖離 】
+${gapText}
 
 ${opinionHook}
 ${shareUrl}
@@ -147,8 +152,12 @@ ${shareUrl}
     ctx.strokeRect(800, 55, 340, 42);
 
     ctx.fillStyle = '#fef08a';
-    ctx.font = '900 18px monospace';
-    ctx.fillText(`⚡ SPREAD GAP: ${gap}% 乖離`, 825, 82);
+    ctx.font = '900 16px monospace';
+    if (hasValidJapanVotes) {
+      ctx.fillText(`⚡ SPREAD GAP: ${gap}% (n=${item.japanVotes.total})`, 815, 82);
+    } else {
+      ctx.fillText(`🇯🇵 SAMPLE VOTE: n=${item.japanVotes.total}`, 815, 82);
+    }
 
     // 5. 銘柄タイトルブロック
     ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
@@ -300,7 +309,11 @@ ${shareUrl}
                 <span className="live-dot-cyan"></span>
                 <span>未来レーダー ｜ MiraiRadar.com</span>
               </div>
-              <span className="ogp-gap-badge">⚡ SPREAD ALERT: {gap}% GAP</span>
+              {hasValidJapanVotes ? (
+                <span className="ogp-gap-badge">⚡ SPREAD ALERT: {gap}% GAP (n={item.japanVotes.total})</span>
+              ) : (
+                <span className="ogp-gap-badge opacity-80 font-mono text-[10px]">🇯🇵 サンプル収集中 (n={item.japanVotes.total})</span>
+              )}
             </div>
 
             <h3 className="ogp-card-title">{item.titleJa}</h3>

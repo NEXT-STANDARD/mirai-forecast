@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { MarketItem } from '../types';
 import { Globe2, ExternalLink, ArrowRight } from 'lucide-react';
 import { INITIAL_EVENTS } from '../data/initialEvents';
+import { fetchLivePolymarketMarkets } from '../services/polymarketService';
 
 interface EmbedWidgetPageProps {
   slugOrId: string;
@@ -13,61 +14,41 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 1. まず初期データから検索
-    const found = INITIAL_EVENTS.find(
-      (e) => e.slug === slugOrId || e.id === slugOrId
+    let isMounted = true;
+
+    // 1. 初期データから即時キャッシュ表示
+    const initialFound = INITIAL_EVENTS.find(
+      (e) => e.slug === slugOrId || e.id === slugOrId || e.slug.replace(/-\d+$/, '') === slugOrId.replace(/-\d+$/, '')
     );
-    if (found) {
-      setItem(found);
+    if (initialFound) {
+      setItem(initialFound);
       setIsLoading(false);
     }
 
-    // 2. Polymarket APIから最新データをフェッチ
-    fetch('https://gamma-api.polymarket.com/events?limit=80&active=true&closed=false&order=volume24hr&ascending=false')
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          const match = data.find((e: any) => e.slug === slugOrId || String(e.id) === slugOrId);
-          if (match) {
-            const firstMarket = match.markets?.[0];
-            let probYes = 50;
-            if (firstMarket?.outcomePrices) {
-              try {
-                const prices = JSON.parse(firstMarket.outcomePrices);
-                probYes = Math.round(Number(prices[0]) * 100);
-              } catch {
-                probYes = 50;
-              }
-            }
-            setItem({
-              id: String(match.id),
-              slug: match.slug || String(match.id),
-              title: match.title,
-              titleJa: match.title,
-              question: match.description || match.title,
-              questionJa: match.description || match.title,
-              category: 'trending',
-              categoryLabel: '⚡ 注目マーケット',
-              iconUrl: match.image || 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=120&q=80',
-              worldProbYes: probYes,
-              worldProbNo: 100 - probYes,
-              probChange24h: 0,
-              volume24hUsd: Number(match.volume24hr || 0),
-              totalVolumeUsd: Number(match.volume || 0),
-              endDate: match.endDate || '2026-12-31',
-              japanVotes: {
-                yes: 12,
-                no: 8,
-                total: 20,
-                percentYes: 60,
-              },
-              comments: [],
-            });
-          }
+    // 2. Supabase ＆ Polymarket 実測統合データをフェッチ
+    fetchLivePolymarketMarkets()
+      .then((events) => {
+        if (!isMounted) return;
+        const match = events.find(
+          (e) => e.slug === slugOrId || e.id === slugOrId || e.slug.replace(/-\d+$/, '') === slugOrId.replace(/-\d+$/, '')
+        );
+        if (match) {
+          setItem(match);
+        } else if (initialFound) {
+          setItem(initialFound);
         }
       })
-      .catch((err) => console.error('Embed fetch error:', err))
-      .finally(() => setIsLoading(false));
+      .catch((err) => {
+        console.warn('Embed live fetch fallback:', err);
+        if (initialFound) setItem(initialFound);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, [slugOrId]);
 
   if (isLoading && !item) {
@@ -96,6 +77,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
     : userVote === 'NO' 
     ? Math.max(0, item.japanVotes.percentYes - 2) 
     : item.japanVotes.percentYes;
+  const hasValidJapanVotes = item.japanVotes.total >= 3;
   const gap = Math.abs(worldYes - japanYes);
 
   return (
@@ -112,9 +94,15 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
           <span className="font-extrabold">未来レーダー</span>
           <span className="brand-sub">| 世論スプレッド</span>
         </a>
-        <span className="embed-gap-tag">
-          ⚡ 乖離: {gap}% GAP
-        </span>
+        {hasValidJapanVotes ? (
+          <span className="embed-gap-tag">
+            ⚡ 乖離: {gap}% GAP (n={item.japanVotes.total})
+          </span>
+        ) : (
+          <span className="embed-gap-tag opacity-80 font-mono text-[10px]">
+            🇯🇵 サンプル収集中 (n={item.japanVotes.total})
+          </span>
+        )}
       </div>
 
       {/* 銘柄タイトル */}
@@ -125,7 +113,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
         className="embed-market-title"
       >
         <span>{item.titleJa || item.title}</span>
-        <ExternalLink size={12} className="opacity-60" />
+        <ExternalLink size={12} className="opacity-60 flex-shrink-0" />
       </a>
 
       {/* 世論対比バー */}
@@ -146,11 +134,16 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
         <div className="embed-metric-col japan">
           <div className="metric-header">
             <span>🇯🇵</span>
-            <span>日本の生活者世論</span>
+            <span>日本の生活者世論 {hasValidJapanVotes ? `(n=${item.japanVotes.total})` : ''}</span>
           </div>
-          <div className="metric-val font-mono text-emerald-400">YES {japanYes}%</div>
+          <div className="metric-val font-mono text-emerald-400">
+            {hasValidJapanVotes ? `YES ${japanYes}%` : 'サンプル収集中'}
+          </div>
           <div className="embed-bar-track">
-            <div className="embed-bar-fill bg-emerald-400" style={{ width: `${japanYes}%` }}></div>
+            <div 
+              className="embed-bar-fill bg-emerald-400" 
+              style={{ width: `${hasValidJapanVotes ? japanYes : 50}%` }}
+            ></div>
           </div>
         </div>
       </div>
