@@ -119,13 +119,13 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   return (
     <div className="market-detail-container animate-fade-in">
       {/* パンくず ＆ 戻るバー */}
-      <div className="market-detail-nav flex justify-between items-center flex-wrap gap-2">
+      <div className="market-detail-nav">
         <button onClick={onBack} className="btn-back-link">
-          <ArrowLeft size={16} />
+          <ArrowLeft size={15} />
           <span>マーケット一覧へ戻る</span>
         </button>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="market-detail-nav-right">
           <div className="detail-meta-tags">
             <span className="detail-cat-badge">{item.categoryLabel}</span>
             {item.isTrending && (
@@ -136,11 +136,11 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             )}
             <span className="detail-date-badge">
               <Calendar size={12} />
-              締切: {item.endDate}
+              締切: {(item.endDate || '').split('T')[0]}
             </span>
           </div>
 
-          <div className="detail-top-action-group flex items-center gap-1.5 ml-auto">
+          <div className="detail-top-action-group">
             {onOpenEmbed && (
               <button 
                 onClick={() => onOpenEmbed(item)} 
