@@ -247,25 +247,25 @@ https://mirairadar.com/forecast
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="hub-vote-grid">
                 {votedItems.map(({ event, vote }) => (
                   <div
                     key={event.id}
                     className="hub-vote-card"
                     onClick={() => onSelectEvent(event)}
                   >
-                    <div className="flex justify-between items-start gap-2 mb-2">
+                    <div className="hub-vote-header-row">
                       <span className={`history-vote-badge ${vote.toLowerCase()}`}>
                         あなたの投票: {vote}
                       </span>
-                      <span className="text-[11px] text-slate-400 font-mono">{event.categoryLabel}</span>
+                      <span className="hub-vote-category">{event.categoryLabel}</span>
                     </div>
 
                     <h3 className="hub-vote-title">{event.titleJa || event.title}</h3>
 
-                    <div className="hub-vote-meta font-mono text-xs mt-3 pt-2 border-t border-slate-800 flex justify-between items-center">
-                      <span className="text-cyan-400">世界オッズ YES {event.worldProbYes}%</span>
-                      <span className="text-emerald-400">日本世論 YES {event.japanVotes.percentYes}%</span>
+                    <div className="hub-vote-meta">
+                      <span className="hub-vote-meta-world">🌍 世界オッズ: YES {event.worldProbYes}%</span>
+                      <span className="hub-vote-meta-japan">🇯🇵 日本世論: YES {event.japanVotes.percentYes}%</span>
                     </div>
                   </div>
                 ))}
@@ -285,7 +285,7 @@ https://mirairadar.com/forecast
               未来レーダーでの投票実績（EXP）に応じて階級がアンロックされます。最高位「Lv.10 伝説の予報神」を目指しましょう。
             </p>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="rank-tier-grid">
               {RANK_TIERS.map((tier) => {
                 const isUnlocked = votedCount >= tier.minVotes;
                 const isCurrent = currentRank.level === tier.level;
