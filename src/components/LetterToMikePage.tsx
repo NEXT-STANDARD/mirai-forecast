@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Shield, Sparkles, ArrowLeft, Share2, Globe } from 'lucide-react';
+import { applySeoMetadata } from '../utils/seoHelper';
 
 interface LetterToMikePageProps {
   onBack: () => void;
@@ -7,6 +8,15 @@ interface LetterToMikePageProps {
 
 export const LetterToMikePage: React.FC<LetterToMikePageProps> = ({ onBack }) => {
   const [lang, setLang] = useState<'ja' | 'en'>('ja');
+
+  useEffect(() => {
+    applySeoMetadata({
+      title: 'Polymarket Japan代表 Mike Eidlin氏への公開書簡 ｜ 未来レーダー創業者 霧島フェニックス',
+      description: '未来レーダー創業者・霧島フェニックスからPolymarket Japan代表マイク・エイドリン氏へ。日本の法的課題を乗り越え健全な集合知社会を共創するための公開書簡。',
+      canonicalUrl: 'https://mirairadar.com/letter-to-mike',
+      ogType: 'article'
+    });
+  }, []);
 
   const shareText = `【未来レーダー創業者・霧島フェニックスから Polymarket Japan 代表マイク・エイドリン氏への公開書簡】
 日本の集合知と法的課題を乗り越えるための感謝と協力の手紙。

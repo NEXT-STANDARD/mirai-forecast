@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  ArrowLeft,
-  Calendar,
-  Sparkles,
-  ShieldCheck,
-  MessageSquare,
-  FileText,
+import { 
+  ArrowLeft, 
+  Sparkles, 
+  MessageSquare, 
+  Calendar, 
+  ShieldCheck, 
   Clock,
+  FileText,
   Layers,
   ChevronRight,
   Flame
@@ -14,6 +14,7 @@ import {
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
 import type { MarketItem } from '../types';
+import { applySeoMetadata } from '../utils/seoHelper';
 
 interface MarketDetailPageProps {
   item: MarketItem;
@@ -37,14 +38,50 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState(item.comments || []);
 
-  // SEO: ページタイトルとメタ情報の動的更新
+  // 🌐 SEO: カノニカル正規化URL・メタタグ・JSON-LD構造化データの動的最適化
   useEffect(() => {
-    const originalTitle = document.title;
-    document.title = `${item.titleJa} ｜ 未来レーダー（MiraiRadar）`;
+    const slug = item.slug || item.id;
+    const canonicalUrl = `https://mirairadar.com/market/${encodeURIComponent(slug)}`;
+    const description = `【世界オッズ YES ${item.worldProbYes}% vs 日本世論 YES ${item.japanVotes.percentYes}%】${item.titleJa}。世界のリアルマネー確率と日本のリアルタイム世論を徹底分析・比較。`;
+
+    applySeoMetadata({
+      title: `${item.titleJa} ｜ 未来レーダー（MiraiRadar）`,
+      description,
+      canonicalUrl,
+      ogType: 'article',
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "ItemPage",
+        "name": item.titleJa,
+        "description": description,
+        "url": canonicalUrl,
+        "mainEntity": {
+          "@type": "Question",
+          "name": item.question || item.titleJa,
+          "suggestedAnswer": [
+            {
+              "@type": "Answer",
+              "text": `世界のスマートマネー予測（Polymarket）: YES ${item.worldProbYes}%`
+            },
+            {
+              "@type": "Answer",
+              "text": `日本の生活者世論コンセンサス: YES ${item.japanVotes.percentYes}%`
+            }
+          ]
+        }
+      }
+    });
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return () => {
-      document.title = originalTitle;
+      // トップページ復帰時のカノニカルリセット
+      applySeoMetadata({
+        title: '未来レーダー (MiraiRadar) | 世界の集合知（Polymarket） × 日本の世論',
+        description: '世界最大の予測市場（Polymarket）のリアルマネー確率と、日本のリアルタイム世論を比較・可視化する金融インテリジェンスメディア「未来レーダー（mirairadar.com）」。登録不要・1秒直感投票で世論解禁。',
+        canonicalUrl: 'https://mirairadar.com/',
+        ogType: 'website'
+      });
     };
   }, [item]);
 
