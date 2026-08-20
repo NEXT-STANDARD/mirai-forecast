@@ -784,18 +784,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mls-skc-stl-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/806605</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/mls-orl-chi-2026-08-19-more-markets</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -1067,6 +1055,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/869080</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/putin-out-before-2027</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/31195</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
