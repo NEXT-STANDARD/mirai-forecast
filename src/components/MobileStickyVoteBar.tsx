@@ -18,10 +18,12 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
 }) => {
   const [animatingChoice, setAnimatingChoice] = useState<'YES' | 'NO' | null>(null);
 
+  const isExpired = Boolean(event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()));
   const isLocked = !userVote;
   const gap = Math.abs(event.worldProbYes - event.japanVotes.percentYes);
 
   const handleVote = (choice: 'YES' | 'NO') => {
+    if (isExpired) return;
     setAnimatingChoice(choice);
     onVote(event.id, choice);
 
@@ -41,7 +43,24 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
   return (
     <aside aria-label="モバイルクイック投票バー" className="mobile-sticky-vote-bar">
       <div className="sticky-bar-inner">
-        {isLocked ? (
+        {isExpired ? (
+          <div className="sticky-voted-layout">
+            <div className="sticky-voted-status">
+              <span className="voted-tag bg-slate-800 text-slate-400 border-slate-700 font-mono">
+                🏁 投票受付終了（結果確定）
+              </span>
+            </div>
+
+            <button
+              onClick={() => onOpenShare(event)}
+              className="sticky-share-cta-btn"
+            >
+              <Share2 size={13} />
+              <span>結果・事前分析をXでシェア</span>
+              <ArrowRight size={12} />
+            </button>
+          </div>
+        ) : isLocked ? (
           <div className="sticky-unvoted-layout">
             <div className="sticky-topic-peek">
               <span className="lock-tag font-mono">🎯 観測中: </span>

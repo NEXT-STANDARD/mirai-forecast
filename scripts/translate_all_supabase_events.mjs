@@ -246,11 +246,13 @@ async function run() {
     const raw = ev.title_en || ev.title_ja || '';
     const res = translateTitle(ev.id, raw);
     
+    const isExpired = ev.end_date ? new Date(ev.end_date) < new Date() : false;
     const patch = {
       title_ja: res.titleJa,
       question_ja: res.titleJa,
       category: res.category || ev.category || 'economy',
       category_label: categoryLabels[res.category || ev.category || 'economy'],
+      is_active: !isExpired,
     };
 
     const { error: updateErr } = await supabase.from('events').update(patch).eq('id', ev.id);

@@ -106,8 +106,16 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             <span>集計: {event.japanVotes.total.toLocaleString()} 票</span>
           </div>
         </div>
+      </div>
 
-        {/* 親指ゾーン：大型投票ボタン & 投票後の1タップシェア導線 */}
+      {/* 親指ゾーン：大型投票ボタン & 投票後の1タップシェア導線 */}
+      {event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()) ? (
+        <div className="vote-section-mobile opacity-80">
+          <div className="vote-prompt-row">
+            <span className="font-mono text-slate-400">🏁 投票受付終了（結果確定）</span>
+          </div>
+        </div>
+      ) : (
         <div className="vote-section-mobile">
           <div className="vote-prompt-row">
             {userVote ? (
@@ -138,7 +146,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
               <span className="btn-icon">👎</span>
               <div className="btn-text-group">
                 <span className="btn-main">NO</span>
-                <span className="btn-sub">{100 - event.japanVotes.percentYes}% 支持</span>
+                <span className="btn-sub">{100 - event.japanVotes.percentYes}% 反対</span>
               </div>
             </button>
           </div>
@@ -155,7 +163,7 @@ export const HeroFeatured: React.FC<HeroFeaturedProps> = ({
             </button>
           )}
         </div>
-      </div>
+      )}
 
       {/* AI背景分析スニペット */}
       {event.aiInsight && (

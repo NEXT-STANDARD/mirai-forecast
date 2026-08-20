@@ -90,20 +90,24 @@ export const EventCard: React.FC<EventCardProps> = ({
 
       {/* カードフッター（投票＆アクション） */}
       <div className="event-card-footer">
-        <div className="card-vote-btns">
-          <button
-            onClick={() => onVote(item.id, 'YES')}
-            className={`card-vote-btn yes ${userVote === 'YES' ? 'active' : ''}`}
-          >
-            YES {userVote === 'YES' && '✓'}
-          </button>
-          <button
-            onClick={() => onVote(item.id, 'NO')}
-            className={`card-vote-btn no ${userVote === 'NO' ? 'active' : ''}`}
-          >
-            NO {userVote === 'NO' && '✓'}
-          </button>
-        </div>
+        {item.isExpired || (item.endDate && new Date(item.endDate).getTime() < Date.now()) ? (
+          <span className="font-mono text-xs text-slate-400">🏁 投票受付終了</span>
+        ) : (
+          <div className="card-vote-buttons">
+            <button
+              onClick={() => onVote(item.id, 'YES')}
+              className={`card-vote-btn yes ${userVote === 'YES' ? 'active' : ''}`}
+            >
+              YES {userVote === 'YES' && '✓'}
+            </button>
+            <button
+              onClick={() => onVote(item.id, 'NO')}
+              className={`card-vote-btn no ${userVote === 'NO' ? 'active' : ''}`}
+            >
+              NO {userVote === 'NO' && '✓'}
+            </button>
+          </div>
+        )}
 
         <div className="card-actions-right">
           <button

@@ -145,31 +145,42 @@ export const EventModal: React.FC<EventModalProps> = ({
             </div>
           )}
 
-          {/* 投票セクション */}
-          <div className="modal-vote-area">
-            <div className="vote-title-row">
-              <h4>あなたの見解は？（完全無料・匿名投票）</h4>
-              {userVote && (
-                <span className="voted-tag">
-                  <CheckCircle2 size={14} /> [{userVote}] 投票済み
-                </span>
-              )}
+          {/* 投票セクション または 🏁 締切終了 */}
+          {item.isExpired || (item.endDate && new Date(item.endDate).getTime() < Date.now()) ? (
+            <div className="modal-vote-area opacity-80">
+              <div className="vote-title-row">
+                <h4 className="font-mono text-slate-400">🏁 投票受付終了（結果確定）</h4>
+              </div>
+              <p className="text-xs text-slate-400 mt-1">
+                このテーマは対象期日を満了したため、新たな投票受付を終了しました。
+              </p>
             </div>
-            <div className="modal-vote-buttons">
-              <button
-                onClick={() => onVote(item.id, 'YES')}
-                className={`modal-vote-btn yes ${userVote === 'YES' ? 'active' : ''}`}
-              >
-                👍 YES
-              </button>
-              <button
-                onClick={() => onVote(item.id, 'NO')}
-                className={`modal-vote-btn no ${userVote === 'NO' ? 'active' : ''}`}
-              >
-                👎 NO
-              </button>
+          ) : (
+            <div className="modal-vote-area">
+              <div className="vote-title-row">
+                <h4>あなたの見解は？（完全無料・匿名投票）</h4>
+                {userVote && (
+                  <span className="voted-tag">
+                    <CheckCircle2 size={14} /> [{userVote}] 投票済み
+                  </span>
+                )}
+              </div>
+              <div className="modal-vote-buttons">
+                <button
+                  onClick={() => onVote(item.id, 'YES')}
+                  className={`modal-vote-btn yes ${userVote === 'YES' ? 'active' : ''}`}
+                >
+                  👍 YES
+                </button>
+                <button
+                  onClick={() => onVote(item.id, 'NO')}
+                  className={`modal-vote-btn no ${userVote === 'NO' ? 'active' : ''}`}
+                >
+                  👎 NO
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* コメント・考察タイムライン */}
           <div className="modal-comments-section">

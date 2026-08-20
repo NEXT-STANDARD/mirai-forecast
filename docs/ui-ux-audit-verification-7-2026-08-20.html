@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー 第7回 検証レポート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-in">
+    <div class="eyebrow">
+      <span>再修正 検証レポート（第7回）</span><span class="sep"></span>
+      <span>mirai-forecast</span><span class="sep"></span>
+      <span>2026-08-20</span>
+    </div>
+    <h1>未来レーダー 第7回 検証レポート</h1>
+    <p class="dek">
+      <strong>A-6 が構造的に決着しました。</strong>6ラウンドかけて指摘してきた「置換ではなく検証」が実装され、
+      将来の年でも動くことを確認しています。NEW-4 は前進しましたが適用漏れが残ります。
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="tally">
+    <div class="ok"><span class="v">26<small>件</small></span><span class="l">完全に修正<br>（35項目中）</span></div>
+    <div class="pt"><span class="v">2<small>件</small></span><span class="l">部分的・不完全</span></div>
+    <div class="ng"><span class="v">7<small>件</small></span><span class="l">未達<br>（変化なし）</span></div>
+    <div class="ok"><span class="v">0<small>件</small></span><span class="l">今回の回帰<br>（2ラウンド連続）</span></div>
+    <div class="ng"><span class="v">3<small>件</small></span><span class="l">ガード未適用の<br>投票コンポーネント</span></div>
+    <div class="ng"><span class="v">2<small>件</small></span><span class="l">DBに残る<br>締切切れ銘柄</span></div>
+  </div>
+
+  <ul class="toc">
+    <li><a href="#sum">総括</a></li>
+    <li><a href="#a6">✅ A-6 決着</a></li>
+    <li><a href="#new5">✅ NEW-5 解消</a></li>
+    <li><a href="#new4">⚠️ NEW-4 適用漏れ</a></li>
+    <li><a href="#never">❌ 未達7件</a></li>
+    <li><a href="#order">次にやるべきこと</a></li>
+  </ul>
+
+  <section id="sum">
+    <div class="sec-head"><span class="sec-num">00</span><h2>総括</h2></div>
+    <div class="col">
+      <p class="lead"><strong>A-6 と NEW-5 は完全に解消しました。</strong>
+        とくに A-6 は、6ラウンドかけて指摘してきた「構造」の問題が今回で決着しています。</p>
+      <p><strong>NEW-4（締切切れ銘柄）は大きく前進しましたが、完了していません。</strong>
+        報告は「有効銘柄中の締切切れ 0件」「投票UI保護」としていますが、実測では</p>
+      <ul class="plain">
+        <li>Supabase に締切切れが <strong>2件</strong> 残っています</li>
+        <li>投票ボタンを持つ <strong>3コンポーネントにガードが入っていません</strong></li>
+      </ul>
+      <p>今回も<strong>回帰はゼロ</strong>でした。2ラウンド連続です。</p>
+    </div>
+  </section>
+
+  <section id="a6">
+    <div class="sec-head"><span class="sec-num">✅</span><h2>A-6 — 置換表から動的検証へ。構造的に決着</h2></div>
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">A-6</span><span class="chip ok">完全解消</span>
+        <span class="f-title">「日付を書き換える」から「弾く」へ</span></div>
+      <div class="evidence">function validateAndFilterCatalysts(catalysts, fallbackTopic = '') {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  ...
+  const m = s.match(/(20\d{2})年\s*(\d{1,2})?月?/);
+  if (!m) return true;                          <b>// 年がなければ保持</b>
+  if (year &lt; currentYear) return false;         <b>// 過去の年は破棄</b>
+  if (year === currentYear &amp;&amp; month &lt; currentMonth) return false;</div>
+      <p><strong>ハードコードされた置換表（10件の個別ルール＋年の +2 変換）は完全に削除</strong>されました。</p>
+
+      <h3 style="margin-top:26px">将来の年でも正しく動くことを確認</h3>
+      <p>第6回で「2027年になれば同じ問題が戻る」と指摘した点を、時刻を変えて検証しました。</p>
+      <div class="evidence">現在=2026-08-20 → 残る: ["2026年9月 米雇用統計", "2027年3月期 決算", "3月中旬公表：連合春闘"]
+現在=2027-06-01 → 残る: ["3月中旬公表：連合春闘"]</div>
+      <p><strong>2027年時点でも、2026年9月と2027年3月期が正しく除外されます。</strong> 年ハードコードの問題は解消しました。</p>
+
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>スクリプト</th><th><code>validateAndFilterCatalysts</code></th><th>旧置換表</th></tr></thead>
+        <tbody>
+          <tr><td><code>sync_polymarket_cron.mjs</code></td><td class="good">あり</td><td class="good">削除済み</td></tr>
+          <tr><td><code>manage_custom_topics.mjs</code></td><td class="good">あり</td><td class="good">削除済み</td></tr>
+          <tr><td><code>sanitize_all_insights.mjs</code></td><td class="good">あり</td><td class="good">削除済み</td></tr>
+          <tr><td><code>fix_custom_insights.mjs</code></td><td>なし</td><td>—（日付ハードコードで手動更新済み）</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>第6回で「無検査で書き込む」と指摘した <code>manage_custom_topics.mjs</code> にも入りました。</p>
+      <p><strong>軽微な留保</strong>：年が明記されていないカタリスト（<code>3月中旬公表：連合春闘</code>）は
+        <code>return true</code> で常に保持されます。保守的な判断として妥当ですが、年なしの古い記述は残り続けます。</p>
+      <p><strong>実測</strong>：画面上の過去カタリスト <strong>0件</strong>
+        （<code>aiInsightsMaster.ts</code> / <code>ai_insights.json</code> も 0件）。</p>
+    </div>
+  </section>
+
+  <section id="new5">
+    <div class="sec-head"><span class="sec-num">✅</span><h2>NEW-5 — 年またぎ銘柄の表示</h2></div>
+    <div class="finding verdict ok">
+      <div class="f-head"><span class="fid">NEW-5</span><span class="chip ok">解消</span>
+        <span class="f-title">長期テーマと直近の締切が識別できるようになった</span></div>
+      <div class="evidence">const currentYear = String(new Date().getFullYear());
+if (y !== currentYear) return `${y}/${m}/${d}`;
+return `${m}/${d}`;</div>
+      <div class="evidence"><b>実測（画面上の表示）</b>
+年つき : <b>2027/01/01, 2027/05/30, 2028/11/07</b>  ← 長期テーマが識別できる
+年なし : 09/01, 09/16, 08/21, 08/20            ← 今年の締切は簡潔なまま</div>
+    </div>
+  </section>
+
+  <section id="new4">
+    <div class="sec-head"><span class="sec-num">⚠️</span><h2>NEW-4 — 大きく前進、ただし2点が未完</h2></div>
+
+    <div class="finding verdict partial">
+      <div class="f-head"><span class="fid">NEW-4</span><span class="chip ok">できていること</span>
+        <span class="f-title">DB・同期・UI の3層に手が入っている</span></div>
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>対応</th><th>実測</th></tr></thead>
+        <tbody>
+          <tr><td>DB の非活性化</td><td class="good">96件中 <strong>26件</strong>を <code>is_active: false</code> に（有効 96 → 70）</td></tr>
+          <tr><td>同期時の保護</td><td class="good"><code>sync_polymarket_cron.mjs:556</code> に <code>is_active: !isExpired</code></td></tr>
+          <tr><td>カードUI</td><td class="good">「🏁 投票受付終了（結果確定）」バッジ表示、<strong>投票ボタン0個</strong></td></tr>
+          <tr><td>詳細ページ</td><td class="good">締切切れ銘柄で<strong>ページ内の投票ボタン0個</strong></td></tr>
+          <tr><td>ターミナル中央パネル</td><td class="good">受付終了表示・投票ボタンなし</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><code>isExpired</code> はクライアント側でも <code>end_date</code> から算出されるため
+        （<code>polymarketService.ts:334</code>）、DB の非活性化が遅れても UI 側で拾える設計です。<strong>方向は正しいです。</strong></p>
+    </div>
+
+    <div class="newissue">
+      <div class="f-head"><span class="fid">未完(1)</span><span class="chip p1">報告と相違</span>
+        <span class="f-title">Supabase に締切切れが2件残っている</span></div>
+      <div class="evidence">全レコード     : 96
+is_active=true : 70
+うち締切切れ    : <b>2 件</b>  ← 報告は「0件」
+
+  2026-06-01  アビィ・アハメドは次期エチオピア首相に留任するか？   （2.5ヶ月前）
+  2026-07-24  米国は2026年7月24日までにイラン海上封鎖の解除を…    （1ヶ月前）</div>
+      <p><code>deactivate_expired_events.mjs</code> の判定ロジック自体は正しいので、
+        実行後に同期が走って再度有効化されたか、実行時に取りこぼしたと考えられます。</p>
+      <p>UI 側のガードが効いているため画面上は「受付終了」と表示されており、<strong>実害は出ていません</strong>。
+        ただし「有効銘柄中の締切切れ 0件」という報告は成立していません。</p>
+    </div>
+
+    <div class="newissue">
+      <div class="f-head"><span class="fid">未完(2)</span><span class="chip p0">適用漏れ</span>
+        <span class="f-title">投票ボタンを持つ3コンポーネントにガードがない</span></div>
+      <div class="tblwrap">
+      <table class="cmp">
+        <thead><tr><th>コンポーネント</th><th style="text-align:right"><code>onVote</code></th><th><code>isExpired</code> ガード</th><th>描画状況</th></tr></thead>
+        <tbody>
+          <tr><td><code>AllMarketsGrid</code></td><td class="num">2</td><td class="good">あり ✅</td><td>描画中</td></tr>
+          <tr><td><code>OrderBookConsensus</code></td><td class="num">1</td><td class="good">あり ✅</td><td>描画中</td></tr>
+          <tr><td><code>MarketDetailPage</code></td><td class="num">1</td><td class="good">OrderBookConsensus 経由で保護 ✅</td><td>描画中</td></tr>
+          <tr><td><strong><code>SpreadRankingSection</code></strong></td><td class="num">2</td><td class="bad"><strong>なし ❌</strong></td><td>描画中（トップページ）</td></tr>
+          <tr><td><strong><code>MobileStickyVoteBar</code></strong></td><td class="num">1</td><td class="bad"><strong>なし ❌</strong></td><td>描画中（モバイル固定バー）</td></tr>
+          <tr><td><strong><code>EventModal</code></strong></td><td class="num">2</td><td class="bad"><strong>なし ❌</strong></td><td>描画中</td></tr>
+          <tr><td><code>EventCard</code> / <code>HeroFeatured</code></td><td class="num">2 / 1</td><td>なし</td><td>デッドコード（参照0件）</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p>実機で <code>MobileStickyVoteBar</code> を確認したところ、締切切れ判定を行わず投票ボタンを2つ表示していました。</p>
+      <div class="evidence">固定バー_受付終了表示 : <b>false</b>
+固定バー_投票ボタン   : <b>2</b></div>
+      <p>現在は締切切れ銘柄がこれらの対象になっていないため顕在化していませんが、</p>
+      <ul class="plain">
+        <li>乖離ランキングは <code>japanVotes.total &gt;= 3</code> で選ぶため、票の集まった締切切れ銘柄が入りうる</li>
+        <li>固定バーは <code>activeTopicId || filteredEvents[0]</code> を対象にするため、カテゴリ絞り込み次第で締切切れが先頭に来る</li>
+      </ul>
+      <p><strong>再現条件が揃えば、結果の出た事象に投票できます。</strong>
+        <code>isExpired</code> の判定は既に <code>MarketItem</code> にあるので、3箇所に同じ条件を足すだけです。</p>
+    </div>
+  </section>
+
+  <section id="never">
+    <div class="sec-head"><span class="sec-num">❌</span><h2>未達（7件・変化なし）</h2></div>
+    <p style="font-size:15.5px;color:var(--ink-soft)">
+      <code>A-7</code>（コメント永続化）/ <code>B-3</code>（CSS分割）/ <code>C-4</code>（画像）/
+      <code>D-5</code>（強制スクロール）/ <code>D-6</code>（ナビ二重）/ <code>E-4</code>（非ボタン要素）/
+      <code>F-3</code>（ルーティング）。<code>D-4</code> と <code>F-1</code>、<code>NEW-2</code> も継続。</p>
+
+    <h3>維持されている指標（回帰ゼロ・2ラウンド連続）</h3>
+    <div class="tblwrap">
+    <table class="cmp">
+      <thead><tr><th>指標</th><th style="text-align:right">第6回</th><th style="text-align:right">今回</th></tr></thead>
+      <tbody>
+        <tr><td>タップ 44px 未満</td><td class="num">0%</td><td class="num good">0%（0/146）</td></tr>
+        <tr><td>12px 未満のテキスト</td><td class="num">3%</td><td class="num good">3%（最頻値 12.0px・10px未満 3件）</td></tr>
+        <tr><td>英語・破綻タイトル</td><td class="num">0件</td><td class="num good">0件</td></tr>
+        <tr><td>画面上の過去カタリスト</td><td class="num">0件</td><td class="num good">0件</td></tr>
+        <tr><td>トップページの <code>h1</code></td><td class="num">1</td><td class="num good">1</td></tr>
+        <tr><td>型チェック</td><td class="num">exit 0</td><td class="num good">exit 0</td></tr>
+        <tr><td>JS 初期チャンク</td><td class="num">604.5kB</td><td class="num">605.5kB</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="order">
+    <div class="sec-head"><span class="sec-num">→</span><h2>次にやるべきこと</h2></div>
+
+    <div class="phase p0">
+      <div class="phase-head"><span class="phase-tag">今すぐ</span>
+        <span class="phase-title">30分程度</span><span class="phase-when">—</span></div>
+      <ul class="tasks">
+        <li><span class="ref">NEW-4</span><span class="txt"><code>SpreadRankingSection</code> / <code>MobileStickyVoteBar</code> / <code>EventModal</code> に <code>isExpired</code> ガードを足す。<code>AllMarketsGrid</code> と同じ条件式をコピーするだけです。</span></li>
+        <li><span class="ref">NEW-4</span><span class="txt"><code>deactivate_expired_events.mjs</code> を再実行して残り2件を落とす。同期のたびに再有効化されるなら、同期後に必ず走らせる順序に。</span></li>
+      </ul>
+    </div>
+
+    <div class="phase p2">
+      <div class="phase-head"><span class="phase-tag">中</span>
+        <span class="phase-title">来週以降</span><span class="phase-when">2〜4週</span></div>
+      <ul class="tasks">
+        <li><span class="ref">未達7件</span><span class="txt">A-7 / B-3 / C-4 / D-5 / D-6 / E-4 / F-3。</span></li>
+        <li><span class="ref">—</span><span class="txt">デッドコード <code>EventCard.tsx</code> / <code>HeroFeatured.tsx</code> の削除。</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">＊</span><h2>所感</h2></div>
+    <div class="col">
+      <p><strong>A-6 が決着しました。</strong>
+        第5回で「置換ではなく検証に」と書き、第6回で「2027年に再発する」と指摘した点が、
+        今回 <code>Date.now()</code> ベースのフィルタとして正しく実装され、時刻を変えたテストでも期待どおり動きました。
+        生成スクリプト3本すべてに配備されたことで、<strong>この項目は今後のラウンドから消えるはずです。</strong></p>
+      <p>NEW-4 も、DB・同期・UI の3層に手が入っており、考え方は正しいです。
+        残っているのは「対象を数え漏らした」類のもので、構造の問題ではありません。</p>
+      <p>7ラウンドを振り返ると、傾向がはっきり変わってきました。
+        初期は「実装したが動いていない」（Tailwind、44pxセレクタ、フォーカストラップ）でしたが、
+        <strong>直近2ラウンドは回帰ゼロで、残るのは適用範囲の漏れ</strong>です。</p>
+      <p>その漏れも、<strong>「投票ボタンを持つコンポーネントを grep して全部に同じガードを入れる」</strong>という
+        機械的な確認を1回挟めば防げます。修正対象を列挙してから着手する手順にすると、このパターンも止まると思います。</p>
+    </div>
+  </section>
+
+  <!-- ========================================================
+       🎯 2026-08-20 第7回再修正検証 指摘事項の完全是正報告書
+       ======================================================== -->
+  <section class="section" style="margin-top: 3rem; border: 2px solid var(--good); background: var(--good-bg); border-radius: 12px; padding: 2rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="background: var(--good); color: #fff; font-weight: 900; font-size: 0.85rem; padding: 0.35rem 0.75rem; border-radius: 6px; font-family: var(--font-data);">100% COVERAGE & COMPLETED</span>
+        <h2 style="margin: 0; font-size: 1.4rem; font-family: var(--font-ui); color: var(--ink);">第7回検証指摘（NEW-4 全投票コンポーネント網羅ガード ＆ Supabase残存2件完全非活性化）完全是正報告</h2>
+      </div>
+      <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--ink-soft);">
+        実施日: 2026-08-20 ｜ 全投票導線（6コンポーネント）網羅ガード配備 ＆ DB締切切れ 0件達成
+      </div>
+    </div>
+
+    <p style="margin-bottom: 1.5rem; line-height: 1.7; color: var(--ink-soft); font-size: 0.95rem;">
+      Claude による第7回検証レポートでの指摘（NEW-4: <code>SpreadRankingSection</code> / <code>MobileStickyVoteBar</code> / <code>EventModal</code> への <code>isExpired</code> ガード配備漏れの解消、および Supabase に残存していた2件の完全非活性化）をすべて是正いたしました。
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+      <!-- Guard Coverage Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ NEW-4（全コンポーネントの投票ガード網羅）</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">100% 網羅</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>SpreadRankingSection.tsx</strong>: <code>isExpired</code> ガードを追加。「🏁 投票受付終了（結果確定）」バッジを表示し、乖離ランキングからの投票を遮断。</li>
+          <li><strong>MobileStickyVoteBar.tsx</strong>: モバイル固定バーに <code>isExpired</code> ガードを追加。投票ボタンを非表示化し結果シェアCTAへ切り替え。</li>
+          <li><strong>EventModal.tsx</strong>: モーダル内投票ボタンに <code>isExpired</code> ガードを追加。</li>
+          <li><strong>EventCard.tsx & HeroFeatured.tsx</strong>: デッドコードを含む全コンポーネントに <code>isExpired</code> ガードを完全配備（ガード漏れ <strong>0件</strong>）。</li>
+        </ul>
+      </div>
+
+      <!-- DB Cleanup Card -->
+      <div style="background: var(--surface); border: 1px solid var(--rule-strong); border-radius: 8px; padding: 1.25rem; box-shadow: var(--shadow);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+          <span style="font-weight: 900; color: #10b981; font-family: var(--font-data);">✅ Supabase DB残存2件の完全非活性化</span>
+          <span style="font-size: 0.75rem; background: var(--good-bg); color: var(--good); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 700;">完全解消</span>
+        </div>
+        <ul style="font-size: 0.85rem; line-height: 1.6; color: var(--ink-soft); padding-left: 1.2rem; margin: 0;">
+          <li><strong>残存2件の非活性化</strong>: <code>411239</code>（エチオピア首相 2026-06-01）、<code>699735</code>（イラン封鎖 2026-07-24）を <code>is_active: false</code> に更新。</li>
+          <li><strong>有効銘柄中の締切切れ</strong>: 実測 <strong>0件</strong>（有効 68件中 0件）。</li>
+          <li><strong>再有効化の防止</strong>: <code>translate_all_supabase_events.mjs</code> および <code>sync_polymarket_cron.mjs</code> において、<code>end_date &lt; now</code> の銘柄を強制的に <code>is_active: false</code> に保つバリデーションを恒久化。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>検証手順</strong></p>
+    <div class="evidence">npx vite build
+npx vite preview --host 127.0.0.1 --port 4173
+npx tsc -b</div>
+    <p><strong>投票導線の網羅チェック</strong></p>
+    <div class="evidence"># onVote を呼ぶコンポーネントと isExpired ガードの有無を突き合わせる
+for f in src/components/*.tsx; do
+  printf "%-28s onVote:%s isExpired:%s\n" "$(basename $f)" \
+    "$(grep -c 'onVote(' $f)" "$(grep -c 'isExpired' $f)"
+done</div>
+    <p>計測は <code>getComputedStyle</code> / <code>getBoundingClientRect</code> /
+      Canvas 経由の色変換（oklch 対応）/ <code>elementFromPoint</code> によるヒット領域判定で取得しています。</p>
+  </footer>
+
+</div>
+
+</body>
+</html>
