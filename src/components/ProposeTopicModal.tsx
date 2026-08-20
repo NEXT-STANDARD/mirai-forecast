@@ -132,10 +132,11 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
             </button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="proposal-form">
-            <p className="form-intro">
-              あなたが世論や世界の集合知で観測したい「未確定の未来の出来事」を提案してください。審査承認後にサイトに掲載されます。
-            </p>
+          <div className="modal-body-scroll custom-scroll">
+            <form onSubmit={handleSubmit} className="proposal-form">
+              <p className="form-intro">
+                あなたが世論や世界の集合知で観測したい「未確定の未来の出来事」を提案してください。審査承認後にサイトに掲載されます。
+              </p>
 
             {/* 質問タイトル */}
             <div className="form-group">
@@ -280,6 +281,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
               </button>
             </div>
           </form>
+        </div>
         )}
       </div>
     </div>
