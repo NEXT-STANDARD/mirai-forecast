@@ -17,6 +17,7 @@ import { OnboardingModal } from './components/OnboardingModal';
 import { AiConnectorPage } from './components/AiConnectorPage';
 import { EmbedWidgetPage } from './components/EmbedWidgetPage';
 import { EmbedModal } from './components/EmbedModal';
+import { DataExportModal } from './components/DataExportModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -38,6 +39,7 @@ export function App() {
   const [selectedModalEvent, setSelectedModalEvent] = useState<MarketItem | null>(null);
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
   const [selectedEmbedEvent, setSelectedEmbedEvent] = useState<MarketItem | null>(null);
+  const [selectedDataExportEvent, setSelectedDataExportEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
   
@@ -393,6 +395,7 @@ export function App() {
             onVote={handleVote}
             onOpenShare={(event) => setSelectedShareEvent(event)}
             onOpenEmbed={(event) => setSelectedEmbedEvent(event)}
+            onOpenDataExport={(event) => setSelectedDataExportEvent(event)}
             onBack={handleCloseMarketDetail}
             onSelectRelatedEvent={handleOpenMarketDetail}
           />
@@ -485,6 +488,13 @@ export function App() {
       <EmbedModal
         item={selectedEmbedEvent}
         onClose={() => setSelectedEmbedEvent(null)}
+      />
+
+      {/* 📊 金融オルタナティブデータ取得ハブ (CSV / WebMCP / JSON) */}
+      <DataExportModal
+        item={selectedDataExportEvent}
+        onClose={() => setSelectedDataExportEvent(null)}
+        onOpenAiConnector={() => setIsAiConnectorOpen(true)}
       />
 
       {/* 🏆 未来予報士プロファイル ＆ 的中履歴モーダル */}

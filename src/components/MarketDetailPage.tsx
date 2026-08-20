@@ -11,7 +11,8 @@ import {
   ChevronRight,
   Flame,
   Share2,
-  Code2
+  Code2,
+  Download
 } from 'lucide-react';
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
@@ -25,6 +26,7 @@ interface MarketDetailPageProps {
   onVote: (eventId: string, choice: 'YES' | 'NO') => void;
   onOpenShare: (item: MarketItem) => void;
   onOpenEmbed?: (item: MarketItem) => void;
+  onOpenDataExport?: (item: MarketItem) => void;
   onBack: () => void;
   onSelectRelatedEvent: (item: MarketItem) => void;
 }
@@ -36,6 +38,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   onVote,
   onOpenShare,
   onOpenEmbed,
+  onOpenDataExport,
   onBack,
   onSelectRelatedEvent,
 }) => {
@@ -141,6 +144,17 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           </div>
 
           <div className="detail-top-action-group">
+            {onOpenDataExport && (
+              <button 
+                onClick={() => onOpenDataExport(item)} 
+                className="btn-market-data-trigger"
+                title="Excel用CSVまたはAI連携(WebMCP)でデータを取得"
+              >
+                <Download size={13} className="text-amber-400" />
+                <span>データ取得</span>
+              </button>
+            )}
+
             {onOpenEmbed && (
               <button 
                 onClick={() => onOpenEmbed(item)} 
