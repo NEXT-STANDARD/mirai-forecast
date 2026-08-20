@@ -4912,6 +4912,9 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: 1.25rem;
   padding-bottom: 3rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .market-detail-nav {
@@ -4921,13 +4924,16 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.75rem;
   padding: 0.5rem 0;
   flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .market-detail-nav-right {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .btn-back-link {
@@ -4957,14 +4963,14 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .detail-top-action-group {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .detail-cat-badge {
@@ -5011,11 +5017,14 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(135deg, #091024 0%, #040711 100%);
   border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: var(--radius-lg);
-  padding: 1.6rem 1.75rem;
+  padding: 1.5rem 1.6rem;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(56, 189, 248, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .detail-main-title {
@@ -5025,6 +5034,8 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.35;
   margin: 0 0 0.45rem 0;
   letter-spacing: -0.01em;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
 }
 
 .detail-sub-question {
@@ -5033,19 +5044,79 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-mono);
   margin: 0;
   line-height: 1.5;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .detail-header-stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
+  gap: 1rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
+  .market-detail-container {
+    gap: 0.85rem;
+    padding-bottom: 2rem;
+  }
+
+  .market-detail-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+
+  .market-detail-nav-right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .detail-meta-tags {
+    width: 100%;
+    gap: 0.35rem;
+  }
+
+  .detail-top-action-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.35rem;
+    width: 100%;
+  }
+
+  .btn-market-data-trigger,
+  .btn-market-embed-trigger,
+  .btn-market-share-trigger {
+    justify-content: center;
+    padding: 0.4rem 0.2rem;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    text-align: center;
+  }
+
+  .market-detail-header-card {
+    padding: 1.1rem 0.9rem;
+    gap: 0.9rem;
+  }
+
+  .detail-main-title {
+    font-size: clamp(1.15rem, 4.8vw, 1.4rem);
+    line-height: 1.35;
+  }
+
+  .detail-sub-question {
+    font-size: 0.76rem;
+  }
+
   .detail-header-stats-row {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding-top: 0.75rem;
   }
 }
 
@@ -5058,6 +5129,15 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: 0.3rem;
   transition: all var(--transition-fast);
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .header-stat-box {
+    padding: 0.55rem 0.65rem;
+  }
 }
 
 .header-stat-box:hover {
@@ -5171,6 +5251,16 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .catalyst-content-body, .rules-content-body {
+    padding: 0.85rem;
+    gap: 0.75rem;
+  }
 }
 
 .catalyst-summary-box, .catalyst-why-box {
@@ -5178,6 +5268,15 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .catalyst-summary-box, .catalyst-why-box {
+    padding: 0.65rem 0.75rem;
+  }
 }
 
 .catalyst-summary-title, .catalyst-why-title {
@@ -5192,12 +5291,17 @@ h1, h2, h3, h4, h5, h6 {
   color: #f1f5f9;
   line-height: 1.5;
   margin: 0;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
 }
 
 .catalyst-timeline-block {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .catalyst-timeline-title {
@@ -5214,6 +5318,9 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .catalyst-timeline-item {
@@ -5224,6 +5331,17 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(15, 23, 42, 0.4);
   border: 1px solid rgba(245, 158, 11, 0.2);
   border-radius: 6px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .catalyst-timeline-item {
+    padding: 0.45rem 0.65rem;
+    gap: 0.45rem;
+  }
 }
 
 .catalyst-dot {
@@ -5239,6 +5357,9 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   color: #f8fafc;
   font-family: var(--font-mono);
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
+  min-width: 0;
 }
 
 .rule-item strong {
@@ -5253,6 +5374,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #cbd5e1;
   line-height: 1.5;
   margin: 0;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
 }
 
 .rule-compliance-note {
@@ -5266,6 +5389,9 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.84rem;
   color: #a7f3d0;
   line-height: 1.4;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
 .comment-post-form {
@@ -6747,6 +6873,9 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .debate-header-bar {
@@ -6755,6 +6884,8 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .debate-badge {
@@ -6765,17 +6896,21 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.1rem 0.45rem;
   border-radius: 4px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .debate-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   .debate-cards-grid {
     grid-template-columns: 1fr;
+    gap: 0.6rem;
   }
 }
 
@@ -6786,6 +6921,16 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   gap: 0.5rem;
   transition: all 0.15s ease;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .debate-card {
+    padding: 0.75rem 0.8rem;
+  }
 }
 
 .debate-card.bull-card {
@@ -6814,6 +6959,8 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   font-size: 0.80rem;
   font-weight: 800;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 
 .debate-tag-bull {
@@ -6827,6 +6974,7 @@ h1, h2, h3, h4, h5, h6 {
 .debate-prob {
   font-size: 0.80rem;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .debate-card-text {
@@ -6834,6 +6982,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #cbd5e1;
   line-height: 1.5;
   margin: 0;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
 }
 
 .debate-summary-box {
@@ -6841,6 +6991,15 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 6px;
   padding: 0.65rem 0.85rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .debate-summary-box {
+    padding: 0.55rem 0.7rem;
+  }
 }
 
 .debate-summary-text {
@@ -6848,6 +7007,8 @@ h1, h2, h3, h4, h5, h6 {
   color: #fde68a;
   line-height: 1.45;
   margin: 0;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
 }
 
 /* チャート下部のミニ・ディベート対比 */

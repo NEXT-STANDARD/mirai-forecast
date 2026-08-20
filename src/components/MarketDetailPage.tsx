@@ -119,6 +119,17 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   // 世論ギャップ計算
   const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
 
+  const formatCompactUsd = (val?: number) => {
+    if (!val || val === 0) return '$0';
+    if (val >= 1_000_000) {
+      return `$${(val / 1_000_000).toFixed(1)}M`;
+    }
+    if (val >= 1_000) {
+      return `$${Math.round(val / 1_000)}k`;
+    }
+    return `$${Math.round(val).toLocaleString()}`;
+  };
+
   return (
     <div className="market-detail-container animate-fade-in">
       {/* パンくず ＆ 戻るバー */}
@@ -209,8 +220,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
           <div className="header-stat-box">
             <span className="stat-sub">観測取引高 (24h / Total)</span>
-            <span className="stat-main text-slate-200">
-              ${(item.volume24hUsd || 0).toLocaleString()} / ${(item.totalVolumeUsd || 0).toLocaleString()}
+            <span className="stat-main text-slate-200" title={`24h: $${Math.round(item.volume24hUsd || 0).toLocaleString()} ｜ 累計: $${Math.round(item.totalVolumeUsd || 0).toLocaleString()}`}>
+              {formatCompactUsd(item.volume24hUsd)} <span className="stat-sub-prob">/ {formatCompactUsd(item.totalVolumeUsd)}</span>
             </span>
           </div>
         </div>
