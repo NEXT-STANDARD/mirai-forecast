@@ -10,6 +10,12 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/forecast</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>always</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/letter-to-mike</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
@@ -382,6 +388,18 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/atp-tiafoe-augeral-2026-08-19</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/874135</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/uefa-champions-league-2027-champion-20260701202025549</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -389,6 +407,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/659671</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/wnba-min-gsv-2026-08-19</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/804439</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -418,31 +448,7 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/wnba-min-gsv-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/804439</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/31552</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/atp-tiafoe-augeral-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/874135</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -460,18 +466,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/brazil-presidential-election</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/45915</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/ethereum-above-on-august-20-2026</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -484,13 +478,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/what-price-will-wti-hit-in-august-2026</loc>
+    <loc>https://mirairadar.com/market/brazil-presidential-election</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/746379</loc>
+    <loc>https://mirairadar.com/market/45915</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -508,6 +502,30 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/what-price-will-wti-hit-in-august-2026</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/746379</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/dota2-ironwi-ts8-2026-08-19</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/859108</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/us-iran-final-nuclear-deal-by-20260621201254412</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -515,18 +533,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/620025</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/epl-2027-champion-20260701200428749</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/659518</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -544,6 +550,18 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/atp-faria-musetti-2026-08-19</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/874129</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/bitcoin-above-on-august-21-2026</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -556,13 +574,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/dota2-ironwi-ts8-2026-08-19</loc>
+    <loc>https://mirairadar.com/market/epl-2027-champion-20260701200428749</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/859108</loc>
+    <loc>https://mirairadar.com/market/659518</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -592,18 +610,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/lol-ot-brt-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/866631</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/mls-rsl-dal-2026-08-19</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -616,25 +622,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/atp-faria-musetti-2026-08-19</loc>
+    <loc>https://mirairadar.com/market/lol-ot-brt-2026-08-19</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/874129</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/mls-por-sdg-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/806669</loc>
+    <loc>https://mirairadar.com/market/866631</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -652,13 +646,25 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/ucl-sba-cel1-2026-08-19-more-markets</loc>
+    <loc>https://mirairadar.com/market/mls-por-sdg-2026-08-19</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/839815</loc>
+    <loc>https://mirairadar.com/market/806669</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/dota2-vsn2-boombo-2026-08-20</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/859109</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -676,6 +682,18 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/ucl-sba-cel1-2026-08-19-more-markets</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/839815</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/what-price-will-ethereum-hit-on-august-19-2026</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -688,18 +706,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/ewc-2026-cs2-winner-20260810160005076</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/828873</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -707,6 +713,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/660108</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/ewc-2026-cs2-winner-20260810160005076</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/828873</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -736,18 +754,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/dota2-vsn2-boombo-2026-08-20</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/859109</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/bitcoin-up-or-down-on-august-20-2026</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -755,6 +761,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/871229</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/mls-orl-chi-2026-08-19-more-markets</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/807033</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -779,18 +797,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/861664</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/mls-orl-chi-2026-08-19-more-markets</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/807033</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -832,6 +838,30 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/wta-sabalen-bejlek-2026-08-19</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/873946</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/lol-dk-hle1-2026-08-20</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/850529</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/republican-presidential-nominee-2028</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -856,18 +886,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/lol-dk-hle1-2026-08-20</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/850529</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/south-carolina-republican-senate-special-primary-winner-20260712135206676</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -875,18 +893,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/695520</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/wta-sabalen-bejlek-2026-08-19</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/873946</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -940,18 +946,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/ballon-dor-winner-2026</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/48361</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/trump-out-as-president-by-august-31-20260730185655928</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -971,18 +965,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/807027</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/lol-kits-3v-2026-08-18</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/868703</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -1024,6 +1006,30 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/ballon-dor-winner-2026</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/48361</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/highest-temperature-in-hong-kong-on-august-20-2026</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/869080</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/sud-tor-tig-2026-08-19-more-markets</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -1048,18 +1054,6 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/highest-temperature-in-hong-kong-on-august-20-2026</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/869080</loc>
-    <lastmod>2026-08-20</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/putin-out-before-2027</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
@@ -1067,6 +1061,18 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/31195</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/f1-dutch-grand-prix-winner-2026-08-23</loc>
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/868800</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>

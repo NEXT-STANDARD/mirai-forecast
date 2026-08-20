@@ -53,6 +53,13 @@ async function buildSitemap() {
 
   // 主要固定ページ
   urls.push({
+    loc: `${SITE_URL}/forecast`,
+    lastmod: today,
+    changefreq: 'always',
+    priority: '0.9'
+  });
+
+  urls.push({
     loc: `${SITE_URL}/letter-to-mike`,
     lastmod: today,
     changefreq: 'weekly',

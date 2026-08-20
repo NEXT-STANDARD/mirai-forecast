@@ -11,10 +11,10 @@ import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { SpreadRankingSection } from './components/SpreadRankingSection';
 import { AdminConsolePage } from './components/AdminConsolePage';
 import { AllMarketsGrid } from './components/AllMarketsGrid';
-import { MyForecastModal } from './components/MyForecastModal';
 import { MarketDetailPage } from './components/MarketDetailPage';
 import { OnboardingModal } from './components/OnboardingModal';
 import { AiConnectorPage } from './components/AiConnectorPage';
+import { ForecastHubPage } from './components/ForecastHubPage';
 import { EmbedWidgetPage } from './components/EmbedWidgetPage';
 import { EmbedModal } from './components/EmbedModal';
 import { DataExportModal } from './components/DataExportModal';
@@ -42,7 +42,6 @@ export function App() {
   const [selectedEmbedEvent, setSelectedEmbedEvent] = useState<MarketItem | null>(null);
   const [selectedDataExportEvent, setSelectedDataExportEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
-  const [isMyForecastOpen, setIsMyForecastOpen] = useState(false);
   
   // 初回オンボーディング表示判定
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
@@ -61,6 +60,15 @@ export function App() {
   });
 
   const isLocalhost = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+  // 🏆 予報士ハブ個別ページルーティング (/forecast, /profile, /rankings)
+  const [isForecastHubOpen, setIsForecastHubOpen] = useState(() => {
+    return typeof window !== 'undefined' && (
+      window.location.pathname === '/forecast' ||
+      window.location.pathname === '/profile' ||
+      window.location.pathname === '/rankings'
+    );
+  });
 
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
@@ -119,6 +127,8 @@ export function App() {
   const handleOpenLetter = () => {
     setDetailMarketId(null);
     setIsAdminOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
     setIsLetterPageOpen(true);
     window.history.pushState({}, '', '/letter-to-mike');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -129,9 +139,26 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenForecastHub = () => {
+    setDetailMarketId(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(true);
+    window.history.pushState({}, '', '/forecast');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseForecastHub = () => {
+    setIsForecastHubOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenAdmin = () => {
     setDetailMarketId(null);
     setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
     setIsAdminOpen(true);
     window.history.pushState({}, '', '/admin');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -147,6 +174,7 @@ export function App() {
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
     setSelectedCategory('trending');
     setActiveTopicId(null);
     window.history.pushState({}, '', '/');
@@ -162,6 +190,7 @@ export function App() {
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
+          setIsForecastHubOpen(false);
           setDetailMarketId(null);
         } else {
           // 本番環境では /admin は存在しないものとしてトップへ強制リダイレクト
@@ -169,17 +198,26 @@ export function App() {
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
+          setIsForecastHubOpen(false);
           setDetailMarketId(null);
         }
       } else if (path === '/letter-to-mike') {
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
         setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
         setDetailMarketId(null);
       } else if (path === '/ai-connector' || path === '/developers') {
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+      } else if (path === '/forecast' || path === '/profile' || path === '/rankings') {
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(true);
         setDetailMarketId(null);
       } else {
         const match = path.match(/^\/market\/(.+)$/);
@@ -188,11 +226,13 @@ export function App() {
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
+          setIsForecastHubOpen(false);
         } else {
           setDetailMarketId(null);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
+          setIsForecastHubOpen(false);
         }
       }
     };
@@ -363,7 +403,7 @@ export function App() {
         onOpenLetter={handleOpenLetter}
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
-        onOpenMyForecast={() => setIsMyForecastOpen(true)}
+        onOpenMyForecast={handleOpenForecastHub}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
         onOpenAiConnector={() => setIsAiConnectorOpen(true)}
         userVotesCount={Object.keys(userVotes).length}
@@ -386,6 +426,16 @@ export function App() {
       ) : isAiConnectorOpen ? (
         <main className="container main-content">
           <AiConnectorPage onBack={() => setIsAiConnectorOpen(false)} />
+        </main>
+      ) : isForecastHubOpen ? (
+        <main className="container main-content">
+          <ForecastHubPage
+            userVotes={userVotes}
+            events={events}
+            streak={streak}
+            onBack={handleCloseForecastHub}
+            onSelectEvent={(ev) => handleOpenMarketDetail(ev)}
+          />
         </main>
       ) : detailMarketId && events.find(e => e.id === detailMarketId || e.slug === detailMarketId) ? (
         <main className="container main-content">
@@ -498,18 +548,7 @@ export function App() {
         onOpenAiConnector={() => setIsAiConnectorOpen(true)}
       />
 
-      {/* 🏆 未来予報士プロファイル ＆ 的中履歴モーダル */}
-      <MyForecastModal
-        isOpen={isMyForecastOpen}
-        onClose={() => setIsMyForecastOpen(false)}
-        userVotes={userVotes}
-        events={events}
-        streak={streak}
-        onSelectEvent={(ev) => {
-          setActiveTopicId(ev.id);
-          setSelectedCategory('all');
-        }}
-      />
+
 
       {/* 🌟 初見オンボーディング・クイックガイドモーダル */}
       <OnboardingModal
