@@ -1022,10 +1022,40 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(255, 255, 255, 0.05);
 }
 
+@media (max-width: 640px) {
+  .chart-stats-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .ohlcv-metrics {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .timeframe-selector {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .tf-btn {
+    text-align: center;
+    padding: 0.25rem 0.1rem;
+    font-size: 0.72rem;
+  }
+}
+
 /* SVG チャートコンテナ */
 .svg-chart-container {
   padding: 0.5rem 0.5rem 0.25rem 0.5rem;
   position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .chart-svg {
@@ -5175,11 +5205,15 @@ h1, h2, h3, h4, h5, h6 {
   grid-template-columns: 68% 30%;
   gap: 1.5rem;
   align-items: flex-start;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
   .market-detail-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
@@ -5187,6 +5221,10 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .detail-right-pane {
@@ -5195,6 +5233,10 @@ h1, h2, h3, h4, h5, h6 {
   gap: 1.25rem;
   position: sticky;
   top: 1rem;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .detail-chart-wrapper {
@@ -5202,6 +5244,10 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   overflow: hidden;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .detail-section-card {
@@ -5210,6 +5256,10 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .section-card-header {
@@ -5219,6 +5269,17 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .section-card-header {
+    padding: 0.75rem 0.85rem;
+    gap: 0.4rem;
+  }
 }
 
 .section-card-title {
@@ -5226,6 +5287,15 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 800;
   color: #f1f5f9;
   margin: 0;
+  word-break: auto-phrase;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .section-card-title {
+    font-size: 0.80rem;
+    line-height: 1.35;
+  }
 }
 
 .badge-ai-model {
@@ -5237,6 +5307,15 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(245, 158, 11, 0.4);
   color: #fbbf24;
   border-radius: 9999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .badge-ai-model {
+    font-size: 0.70rem;
+    padding: 0.1rem 0.4rem;
+  }
 }
 
 .badge-oracle {
@@ -5248,6 +5327,15 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(56, 189, 248, 0.35);
   color: #38bdf8;
   border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .badge-oracle {
+    font-size: 0.70rem;
+    padding: 0.1rem 0.4rem;
+  }
 }
 
 .catalyst-content-body, .rules-content-body {
@@ -5403,6 +5491,16 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   gap: 0.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .comment-post-form {
+    padding: 0.75rem 0.85rem;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
 }
 
 .comment-input-field {
@@ -5415,6 +5513,8 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.78rem;
   outline: none;
   transition: all 0.15s ease;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .comment-input-field:focus {
@@ -5432,6 +5532,14 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .btn-comment-submit {
+    width: 100%;
+    padding: 0.5rem;
+  }
 }
 
 .btn-comment-submit:hover:not(:disabled) {

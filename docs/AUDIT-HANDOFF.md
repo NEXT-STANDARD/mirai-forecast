@@ -35,7 +35,7 @@ Polymarket のリアルマネー確率と、日本の生活者による無料投
 | JS 初期チャンク | 700.6kB | 約 607kB（6チャンクに分割） |
 
 **監査35項目のうち：✅30件 完了 / ⚠️2件 部分的 / ❌3件 未達**
-**別途検出した新規問題9件のうち：8件 解決 / 1件 実害なしで保留**
+**別途検出した新規問題9件のうち：8件 解決 / 1件 実害なしで保留（NEW-2）**
 
 ---
 
@@ -58,9 +58,33 @@ Polymarket のリアルマネー確率と、日本の生活者による無料投
 
 - **NEW-2** dev サーバーと本番ビルドで CSS 出力が異なる。dev では `@layer` が失われ spacing ユーティリティが効かない。**本番は正常**なので、判定は必ず `vite preview` で行うこと
 
-### 任意1件
+### 解決済み（記録のため）
 
-- **NEW-9** `index.css` の 232-233行 と 1829-1830行 で、`-webkit-backdrop-filter` を**先**、`backdrop-filter` を**後**に並べ替える。esbuild が両者を畳んで後勝ちにするため、現状は標準プロパティが落ちている。背景 0.96 で実害は消えているので急がない
+- **NEW-9** 解決。`-webkit-backdrop-filter` を先、`backdrop-filter` を後に並べ替えたことで、
+  ビルド後の `.header-container-slim` に標準プロパティが残るようになった（無印の総数 7→9）。
+  esbuild は両者を畳んで**後勝ち**にするため、ベンダープレフィックスは必ず「プレフィックス版が先」
+
+### 検証エンジンに1つ弱点がある（次に直すとよい）
+
+`check #10（ビルド CSS Backdrop-Filter 保持検査）`の判定式は、2つの `includes()` が独立している。
+
+```js
+if (!distCss.includes(".header-container-slim") || !distCss.includes("backdrop-filter:blur")) { ... }
+```
+
+**ファイル全体に `backdrop-filter:blur` が1つでもあれば通る**ため、
+ヘッダーのルールからだけ無印が消えても検知できない（シミュレーションで確認済み）。
+他ルールに9箇所あるので、実質いつでも PASS する。
+
+```js
+// あるべき形：該当ルールの中を見る
+const rule = (distCss.match(/\.header-container-slim\{[^}]*\}/) || [""])[0];
+if (!/[^-]backdrop-filter:blur/.test(rule)) { ... }
+```
+
+もう1点、`fs.readdirSync(...)[0]` で CSS を1つだけ読んでいる。
+`dist/assets` に古いビルドが残っていると**過去の成果物を検査してしまう**。
+現状はファイルが1つなので問題は出ていないが、`ls -t` 相当で最新を選ぶか、全 CSS を走査するほうが安全。
 
 ---
 
@@ -82,7 +106,7 @@ npx vite preview --host 127.0.0.1 --port 4173
 node scripts/audit_self_check.mjs
 ```
 
-9項目を機械的に検査します。**指摘するたびにチェック項目が増えてきた**もので、
+**10項目**を機械的に検査します。**指摘するたびにチェック項目が増えてきた**もので、
 現在は次を見ています。
 
 1. ビルド＆型チェック
@@ -93,7 +117,8 @@ node scripts/audit_self_check.mjs
 6. カテゴリナビの配置・単一性
 7. デッドコンポーネント排除
 8. CSS Sticky 健全性（`overflow-x: clip` の保守）
-9. Supabase 有効銘柄の期限整合性
+9. ビルド CSS の Backdrop-Filter 保持（※判定が甘い。上記「弱点」参照）
+10. Supabase 有効銘柄の期限整合性
 
 **新しい問題を見つけたら、ここに1項目足す**のがこのプロジェクトの型です。
 
@@ -224,7 +249,7 @@ open('/tmp/style.css','w').write(re.search(r'<style>.*?</style>', s, re.S).group
 
 ```bash
 cd /Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast
-node scripts/audit_self_check.mjs     # 9項目すべて PASS のはず
+node scripts/audit_self_check.mjs     # 10項目すべて PASS のはず
 npx vite build && npx vite preview --host 127.0.0.1 --port 4173
 ```
 

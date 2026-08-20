@@ -243,8 +243,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           {/* 💡 Gemini 3.7 Flash 深層カタリスト日程分析 */}
           <div className="detail-section-card ai-catalyst-card">
             <div className="section-card-header">
-              <div className="flex items-center gap-2">
-                <Sparkles className="text-amber-400 w-5 h-5" />
+              <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                <Sparkles className="text-amber-400 w-5 h-5 flex-shrink-0" />
                 <h3 className="section-card-title">AIファンダメンタルズ要因 ＆ 注目カタリスト日程</h3>
               </div>
               <span className="badge-ai-model">Gemini 3.7 Flash 分析</span>
@@ -268,11 +268,11 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               {/* ⚔️ Gemini 3.7 知的ディベート対比（YES論拠 vs NO論拠） */}
               <div className="ai-debate-section">
                 <div className="debate-header-bar">
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
-                    <span className="text-base">⚔️</span>
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 min-w-0 flex-wrap">
+                    <span className="text-base flex-shrink-0">⚔️</span>
                     <span>AI知性ディベート：世界スマートマネー vs 慎重派の論拠対比</span>
                   </div>
-                  <span className="debate-badge font-mono">BULL vs BEAR DEBATE</span>
+                  <span className="debate-badge font-mono flex-shrink-0">BULL vs BEAR DEBATE</span>
                 </div>
 
                 <div className="debate-cards-grid">
@@ -333,8 +333,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           {/* 📜 判定基準・公式ルール (Polymarket Resolution Rules) */}
           <div className="detail-section-card rules-card">
             <div className="section-card-header">
-              <div className="flex items-center gap-2">
-                <FileText className="text-cyan-400 w-5 h-5" />
+              <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                <FileText className="text-cyan-400 w-5 h-5 flex-shrink-0" />
                 <h3 className="section-card-title">公式判定ルール ＆ 情報源（Resolution Rules）</h3>
               </div>
               <span className="badge-oracle">UMA Optimistic Oracle 準拠</span>
@@ -367,8 +367,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           {/* 💬 日本のコミュニティ議論 ＆ 直感コメント欄 */}
           <div className="detail-section-card comments-card">
             <div className="section-card-header">
-              <div className="flex items-center gap-2">
-                <MessageSquare className="text-slate-300 w-5 h-5" />
+              <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                <MessageSquare className="text-slate-300 w-5 h-5 flex-shrink-0" />
                 <h3 className="section-card-title">国内コミュニティ議論 ＆ 予報士コメント ({comments.length}件)</h3>
               </div>
             </div>
@@ -427,8 +427,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           {relatedMarkets.length > 0 && (
             <div className="detail-section-card related-markets-card">
               <div className="section-card-header">
-                <div className="flex items-center gap-2">
-                  <Layers className="text-cyan-400 w-4 h-4" />
+                <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                  <Layers className="text-cyan-400 w-4 h-4 flex-shrink-0" />
                   <h4 className="section-card-title text-xs">関連する注目の未来銘柄</h4>
                 </div>
               </div>
