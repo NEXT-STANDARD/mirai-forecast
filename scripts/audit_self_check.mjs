@@ -206,11 +206,18 @@ if (distAssets.length > 0) {
 report("ビルド CSS Backdrop-Filter 保持検査 (NEW-9)", backdropFails.length === 0,
   backdropFails.length === 0 ? "本番 CSS の .header-container-slim ルール内に無印 backdrop-filter の存在を確認" : backdropFails.join("; "));
 
-// 9.5 埋め込みウィジェットのスラッグ厳密照合検査 (N-18 回帰防止: 前方一致・末尾除去による誤照合防止)
+// 9.5 埋め込みウィジェットのスラッグ厳密照合検査 (N-18 回帰防止: 前方一致・末尾除去・文字列加工による誤照合防止)
 const embedCode = fs.readFileSync(path.join(COMPONENTS_DIR, "EmbedWidgetPage.tsx"), "utf-8");
 let embedSlugFails = [];
-if (/replace\(\/-\\\\d\+\$\/|replace\(\/-\d\+\$\//.test(embedCode)) {
-  embedSlugFails.push("EmbedWidgetPage に末尾数字除去の緩和ロジックが存在し、同名プレフィックス銘柄の誤表示が発生します");
+// A. 禁止検査: スラッグに対する文字列置換・加工・正規表現の混入を検知
+if (/\.replace\(\s*\/-\\?d\+\$\//.test(embedCode) || /slugOrId\.replace/.test(embedCode) || /slug\.replace/.test(embedCode)) {
+  embedSlugFails.push("EmbedWidgetPage にスラッグ文字列加工・緩和ロジックが存在し、同名プレフィックス銘柄の誤表示が発生します");
+}
+// B. 肯定検査: find 照合式が厳格な完全一致 (e.slug === slugOrId || e.id === slugOrId) であること
+const hasExactInitialFind = /INITIAL_EVENTS\.find\(\s*\([^)]*\)\s*=>\s*e\.slug\s*===\s*slugOrId\s*\|\|\s*e\.id\s*===\s*slugOrId\s*\)/.test(embedCode);
+const hasExactEventsFind = /events\.find\(\s*\([^)]*\)\s*=>\s*e\.slug\s*===\s*slugOrId\s*\|\|\s*e\.id\s*===\s*slugOrId\s*\)/.test(embedCode);
+if (!hasExactInitialFind || !hasExactEventsFind) {
+  embedSlugFails.push("EmbedWidgetPage の find 照合式が完全一致 (e.slug === slugOrId || e.id === slugOrId) 形式になっていません");
 }
 report("埋め込みウィジェット スラッグ厳密照合 (N-18)", embedSlugFails.length === 0,
   embedSlugFails.length === 0 ? "完全一致照合 (slug === slugOrId || id === slugOrId) を確認" : embedSlugFails.join("; "));

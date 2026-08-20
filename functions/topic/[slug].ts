@@ -34,6 +34,7 @@ export const onRequest = async (context: {
   let worldProb = 50;
   let japanProb = 50;
 
+  // Cloudflare Pages 環境変数（context.env）を優先。未設定時（ローカル開発・プレビュー時）のフォールバックとして公開 anon キー（権限: anon のみ）を保持
   const supabaseUrl = context.env.SUPABASE_URL || context.env.VITE_SUPABASE_URL || 'https://wdpygtmqehoepgrueeda.supabase.co';
   const supabaseAnonKey = context.env.SUPABASE_ANON_KEY || context.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndkcHlndG1xZWhvZXBncnVlZWRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NjM5OTQsImV4cCI6MjEwMjUzOTk5NH0.5-uu23zsXOOubjsrVJqK0DfeBkds52uoXxCdpUWHGBU';
 
