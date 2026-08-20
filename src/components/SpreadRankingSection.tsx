@@ -110,11 +110,21 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
             >
               {/* カード上部：順位バッジ ＆ 乖離ギャップ値 */}
               <div className="spread-card-header">
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <div className={`rank-badge ${rankBadgeClass}`}>
                     {rankIcon}
                     <span className="font-mono font-extrabold">{rankNumber}位</span>
                   </div>
+                  {event.iconUrl ? (
+                    <img 
+                      src={event.iconUrl} 
+                      alt="" 
+                      className="w-4 h-4 rounded-full object-cover flex-shrink-0 bg-slate-800 border border-slate-700/60"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
                   <span className="spread-category-label">{event.categoryLabel}</span>
                 </div>
 

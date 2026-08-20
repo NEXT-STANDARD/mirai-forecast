@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { MarketItem, CategoryType } from '../types';
+import { UNIFIED_CATEGORIES, type MarketItem, type CategoryType } from '../types';
 import { 
   Sparkles, 
   TrendingUp, 
@@ -24,18 +24,7 @@ interface AllMarketsGridProps {
   onOpenDetail?: (event: MarketItem) => void;
 }
 
-type SortOption = 'volume' | 'gap' | 'trending' | 'newest';
-
-// ⭐️ ヘッダーと100%完全一致するカテゴリー定義
-const UNIFIED_CATEGORIES: { id: CategoryType; label: string }[] = [
-  { id: 'all', label: '☀️ 全銘柄' },
-  { id: 'trending', label: '🔥 人気急上昇' },
-  { id: 'economy', label: '📊 経済・金利・暗号資産' },
-  { id: 'tech', label: '⚡ AI・テック' },
-  { id: 'politics', label: '🌐 国際・社会' },
-  { id: 'sports', label: '⚾ スポーツ' },
-  { id: 'entertainment', label: '🎬 エンタメ' },
-];
+type SortOption = 'volume' | 'gap' | 'trending';
 
 // 話題のホットキーワード（クイック検索タグ）
 const HOT_KEYWORDS = [
@@ -202,11 +191,23 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
             <div 
               key={event.id}
               className={`market-card-item ${hasVoted ? 'voted-card' : ''}`}
-              onClick={() => onSelectEvent(event)}
+              onClick={() => (onOpenDetail ? onOpenDetail(event) : onSelectEvent(event))}
             >
               {/* カードヘッダー：カテゴリ ＆ 変動率 */}
               <div className="card-top-row">
-                <span className="card-category-tag">{event.categoryLabel}</span>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  {event.iconUrl ? (
+                    <img 
+                      src={event.iconUrl} 
+                      alt="" 
+                      className="w-4 h-4 rounded-full object-cover flex-shrink-0 bg-slate-800 border border-slate-700/60"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = 'none';
+                      }}
+                    />
+                  ) : null}
+                  <span className="card-category-tag">{event.categoryLabel}</span>
+                </div>
                 <div className="flex items-center gap-1.5">
                   {hasGap && (
                     <span className="card-gap-badge" title="世界とお茶の間の見解に大きな乖離があります">

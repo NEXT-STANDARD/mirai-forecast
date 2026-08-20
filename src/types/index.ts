@@ -1,5 +1,15 @@
 export type CategoryType = 'all' | 'trending' | 'economy' | 'politics' | 'tech' | 'sports' | 'entertainment';
 
+export const UNIFIED_CATEGORIES: { id: CategoryType; label: string }[] = [
+  { id: 'all', label: '☀️ 全銘柄' },
+  { id: 'trending', label: '🔥 人気急上昇' },
+  { id: 'economy', label: '📊 経済・金利・暗号資産' },
+  { id: 'tech', label: '⚡ AI・テック' },
+  { id: 'politics', label: '🌐 国際・社会' },
+  { id: 'sports', label: '⚾ スポーツ' },
+  { id: 'entertainment', label: '🎬 エンタメ' },
+];
+
 export interface MarketItem {
   id: string;
   slug: string;

@@ -2,7 +2,7 @@ import React from 'react';
 import { RefreshCw, Flame, HelpCircle, PlusCircle, Volume2, VolumeX } from 'lucide-react';
 import { Logo } from './Logo';
 import { cyberSound } from '../utils/cyberSound';
-import type { CategoryType } from '../types';
+import { UNIFIED_CATEGORIES, type CategoryType } from '../types';
 
 import { calculateUserRank } from '../utils/rankSystem';
 
@@ -46,15 +46,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isMuted, setIsMuted] = React.useState(() => cyberSound.getIsMuted());
   const currentRank = calculateUserRank(userVotesCount);
 
-  const categories: { id: CategoryType; label: string }[] = [
-    { id: 'all', label: '☀️ 全銘柄' },
-    { id: 'trending', label: '🔥 人気急上昇' },
-    { id: 'economy', label: '📊 経済・金利・暗号資産' },
-    { id: 'tech', label: '⚡ AI・テック' },
-    { id: 'politics', label: '🌐 国際・社会' },
-    { id: 'sports', label: '⚾ スポーツ' },
-    { id: 'entertainment', label: '🎬 エンタメ' },
-  ];
+  const categories = UNIFIED_CATEGORIES;
 
   return (
     <header className="header-container-slim">
