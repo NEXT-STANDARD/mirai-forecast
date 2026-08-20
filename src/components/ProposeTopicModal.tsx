@@ -23,6 +23,18 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleReset();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const isFormValid =
@@ -99,7 +111,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleReset}>
+    <div className="modal-backdrop" onClick={handleReset} role="dialog" aria-modal="true">
       <div className="modal-card proposal-modal-card" onClick={(e) => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="modal-header">

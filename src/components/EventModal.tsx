@@ -18,6 +18,18 @@ export const EventModal: React.FC<EventModalProps> = ({
   onVote,
   onOpenShare,
 }) => {
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!item) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
   if (!item) return null;
 
   const [commentText, setCommentText] = useState('');
@@ -44,7 +56,7 @@ export const EventModal: React.FC<EventModalProps> = ({
   const gap = Math.abs(item.worldProbYes - item.japanVotes.percentYes);
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">

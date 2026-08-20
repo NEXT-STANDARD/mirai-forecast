@@ -9512,6 +9512,42 @@ body::after {
   filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.3));
 }
 
+/* ========================================================
+   🎯 モバイル タッチターゲット拡張 ＆ アクセシビリティ（E-2 対応）
+   ======================================================== */
+@media (pointer: coarse) {
+  /* タップ判定を最低44pxに拡張する擬似要素 */
+  .modal-close-btn,
+  .forecast-close-btn,
+  .popup-close-btn,
+  .timeframe-btn,
+  .header-actions button,
+  .header-actions a {
+    position: relative;
+  }
+
+  .modal-close-btn::after,
+  .forecast-close-btn::after,
+  .popup-close-btn::after,
+  .timeframe-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 44px;
+    min-height: 44px;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* モーダル共通のアクセシビリティスタイル */
+[role="dialog"] {
+  outline: none;
+}
+
+
 
 
 

@@ -8,9 +8,22 @@ interface EmbedModalProps {
 }
 
 export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
+  const [copied, setCopied] = useState(false);
+
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!item) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
   if (!item) return null;
 
-  const [copied, setCopied] = useState(false);
   const embedUrl = `https://mirairadar.com/embed/${item.slug || item.id}`;
   const iframeHeight = '250';
   const iframeCode = `<iframe src="${embedUrl}" width="100%" height="${iframeHeight}" frameborder="0" style="border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; max-width: 600px; width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.4);" title="${item.titleJa || item.title} - 未来レーダー世論ウィジェット"></iframe>`;
@@ -22,7 +35,7 @@ export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="embed-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">

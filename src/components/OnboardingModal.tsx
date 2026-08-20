@@ -14,6 +14,18 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
 }) => {
   const [step, setStep] = useState<number>(1);
 
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleFinish = () => {
@@ -32,7 +44,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
   };
 
   return (
-    <div className="modal-backdrop" onClick={handleClose}>
+    <div className="modal-backdrop" onClick={handleClose} role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
       <div className="modal-card onboarding-modal-dialog" onClick={(e) => e.stopPropagation()}>
         {/* ヘッダー */}
         <div className="onboarding-header">

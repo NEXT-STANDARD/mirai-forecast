@@ -55,12 +55,25 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
 
     loadHistory();
 
-    // 30秒ごとに自動リフレッシュ（生きているリアルタイムチャート）
-    const intervalId = setInterval(loadHistory, 30000);
+    // 30秒ごとに自動リフレッシュ（バックグラウンド時は休止）
+    const intervalId = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadHistory();
+      }
+    }, 30000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadHistory();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       isMounted = false;
       clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [event.id, event.clobTokenId, timeframe]);
 

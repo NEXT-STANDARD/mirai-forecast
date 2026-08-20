@@ -22,11 +22,23 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
   onClose,
   userVote,
 }) => {
-  if (!item) return null;
-
   const [copied, setCopied] = useState(false);
   const [copiedImage, setCopiedImage] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!item) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
+  if (!item) return null;
 
   const worldYes = item.worldProbYes;
   const japanYes = item.japanVotes.percentYes;
@@ -277,7 +289,7 @@ ${shareUrl}
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="ogp-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">

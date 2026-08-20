@@ -28,6 +28,18 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   const [copiedMcp, setCopiedMcp] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
 
+  // ⌨️ Esc キーでモーダルを閉じるアクセシビリティ対応
+  React.useEffect(() => {
+    if (!item) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [item, onClose]);
+
   if (!item) return null;
 
   const worldYes = item.worldProbYes;
@@ -154,7 +166,7 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   };
 
   return (
-    <div className="modal-backdrop" onClick={onClose}>
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true">
       <div className="data-export-modal-content" onClick={(e) => e.stopPropagation()}>
         {/* モーダルヘッダー */}
         <div className="modal-header">

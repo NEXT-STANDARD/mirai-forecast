@@ -1,7 +1,15 @@
 import React from 'react';
 import { ShieldCheck, Info, Scale, Lock } from 'lucide-react';
 
-export const ComplianceBanner: React.FC = () => {
+interface ComplianceBannerProps {
+  onOpenTerms?: () => void;
+  onOpenPrivacy?: () => void;
+}
+
+export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
+  onOpenTerms,
+  onOpenPrivacy,
+}) => {
   return (
     <footer className="compliance-footer">
       <div className="container compliance-container">
@@ -51,9 +59,24 @@ export const ComplianceBanner: React.FC = () => {
           </div>
         </div>
 
-        {/* コピーライト */}
-        <div className="footer-bottom-copy">
-          © 2026 未来レーダー (MiraiRadar.com). Powered by Polymarket Public Data & Gemini 3.7 Flash.
+        {/* フッター規約リンク ＆ コピーライト */}
+        <div className="footer-bottom-row flex flex-wrap items-center justify-between gap-3 pt-4 mt-4 border-t border-slate-800/80 text-xs text-slate-400">
+          <div className="flex items-center gap-4">
+            {onOpenTerms && (
+              <button onClick={onOpenTerms} className="hover:text-cyan-400 underline transition-all">
+                利用規約
+              </button>
+            )}
+            {onOpenPrivacy && (
+              <button onClick={onOpenPrivacy} className="hover:text-cyan-400 underline transition-all">
+                プライバシーポリシー
+              </button>
+            )}
+          </div>
+
+          <div className="footer-bottom-copy">
+            © 2026 未来レーダー (MiraiRadar.com). Powered by Polymarket Public Data & Gemini 3.7 Flash.
+          </div>
         </div>
       </div>
     </footer>

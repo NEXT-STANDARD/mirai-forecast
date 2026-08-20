@@ -18,6 +18,7 @@ import { EmbedWidgetPage } from './components/EmbedWidgetPage';
 import { EmbedModal } from './components/EmbedModal';
 import { DataExportModal } from './components/DataExportModal';
 import { PwaInstallBanner } from './components/PwaInstallBanner';
+import { TermsModal } from './components/TermsModal';
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -41,6 +42,8 @@ export function App() {
   const [selectedEmbedEvent, setSelectedEmbedEvent] = useState<MarketItem | null>(null);
   const [selectedDataExportEvent, setSelectedDataExportEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
+  const [termsTab, setTermsTab] = useState<'terms' | 'privacy'>('terms');
   
   // 初回オンボーディング表示判定
   const [isOnboardingOpen, setIsOnboardingOpen] = useState(() => {
@@ -290,11 +293,28 @@ export function App() {
     }
   }, []);
 
-  // 初回マウント時 ＆ 30秒ごとの自動ポーリング更新
+  // 初回マウント時 ＆ 30秒ごとの自動ポーリング更新（バックグラウンド時は自動休止で負荷軽減）
   useEffect(() => {
     loadMarketData();
-    const interval = setInterval(loadMarketData, 30000);
-    return () => clearInterval(interval);
+
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadMarketData();
+      }
+    }, 30000);
+
+    const handleVisibilityChange = () => {
+      if (typeof document !== 'undefined' && !document.hidden) {
+        loadMarketData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [loadMarketData]);
 
   // 2. カテゴリー別フィルタリング（🔥人気急上昇対応）
@@ -560,7 +580,23 @@ export function App() {
         }}
       />
 
-      <ComplianceBanner />
+      <ComplianceBanner
+        onOpenTerms={() => {
+          setTermsTab('terms');
+          setIsTermsOpen(true);
+        }}
+        onOpenPrivacy={() => {
+          setTermsTab('privacy');
+          setIsTermsOpen(true);
+        }}
+      />
+
+      {/* ⚖️ 利用規約 ＆ プライバシーポリシーモーダル */}
+      <TermsModal
+        isOpen={isTermsOpen}
+        onClose={() => setIsTermsOpen(false)}
+        initialTab={termsTab}
+      />
 
       {/* 📱 PWA インストール ＆ WebPush 的中通知バナー */}
       <PwaInstallBanner />
