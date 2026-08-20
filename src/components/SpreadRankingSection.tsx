@@ -30,15 +30,10 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
   onOpenDetail,
   onOpenShare,
 }) => {
-  // ⭐️ 世界オッズ vs 日本世論の乖離度（Gap）が大きい銘柄を実測データに基づいて抽出
+  // ⭐️ 世界オッズ vs 日本世論の乖離度（Gap）が大きい銘柄を実測データに基づいて抽出（最低3票以上の信頼性のあるサンプル限定）
   const topSpreadEvents = useMemo(() => {
-    // 実際に日本国内での投票がある銘柄のみを対象（信頼性のあるサンプル）
-    const validEvents = events.filter(ev => ev.japanVotes.total >= 3);
-    
-    // もし3票以上の銘柄が少ない場合は、1票以上の銘柄も含めてフォールバック
-    const pool = validEvents.length >= 3 
-      ? validEvents 
-      : events.filter(ev => ev.japanVotes.total > 0);
+    // 実際に日本国内での投票が3票以上集まっている銘柄のみを厳格に対象化
+    const pool = events.filter(ev => ev.japanVotes.total >= 3);
 
     const scored = pool.map(ev => {
       const worldYes = ev.worldProbYes;

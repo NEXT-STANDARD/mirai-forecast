@@ -62,7 +62,9 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="container header-main-bar">
         {/* 左側: ロゴ ＋ 控えめサブタイトル ＋ LIVEステータス */}
         <div className="header-left-cluster">
-          <Logo size={24} onClick={onGoHome} />
+          <h1 className="m-0 p-0 text-inherit text-base font-normal flex items-center">
+            <Logo size={24} onClick={onGoHome} />
+          </h1>
           
           <div className="header-status-badge hide-on-mobile" title={`観測総高: $${Math.round(totalVolume / 1000000).toLocaleString()}M ｜ 国内投票: ${totalJapanVotes.toLocaleString()}票`}>
             <span className="live-dot-green"></span>

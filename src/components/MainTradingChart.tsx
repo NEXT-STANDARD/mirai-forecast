@@ -253,21 +253,15 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
               </div>
 
               <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">始値(Open)</span>
-                <span className="metric-val">{activePoint?.open ?? currentProb}%</span>
+                <span className="metric-lbl">24H 変動</span>
+                <span className={`metric-val ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  {delta >= 0 ? '+' : ''}{delta}%
+                </span>
               </div>
               <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">高値(High)</span>
-                <span className="metric-val text-emerald-400">{activePoint?.high ?? currentProb}%</span>
-              </div>
-              <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">安値(Low)</span>
-                <span className="metric-val text-rose-400">{activePoint?.low ?? currentProb}%</span>
-              </div>
-              <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">出来高(Vol)</span>
+                <span className="metric-lbl">世界取引高</span>
                 <span className="metric-val text-slate-200">
-                  ${Math.round((activePoint?.vol || 0) / 1000)}k
+                  ${((event.totalVolumeUsd || event.volume24hUsd || 0) / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}k
                 </span>
               </div>
             </div>
@@ -444,7 +438,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
                     <span>時系列取得中...</span>
                   </span>
                 ) : livePoints ? (
-                  <span className="text-cyan-400 font-bold ml-1">● Polymarket 実測同期済み</span>
+                  <span className="text-cyan-400 font-bold ml-1">● Polymarket 時系列オッズ</span>
                 ) : null}
               </div>
               <div className="flex items-center gap-3 text-[10px] text-slate-400 font-mono">
@@ -452,7 +446,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
                   <span className="w-2.5 h-0.5 bg-cyan-400"></span> 確率推移
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 bg-cyan-400/20"></span> 出来高 (Volume)
+                  <span className="w-2 h-2 bg-cyan-400/20"></span> 出来高
                 </span>
               </div>
             </div>
@@ -463,9 +457,9 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             <div className="ai-header-row">
               <div className="flex items-center gap-1.5">
                 <Sparkles size={13} className="text-amber-400" />
-                <span className="ai-block-title">AI 変動要因＆知性ディベート (Gemini 3.7 Flash)</span>
+                <span className="ai-block-title">AI要因分析 ＆ 知性ディベート</span>
               </div>
-              <span className="ai-live-tag">LIVE ANALYTICS</span>
+              <span className="ai-live-tag">AI事前分析 (2026年8月最新)</span>
             </div>
 
             <p className="ai-summary-text">

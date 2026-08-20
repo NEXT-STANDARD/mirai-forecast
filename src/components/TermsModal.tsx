@@ -43,7 +43,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({
               {activeTab === 'terms' ? '利用規約（Terms of Service）' : 'プライバシーポリシー（Privacy Policy）'}
             </span>
           </div>
-          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる">
+          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる" autoFocus>
             <X size={18} />
           </button>
         </div>
@@ -124,9 +124,9 @@ export const TermsModal: React.FC<TermsModalProps> = ({
               </div>
 
               <div>
-                <h4 className="terms-section-title">2. Cookieおよびローカルストレージの利用</h4>
+                <h4 className="terms-section-title">2. Cookie、ローカルストレージおよびクラウドインフラの利用</h4>
                 <p>
-                  本サービスは、利用者の投票状態の保持およびGoogle Analyticsによる利用状況分析のためにCookieおよびブラウザのローカルストレージ（LocalStorage）を利用しています。ブラウザの設定によりCookieを無効化することができます。
+                  本サービスは、利用者の投票状態の保持およびGoogle Analyticsによる利用状況分析のためにCookieおよびブラウザのローカルストレージ（LocalStorage）を利用しています。また、投票集計データはクラウドデータベース（Supabase）に匿名化された状態で安全に同期されます。
                 </p>
               </div>
 

@@ -124,7 +124,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
               <h2 className="text-base font-bold text-slate-100">未来の問いを提案する</h2>
             </div>
           </div>
-          <button onClick={handleReset} className="modal-close-btn" aria-label="閉じる">
+          <button onClick={handleReset} className="modal-close-btn" aria-label="閉じる" autoFocus>
             <X size={16} />
           </button>
         </div>

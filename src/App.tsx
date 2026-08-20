@@ -506,10 +506,7 @@ export function App() {
               events={events}
               userVotes={userVotes}
               onVote={handleVote}
-              onSelectEvent={(event) => {
-                setActiveTopicId(event.id);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onSelectEvent={handleOpenMarketDetail}
               onOpenDetail={handleOpenMarketDetail}
               onOpenShare={(event) => setSelectedShareEvent(event)}
             />
@@ -521,11 +518,7 @@ export function App() {
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
               onVote={handleVote}
-              onSelectEvent={(event) => {
-                setActiveTopicId(event.id);
-                // 画面上部のターミナルへスムーズスクロール
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
+              onSelectEvent={handleOpenMarketDetail}
               onOpenDetail={handleOpenMarketDetail}
             />
           </main>

@@ -66,7 +66,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               総出来高: ${Math.round(item.totalVolumeUsd / 1000).toLocaleString()}k
             </span>
           </div>
-          <button onClick={onClose} className="modal-close-btn">
+          <button onClick={onClose} className="modal-close-btn" aria-label="閉じる" autoFocus>
             <X size={20} />
           </button>
         </div>

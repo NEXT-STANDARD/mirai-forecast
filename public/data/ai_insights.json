@@ -1,17 +1,4 @@
-/**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
- */
-
-export interface AiInsightData {
-  titleJa: string;
-  summaryJa: string;
-  whyMovedJa: string;
-  keyCatalysts: string[];
-  urgencyLevel: 'high' | 'medium' | 'low';
-  lastUpdated: string;
-}
-
-export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
+{
   "2": {
     "titleJa": "日銀：9月会合で追加利上げ（0.75%へ）を実施するか？",
     "summaryJa": "植田総裁のタカ派姿勢や円安是正圧力が強まる一方、政局不透明感や春闘賃上げの波及見極めで市場の織り込みは拮抗。",
@@ -22,19 +9,19 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "30829": {
     "titleJa": "ギャビン・ニューサムは2028年米大統領選の民主党候補に選ばれるか？",
     "summaryJa": "ハリス副大統領への党内支持集約が進み、カリフォルニア州知事の2028年指名獲得期待は16%に低迷。",
     "whyMovedJa": "バイデン撤退に伴いカマラ・ハリスへの党内結束が急速に固まったことで、ニューサム氏の全国的アピール機会が後退し、ホーム州の財政赤字問題も逆風となっています。",
     "keyCatalysts": [
-      "米大統領・議会政策動向の結果とハリスの当落",
+      "2024年11月 米大統領選挙本選の結果とハリスの当落",
       "2026年 カリフォルニア州知事任期満了に伴う政治的進路表明",
       "民主党全国委員会（DNC）の次世代リーダー支持率動向"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "31195": {
     "titleJa": "プーチンは2026年末までにロシア大統領の座を追われるか？",
@@ -42,47 +29,47 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
     "whyMovedJa": "プリゴジンの反乱鎮圧以降、FSBや国防省幹部の粛清を通じて権力基盤を再構築し、戦時経済への移行でエリート層の離反を抑え込んでいることが低オッズの要因です。",
     "keyCatalysts": [
       "ロシア戦時経済のインフレ率急騰と財政準備基金（NWF）の枯渇状況",
-      "2026-2027年 ウクライナ・欧州情勢での膠着打破または軍事的敗退リスク",
+      "2024-2025年 ウクライナ前線での膠着打破または軍事的敗退リスク",
       "プーチン大統領の健康状態に関する公式・非公式情報"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "31552": {
     "titleJa": "JD・ヴァンスは2028年米大統領選挙で勝利するか？",
     "summaryJa": "トランプ陣営の副大統領候補就任で後継最有力に浮上し、23%の支持を集めています。",
     "whyMovedJa": "トランプが勝利した場合の現職副大統領としての出馬アドバンテージとMAGA支持層の継承が期待される一方、ラストベルト以外の無党派層への訴求力不足が織り込まれています。",
     "keyCatalysts": [
-      "米政権・議会主要ディベート動向（対ウォルズ）",
-      "米中間選挙・政権運営での陣営の勝敗",
+      "2024年10月1日 予定される米副大統領候補テレビ討論会（対ウォルズ）",
+      "2024年11月 米大統領選本選でのトランプ＝ヴァンス陣営の勝敗",
       "ラストベルト（ペンシルベニア・ミシガン・ウィスコンシン）の出口調査結果"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "45915": {
     "titleJa": "タルシシオ・デ・フレイタスは2026年ブラジル大統領選で勝利するか？",
     "summaryJa": "現時点で支持率は織り込まれず、ルーラ現大統領の優位と右派内の候補一本化難航が意識されています。",
     "whyMovedJa": "サンパウロ州知事のタルシシオ氏はボルソナーロ前大統領の有力後継ですが、州政運営に専念する姿勢や右派票の分裂懸念から出馬・勝利シナリオは現段階で低評価にとどまります。",
     "keyCatalysts": [
-      "ブラジル中央銀行金融政策・地方選挙での保守派得票率",
+      "2024年10月 ブラジル統一地方選挙での保守派得票率",
       "ボルソナーロ前大統領の被選挙権剥奪を巡る法廷闘争の進展",
       "ブラジル中央銀行（BCB）の金融引き締めとルーラ政権の支持率推移"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "51456": {
     "titleJa": "米FRBは2026年に利下げを完全に停止（利下げ回数0回）するか？",
     "summaryJa": "中立金利の上昇とインフレ高止まり懸念から、2026年利下げゼロが85%と強く意識されています。",
     "whyMovedJa": "トランプ再関税リスクや米財政赤字拡大、移民制限による賃金上昇圧力が構造的インフレをもたらし、FRBが早期に利下げサイクルを終了せざるを得ないとの見方が支配的です。",
     "keyCatalysts": [
-      "米財政拡大・通商関税政策の方向性（関税・財政拡大政策の方向性）",
+      "2024年11月 米大統領選結果（関税・財政拡大政策の方向性）",
       "米FOMCが公表する四半期ごとのドットチャート（SEP）長期中立金利予想",
       "米コアPCEデフレーターの2%回帰進捗"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "79987": {
     "titleJa": "マリーヌ・ル・ペンは2027年フランス大統領選挙で勝利するか？",
@@ -94,7 +81,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "フランス国債（OAT）利回りと独連邦債スプレッドの拡大動向"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "89502": {
     "titleJa": "ビットコインは2026年中に6万ドルを割り込む暴落を記録するか？",
@@ -106,7 +93,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "暗号資産に対する米SEC・CFTCの包括的規制法案の成立可否"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "149589": {
     "titleJa": "統一ロシアは次期ロシア下院選で過半数・最多議席を維持するか？",
@@ -118,7 +105,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "ロシア国内のインフレ率上昇に伴う国民不満の高まり"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "411239": {
     "titleJa": "アビィ・アハメドは次期エチオピア首相に留任するか？",
@@ -130,7 +117,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "エチオピア国家選挙管理委員会による次期総選挙日程の公示"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "455875": {
     "titleJa": "ホルムズ海峡の通航量は2026年末までに正常化するか？",
@@ -142,7 +129,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "ロイズ保険引受市場による戦時危険地帯指定の解除審査"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "481717": {
     "titleJa": "米FRBは9月FOMCで50bp以上の大幅利下げを実施するか？",
@@ -154,7 +141,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月11日 米8月消費者物価指数（CPI）発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "498285": {
     "titleJa": "セントルイス・カージナルスはシンシナティ・レッズに勝利するか？",
@@ -165,19 +152,19 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "試合終了に伴うPolymarketマーケットの清算実行"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "659671": {
     "titleJa": "パリ・サンジェルマンは2026-27 UEFAチャンピオンズリーグを制覇するか？",
     "summaryJa": "欧州メガクラブとの戦力格差を背景に、優勝確率は14%と現実的な評価にとどまります。",
     "whyMovedJa": "キリアン・エムバペのレアル・マドリード移籍により前線の絶対的得点力を失い、ルイス・エンリケ監督によるチーム再編過程にあることが長期タイトル獲得の慎重論につながっています。",
     "keyCatalysts": [
-      "2026年 夏の移籍市場での代替アタッカー獲得状況",
-      "2026-27 UEFAチャンピオンズリーグ新フォーマットでの序盤成績",
+      "2024年8月 夏の移籍市場での代替アタッカー獲得状況",
+      "2024-25 UEFAチャンピオンズリーグ新フォーマットでの序盤成績",
       "FFP（ファイナンシャル・フェアプレー）遵守に伴う補強予算の規模"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "660108": {
     "titleJa": "ホルムズ海峡の通航量は8月31日までに正常化するか？",
@@ -189,7 +176,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月31日時点での中東主要海峡船舶通過データ（AISデータ）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "780132": {
     "titleJa": "ビットコインは8月中に10万ドルの大台へ到達するか？",
@@ -201,7 +188,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "8月31日 月足クローズ時点のBTC現物価格"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "780133": {
     "titleJa": "イーサリアムは8月中に3,000ドルの節目を回復できるか？",
@@ -213,7 +200,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "イーサリアムL2ネットワーク（Base、Arbitrum）のTVL推移"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "794228": {
     "titleJa": "ダラス・ウィングスはゴールデンステート・ヴァルキリーズに勝利するか？",
@@ -225,7 +212,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "第1クォーターのフィールドゴール成功率"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "814068": {
     "titleJa": "イーロン・マスクのX投稿数は8月11-18日の週で20回未満にとどまるか？",
@@ -237,7 +224,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "Xプラットフォーム障害やアカウント凍結等の予期せぬトラブル"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "831375": {
     "titleJa": "イーロン・マスクのX投稿数は8月14-21日の週で20回未満になるか？",
@@ -249,7 +236,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "Xシステムのダウンタイム発生有無"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "833209": {
     "titleJa": "ボルチモア・オリオールズはタンパベイ・レイズに勝利するか？",
@@ -260,7 +247,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "試合終了後のPolymarketオフィシャルリゾルブ"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "833254": {
     "titleJa": "ロサンゼルス・ドジャースはコロラド・ロッキーズに勝利するか？",
@@ -272,7 +259,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "試合中の得点経過およびブルペン運用"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "833714": {
     "titleJa": "イーサリアムは8月18日に1,400ドル以上を維持できるか？",
@@ -284,7 +271,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "米SECによるステーキング関連規制の新規発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "833724": {
     "titleJa": "ビットコインは8月18日に5万4000ドル以上を維持できるか？",
@@ -296,7 +283,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "シカゴ・マーカンタイル取引所（CME）の未決済建玉（OI）水準"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "839083": {
     "titleJa": "ビットコインは8月19日に5万4000ドル以上をキープできるか？",
@@ -308,7 +295,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "週明けの米国債10年物利回りおよびドルインデックス（DXY）の挙動"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "859894": {
     "titleJa": "ビットコインは8月18日に日足で陽線（上昇）引けとなるか？",
@@ -320,7 +307,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "バイナンス等におけるファンディングレート（資金調達率）の傾き"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787044205330": {
     "titleJa": "大谷翔平は今季レギュラーシーズンで60本塁打に到達するか？",
@@ -332,18 +319,18 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月29日：レギュラーシーズン最終戦（対ロッキーズ戦）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787044209435": {
     "titleJa": "任天堂は年内にSwitch後継機（次世代ゲーム機）を正式発表するか？",
     "summaryJa": "古川社長が今期中のアナウンスを明言済みな一方、年末商戦の現行機売上阻害を警戒する慎重論が拮抗。",
     "whyMovedJa": "直近のサプライチェーンリーク報道と、世界的なゲームカンファレンス開催日程への市場の思惑。",
     "keyCatalysts": [
-      "11月5日：任天堂 次世代機戦略・最新四半期決算発表・経営方針説明会での古川社長発言",
-      "12月12日：世界最大級のゲーム表彰式「The Game Awards 2026」での電撃ティザー公開有無"
+      "11月5日：任天堂 2025年3月期第2四半期決算発表・経営方針説明会での古川社長発言",
+      "12月12日：世界最大級のゲーム表彰式「The Game Awards 2024」での電撃ティザー公開有無"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787044213329": {
     "titleJa": "日銀は次回の金融政策決定会合で追加利上げ（政策金利0.75%へ）を決定するか？",
@@ -355,7 +342,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "proposal-1787044134976": {
     "titleJa": "大谷翔平は今季60本塁打を達成するか？",
@@ -367,7 +354,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月29日：レギュラーシーズン最終戦（対ロッキーズ戦）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "proposal-ohtani-60hr-1787044134976": {
     "titleJa": "大谷翔平は今季60本塁打を達成するか？",
@@ -379,7 +366,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "9月29日：レギュラーシーズン最終戦（対ロッキーズ戦）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "boj-rate-hike-september-2026": {
     "titleJa": "日銀：9月会合で追加利上げ（0.75%へ）を実施するか？",
@@ -391,7 +378,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "3月18日〜19日開催：日銀「金融政策決定会合」および植田和男総裁記者会見"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787046116414": {
     "titleJa": "スタジオジブリ新作映画または宮崎駿監督の次回作は年内に公式発表されるか？",
@@ -402,7 +389,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "12月中旬：東宝による2025年公開ラインナップ発表記者会見"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787046120279": {
     "titleJa": "年末のNHK紅白歌合戦に『新しい学校のリーダーズ』または『YOASOBI』が出場するか？",
@@ -414,7 +401,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "11月上旬のNHK音楽番組『Venue101』出演ラインナップおよび年末特番編成の発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787046123636": {
     "titleJa": "アニメ『鬼滅の刃』または『呪術廻戦』の最新劇場版が国内興行収入100億円を突破するか？",
@@ -426,7 +413,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "2025年12月中旬開催「ジャンプフェスタ2026」スーパーステージでの『呪術廻戦 死滅回游』最新映像公開"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787048081444": {
     "titleJa": "NVIDIAの時価総額は年内に世界初の4兆ドル（約600兆円）を突破するか？",
@@ -437,7 +424,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "11月20日：NVIDIA 2025年度第3四半期決算発表（Blackwell出荷計画と次期売上高ガイダンス）"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   },
   "official-1787048085663": {
     "titleJa": "Appleは年内に独自の次世代オンデバイスAI『Apple Intelligence』の日本語版を正式提供するか？",
@@ -449,6 +436,6 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = {
       "6月9日前後：WWDC25基調講演における追加機能および多言語展開ロードマップの発表"
     ],
     "urgencyLevel": "high",
-    "lastUpdated": "AI事前分析 (2026年8月最新)"
+    "lastUpdated": "Gemini 3.7 Flash リアルタイム解析済み"
   }
-};
+}

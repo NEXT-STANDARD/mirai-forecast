@@ -13,12 +13,15 @@ export const Logo: React.FC<LogoProps> = ({
   showText = true,
   onClick,
 }) => {
+  const Component = onClick ? 'button' : 'div';
+
   return (
-    <div
-      className={`brand-logo-group ${className}`}
+    <Component
+      type={onClick ? "button" : undefined}
+      className={`brand-logo-group ${className} bg-transparent border-0 p-0 text-left`}
       onClick={onClick}
       style={{ cursor: onClick ? 'pointer' : 'default' }}
-      title="MiraiRadar トップへ"
+      aria-label="未来レーダー (MiraiRadar) トップページへ"
     >
       {/* Polymarket Style Geometric Minimal Glyph */}
       <svg
@@ -54,6 +57,6 @@ export const Logo: React.FC<LogoProps> = ({
           <span className="brand-sub-tagline hide-on-mobile">世界の集合知×日本の世論</span>
         </div>
       )}
-    </div>
+    </Component>
   );
 };

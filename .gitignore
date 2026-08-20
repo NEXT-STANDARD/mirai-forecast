@@ -29,9 +29,7 @@ dist-ssr
 .env.*.local
 
 # Service Account Keys & Secrets
-*.json
-!package.json
-!tsconfig.json
-!tsconfig.app.json
-!tsconfig.node.json
-!.posted_events.json
+*secret*.json
+*credentials*.json
+service-account*.json
+gen-lang-client*.json

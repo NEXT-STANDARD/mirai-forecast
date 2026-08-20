@@ -40,7 +40,7 @@ export const LiveTape: React.FC<LiveTapeProps> = ({ events = [] }) => {
         if (voteLogs && voteLogs.length > 0) {
           voteLogs.forEach((v) => {
             const ev = events.find((e) => e.id === v.event_id || e.slug === v.event_id);
-            const title = ev ? ev.titleJa : `銘柄 #${v.event_id.slice(0, 8)}`;
+            const title = ev ? ev.titleJa : (v.event_id.length > 20 ? '注目観測銘柄' : `世論銘柄 [${v.event_id}]`);
             const d = v.voted_at ? new Date(v.voted_at) : new Date();
             const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
 
@@ -90,7 +90,7 @@ export const LiveTape: React.FC<LiveTapeProps> = ({ events = [] }) => {
           <Activity size={13} className="icon-green" />
           <span className="pane-main-title">リアルタイム歩み値 ＆ 実測取引高 ｜ Real-time Time & Sales</span>
         </div>
-        <span className="live-pill-sm">● REAL DATA ONLY</span>
+        <span className="live-pill-sm">● LIVE LOGS</span>
       </div>
 
       <div className="tape-items-scroll hide-native-scrollbar">
