@@ -222,6 +222,27 @@ if (!hasExactInitialFind || !hasExactEventsFind) {
 report("埋め込みウィジェット スラッグ厳密照合 (N-18)", embedSlugFails.length === 0,
   embedSlugFails.length === 0 ? "完全一致照合 (slug === slugOrId || id === slugOrId) を確認" : embedSlugFails.join("; "));
 
+// 9.7 scripts/*.mjs の外部依存が package.json に存在すること
+// （依存整理ツールは src/ しか見ないため、scripts 専用の依存が「未使用」と誤判定されて
+//   削除されることがある。実際に F-5 の整理で twitter-api-v2 / sharp / googleapis が落ち、
+//   X投稿Botが ERR_MODULE_NOT_FOUND で停止した）
+const BUILTIN_MODULES = new Set(["fs", "path", "url", "http", "https", "readline", "crypto", "os", "child_process", "util", "events", "stream"]);
+const pkgJson = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf-8"));
+const declaredDeps = new Set([...Object.keys(pkgJson.dependencies || {}), ...Object.keys(pkgJson.devDependencies || {})]);
+let depFails = [];
+for (const file of fs.readdirSync(path.join(ROOT, "scripts")).filter(f => f.endsWith(".mjs"))) {
+  const content = fs.readFileSync(path.join(ROOT, "scripts", file), "utf-8");
+  for (const [, spec] of content.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+    if (spec.startsWith(".") || spec.startsWith("node:")) continue;
+    const pkg = spec.startsWith("@") ? spec.split("/").slice(0, 2).join("/") : spec.split("/")[0];
+    if (BUILTIN_MODULES.has(pkg) || declaredDeps.has(pkg)) continue;
+    depFails.push(`${file}: '${pkg}' が package.json に未登録`);
+  }
+}
+depFails = [...new Set(depFails)];
+report("scripts の外部依存が package.json に存在 (F-5 回帰防止)", depFails.length === 0,
+  depFails.length === 0 ? "scripts/*.mjs の全 import が package.json に登録済み" : depFails.join("; "));
+
 // 10. Supabase 有効銘柄の締切整合性
 async function checkDb() {
   try {
