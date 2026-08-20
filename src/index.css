@@ -5715,7 +5715,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 3.5rem;
   background: #030712;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2.5rem 0 2rem 0;
+  padding: 2.5rem 0 7.5rem 0;
 }
 
 .compliance-container {
@@ -9776,7 +9776,9 @@ body::after {
   .search-bar-input,
   .sort-select,
   .sort-selector-box,
-  .hot-keyword-chip {
+  .hot-keyword-chip,
+  .btn-card-detail-link,
+  .footer-link-btn {
     position: relative;
     min-height: 38px;
   }
@@ -9805,7 +9807,9 @@ body::after {
   .search-bar-input::after,
   .sort-select::after,
   .sort-selector-box::after,
-  .hot-keyword-chip::after {
+  .hot-keyword-chip::after,
+  .btn-card-detail-link::after,
+  .footer-link-btn::after {
     content: '';
     position: absolute;
     top: 50%;

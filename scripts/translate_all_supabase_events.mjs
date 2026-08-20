@@ -168,13 +168,17 @@ function translateTitle(id, raw) {
   }
 
   // 政治・国際
-  if (/JD Vance win the 2028/i.test(t)) {
-    category = 'politics';
-    return { titleJa: '米大統領選 2028：JDヴァンスが勝利するか？', category };
-  }
   if (/Gavin Newsom win the 2028/i.test(t)) {
     category = 'politics';
     return { titleJa: 'ギャビン・ニューサムは2028年米民主党大統領候補に選出されるか？', category };
+  }
+  if (/Donald Trump win the 2028/i.test(t)) {
+    category = 'politics';
+    return { titleJa: 'ドナルド・トランプは2028年米共和党大統領候補に選出されるか？', category };
+  }
+  if (/JD Vance win the 2028/i.test(t)) {
+    category = 'politics';
+    return { titleJa: '米大統領選 2028：JDヴァンスが勝利するか？', category };
   }
   if (/Tarcisio de Freitas win the 2026/i.test(t)) {
     category = 'politics';

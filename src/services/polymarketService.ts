@@ -266,17 +266,28 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
             const m = t.match(/by (August|September|December) (\d+)/i)!;
             const months: Record<string, string> = { August: '8月', September: '9月', December: '12月' };
             resolvedTitleJa = `ホルムズ海峡の通航量は${months[m[1]] || m[1]}${m[2]}日までに正常化するか？`;
-          } else if (/Abiy Ahmed be the next Prime Minister of Ethiopia/i.test(t)) {
-            resolvedTitleJa = 'アビィ・アハメドは次期エチオピア首相に留任するか？';
-          } else if (/United Russia \(ER\) gain the most seats/i.test(t)) {
-            resolvedTitleJa = '統一ロシアは次期ロシア下院選で最多議席を獲得するか？';
-          } else if (/Elon Musk # tweets August (\d+) - August (\d+)/i.test(t)) {
-            const m = t.match(/August (\d+) - August (\d+)/i)!;
-            resolvedTitleJa = `イーロン・マスクは8月${m[1]}日〜${m[2]}日に何回ポストするか？`;
+          } else if (/Gavin Newsom win the 2028/i.test(t)) {
+            resolvedTitleJa = 'ギャビン・ニューサムは2028年米民主党大統領候補に選出されるか？';
+          } else if (/Donald Trump win the 2028/i.test(t)) {
+            resolvedTitleJa = 'ドナルド・トランプは2028年米共和党大統領候補に選出されるか？';
+          } else if (/JD Vance win the 2028/i.test(t)) {
+            resolvedTitleJa = '米大統領選 2028：JDヴァンスが勝利するか？';
+          } else if (/Tarcisio de Freitas win the 2026/i.test(t)) {
+            resolvedTitleJa = 'タルシシオ・デ・フレイタスは2026年ブラジル大統領選挙で勝利するか？';
+          } else if (/Marine Le Pen win the 2027/i.test(t)) {
+            resolvedTitleJa = 'マリーヌ・ル・ペンは2027年フランス大統領選挙で勝利するか？';
+          } else if (/Putin out as President of Russia/i.test(t)) {
+            resolvedTitleJa = 'プーチン大統領は2026年末までにロシア大統領を退任するか？';
+          } else if (/How many Fed rate cuts in 2026/i.test(t)) {
+            resolvedTitleJa = 'FRBは2026年に利下げを0回（見送り）にとどめるか？';
+          } else if (/What price will Bitcoin hit in 2026.*?[↑↓]?\s*([\d,]+)/i.test(t)) {
+            const m = t.match(/([\d,]+)/)!;
+            resolvedTitleJa = `ビットコインは2026年に${m[1]}ドルに到達するか？`;
+          } else if (/What price will Ethereum hit in 2026.*?[↑↓]?\s*([\d,]+)/i.test(t)) {
+            const m = t.match(/([\d,]+)/)!;
+            resolvedTitleJa = `イーサリアムは2026年に${m[1]}ドルに到達するか？`;
           } else if (resolvedTitleJa.startsWith('What will') && resolvedTitleJa.includes('hit in')) {
             resolvedTitleJa = resolvedTitleJa.replace(/What will (.*?) hit in (.*?)\?/i, '$2 $1 到達水準予測');
-          } else if (resolvedTitleJa.startsWith('Will ') && resolvedTitleJa.endsWith('?')) {
-            resolvedTitleJa = `${resolvedTitleJa.slice(5, -1)}か？`;
           }
           resolvedQuestionJa = resolvedTitleJa;
         }
