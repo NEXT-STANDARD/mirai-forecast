@@ -2,12 +2,15 @@ import React from 'react';
 import { RefreshCw, HelpCircle, PlusCircle, Volume2, VolumeX, Flame } from 'lucide-react';
 import { Logo } from './Logo';
 import { cyberSound } from '../utils/cyberSound';
+import { UNIFIED_CATEGORIES, type CategoryType } from '../types';
 import { calculateUserRank } from '../utils/rankSystem';
 
 interface HeaderProps {
   totalMarketsCount: number;
   totalJapanVotes: number;
   totalVolume: number;
+  selectedCategory?: CategoryType;
+  onSelectCategory?: (category: CategoryType) => void;
   isRefreshing: boolean;
   onRefresh: () => void;
   onOpenLetter?: () => void;
@@ -25,6 +28,8 @@ export const Header: React.FC<HeaderProps> = ({
   totalMarketsCount,
   totalJapanVotes,
   totalVolume,
+  selectedCategory,
+  onSelectCategory,
   isRefreshing,
   onRefresh,
   onOpenLetter,
@@ -156,6 +161,23 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </div>
+
+      {/* 2. スクロール追従・主要カテゴリナビバー（初期表示 50px 以内に配備） */}
+      {onSelectCategory && (
+        <div className="container nav-container-slim">
+          <nav className="category-nav-slim custom-scroll" aria-label="カテゴリー絞り込み">
+            {UNIFIED_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategory(cat.id)}
+                className={`nav-tab-item ${selectedCategory === cat.id ? 'active' : ''}`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

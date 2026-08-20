@@ -427,6 +427,15 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                   <div
                     key={rel.id}
                     onClick={() => onSelectRelatedEvent(rel)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelectRelatedEvent(rel);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${rel.titleJa}の詳細を見る`}
                     className="related-market-item"
                   >
                     <div className="related-info">

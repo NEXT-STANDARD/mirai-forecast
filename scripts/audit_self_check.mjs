@@ -7,7 +7,7 @@ const ROOT = "/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast";
 const COMPONENTS_DIR = path.join(ROOT, "src/components");
 
 console.log("====================================================");
-console.log("🛡️ 未来レーダー 自律的品質・監査自己検証エンジン (Self-Verification Engine)");
+console.log("🛡️ 未来レーダー 自律的品質・監査自己検証エンジン v2 (Hardened Engine)");
 console.log("====================================================\n");
 
 let passCount = 0;
@@ -33,23 +33,30 @@ try {
   report("TypeScript & Vite 本番ビルド整合性", false, e.message);
 }
 
-// 2. 投票ガードの全コンポーネント網羅性 (NEW-4)
+// 2. 投票ガードの構文的健全性 & 100% 網羅性 (NEW-4 / 破壊テスト耐性)
 const componentFiles = fs.readdirSync(COMPONENTS_DIR).filter(f => f.endsWith(".tsx"));
 let voteGuardFails = [];
+// 厳密な期限ガード構文（false && で無効化されたパターンや文字列だけの偽装を検知）
+const strictGuardPattern = /(?:event|item)\.isExpired\s*\|\|\s*\(\s*(?:event|item)\.endDate\s*&&\s*new Date\((?:event|item)\.endDate\)\.getTime\(\)\s*<\s*Date\.now\(\)\s*\)/;
+const falsifiedPattern = /false\s*&&\s*(?:event|item)\.isExpired/;
+
 for (const file of componentFiles) {
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
   const hasOnVoteCall = /onVote\(/.test(content);
-  const hasExpiredGuard = /isExpired/.test(content);
   
   // MarketDetailPage delegates to OrderBookConsensus
   if (file === "MarketDetailPage.tsx") continue;
 
-  if (hasOnVoteCall && !hasExpiredGuard) {
-    voteGuardFails.push(file);
+  if (hasOnVoteCall) {
+    if (falsifiedPattern.test(content)) {
+      voteGuardFails.push(`${file}: ガード条件が無効化されています (false && isExpired)`);
+    } else if (!strictGuardPattern.test(content)) {
+      voteGuardFails.push(`${file}: 厳密な期限判定ガード構文が欠落しています`);
+    }
   }
 }
-report("投票ガード (isExpired) 100% 網羅性", voteGuardFails.length === 0, 
-  voteGuardFails.length === 0 ? "投票ボタンを持つ全コンポーネントで締切保護を配備" : `漏れ: ${voteGuardFails.join(", ")}`);
+report("投票ガード (isExpired) 構文健全性 & 100% 網羅性", voteGuardFails.length === 0, 
+  voteGuardFails.length === 0 ? "投票を持つ全コンポーネントで厳格な期限判定ガード構文を検証完了" : voteGuardFails.join("; "));
 
 // 3. 乖離ギャップ（Gap/乖離）基準の統一性 (NEW-6 / A-3)
 let gapCheckFails = [];
@@ -72,7 +79,7 @@ for (const file of componentFiles) {
 report("乖離基準 (japanVotes >= 3 & n=併記) の統一性", gapCheckFails.length === 0,
   gapCheckFails.length === 0 ? "全セクションで信頼サンプル数(n>=3)基準に統一完了" : gapCheckFails.join("; "));
 
-// 4. 画像属性 (loading="lazy" & onError) (C-4)
+// 4. 画像属性 (loading=\"lazy\" & onError) (C-4)
 let imgFails = [];
 for (const file of componentFiles) {
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
@@ -89,20 +96,70 @@ for (const file of componentFiles) {
 report("画像属性 (loading=\"lazy\" & onErrorフォールバック)", imgFails.length === 0,
   imgFails.length === 0 ? "全 <img> タグに lazy loading と onError を完備" : imgFails.join("; "));
 
-// 5. キーボードアクセシビリティ (E-4)
-let a11yFails = [];
-const watchlistContent = fs.readFileSync(path.join(COMPONENTS_DIR, "WatchlistTable.tsx"), "utf-8");
-if (!watchlistContent.includes("onKeyDown") || !watchlistContent.includes("tabIndex={0}")) {
-  a11yFails.push("WatchlistTable: 行選択のキーボード操作未配備");
+// 5. 全コンポーネント走査型 キーボードアクセシビリティ (E-4 / 全ファイル網羅)
+function extractOpeningTags(content) {
+  const tags = [];
+  let i = 0;
+  while (i < content.length) {
+    if (content[i] === "<" && (content.startsWith("<div", i) || content.startsWith("<tr", i))) {
+      let start = i;
+      let depth = 0;
+      let inQuote = null;
+      while (i < content.length) {
+        const char = content[i];
+        if (inQuote) {
+          if (char === inQuote && content[i-1] !== "\\") inQuote = null;
+        } else if (char === "\"" || char === "'" || char === "`") {
+          inQuote = char;
+        } else if (char === "{") {
+          depth++;
+        } else if (char === "}") {
+          depth--;
+        } else if (char === ">" && depth === 0) {
+          tags.push(content.slice(start, i + 1));
+          break;
+        }
+        i++;
+      }
+    }
+    i++;
+  }
+  return tags;
 }
-const gridContent = fs.readFileSync(path.join(COMPONENTS_DIR, "AllMarketsGrid.tsx"), "utf-8");
-if (!gridContent.includes("onKeyDown") || !gridContent.includes("tabIndex={0}")) {
-  a11yFails.push("AllMarketsGrid: カード選択のキーボード操作未配備");
-}
-report("キーボード a11y (tabIndex / onKeyDown / role)", a11yFails.length === 0,
-  a11yFails.length === 0 ? "対話的カード・テーブル行にキーボード操作完備" : a11yFails.join("; "));
 
-// 6. デッドコード検知
+let a11yFails = [];
+for (const file of componentFiles) {
+  const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
+  const tags = extractOpeningTags(content);
+  
+  for (const tag of tags) {
+    if (!tag.includes("onClick")) continue;
+    // モーダル背景や閉じるオーバーレイ、stopPropagationのみはスキップ
+    if (tag.includes("modal-backdrop") || tag.includes("modal-content") || tag.includes("stopPropagation")) continue;
+    
+    // カードや行などの対話的要素であれば tabIndex と onKeyDown を必須化
+    if (!tag.includes("tabIndex") || !tag.includes("onKeyDown")) {
+      a11yFails.push(`${file}: 対話的要素に tabIndex または onKeyDown が欠落しています`);
+    }
+  }
+}
+report("全コンポーネント走査 キーボード a11y (tabIndex / onKeyDown / role)", a11yFails.length === 0,
+  a11yFails.length === 0 ? "全コンポーネントの対話的カード・行要素でキーボード操作を検証完了" : a11yFails.join("; "));
+
+// 6. カテゴリナビ配置・重複検査 (D-6 / NEW-7)
+let navFails = [];
+const headerContent = fs.readFileSync(path.join(COMPONENTS_DIR, "Header.tsx"), "utf-8");
+const gridContent = fs.readFileSync(path.join(COMPONENTS_DIR, "AllMarketsGrid.tsx"), "utf-8");
+if (!headerContent.includes("category-nav-slim") || !headerContent.includes("UNIFIED_CATEGORIES.map")) {
+  navFails.push("Header.tsx: 初期表示トップのカテゴリナビゲーションが欠落しています");
+}
+if (gridContent.includes("topic-pills-bar") || gridContent.includes("UNIFIED_CATEGORIES.map")) {
+  navFails.push("AllMarketsGrid.tsx: 重複するカテゴリーピルバーが残存しています");
+}
+report("カテゴリナビ配置・単一性 (Header配置 & Grid重複排除)", navFails.length === 0,
+  navFails.length === 0 ? "ヘッダー初期表示(Y<60px)に集約 & 重複ピル完全排除" : navFails.join("; "));
+
+// 7. デッドコード検知
 let deadFiles = [];
 for (const file of componentFiles) {
   const baseName = file.replace(".tsx", "");
@@ -113,7 +170,7 @@ for (const file of componentFiles) {
 report("デッドコンポーネント排除", deadFiles.length === 0,
   deadFiles.length === 0 ? "未使用コンポーネントなし" : `残存: ${deadFiles.join(", ")}`);
 
-// 7. Supabase 有効銘柄の締切整合性
+// 8. Supabase 有効銘柄の締切整合性
 async function checkDb() {
   try {
     const envStr = fs.readFileSync(path.join(ROOT, ".env"), "utf-8");

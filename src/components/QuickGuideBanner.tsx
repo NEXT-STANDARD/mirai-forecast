@@ -26,6 +26,16 @@ export const QuickGuideBanner: React.FC = () => {
       <div
         className={`quick-guide-strip ${isOpen ? 'expanded' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsOpen(!isOpen);
+          }
+        }}
+        tabIndex={0}
+        role="button"
+        aria-expanded={isOpen}
+        aria-label={isOpen ? '使い方ガイドを閉じる' : '使い方ガイドを詳しく見る'}
       >
         <div className="strip-header">
           <div className="strip-left">

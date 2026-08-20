@@ -253,6 +253,15 @@ https://mirairadar.com/forecast
                     key={event.id}
                     className="hub-vote-card"
                     onClick={() => onSelectEvent(event)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        onSelectEvent(event);
+                      }
+                    }}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${event.titleJa || event.title}の詳細を見る`}
                   >
                     <div className="hub-vote-header-row">
                       <span className={`history-vote-badge ${vote.toLowerCase()}`}>

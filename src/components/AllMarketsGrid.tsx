@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { UNIFIED_CATEGORIES, type MarketItem, type CategoryType } from '../types';
+import type { MarketItem, CategoryType } from '../types';
 import { 
   Sparkles, 
   TrendingUp, 
@@ -136,21 +136,6 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
               <option value="trending">🔥 24h急変動順</option>
             </select>
           </div>
-        </div>
-      </div>
-
-      {/* ⭐️ ヘッダー完全同期・カテゴリーピルタグ */}
-      <div className="topic-pills-scroll-container">
-        <div className="topic-pills-bar">
-          {UNIFIED_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
-              className={`topic-pill-btn ${selectedCategory === cat.id ? 'active' : ''}`}
-            >
-              {cat.label}
-            </button>
-          ))}
         </div>
       </div>
 
