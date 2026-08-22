@@ -20,7 +20,7 @@ import {
   Edit3,
   BookOpen
 } from 'lucide-react';
-import { supabase } from '../services/supabaseClient';
+import { supabase, adminSupabase } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
 
 interface AdminConsolePageProps {
@@ -131,8 +131,9 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     setIsLoadingProposals(true);
     const start = performance.now();
     try {
-      if (supabase) {
-        const { data, error } = await supabase
+      const client = adminSupabase || supabase;
+      if (client) {
+        const { data, error } = await client
           .from('events')
           .select('*')
           .eq('is_active', false)
@@ -165,13 +166,18 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      if (supabase) {
-        const { error } = await supabase
+      const client = adminSupabase || supabase;
+      if (client) {
+        const { data, error } = await client
           .from('events')
           .update({ is_active: true, updated_at: new Date().toISOString() })
-          .eq('id', item.id);
+          .eq('id', item.id)
+          .select();
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Supabase RLS権限により更新対象が0件でした。');
+        }
       }
 
       setProposals(prev => prev.filter(p => p.id !== item.id));
@@ -192,9 +198,13 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      if (supabase) {
-        const { error } = await supabase.from('events').delete().eq('id', item.id);
+      const client = adminSupabase || supabase;
+      if (client) {
+        const { data, error } = await client.from('events').delete().eq('id', item.id).select();
         if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Supabase RLS権限により削除対象が0件でした。');
+        }
       }
       setProposals(prev => prev.filter(p => p.id !== item.id));
       setRejectingProposal(null);
@@ -221,8 +231,9 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      if (supabase) {
-        const { error } = await supabase
+      const client = adminSupabase || supabase;
+      if (client) {
+        const { data, error } = await client
           .from('events')
           .update({
             title_ja: editTitle.trim(),
@@ -234,9 +245,13 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
             is_election_blackout: editIsBlackout,
             updated_at: new Date().toISOString(),
           })
-          .eq('id', item.id);
+          .eq('id', item.id)
+          .select();
 
         if (error) throw error;
+        if (!data || data.length === 0) {
+          throw new Error('Supabase RLS権限により更新対象が0件でした。');
+        }
       }
 
       setProposals(prev => prev.filter(p => p.id !== item.id));
@@ -289,8 +304,9 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     };
 
     try {
-      if (supabase) {
-        const { error } = await supabase.from('events').insert(newRecord);
+      const client = adminSupabase || supabase;
+      if (client) {
+        const { error } = await client.from('events').insert(newRecord);
         if (error) throw error;
       }
 

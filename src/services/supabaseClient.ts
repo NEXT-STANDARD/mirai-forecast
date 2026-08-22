@@ -2,10 +2,17 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://wdpygtmqehoepgrueeda.supabase.co';
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseServiceRoleKey = import.meta.env.VITE_SUPABASE_SERVICE_ROLE_KEY || '';
 
 export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy'
+);
+
+// 🛡️ ローカル管理者コンソール（localhost:5173/admin）用の管理者権限クライアント
+export const adminSupabase = createClient(
+  supabaseUrl,
+  supabaseServiceRoleKey || supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy'
 );
 
 /**
