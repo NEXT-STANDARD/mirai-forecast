@@ -102,6 +102,10 @@ X（旧Twitter）で拡散され、賛否両論が巻き起こり、国民の当
 【既存の重複を避けるべきタイトルリスト】:
 ${existingTitles.slice(0, 30).map(t => `・${t}`).join('\n')}
 
+【最重要ルール: 完全二者択一（YES/NO回答可能）の義務化】
+・タイトルおよび質問文は、ユーザーが「YES（賛成・そうなる）」または「NO（反対・そうならない）」で迷いなく回答できる文末（例: 「〜するか？」「〜となるか？」）にしてください。
+・「何回」「どこ」「誰が」「いつ」「いくら」「どれくらい」「どうなるか」といったオープンクエスチョン（5W1H）は【厳禁・即時却下】です。必ず条件を絞り込んだ命題（例: 「〜のポスト数は20回未満となるか？」「〜は10万ドルに到達するか？」「〜が当選するか？」）にしてください。
+
 【重要: 期日条件】
 現在日は 2026年8月 です。end_date は必ず今日以降の未来の日付（例: "2026-10-31", "2026-12-31", "2027-03-31" などの YYYY-MM-DD 形式）を指定してください。過去の日付は不可です。
 
@@ -240,22 +244,34 @@ async function runTopicCouncil() {
     candidates = FALLBACK_CANDIDATES;
   }
 
-  // 重複フィルタ（先頭15文字による類似判定）
-  const uniqueCandidates = candidates.filter(c => !existingTitles.some(t => t.includes(c.title_ja.slice(0, 15))));
+  // 3. 厳格な二者択一（Yes/No整合性）＆ 5W1H排除フィルター（意味が分からない質問の事前自動却下）
+  const forbidden5W1H = /何回|どこで|どこが|どこに|誰が|誰を|いくらに|いくらで|いつに|どれくらい|どんな|どうなる/;
+  const validBinaryCandidates = uniqueCandidates.filter(c => {
+    if (!c.title_ja) return false;
+    if (forbidden5W1H.test(c.title_ja)) {
+      console.warn(`⚠️ [自動事前却下] 5W1Hオープンクエスチョンを検知: "${c.title_ja}" ➔ 審査パイプライン投入を拒否しました。`);
+      return false;
+    }
+    if (!/(?:か|か？|か\?)$/.test(c.title_ja.trim())) {
+      console.warn(`⚠️ [自動事前却下] Yes/No疑問文形式でないタイトルを検知: "${c.title_ja}" ➔ 審査パイプライン投入を拒否しました。`);
+      return false;
+    }
+    return true;
+  });
 
   console.log('\n------------------------------------------------------------------------------');
-  console.log(`🔍 本日の評議会ディベート審査結果 (${uniqueCandidates.length}件採択):`);
+  console.log(`🔍 本日の評議会ディベート審査結果 (${validBinaryCandidates.length}件採択):`);
   console.log('------------------------------------------------------------------------------\n');
 
-  if (uniqueCandidates.length === 0) {
-    console.log('ℹ️ 本日提案された候補はすべて既存銘柄として登録済みです。追加投入はスキップしました。');
+  if (validBinaryCandidates.length === 0) {
+    console.log('ℹ️ 採択基準（二者択一Yes/No整合性・重複チェック）を満たす新規候補はありませんでした。');
     return;
   }
 
   const generatedRecords = [];
 
-  for (let i = 0; i < uniqueCandidates.length; i++) {
-    const candidate = uniqueCandidates[i];
+  for (let i = 0; i < validBinaryCandidates.length; i++) {
+    const candidate = validBinaryCandidates[i];
     const timestamp = Date.now() + i * 100;
     const id = `council-${timestamp}`;
     const slug = `council-${candidate.category || 'topic'}-${timestamp}`;
