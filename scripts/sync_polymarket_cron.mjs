@@ -504,7 +504,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         return { titleJa: '米フロリダ州知事選：共和党予備選で勝利する候補は？', category: 'politics' };
       }
       if (/Where will the next next round of US-Iran peace talks be/i.test(t)) {
-        return { titleJa: '米イラン和平交渉：次期協議の開催地はどこになるか？', category: 'politics' };
+        return { titleJa: '米イラン和平交渉：2026年9月30日までに公式協議は開催されないか？', category: 'politics' };
       }
       if (/US-Iran 60 day negotiation period extended/i.test(t)) {
         return { titleJa: '米イラン間の60日間交渉期間はさらに延長されるか？', category: 'politics' };
@@ -537,7 +537,10 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
       if (/Elon Musk # tweets August (\d+) - August (\d+)/i.test(t)) {
         const m = t.match(/August (\d+) - August (\d+)/i);
-        return { titleJa: `イーロン・マスクは8月${m[1]}日〜${m[2]}日に何回ポストするか？`, category: 'entertainment' };
+        const mNum = t.match(/([<>=]+)?\s*(\d+)/);
+        const target = mNum ? mNum[2] : '20';
+        const symbol = (mNum && mNum[1] && mNum[1].includes('>')) ? '以上' : '未満';
+        return { titleJa: `イーロン・マスクのポスト数：8月${m[1]}日〜${m[2]}日に「${target}回${symbol}」となるか？`, category: 'entertainment' };
       }
 
       if (/[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(t) && !t.includes('vs.') && !t.includes('Winner')) {
@@ -598,6 +601,8 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     if (error) {
       console.error('Supabase upsert error:', error.message);
     } else {
+      // 期限切れ銘柄を自動的に非アクティブ化
+      await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
       console.log(`\n🎉 【深層個別カタリスト分析 完了！】 厳選 ${selectedRecords.length}件 を同期完了！`);
       console.log('✅ 個別分析サンプル:');
       selectedRecords.slice(0, 3).forEach((r, i) => {

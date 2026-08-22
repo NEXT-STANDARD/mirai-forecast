@@ -296,6 +296,16 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           } else if (/What price will Ethereum hit in 2026.*?[↑↓]?\s*([\d,]+)/i.test(t)) {
             const m = t.match(/([\d,]+)/)!;
             resolvedTitleJa = `イーサリアムは2026年に${m[1]}ドルに到達するか？`;
+          } else if (/Elon Musk # tweets August (\d+) - August (\d+)/i.test(t) || /Elon Musk.*tweets.*August/i.test(t)) {
+            const m = t.match(/August (\d+) - August (\d+)/i);
+            const mNum = t.match(/([<>=]+)?\s*(\d+)/);
+            const d1 = m ? m[1] : '18';
+            const d2 = m ? m[2] : '25';
+            const target = mNum ? mNum[2] : '20';
+            const symbol = (mNum && mNum[1] && mNum[1].includes('>')) ? '以上' : '未満';
+            resolvedTitleJa = `イーロン・マスクのポスト数：8月${d1}日〜${d2}日に「${target}回${symbol}」となるか？`;
+          } else if (/Where will the next next round of US-Iran peace talks be/i.test(t)) {
+            resolvedTitleJa = '米イラン和平交渉：2026年9月30日までに公式協議は開催されないか？';
           } else if (resolvedTitleJa.startsWith('What will') && resolvedTitleJa.includes('hit in')) {
             resolvedTitleJa = resolvedTitleJa.replace(/What will (.*?) hit in (.*?)\?/i, '$2 $1 到達水準予測');
           }
