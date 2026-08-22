@@ -200,6 +200,11 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     try {
       const client = adminSupabase || supabase;
       if (client) {
+        // 1. 外部キー制約（Foreign Key）のある関連テーブル（価格推移ログ・投票ログ）を事前にクリーンアップ
+        await client.from('polymarket_price_history').delete().eq('event_id', item.id);
+        await client.from('japan_vote_logs').delete().eq('event_id', item.id);
+
+        // 2. events テーブルから提案レコードを完全に削除
         const { data, error } = await client.from('events').delete().eq('id', item.id).select();
         if (error) throw error;
         if (!data || data.length === 0) {

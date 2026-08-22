@@ -102,6 +102,9 @@ X（旧Twitter）で拡散され、賛否両論が巻き起こり、国民の当
 【既存の重複を避けるべきタイトルリスト】:
 ${existingTitles.slice(0, 30).map(t => `・${t}`).join('\n')}
 
+【重要: 期日条件】
+現在日は 2026年8月 です。end_date は必ず今日以降の未来の日付（例: "2026-10-31", "2026-12-31", "2027-03-31" などの YYYY-MM-DD 形式）を指定してください。過去の日付は不可です。
+
 【出力フォーマット（必ずJSON配列として出力）】:
 [
   {
@@ -262,12 +265,15 @@ async function runTopicCouncil() {
     const clarity = candidate.clarity_score || 28;
     const total = candidate.total_score || (controversy + viral + clarity);
 
+    const isFuture = candidate.end_date && new Date(candidate.end_date) > new Date();
+    const validatedEndDate = isFuture ? candidate.end_date : '2026-12-31';
+
     console.log(`【候補 #${i + 1}】 スコア: 🔥 ${total}/100点 (賛否:${controversy}/40, バズ:${viral}/30, 判定:${clarity}/30)`);
     console.log(`   📌 タイトル: ${candidate.title_ja}`);
     console.log(`   🗣️ 起案担当: ${candidate.proposer || 'AI評議会'}`);
     console.log(`   💬 評議会見解: ${candidate.debate_summary || ''}`);
     console.log(`   🎯 判定ソース: ${candidate.resolution_source || '公式発表'}`);
-    console.log(`   ⏳ 予測期日: ${candidate.end_date || '2026-12-31'}\n`);
+    console.log(`   ⏳ 予測期日: ${validatedEndDate}\n`);
 
     const questionEnMeta = `【AI評議会 審査スコア: ${total}/100】\n起案: ${candidate.proposer || 'AI評議会'}\n見解: ${candidate.debate_summary || ''}\n判定ソース: ${candidate.resolution_source || '公式公表'}\nEnglish: ${candidate.question_en || candidate.title_en || ''}`;
 
@@ -281,7 +287,7 @@ async function runTopicCouncil() {
       category: candidate.category || 'politics',
       category_label: candidate.category_label || '🌐 国際・社会',
       icon_url: '',
-      end_date: candidate.end_date || '2026-12-31',
+      end_date: validatedEndDate,
       is_active: false, // ⭐️ 審査待ち（管理画面で霧島様が承認するまで非公開）
       updated_at: new Date().toISOString()
     });
