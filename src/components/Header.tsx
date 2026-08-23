@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, HelpCircle, PlusCircle, Volume2, VolumeX, Flame } from 'lucide-react';
+import { RefreshCw, PlusCircle, Volume2, VolumeX, Flame } from 'lucide-react';
 import { Logo } from './Logo';
 import { cyberSound } from '../utils/cyberSound';
 import { UNIFIED_CATEGORIES, type CategoryType } from '../types';
@@ -50,153 +50,151 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header-container-slim">
       <div className="header-inner-slim">
-        {/* 左側: ブランドロゴ ＆ ライブ統計 */}
+        {/* 左側: ブランドロゴ ＆ ライブ統計インジケーター */}
         <div className="header-left-slim">
           <Logo onGoHome={onGoHome} />
 
-          {/* 統計バッジ */}
+          {/* ライブ統計バッジ（統合スマートピル） */}
           <div className="stats-badges-slim hide-on-mobile">
-            <div className="stat-badge-item" title="現在リアルタイム観測中の未来予測銘柄数">
+            <div
+              className="stat-badge-item"
+              title={`リアルタイム観測銘柄: ${totalMarketsCount}件 ｜ 日本世論累計: ${totalJapanVotes.toLocaleString()}票 ｜ 世界市場規模: $${(totalVolume / 1_000_000).toFixed(1)}M`}
+            >
               <span className="stat-dot green pulse" />
-              <span className="stat-label">観測銘柄</span>
-              <span className="stat-value">{totalMarketsCount}件</span>
-            </div>
-
-            <div className="stat-badge-item" title="日本国内からの累計世論投票数">
-              <span className="stat-dot cyan" />
-              <span className="stat-label">日本世論</span>
-              <span className="stat-value">{totalJapanVotes.toLocaleString()}票</span>
-            </div>
-
-            <div className="stat-badge-item" title="Polymarket 全世界リアルマネー累計市場規模">
-              <span className="stat-dot amber" />
-              <span className="stat-label">世界市場規模</span>
-              <span className="stat-value">${(totalVolume / 1_000_000).toFixed(1)}M</span>
+              <span className="stat-value">{totalMarketsCount}</span>
+              <span className="stat-label">銘柄観測中</span>
+              <span className="stat-divider">/</span>
+              <span className="stat-value">{totalJapanVotes.toLocaleString()}</span>
+              <span className="stat-label">票</span>
             </div>
           </div>
         </div>
 
-        {/* 右側: アクション＆コントロール */}
+        {/* 右側: ナビゲーション ＆ アクション群 */}
         <div className="header-right-slim">
-          {onOpenGuide && (
-            <a
-              href="/guide/polymarket-japan"
-              onClick={(e) => {
-                e.preventDefault();
-                onOpenGuide('polymarket-japan');
-              }}
-              className="btn-header-subtle hide-on-mobile no-underline cursor-pointer"
-              title="Polymarketは日本から使えるのか？法規制と日本語での活用ガイド"
-            >
-              <span className="text-cyan-400 font-mono text-[10px]">📖</span>
-              <span>Polymarket解説</span>
-            </a>
-          )}
-
-          {onOpenAiConnector && (
-            <a
-              href="/ai-connector"
-              onClick={(e) => {
-                e.preventDefault();
-                onOpenAiConnector();
-              }}
-              className="btn-header-subtle hide-on-mobile no-underline cursor-pointer"
-              title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
-            >
-              <span className="text-emerald-400 font-mono text-[10px]">🤖</span>
-              <span>AI連携</span>
-            </a>
-          )}
-
-          {/* 🔊 サイバーUIサウンド切替 */}
-          <button
-            onClick={() => setIsMuted(cyberSound.toggleMute())}
-            className="btn-header-subtle"
-            title={isMuted ? 'サイバーUI効果音: OFF (クリックでON)' : 'サイバーUI効果音: ON (クリックでミュート)'}
-          >
-            {isMuted ? (
-              <VolumeX size={13} className="text-slate-400" />
-            ) : (
-              <Volume2 size={13} className="text-cyan-400 animate-pulse" />
+          {/* テキストベースの洗練されたナビリンク */}
+          <nav className="header-nav-links hide-on-mobile">
+            {onOpenGuide && (
+              <a
+                href="/guide/polymarket-japan"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenGuide('polymarket-japan');
+                }}
+                className="header-nav-link"
+                title="Polymarketは日本から使えるのか？法規制と日本語での活用ガイド"
+              >
+                <span>Polymarket解説</span>
+              </a>
             )}
-            <span className="hide-on-xs font-mono text-[10px]">{isMuted ? 'MUTE' : 'AUDIO'}</span>
-          </button>
 
-          {onOpenLetter && (
-            <a
-              href="/letter-to-mike"
-              onClick={(e) => {
-                e.preventDefault();
-                onOpenLetter();
-              }}
-              className="btn-header-subtle hide-on-xs no-underline cursor-pointer"
-              title="Polymarket Mike氏への公開書簡"
-            >
-              <span className="dot-gold-mini"></span>
-              <span>📨 to Mike</span>
-            </a>
-          )}
+            {onOpenAiConnector && (
+              <a
+                href="/ai-connector"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenAiConnector();
+                }}
+                className="header-nav-link"
+                title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
+              >
+                <span>AI連携</span>
+              </a>
+            )}
 
-          {onOpenOnboarding && (
+            {onOpenLetter && (
+              <a
+                href="/letter-to-mike"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenLetter();
+                }}
+                className="header-nav-link"
+                title="Polymarket Mike氏への公開書簡"
+              >
+                <span className="dot-gold-mini mr-1 inline-block align-middle"></span>
+                <span>to Mike</span>
+              </a>
+            )}
+
+            {onOpenOnboarding && (
+              <button
+                onClick={onOpenOnboarding}
+                className="header-nav-link"
+                title="未来レーダーの使い方・ガイド"
+                aria-label="未来レーダーの使い方"
+              >
+                <span>使い方</span>
+              </button>
+            )}
+          </nav>
+
+          {/* 右端アクション群 */}
+          <div className="header-action-group">
+            {/* 🔊 サイバーUIサウンド切替 */}
             <button
-              onClick={onOpenOnboarding}
-              className="btn-header-subtle"
-              title="未来レーダーの使い方・ガイド"
-              aria-label="未来レーダーの使い方"
+              onClick={() => setIsMuted(cyberSound.toggleMute())}
+              className="btn-header-icon"
+              title={isMuted ? 'サイバーUI効果音: OFF (クリックでON)' : 'サイバーUI効果音: ON (クリックでミュート)'}
+              aria-label="音声音量切り替え"
             >
-              <HelpCircle size={14} className="text-cyan-400" />
-              <span className="hide-on-xs">使い方</span>
-            </button>
-          )}
-
-          {onOpenPropose && (
-            <button
-              onClick={onOpenPropose}
-              className="btn-header-amber hide-on-mobile"
-              title="新しい未来の問いを提案する"
-            >
-              <PlusCircle size={12} />
-              <span>問いを提案</span>
-            </button>
-          )}
-
-          {/* 🏆 サイバー予報士ランク ＆ マイ予報ハブ */}
-          {onOpenMyForecast && (
-            <button
-              onClick={onOpenMyForecast}
-              className="btn-header-forecast-slim relative"
-              title={`あなたの予報士ランク: [ Lv.${currentRank.level} ${currentRank.title} ] (投票実績: ${userVotesCount}件)`}
-            >
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs flex items-center gap-1">
-                  <span>{currentRank.icon}</span>
-                  <span className="font-mono text-[11px] font-black" style={{ color: currentRank.color }}>
-                    Lv.{currentRank.level}
-                  </span>
-                  <span className="hide-on-mobile">{currentRank.title}</span>
-                </span>
-                <span className="text-slate-400 font-mono text-[10px]">({userVotesCount})</span>
-                {streakDays > 0 && (
-                  <span className="streak-mini-badge">
-                    <Flame size={9} className="fill-amber-400 text-amber-400" />
-                    {streakDays}d
-                  </span>
-                )}
-              </div>
-              {resolvedNotificationsCount > 0 && (
-                <span className="notification-dot-mini" title="結果確定通知" />
+              {isMuted ? (
+                <VolumeX size={14} className="text-slate-400" />
+              ) : (
+                <Volume2 size={14} className="text-cyan-400 animate-pulse" />
               )}
             </button>
-          )}
 
-          {/* 同期ボタン */}
-          <button
-            onClick={onRefresh}
-            className={`btn-header-refresh ${isRefreshing ? 'spinning' : ''}`}
-            title="最新データを同期"
-          >
-            <RefreshCw size={11} />
-          </button>
+            {onOpenPropose && (
+              <button
+                onClick={onOpenPropose}
+                className="btn-header-amber hide-on-mobile"
+                title="新しい未来の問いを提案する"
+              >
+                <PlusCircle size={12} />
+                <span>問いを提案</span>
+              </button>
+            )}
+
+            {/* 🏆 サイバー予報士ランク ＆ マイ予報ハブ */}
+            {onOpenMyForecast && (
+              <button
+                onClick={onOpenMyForecast}
+                className="btn-header-forecast-slim relative"
+                title={`あなたの予報士ランク: [ Lv.${currentRank.level} ${currentRank.title} ] (投票実績: ${userVotesCount}件)`}
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-xs flex items-center gap-1">
+                    <span>{currentRank.icon}</span>
+                    <span className="font-mono text-[11px] font-black" style={{ color: currentRank.color }}>
+                      Lv.{currentRank.level}
+                    </span>
+                    <span className="hide-on-mobile">{currentRank.title}</span>
+                  </span>
+                  <span className="text-slate-400 font-mono text-[10px]">({userVotesCount})</span>
+                  {streakDays > 0 && (
+                    <span className="streak-mini-badge">
+                      <Flame size={9} className="fill-amber-400 text-amber-400" />
+                      {streakDays}d
+                    </span>
+                  )}
+                </div>
+                {resolvedNotificationsCount > 0 && (
+                  <span className="notification-dot-mini" title="結果確定通知" />
+                )}
+              </button>
+            )}
+
+            {/* 同期ボタン */}
+            <button
+              onClick={onRefresh}
+              className={`btn-header-refresh ${isRefreshing ? 'spinning' : ''}`}
+              title="最新データを同期"
+              aria-label="最新データを同期"
+            >
+              <RefreshCw size={12} />
+            </button>
+          </div>
         </div>
       </div>
 

@@ -362,14 +362,77 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
-/* 右側アクション群（完全な高さ32px統一） */
+.stat-divider {
+  color: rgba(255, 255, 255, 0.2);
+  margin: 0 0.25rem;
+  font-weight: 300;
+}
+
+/* 右側アクション群（ナビリンク ＋ 操作ボタンの整理） */
 .header-right-slim,
 .header-right-cluster {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 1rem;
   flex-shrink: 0;
   flex-wrap: nowrap;
+}
+
+/* テキストベースの洗練されたヘッダーナビリンク */
+.header-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.header-nav-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.header-nav-link:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+}
+
+.header-action-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* コンパクトなアイコンボタン */
+.btn-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.btn-header-icon:hover {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.6);
+  background: rgba(51, 65, 85, 0.8);
 }
 
 /* 高コントラスト・見やすいボタン群 (共通: height 32px) */
@@ -10226,7 +10289,8 @@ body::after {
     font-size: 0.72rem !important;
     height: 28px !important;
   }
-  .btn-header-refresh {
+  .btn-header-refresh,
+  .btn-header-icon {
     width: 28px !important;
     height: 28px !important;
     min-width: 28px !important;
@@ -10271,7 +10335,8 @@ body::after {
     font-size: 0.68rem !important;
     height: 26px !important;
   }
-  .btn-header-refresh {
+  .btn-header-refresh,
+  .btn-header-icon {
     width: 26px !important;
     height: 26px !important;
     min-width: 26px !important;
