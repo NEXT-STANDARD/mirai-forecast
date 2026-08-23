@@ -370,6 +370,15 @@ async function prerenderAll() {
       title: 'Mikeへの手紙 ｜ 未来レーダー',
       description: 'Polymarket日本市場責任者 Mike Eidlin 氏への公開書簡。日本における予測市場の健全な発展と、未来レーダーが目指す世論インテリジェンスの理念。',
       canonical: `${SITE_URL}/letter-to-mike`
+    },
+    {
+      // 個人ページ。索引はしないが、404.html を置くとソフト404ではなく本物の404に
+      // なるため、実在するルートはプリレンダーしておく必要がある（第12回 N-47）
+      dir: 'profile',
+      title: 'マイ予報プロファイル ｜ 未来レーダー',
+      description: 'あなたの未来予報の的中率・連続ストリーク・投票ポートフォリオ。未来レーダーのサイバー予報士プロファイル。',
+      canonical: `${SITE_URL}/profile`,
+      noindex: true
     }
   ];
 
@@ -392,8 +401,31 @@ async function prerenderAll() {
       fs.rmSync(oldPageDir, { recursive: true, force: true });
     }
 
+    if (page.noindex && !/name="robots"/.test(html)) {
+      html = html.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n</head>');
+    }
+
     // 直接 .html 形式
     fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
+  }
+
+  // ==============================================================================
+  // B-2. 404.html（ソフト404の解消 / N-47）
+  // ==============================================================================
+  // Cloudflare Pages は 404.html があれば、未知のパスにそれを 404 で返す。
+  // 無いと index.html を 200 で返し、存在しないURLがすべてトップの複製になる
+  // （Search Console にソフト404が計上され、Phase 0 で解いた「全ページがトップの複製」
+  //   と同じ状態が未知URLで再発する）。
+  // 中身は SPA シェルのコピーにして、人はページが描画され、クローラは 404 を受け取る形にする。
+  {
+    let notFound = baseHtml;
+    notFound = notFound.replace(/<title>.*?<\/title>/i, '<title>ページが見つかりません ｜ 未来レーダー</title>');
+    notFound = notFound.replace(/<meta name="description" content=".*?" \/>/i, '<meta name="description" content="お探しのページは見つかりませんでした。未来レーダーのトップから観測銘柄をご覧ください。" />');
+    if (!/name="robots"/.test(notFound)) {
+      notFound = notFound.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n</head>');
+    }
+    fs.writeFileSync(path.join(DIST_DIR, '404.html'), notFound, 'utf-8');
+    console.log('🚧 404.html を生成しました（ソフト404の解消）');
   }
 
   // ==============================================================================

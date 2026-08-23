@@ -794,6 +794,31 @@ async function checkDbAndPhase0() {
     canonFails.length === 0 ? "ページコンポーネントの canonical が実ページURLを指し、複数ルート担当は実パス由来であることを確認" : canonFails.join("; "));
 
   // ==============================================================================
+  // 25. ソフト404の解消と実ルートの網羅 (N-47)
+  // ==============================================================================
+  // 404.html があると未知のパスは本物の404になる。その代わり、アプリが持つ実ルートを
+  // プリレンダーし忘れると、生きているページが404を返してしまう。両方を検査する。
+  let notFoundFails = [];
+  {
+    const APP_ROUTES = ["forecast", "rankings", "profile", "ai-connector", "developers", "letter-to-mike"];
+    if (!fs.existsSync(path.join(ROOT, "dist/404.html"))) {
+      notFoundFails.push("dist/404.html が存在しません（未知のURLがトップの複製を200で返すソフト404になります）");
+    } else {
+      const nf = fs.readFileSync(path.join(ROOT, "dist/404.html"), "utf-8");
+      if (!/name="robots"[^>]*noindex/.test(nf)) notFoundFails.push("404.html に noindex がありません");
+      if (!/assets\/index-[\w-]+\.js/.test(nf)) notFoundFails.push("404.html が SPA シェルではありません（人がページを見られなくなります）");
+    }
+    for (const r of APP_ROUTES) {
+      if (!fs.existsSync(path.join(ROOT, "dist", `${r}.html`))) {
+        notFoundFails.push(`アプリのルート [/${r}] がプリレンダーされていません。404.html があるため本物の404になります`);
+      }
+    }
+    if (!fs.existsSync(path.join(ROOT, "dist/index.html"))) notFoundFails.push("dist/index.html がありません");
+  }
+  report("ソフト404の解消 ＆ 実ルートの網羅 (N-47)", notFoundFails.length === 0,
+    notFoundFails.length === 0 ? "404.html（noindex・SPAシェル）と、アプリ全ルートのプリレンダーを確認" : notFoundFails.join("; "));
+
+  // ==============================================================================
   // 21. 選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制の適正性検査 (N-38 完全解決)
   // ==============================================================================
   let n38Fails = [];

@@ -71,8 +71,9 @@ async function buildSitemap() {
     { path: '/guide/polymarket-japan', priority: '0.9', changefreq: 'weekly' },
     { path: '/ai-connector', priority: '0.8', changefreq: 'weekly' },
     { path: '/developers', priority: '0.8', changefreq: 'weekly' },
-    { path: '/letter-to-mike', priority: '0.8', changefreq: 'weekly' },
-    { path: '/api/mcp', priority: '0.8', changefreq: 'weekly' }
+    { path: '/letter-to-mike', priority: '0.8', changefreq: 'weekly' }
+    // '/api/mcp' は API エンドポイントでページではない。canonical も '/' を指すため
+    // sitemap に載せると「重複・正規URLではない」として計上される（第12回 N-46）
   ];
 
   staticPages.forEach(p => {
@@ -84,16 +85,8 @@ async function buildSitemap() {
     });
   });
 
-  // 3. カテゴリ別ハブ
-  const categories = ['trending', 'economy', 'tech', 'politics', 'sports', 'entertainment'];
-  categories.forEach(cat => {
-    urls.push({
-      loc: `${SITE_URL}/?category=${cat}`,
-      lastmod: today,
-      changefreq: 'hourly',
-      priority: '0.9'
-    });
-  });
+  // 3. カテゴリ別ハブ（?category=）は canonical が '/' に集約される重複URLなので
+  //    sitemap には載せない（第12回 N-46）。トップからのリンクで巡回はされる。
 
   // 4. 全有効個別銘柄ページ (100% 実在する銘柄のみ)
   activeEvents.forEach(event => {

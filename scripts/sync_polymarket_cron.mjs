@@ -814,6 +814,41 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     if (error) {
       console.error('Supabase upsert error:', error.message);
     } else {
+      // --------------------------------------------------------------
+      // 既存の有効銘柄のうち、上位25件に入らなかったものを派生フィールドだけ更新する
+      // （第12回 N-45：上位25件しか upsert しないため、有効75件中46件が6時間以上
+      //   更新されず、コード側の是正が永久に届かない状態になっていた）
+      // title_ja は保持ガードの領域なので触らない。締切・サブタイトル・カテゴリのみ。
+      // --------------------------------------------------------------
+      try {
+        const selectedIds = new Set(selectedRecords.map(r => String(r.id)));
+        const eventById = new Map(allEvents.map(e => [String(e.id), e]));
+        const { data: staleRows } = await supabase
+          .from('events').select('id, slug, question_en, end_date, category').eq('is_active', true).range(0, 9999);
+        const refreshRecords = [];
+        for (const row of (staleRows || [])) {
+          if (selectedIds.has(String(row.id))) continue;      // 今回 upsert 済み
+          const ev = eventById.get(String(row.id));
+          if (!ev) continue;                                   // 今回の取得範囲外なら触らない
+          const m0 = (ev.markets || [])[0];
+          const isMulti = (ev.markets || []).length > 1;
+          const nextQuestionEn = isMulti && ev.title ? ev.title : (m0?.question || ev.title || row.question_en);
+          const nextEndDate = ev.endDate || m0?.endDate || row.end_date;
+          const changed = nextQuestionEn !== row.question_en || String(nextEndDate).slice(0, 10) !== String(row.end_date).slice(0, 10);
+          if (!changed) continue;
+          refreshRecords.push({ id: row.id, question_en: nextQuestionEn, end_date: nextEndDate, updated_at: new Date().toISOString() });
+        }
+        if (refreshRecords.length > 0) {
+          const { error: rErr } = await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
+          if (rErr) console.error('派生フィールドの更新に失敗:', rErr.message);
+          else console.log(`🔄 上位25件外の有効銘柄 ${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
+        } else {
+          console.log('🔄 上位25件外の有効銘柄：更新が必要な派生フィールドはありませんでした');
+        }
+      } catch (e) {
+        console.error('派生フィールド更新でエラー:', e.message);
+      }
+
       // 期限切れ銘柄を自動的に非アクティブ化
       await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
       console.log(`\n🎉 【深層個別カタリスト分析 完了！】 厳選 ${selectedRecords.length}件 を同期完了！`);
