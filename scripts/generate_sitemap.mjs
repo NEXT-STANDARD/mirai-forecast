@@ -64,10 +64,11 @@ async function buildSitemap() {
     priority: '1.0'
   });
 
-  // 2. 主要固定ページ
+  // 2. 主要固定ページ ＆ 解説ガイド
   const staticPages = [
     { path: '/forecast', priority: '0.9', changefreq: 'always' },
     { path: '/rankings', priority: '0.9', changefreq: 'always' },
+    { path: '/guide/polymarket-japan', priority: '0.9', changefreq: 'weekly' },
     { path: '/ai-connector', priority: '0.8', changefreq: 'weekly' },
     { path: '/developers', priority: '0.8', changefreq: 'weekly' },
     { path: '/letter-to-mike', priority: '0.8', changefreq: 'weekly' },

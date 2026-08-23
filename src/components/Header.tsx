@@ -14,6 +14,7 @@ interface HeaderProps {
   isRefreshing: boolean;
   onRefresh: () => void;
   onOpenLetter?: () => void;
+  onOpenGuide?: (slug?: string) => void;
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
   onOpenOnboarding?: () => void;
@@ -33,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
   isRefreshing,
   onRefresh,
   onOpenLetter,
+  onOpenGuide,
   onOpenPropose,
   onOpenMyForecast,
   onOpenOnboarding,
@@ -47,22 +49,57 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="header-container-slim">
-      {/* 1. 一体型スリム・メインバー */}
-      <div className="container header-main-bar">
-        {/* 左側: ロゴ ＋ 控えめサブタイトル ＋ LIVEステータス */}
-        <div className="header-left-cluster">
-          <h1 className="m-0 p-0 text-inherit text-base font-normal flex items-center">
-            <Logo size={24} onClick={onGoHome} />
-          </h1>
-          
-          <div className="header-status-badge hide-on-mobile" title={`観測総高: $${Math.round(totalVolume / 1000000).toLocaleString()}M ｜ 国内投票: ${totalJapanVotes.toLocaleString()}票`}>
-            <span className="live-dot-green"></span>
-            <span className="status-text">LIVE ({totalMarketsCount}銘柄 ｜ {totalJapanVotes.toLocaleString()}票)</span>
+      <div className="header-inner-slim">
+        {/* 左側: ブランドロゴ ＆ ライブ統計 */}
+        <div className="header-left-slim">
+          <Logo onGoHome={onGoHome} />
+
+          {/* 統計バッジ */}
+          <div className="stats-badges-slim hide-on-mobile">
+            <div className="stat-badge-item" title="現在リアルタイム観測中の未来予測銘柄数">
+              <span className="stat-dot green pulse" />
+              <span className="stat-label">観測銘柄</span>
+              <span className="stat-value">{totalMarketsCount}件</span>
+            </div>
+
+            <div className="stat-badge-item" title="日本国内からの累計世論投票数">
+              <span className="stat-dot cyan" />
+              <span className="stat-label">日本世論</span>
+              <span className="stat-value">{totalJapanVotes.toLocaleString()}票</span>
+            </div>
+
+            <div className="stat-badge-item" title="Polymarket 全世界リアルマネー累計市場規模">
+              <span className="stat-dot amber" />
+              <span className="stat-label">世界市場規模</span>
+              <span className="stat-value">${(totalVolume / 1_000_000).toFixed(1)}M</span>
+            </div>
           </div>
         </div>
 
-        {/* 右側: 厳選アクション群 */}
-        <div className="header-right-cluster">
+        {/* 右側: アクション＆コントロール */}
+        <div className="header-right-slim">
+          {onOpenGuide && (
+            <button
+              onClick={() => onOpenGuide('polymarket-japan')}
+              className="btn-header-subtle hide-on-mobile"
+              title="Polymarketは日本から使えるのか？法規制と日本語での活用ガイド"
+            >
+              <span className="text-cyan-400 font-mono text-[10px]">📖</span>
+              <span>Polymarket解説</span>
+            </button>
+          )}
+
+          {onOpenAiConnector && (
+            <button
+              onClick={onOpenAiConnector}
+              className="btn-header-subtle hide-on-mobile"
+              title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
+            >
+              <span className="text-emerald-400 font-mono text-[10px]">🤖</span>
+              <span>AI連携</span>
+            </button>
+          )}
+
           {/* 🔊 サイバーUIサウンド切替 */}
           <button
             onClick={() => setIsMuted(cyberSound.toggleMute())}

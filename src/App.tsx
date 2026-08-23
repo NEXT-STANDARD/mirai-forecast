@@ -21,6 +21,7 @@ const AiConnectorPage = lazy(() => import('./components/AiConnectorPage').then(m
 const ForecastHubPage = lazy(() => import('./components/ForecastHubPage').then(m => ({ default: m.ForecastHubPage })));
 const MarketDetailPage = lazy(() => import('./components/MarketDetailPage').then(m => ({ default: m.MarketDetailPage })));
 const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m => ({ default: m.EmbedWidgetPage })));
+const GuideDetailPage = lazy(() => import('./components/GuideDetailPage').then(m => ({ default: m.GuideDetailPage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -60,6 +61,14 @@ export function App() {
     }
   });
   
+  // 📖 ガイド記事ページルーティング (/guide/:slug) - 末尾スラッシュ完全耐性
+  const [guideSlug, setGuideSlug] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    const match = cleanPath.match(/^\/guide\/(.+)$/);
+    return match ? decodeURIComponent(match[1]) : null;
+  });
+
   // 個別銘柄ページルーティング (/market/:slug or /market/:id) - 末尾スラッシュ完全耐性
   const [detailMarketId, setDetailMarketId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
@@ -125,10 +134,12 @@ export function App() {
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   // URL 履歴管理
-  // URL 履歴管理
   const handleOpenMarketDetail = (market: MarketItem) => {
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
+    setGuideSlug(null);
     setDetailMarketId(market.slug || market.id);
     window.history.pushState({}, '', `/market/${encodeURIComponent(market.slug || market.id)}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -139,8 +150,25 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenGuide = (slug: string = 'polymarket-japan') => {
+    setDetailMarketId(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
+    setGuideSlug(slug);
+    window.history.pushState({}, '', `/guide/${encodeURIComponent(slug)}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseGuide = () => {
+    setGuideSlug(null);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenLetter = () => {
     setDetailMarketId(null);
+    setGuideSlug(null);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -156,6 +184,7 @@ export function App() {
 
   const handleOpenForecastHub = () => {
     setDetailMarketId(null);
+    setGuideSlug(null);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -171,6 +200,7 @@ export function App() {
 
   const handleOpenAdmin = () => {
     setDetailMarketId(null);
+    setGuideSlug(null);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -186,6 +216,7 @@ export function App() {
 
   const handleGoHome = () => {
     setDetailMarketId(null);
+    setGuideSlug(null);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
@@ -207,6 +238,7 @@ export function App() {
         setIsAiConnectorOpen(false);
         setIsForecastHubOpen(false);
         setDetailMarketId(null);
+        setGuideSlug(null);
       } else if (path === '/admin') {
         if (isLocalhost) {
           setIsAdminOpen(true);
@@ -214,6 +246,7 @@ export function App() {
           setIsAiConnectorOpen(false);
           setIsForecastHubOpen(false);
           setDetailMarketId(null);
+          setGuideSlug(null);
         } else {
           window.history.replaceState({}, '', '/');
           setIsAdminOpen(false);
@@ -221,6 +254,7 @@ export function App() {
           setIsAiConnectorOpen(false);
           setIsForecastHubOpen(false);
           setDetailMarketId(null);
+          setGuideSlug(null);
         }
       } else if (path === '/letter-to-mike') {
         setIsAdminOpen(false);
@@ -228,28 +262,44 @@ export function App() {
         setIsAiConnectorOpen(false);
         setIsForecastHubOpen(false);
         setDetailMarketId(null);
+        setGuideSlug(null);
       } else if (path === '/ai-connector' || path === '/developers') {
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
         setIsForecastHubOpen(false);
         setDetailMarketId(null);
+        setGuideSlug(null);
       } else if (path === '/forecast' || path === '/profile' || path === '/rankings') {
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
         setIsForecastHubOpen(true);
         setDetailMarketId(null);
+        setGuideSlug(null);
       } else {
+        const guideMatch = path.match(/^\/guide\/(.+)$/);
+        if (guideMatch) {
+          setGuideSlug(decodeURIComponent(guideMatch[1]));
+          setDetailMarketId(null);
+          setIsAdminOpen(false);
+          setIsLetterPageOpen(false);
+          setIsAiConnectorOpen(false);
+          setIsForecastHubOpen(false);
+          return;
+        }
+
         const match = path.match(/^\/market\/(.+)$/);
         if (match) {
           setDetailMarketId(decodeURIComponent(match[1]));
+          setGuideSlug(null);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
           setIsForecastHubOpen(false);
         } else {
           setDetailMarketId(null);
+          setGuideSlug(null);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -439,6 +489,7 @@ export function App() {
         totalMarketsCount={totalMarketsCount}
         totalJapanVotes={totalJapanVotes}
         onOpenLetter={handleOpenLetter}
+        onOpenGuide={handleOpenGuide}
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={handleOpenForecastHub}
@@ -456,6 +507,17 @@ export function App() {
               onBack={handleCloseAdmin}
               events={events}
               onRefreshMarkets={loadMarketData}
+            />
+          </main>
+        </Suspense>
+      ) : guideSlug ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING GUIDE...</div>}>
+          <main className="container main-content">
+            <GuideDetailPage
+              slug={guideSlug}
+              allEvents={events}
+              onSelectEvent={(ev) => handleOpenMarketDetail(ev)}
+              onBack={handleCloseGuide}
             />
           </main>
         </Suspense>
@@ -496,6 +558,7 @@ export function App() {
               onOpenDataExport={(event) => setSelectedDataExportEvent(event)}
               onBack={handleCloseMarketDetail}
               onSelectRelatedEvent={handleOpenMarketDetail}
+              onOpenGuide={handleOpenGuide}
             />
           </main>
         </Suspense>

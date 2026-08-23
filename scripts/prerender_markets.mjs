@@ -189,22 +189,52 @@ async function prerenderAll() {
   console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html 形式単独 / 307根絶)！`);
 
   // ==============================================================================
-  // B. 静的ページの自己参照 Canonical プリレンダー (P0-3)
+  // B. 静的ページの自己参照 Canonical ＆ 固有 description プリレンダー (P1-1)
   // ==============================================================================
   const staticPages = [
-    { dir: 'forecast', title: '予測一覧・マーケット ｜ 未来レーダー', canonical: `${SITE_URL}/forecast` },
-    { dir: 'rankings', title: '世論スプレッド乖離ランキング ｜ 未来レーダー', canonical: `${SITE_URL}/rankings` },
-    { dir: 'ai-connector', title: 'AI連携・WebMCP設定 ｜ 未来レーダー', canonical: `${SITE_URL}/ai-connector` },
-    { dir: 'developers', title: '開発者・APIドキュメント ｜ 未来レーダー', canonical: `${SITE_URL}/developers` },
-    { dir: 'letter-to-mike', title: 'Mikeへの手紙 ｜ 未来レーダー', canonical: `${SITE_URL}/letter-to-mike` }
+    {
+      dir: 'forecast',
+      title: '予測一覧・マーケット ｜ 未来レーダー',
+      description: '世界最大の予測市場Polymarketと日本のリアルタイム世論を比較できる全観測銘柄一覧。経済・テック・国際情勢・スポーツの未来予測オッズを即時確認。',
+      canonical: `${SITE_URL}/forecast`
+    },
+    {
+      dir: 'rankings',
+      title: '世論スプレッド乖離ランキング ｜ 未来レーダー',
+      description: '世界のスマートマネー（Polymarket）と日本の生活者世論の間で、見解が最も乖離している注目銘柄ランキング。世論ギャップをリアルタイム可視化。',
+      canonical: `${SITE_URL}/rankings`
+    },
+    {
+      dir: 'ai-connector',
+      title: 'AI連携・WebMCP設定 ｜ 未来レーダー',
+      description: 'Claude、ChatGPT、Cursor等の自律型AIエージェントから未来レーダーの予測市場データ・世論スプレッドを直接取得できるWebMCP API設定手順。',
+      canonical: `${SITE_URL}/ai-connector`
+    },
+    {
+      dir: 'developers',
+      title: '開発者・APIドキュメント ｜ 未来レーダー',
+      description: '開発者・データアナリスト向けオープンAPI（WebMCP）ドキュメント。リアルタイムなPolymarketオッズと日本世論データを無料で取得・連携可能。',
+      canonical: `${SITE_URL}/developers`
+    },
+    {
+      dir: 'letter-to-mike',
+      title: 'Mikeへの手紙 ｜ 未来レーダー',
+      description: 'Polymarket日本市場責任者 Mike Eidlin 氏への公開書簡。日本における予測市場の健全な発展と、未来レーダーが目指す世論インテリジェンスの理念。',
+      canonical: `${SITE_URL}/letter-to-mike`
+    }
   ];
 
-  console.log(`📄 固定ページ ${staticPages.length}件 の自己参照Canonical HTMLを生成中...`);
+  console.log(`📄 固定ページ ${staticPages.length}件 の自己参照Canonical ＆ 固有Description HTMLを生成中...`);
   for (const page of staticPages) {
     let html = baseHtml;
     html = html.replace(/<title>.*?<\/title>/i, `<title>${escapeHtml(page.title)}</title>`);
+    html = html.replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${escapeHtml(page.description)}" />`);
     html = html.replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${page.canonical}" />`);
+    html = html.replace(/<meta property="og:title" content=".*?" \/>/i, `<meta property="og:title" content="${escapeHtml(page.title)}" />`);
+    html = html.replace(/<meta property="og:description" content=".*?" \/>/i, `<meta property="og:description" content="${escapeHtml(page.description)}" />`);
     html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${page.canonical}" />`);
+    html = html.replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${escapeHtml(page.title)}" />`);
+    html = html.replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${escapeHtml(page.description)}" />`);
     html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${page.canonical}" />`);
 
     // 旧ディレクトリ形式が存在していれば削除
@@ -215,6 +245,78 @@ async function prerenderAll() {
 
     // 直接 .html 形式
     fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
+  }
+
+  // ==============================================================================
+  // C. ガイド記事ページのプリレンダー (P1-2, P1-3)
+  // ==============================================================================
+  const guideArticles = [
+    {
+      slug: 'polymarket-japan',
+      title: 'Polymarket（ポリマーケット）は日本から使えるのか？規制の現状と日本語での見方・活用法 ｜ 未来レーダー',
+      description: '世界最大の予測市場Polymarketは日本から使えるのか？2026年現在の利用制限、賭博規制の整理、日本語でリアルマネー確率を閲覧・比較する代替手段を分かりやすく解説。',
+      publishedAt: '2026-08-23',
+      canonical: `${SITE_URL}/guide/polymarket-japan`
+    }
+  ];
+
+  console.log(`📚 ガイド記事ページ ${guideArticles.length}件 のプリレンダーHTMLを生成中...`);
+  const guideBaseDir = path.join(DIST_DIR, 'guide');
+  if (!fs.existsSync(guideBaseDir)) {
+    fs.mkdirSync(guideBaseDir, { recursive: true });
+  }
+
+  for (const guide of guideArticles) {
+    let html = baseHtml;
+    html = html.replace(/<title>.*?<\/title>/i, `<title>${escapeHtml(guide.title)}</title>`);
+    html = html.replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${escapeHtml(guide.description)}" />`);
+    html = html.replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${guide.canonical}" />`);
+    html = html.replace(/<meta property="og:title" content=".*?" \/>/i, `<meta property="og:title" content="${escapeHtml(guide.title)}" />`);
+    html = html.replace(/<meta property="og:description" content=".*?" \/>/i, `<meta property="og:description" content="${escapeHtml(guide.description)}" />`);
+    html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${guide.canonical}" />`);
+    html = html.replace(/<meta property="og:type" content=".*?" \/>/i, `<meta property="og:type" content="article" />`);
+    html = html.replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${escapeHtml(guide.title)}" />`);
+    html = html.replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${escapeHtml(guide.description)}" />`);
+    html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${guide.canonical}" />`);
+
+    // Schema.org Article JSON-LD
+    const articleJsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": guide.canonical
+      },
+      "headline": guide.title,
+      "description": guide.description,
+      "image": "https://mirairadar.com/ogp-main.png",
+      "author": {
+        "@type": "Organization",
+        "name": "未来レーダー編集部"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "未来レーダー (MiraiRadar)",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://mirairadar.com/favicon.svg"
+        }
+      },
+      "datePublished": guide.publishedAt,
+      "dateModified": guide.publishedAt
+    };
+
+    const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(articleJsonLd, null, 2)}\n    </script>`;
+    html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
+
+    // 旧ディレクトリ形式が存在していれば削除
+    const oldGuideDir = path.join(guideBaseDir, guide.slug);
+    if (fs.existsSync(oldGuideDir) && fs.lstatSync(oldGuideDir).isDirectory()) {
+      fs.rmSync(oldGuideDir, { recursive: true, force: true });
+    }
+
+    // 直接 .html 形式
+    fs.writeFileSync(path.join(guideBaseDir, `${guide.slug}.html`), html, 'utf-8');
   }
 
   console.log('✅ 全プリレンダー処理が正常完了しました！');

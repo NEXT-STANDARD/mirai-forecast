@@ -29,6 +29,7 @@ interface MarketDetailPageProps {
   onOpenDataExport?: (item: MarketItem) => void;
   onBack: () => void;
   onSelectRelatedEvent: (item: MarketItem) => void;
+  onOpenGuide?: (slug?: string) => void;
 }
 
 export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
@@ -41,6 +42,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   onOpenDataExport,
   onBack,
   onSelectRelatedEvent,
+  onOpenGuide,
 }) => {
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState(item.comments || []);
@@ -234,6 +236,23 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             </span>
           </div>
         </div>
+
+        {/* 📚 Polymarket日本解説ガイドへの導線バナー (P1-3) */}
+        {onOpenGuide && (
+          <div className="mt-3 pt-3 border-t border-cyan-950/80 flex flex-wrap items-center justify-between gap-2 text-xs bg-cyan-950/20 px-3 py-2 rounded-lg border border-cyan-900/40">
+            <div className="flex items-center gap-2 text-cyan-300">
+              <span className="text-sm">📖</span>
+              <span>Polymarketは日本から使える？法規制と日本語での見方を解説</span>
+            </div>
+            <button
+              onClick={() => onOpenGuide('polymarket-japan')}
+              className="text-cyan-400 hover:text-cyan-200 font-mono font-bold flex items-center gap-1 hover:underline text-[11px]"
+            >
+              <span>解説記事を読む</span>
+              <ChevronRight size={12} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* メイン 2カラムグリッド */}

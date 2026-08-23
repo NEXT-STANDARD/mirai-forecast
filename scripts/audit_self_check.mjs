@@ -403,12 +403,10 @@ async function checkDbAndPhase0() {
   // ==============================================================================
   let limitFails = [];
   const polyServiceCode = fs.readFileSync(path.join(ROOT, "src/services/polymarketService.ts"), "utf-8");
-  // 1. polymarketService.ts の fetchLivePolymarketMarkets に limit(100) などの上限制限がないこと
   if (/\.from\(['"]events['"]\)[^;]*\.limit\(\s*\d+\s*\)/s.test(polyServiceCode)) {
     limitFails.push("polymarketService.ts に固定の .limit() が存在し、有効銘柄の一部が到達不能になります");
   }
 
-  // 2. プリレンダーファイル数と Supabase 有効銘柄数の一致
   const prerenderFiles = fs.readdirSync(distMarketDir).filter(f => f.endsWith(".html"));
   if (prerenderFiles.length !== activeEvents.length) {
     limitFails.push(`プリレンダーファイル数 (${prerenderFiles.length}) と Supabase 有効銘柄数 (${activeEvents.length}) が不一致`);
@@ -416,6 +414,103 @@ async function checkDbAndPhase0() {
 
   report("有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込全数一致 (N-20 回帰防止)", limitFails.length === 0,
     limitFails.length === 0 ? `全${activeEvents.length}銘柄がアプリ・プリレンダー・Sitemapで100%一致（limit制限ゼロ）` : limitFails.join("; "));
+
+  // ==============================================================================
+  // 16. 静的ページの Description 個別化 ＆ 120字以内検査 (P1-1)
+  // ==============================================================================
+  let descFails = [];
+  const staticHtmlPages = [
+    { name: "トップ (/)", file: path.join(ROOT, "dist/index.html") },
+    { name: "予測一覧 (/forecast)", file: path.join(ROOT, "dist/forecast.html") },
+    { name: "ランキング (/rankings)", file: path.join(ROOT, "dist/rankings.html") },
+    { name: "AI連携 (/ai-connector)", file: path.join(ROOT, "dist/ai-connector.html") },
+    { name: "開発者 (/developers)", file: path.join(ROOT, "dist/developers.html") },
+    { name: "Mikeへの手紙 (/letter-to-mike)", file: path.join(ROOT, "dist/letter-to-mike.html") }
+  ];
+
+  const seenDescriptions = new Map();
+  for (const p of staticHtmlPages) {
+    if (!fs.existsSync(p.file)) {
+      descFails.push(`ページ [${p.name}] の HTML ファイルが存在しません`);
+      continue;
+    }
+    const html = fs.readFileSync(p.file, "utf-8");
+    const m = html.match(/<meta name="description" content="(.*?)" \/>/);
+    if (!m || !m[1] || m[1].trim().length === 0) {
+      descFails.push(`ページ [${p.name}] の meta description が欠落または空です`);
+      continue;
+    }
+    const desc = m[1].trim();
+    if (desc.length > 120) {
+      descFails.push(`ページ [${p.name}] の description が120文字を超過しています (${desc.length}字)`);
+    }
+    if (seenDescriptions.has(desc)) {
+      descFails.push(`ページ [${p.name}] の description が [${seenDescriptions.get(desc)}] と重複しています`);
+    } else {
+      seenDescriptions.set(desc, p.name);
+    }
+  }
+  report("静的ページの Description 個別化 ＆ 120字以内検査 (P1-1)", descFails.length === 0,
+    descFails.length === 0 ? `静的全6ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
+
+  // ==============================================================================
+  // 17. ガイド記事 /guide/polymarket-japan 配信 ＆ Article構造化データ ＆ 内部リンク整合性 (P1-2, P1-3)
+  // ==============================================================================
+  let guideFails = [];
+  const guideHtmlPath = path.join(ROOT, "dist/guide/polymarket-japan.html");
+  const guideDirPath = path.join(ROOT, "dist/guide/polymarket-japan/index.html");
+
+  if (!fs.existsSync(guideHtmlPath)) {
+    guideFails.push("dist/guide/polymarket-japan.html が存在しません");
+  } else {
+    if (fs.existsSync(guideDirPath)) {
+      guideFails.push("dist/guide/polymarket-japan/index.html が残存しており307リダイレクトが発生します");
+    }
+    const guideHtml = fs.readFileSync(guideHtmlPath, "utf-8");
+    if (!guideHtml.includes('<link rel="canonical" href="https://mirairadar.com/guide/polymarket-japan" />')) {
+      guideFails.push("ガイド記事の canonical が自己参照になっていません");
+    }
+    const articleJsonLdMatch = guideHtml.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/);
+    if (!articleJsonLdMatch) {
+      guideFails.push("ガイド記事の JSON-LD スクリプトタグが欠落しています");
+    } else {
+      try {
+        const parsed = JSON.parse(articleJsonLdMatch[1]);
+        if (parsed["@type"] !== "Article" || parsed.mainEntityOfPage?.["@id"] !== "https://mirairadar.com/guide/polymarket-japan") {
+          guideFails.push("ガイド記事の JSON-LD @type が Article でないか URL が不一致です");
+        }
+      } catch (e) {
+        guideFails.push(`ガイド記事の JSON-LD パースエラー: ${e.message}`);
+      }
+    }
+  }
+
+  // Sitemap 含有確認
+  const sitemapXml = fs.readFileSync(path.join(ROOT, "public/sitemap.xml"), "utf-8");
+  if (!sitemapXml.includes("https://mirairadar.com/guide/polymarket-japan")) {
+    guideFails.push("sitemap.xml に https://mirairadar.com/guide/polymarket-japan が含まれていません");
+  }
+
+  // 関連記事リンクが有効銘柄に実在すること (P1-3)
+  const guideSource = fs.readFileSync(path.join(ROOT, "src/content/guides/polymarketJapan.ts"), "utf-8");
+  const relatedMatch = guideSource.match(/relatedMarketSlugs:\s*\[([\s\S]*?)\]/);
+  if (relatedMatch) {
+    const rawSlugs = relatedMatch[1].split(",").map(s => s.replace(/['"\s]/g, "")).filter(Boolean);
+    if (rawSlugs.length < 3) {
+      guideFails.push(`ガイド記事の関連銘柄リンク数が3件未満です (${rawSlugs.length}件)`);
+    }
+    for (const slug of rawSlugs) {
+      const existsInDb = activeEvents.some(e => e.slug === slug || e.id === slug);
+      if (!existsInDb) {
+        guideFails.push(`ガイド記事の関連銘柄 [${slug}] が Supabase 有効銘柄に実在しません`);
+      }
+    }
+  } else {
+    guideFails.push("polymarketJapan.ts から relatedMarketSlugs が取得できませんでした");
+  }
+
+  report("ガイド記事 直接.html 配信 ＆ Article構造化データ ＆ 内部リンク整合性 (P1-2, P1-3)", guideFails.length === 0,
+    guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (.html単独 / Article構造化データ / 実在3銘柄リンク / sitemap含有) を検証完了` : guideFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);

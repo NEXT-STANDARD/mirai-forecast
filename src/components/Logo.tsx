@@ -5,6 +5,7 @@ interface LogoProps {
   className?: string;
   showText?: boolean;
   onClick?: () => void;
+  onGoHome?: () => void;
 }
 
 export const Logo: React.FC<LogoProps> = ({
@@ -12,15 +13,17 @@ export const Logo: React.FC<LogoProps> = ({
   className = '',
   showText = true,
   onClick,
+  onGoHome,
 }) => {
-  const Component = onClick ? 'button' : 'div';
+  const handleClick = onClick || onGoHome;
+  const Component = handleClick ? 'button' : 'div';
 
   return (
     <Component
-      type={onClick ? "button" : undefined}
+      type={handleClick ? "button" : undefined}
       className={`brand-logo-group ${className} bg-transparent border-0 p-0 text-left`}
-      onClick={onClick}
-      style={{ cursor: onClick ? 'pointer' : 'default' }}
+      onClick={handleClick}
+      style={{ cursor: handleClick ? 'pointer' : 'default' }}
       aria-label="未来レーダー (MiraiRadar) トップページへ"
     >
       {/* Polymarket Style Geometric Minimal Glyph */}
