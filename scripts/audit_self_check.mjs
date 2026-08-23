@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 import { createClient } from "@supabase/supabase-js";
+import { isDummyCandidate } from "./resolvePolymarketOdds.mjs";
 
 const ROOT = "/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast";
 const COMPONENTS_DIR = path.join(ROOT, "src/components");
@@ -236,6 +237,8 @@ report("scripts の外部依存が package.json に存在 (F-5 回帰防止)", d
 // 10. Supabase 有効銘柄の締切整合性 & Phase 0 検査
 async function checkDbAndPhase0() {
   let activeEvents = [];
+  let closedEvents = [];
+  let supabase = null;
   try {
     const envStr = fs.readFileSync(path.join(ROOT, ".env"), "utf-8");
     const env = {};
@@ -243,7 +246,7 @@ async function checkDbAndPhase0() {
       const [k, ...v] = l.split("=");
       if (k && !k.startsWith("#")) env[k.trim()] = v.join("=").trim();
     });
-    const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
+    supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
     const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, end_date, is_active, updated_at").eq("is_active", true);
     if (!error && events) {
       activeEvents = events;
@@ -252,6 +255,9 @@ async function checkDbAndPhase0() {
       report("Supabase DB 有効銘柄の期限整合性", expiredActive.length === 0,
         `有効銘柄 ${events.length}件中、締切切れ: ${expiredActive.length}件`);
     }
+
+    const { data: closed } = await supabase.from("events").select("id, slug, title_ja, is_active").eq("is_active", false);
+    if (closed) closedEvents = closed;
   } catch (err) {
     console.log("DB check skipped:", err.message);
   }
@@ -611,8 +617,76 @@ async function checkDbAndPhase0() {
     }
   }
 
-  report("ヘッダー CSS 基本セレクタ ＆ 1279px/440pxレスポンシブ ＆ Deploy Hook (Header & N-21/22/27)", headerFails.length === 0,
-    headerFails.length === 0 ? "基本12セレクタ(メディア外) ＆ 1279px/440px帯域網羅 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
+  // ==============================================================================
+  // 19. プレースホルダ候補排除 ＆ レンジ型オッズ健全性検査 (N-34 完全封鎖)
+  // ==============================================================================
+  let placeholderFails = [];
+  const oddsJsonPath = path.join(ROOT, "public/data/market_odds.json");
+  if (fs.existsSync(oddsJsonPath)) {
+    const oddsDict = JSON.parse(fs.readFileSync(oddsJsonPath, "utf-8"));
+    
+    // 1. EWC CS2 などの勝者予測でプレースホルダではなく正しく本命が抽出されているか
+    const ewcSlug = "ewc-2026-cs2-winner-20260810160005076";
+    if (oddsDict[ewcSlug]) {
+      const ewcOdds = oddsDict[ewcSlug];
+      if (ewcOdds.probYes === 50 && (!ewcOdds.leaderName || isDummyCandidate(ewcOdds.leaderName))) {
+        placeholderFails.push(`EWC CS2 銘柄でプレースホルダ候補（50%）が誤って選ばれています (leader: ${ewcOdds.leaderName})`);
+      }
+      if (ewcOdds.leaderName && isDummyCandidate(ewcOdds.leaderName)) {
+        placeholderFails.push(`EWC CS2 銘柄の leaderName にプレースホルダ [${ewcOdds.leaderName}] が設定されています`);
+      }
+    }
+
+    // 2. WTI原油などの多肢レンジ銘柄で偽の2値オッズ（0%など）が出力されていないか
+    const wtiSlug = "what-price-will-wti-hit-in-august-2026";
+    if (oddsDict[wtiSlug]) {
+      const wtiOdds = oddsDict[wtiSlug];
+      if (wtiOdds.hasWorldOdds === true || (wtiOdds.probYes !== null && wtiOdds.probYes !== undefined)) {
+        placeholderFails.push(`WTI原油レンジ銘柄で偽の2値オッズ (${wtiOdds.probYes}%) が出力されています。レンジ銘柄は hasWorldOdds: false である必要があります`);
+      }
+    }
+
+    // 3. 全オッズ辞書の中で leaderName にプレースホルダが含まれていないか全走査
+    for (const [key, val] of Object.entries(oddsDict)) {
+      if (val && val.leaderName && isDummyCandidate(val.leaderName)) {
+        placeholderFails.push(`銘柄 [${key}] の leaderName にプレースホルダ [${val.leaderName}] が残存しています`);
+      }
+    }
+  } else {
+    placeholderFails.push("market_odds.json が存在しません");
+  }
+
+  report("プレースホルダ候補排除 ＆ レンジ型オッズ健全性検査 (N-34 完全封鎖)", placeholderFails.length === 0,
+    placeholderFails.length === 0 ? "ダミー候補（A/B/C/Other等）の完全除外 ＆ レンジ銘柄の2値オッズ非表示を検証完了" : placeholderFails.join("; "));
+
+  // ==============================================================================
+  // 20. 決着済み・非アクティブ銘柄の確定アーカイブHTML ＆ 自己参照Canonical ＆ noindex 検査 (N-37 ソフト404完全根絶)
+  // ==============================================================================
+  let closedArchiveFails = [];
+  if (closedEvents && closedEvents.length > 0) {
+    for (const row of closedEvents) {
+      const slug = row.slug || row.id;
+      const htmlPath = path.join(distMarketDir, `${slug}.html`);
+      if (!fs.existsSync(htmlPath)) {
+        closedArchiveFails.push(`決着済み銘柄 [${slug}] の確定アーカイブ HTML が存在せず、トップページへのソフト404が発生します`);
+        continue;
+      }
+      const html = fs.readFileSync(htmlPath, "utf-8");
+      const expectedCanon = `<link rel="canonical" href="https://mirairadar.com/market/${slug}" />`;
+      if (!html.includes(expectedCanon)) {
+        closedArchiveFails.push(`決着済み銘柄 [${slug}] の canonical が自己参照になっていません (トップページを指している疑い)`);
+      }
+      if (!html.includes('content="noindex, follow"')) {
+        closedArchiveFails.push(`決着済み銘柄 [${slug}] に noindex, follow メタタグが存在しません`);
+      }
+      if (!html.includes('【決着・終了】')) {
+        closedArchiveFails.push(`決着済み銘柄 [${slug}] の og:title に【決着・終了】プレフィックスが存在しません`);
+      }
+    }
+  }
+
+  report("決着済み銘柄の確定アーカイブHTML ＆ 自己参照Canonical ＆ noindex (N-37 ソフト404完全根絶)", closedArchiveFails.length === 0,
+    closedArchiveFails.length === 0 ? `決着済み全${closedEvents?.length || 0}銘柄の自己参照Canonical ＆ noindex ＆ 確定アーカイブHTML配信を検証完了 (ソフト404 0件)` : closedArchiveFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);

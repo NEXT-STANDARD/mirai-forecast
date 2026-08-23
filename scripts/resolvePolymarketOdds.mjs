@@ -13,8 +13,9 @@ export const isDummyCandidate = (label) => {
   const l = label.trim();
   if (/^[A-Z]$/.test(l)) return true;
   if (/^Will\s+[A-Z]\s+win/i.test(l)) return true;
+  if (/^Will\s+another\s+team/i.test(l)) return true;
   if (/^Will\s+\[.*\]\s+win/i.test(l)) return true;
-  if (/other/i.test(l)) return true;
+  if (/other|another/i.test(l)) return true;
   if (/placeholder/i.test(l)) return true;
   if (/tbd/i.test(l)) return true;
   return false;
@@ -98,12 +99,36 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
   const lowerJa = (dbTitleJa || '').toLowerCase();
   const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
 
-  // 2-1. タイトルで特定候補が問われている場合
-  const matchedMarket = markets.find(m => {
+  // ダミー/プレースホルダ（A, B, C, Other等）を除外した有効候補集合 (N-34)
+  const validMarkets = markets.filter(m => !isDummyCandidate(m.groupItemTitle || m.question));
+  const candidateMarkets = validMarkets.length > 0 ? validMarkets : markets;
+
+  // 2-0. 多肢レンジ・価格帯予測で全体を問う銘柄（例: WTI到達水準予測）は特定2値オッズを出さない (N-34)
+  const isRangeBucketMarket = /到達水準|価格水準|レンジ予測|price will .* hit|what will .* hit in|hit in [a-z]+/i.test(lowerJa + ' ' + lowerEn) && !/100,?000|150,?000|10万|15万/i.test(lowerJa);
+  if (isRangeBucketMarket) {
+    const volume24h = ev.volume24hr || 0;
+    const totalVolume = ev.volume || volume24h * 3.5;
+    return {
+      probYes: null,
+      hasWorldOdds: false,
+      isClosed: false,
+      volume24h: Math.round(volume24h),
+      totalVolume: Math.round(totalVolume),
+      probChange24h: 0,
+      isMultiChoice: true,
+      leaderName: null,
+      marketQuestion: null
+    };
+  }
+
+  // 2-1. タイトルで特定候補が問われている場合 (候補集合からマッチング)
+  const matchedMarket = candidateMarkets.find(m => {
     const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
-    if (!itemTitle) return false;
-    if (lowerEn.includes(itemTitle)) return true;
-    if (itemTitle.length > 3 && lowerJa.includes(itemTitle)) return true;
+    if (!itemTitle || isDummyCandidate(itemTitle)) return false;
+    
+    // 英語タイトル完全/部分一致 (短い略称・1文字等での誤マッチ防止のため length >= 4)
+    if (itemTitle.length >= 4 && lowerEn.includes(itemTitle)) return true;
+    if (itemTitle.length >= 4 && lowerJa.includes(itemTitle)) return true;
     if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
     if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
     if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
@@ -153,12 +178,10 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
   const isWinnerContest = /優勝|受賞|winner|champion|ballon|international|1st place|first place|mvp/i.test(lowerJa + ' ' + lowerEn);
   
   if (isWinnerContest) {
-    const realMarkets = markets.filter(m => !isDummyCandidate(m.groupItemTitle || m.question));
-    const targetList = realMarkets.length > 0 ? realMarkets : markets;
     let maxProb = -1;
     let topM = null;
 
-    targetList.forEach(m => {
+    candidateMarkets.forEach(m => {
       let p = 0;
       if (m.outcomePrices) {
         try {

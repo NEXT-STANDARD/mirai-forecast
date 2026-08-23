@@ -269,6 +269,70 @@ async function prerenderAll() {
   console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html 形式単独 / 307根絶)！`);
 
   // ==============================================================================
+  // A-2. 決着済み・非アクティブ銘柄の自己参照Canonical＆確定アーカイブHTML生成 (N-37: ソフト404完全根絶)
+  // ==============================================================================
+  const { data: closedEvents } = await supabase
+    .from('events')
+    .select('*')
+    .eq('is_active', false);
+
+  if (closedEvents && closedEvents.length > 0) {
+    console.log(`📦 決着済み・非アクティブ銘柄 ${closedEvents.length}件 の確定アーカイブHTMLを生成中 (N-37)...`);
+    const marketBaseDir = path.join(DIST_DIR, 'market');
+    for (const event of closedEvents) {
+      const slug = event.slug || event.id;
+      const canonicalUrl = `${SITE_URL}/market/${slug}`;
+      const titleJa = event.title_ja || event.title_en || slug;
+      const pageTitle = `【決着・終了】${titleJa} ｜ 未来レーダー`;
+      const description = `【この予測市場は決着・終了しました】${titleJa}。世界の最終予測結果と日本の世論集計アーカイブ。`;
+      const ogImageUrl = `${SITE_URL}/ogp/market/${slug}.png`;
+
+      let html = baseHtml;
+      html = html.replace(/<title>.*?<\/title>/i, `<title>${escapeHtml(pageTitle)}</title>`);
+      html = html.replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${escapeHtml(description)}" />`);
+      html = html.replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
+      
+      // robots noindex, follow を設定し、検索エンジンに重複ペナルティを与えず過去URLのソフト404を根絶
+      if (html.includes('<meta name="robots"')) {
+        html = html.replace(/<meta name="robots" content=".*?" \/>/i, `<meta name="robots" content="noindex, follow" />`);
+      } else {
+        html = html.replace(/<head>/i, `<head>\n    <meta name="robots" content="noindex, follow" />`);
+      }
+
+      html = html.replace(/<meta property="og:title" content=".*?" \/>/i, `<meta property="og:title" content="${escapeHtml(pageTitle)}" />`);
+      html = html.replace(/<meta property="og:description" content=".*?" \/>/i, `<meta property="og:description" content="${escapeHtml(description)}" />`);
+      html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${canonicalUrl}" />`);
+      html = html.replace(/<meta property="og:image" content=".*?" \/>/i, `<meta property="og:image" content="${ogImageUrl}" />`);
+      html = html.replace(/<meta property="og:image:alt" content=".*?" \/>/i, `<meta property="og:image:alt" content="${escapeHtml(titleJa)}" />`);
+
+      html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${canonicalUrl}" />`);
+      html = html.replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${escapeHtml(pageTitle)}" />`);
+      html = html.replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${escapeHtml(description)}" />`);
+      html = html.replace(/<meta name="twitter:image" content=".*?" \/>/i, `<meta name="twitter:image" content="${ogImageUrl}" />`);
+      html = html.replace(/<meta name="twitter:image:alt" content=".*?" \/>/i, `<meta name="twitter:image:alt" content="${escapeHtml(titleJa)}" />`);
+
+      // JSON-LD
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "ItemPage",
+        "name": pageTitle,
+        "description": description,
+        "url": canonicalUrl,
+        "mainEntity": {
+          "@type": "Question",
+          "name": event.question_ja || event.title_ja || titleJa,
+          "text": `この予測市場は決着・終了しました。`
+        }
+      };
+      const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(jsonLd, null, 2)}\n    </script>`;
+      html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
+
+      fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
+    }
+    console.log(`✅ 決着済み銘柄 ${closedEvents.length}件 の確定アーカイブHTMLを出力完了 (.html 形式単独 / ソフト404完全根絶)！`);
+  }
+
+  // ==============================================================================
   // B. 静的ページの自己参照 Canonical ＆ 固有 description プリレンダー (P1-1)
   // ==============================================================================
   const staticPages = [
