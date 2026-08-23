@@ -388,13 +388,34 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       '455875': { titleJa: 'ホルムズ海峡の通航量は12月31日までに正常化するか？', category: 'politics' },
       '833254': { titleJa: 'MLB公式戦: ドジャース vs ロッキーズ 勝敗予測', category: 'sports' },
       '833209': { titleJa: 'MLB公式戦: オリオールズ vs レイズ 勝敗予測', category: 'sports' },
+      '281145': { titleJa: '中国は2027年12月31日までに台湾へ武力侵攻するか？', category: 'politics' },
+      '826222': { titleJa: '欧州サッカー: エルチェCF ハンデ勝利予測 (スプレッド -1.5)', category: 'sports' },
+      '48361': { titleJa: '欧州サッカー: キリアン・エムバペは2026年バロンドールを受賞するか？', category: 'sports' },
+      '881232': { titleJa: 'イーロン・マスクのXポスト数：8月22日〜24日に「40件未満」となるか？', category: 'entertainment' },
+      '826000': { titleJa: '欧州サッカー: エルチェCFは2026年8月23日の試合で勝利するか？', category: 'sports' },
+      '825567': { titleJa: '欧州サッカー: ニューカッスル・ユナイテッドFCは2026年8月23日の試合で勝利するか？', category: 'sports' },
+      '139236': { titleJa: 'テニス全米オープン: ヤニック・シナーは2026年男子シングルスで優勝するか？', category: 'sports' },
+      '649201': { titleJa: 'eスポーツ: Aurora GamingはDota 2世界大会「The International 2026」で優勝するか？', category: 'entertainment' },
     };
 
     function translateFallback(id, raw) {
       if (DIRECT_MAP[id]) return DIRECT_MAP[id];
-      if (!raw) return { titleJa: '観測銘柄' };
+      if (!raw) return { titleJa: '観測銘柄', category: 'economy' };
       let t = raw.trim();
       let category = null;
+
+      if (/Spread:\s*(.+)/i.test(t)) {
+        return { titleJa: `欧州サッカー: ${t.replace(/^Spread:\s*/i, '')} ハンデ勝利予測`, category: 'sports' };
+      }
+      if (/Elche CF|Newcastle United|Barcelona|Real Madrid|Manchester|Liverpool|Arsenal|Chelsea|Bayern|Dortmund|Juventus|Inter|Milan/i.test(t)) {
+        return { titleJa: `欧州サッカー: ${t.replace(/^Will\s+/i, '').replace(/\s+win\s+on\s+/i, '（').replace(/\?/g, '')}）勝敗予測`, category: 'sports' };
+      }
+      if (/The International|Dota 2|Valorant|Apex Legends/i.test(t)) {
+        return { titleJa: `eスポーツ: ${t.replace(/^Will\s+/i, '').replace(/\s+Win\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'entertainment' };
+      }
+      if (/Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t) && /US Open|Wimbledon|Roland Garros/i.test(t)) {
+        return { titleJa: `テニス全米オープン: ${t.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'sports' };
+      }
 
       if (/Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox/i.test(t)) {
         return { titleJa: `MLB公式戦: ${t.replace(' - Exact Score', '').replace(' - More Markets', '')} 勝敗予測`, category: 'sports' };
@@ -553,9 +574,14 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
 
       // 構造的フェイルセーフ: 未知の英語タイトルにはカテゴリに応じた自動日本語化プレフィックスを付与
-      const prefix = category === 'sports' ? 'スポーツ予測: ' : category === 'politics' ? '国際政治動向: ' : category === 'tech' ? 'AI・テック予測: ' : '経済・市場予測: ';
-      return { titleJa: `${prefix}${t}`, category };
+      const fallbackCat = category || 'economy';
+      const prefix = fallbackCat === 'sports' ? 'スポーツ予測: ' : fallbackCat === 'politics' ? '国際政治動向: ' : fallbackCat === 'tech' ? 'AI・テック予測: ' : fallbackCat === 'entertainment' ? 'エンタメ予測: ' : '経済・市場予測: ';
+      return { titleJa: `${prefix}${t}`, category: fallbackCat };
     }
+
+    // 既存DBの高品質な日本語タイトル・カテゴリを事前取得し、同期による上書きを構造的に防止
+    const { data: existingRows } = await supabase.from('events').select('id, title_ja, category');
+    const existingMap = new Map((existingRows || []).map(r => [r.id, r]));
 
     const selectedRecords = topCandidates.map(c => {
       const insight = insightMap.get(c.id);
@@ -566,11 +592,23 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       const englishFuncCount = ((titleJa || '').match(/\b(will|the|be|in|on|by|to|of|and|or|is|are|win|hit|nomination|election)\b/gi) || []).length;
       
       const fb = translateFallback(c.id, c.rawQuestion);
-      if (!titleJa || !hasJp || englishFuncCount >= 3) {
+
+      const existing = existingMap.get(c.id);
+      const existingHasJp = existing?.title_ja && /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.title_ja);
+      const existingIsClean = existingHasJp &&
+        !existing.title_ja.includes('Will ') &&
+        !existing.title_ja.includes('Spread:') &&
+        !existing.title_ja.startsWith('経済・市場予測: Will') &&
+        !existing.title_ja.startsWith('経済・市場予測: Spread:');
+
+      // 既存DBにすでに綺麗な日本語タイトルが存在する場合は、LLMやフォールバックによる破壊・上書きを防止して最優先保持
+      if (existingIsClean) {
+        titleJa = existing.title_ja;
+      } else if (!titleJa || !hasJp || englishFuncCount >= 3) {
         titleJa = fb.titleJa;
       }
 
-      const finalCat = fb.category || c.cat || 'economy';
+      const finalCat = (existingIsClean && existing?.category) ? existing.category : (fb.category || c.cat || 'economy');
       const catLabels = {
         economy: '📊 経済・金利・暗号資産',
         tech: '⚡ AI・テック',

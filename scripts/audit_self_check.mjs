@@ -533,13 +533,16 @@ async function checkDbAndPhase0() {
     guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 実在3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
 
   // ==============================================================================
-  // 18. ヘッダー CSS 厳密セレクタ整合性 ＆ モバイル440pxレスポンシブ ＆ Deploy Hook 連携 (N-21, N-22)
+  // 18. ヘッダー CSS 厳密基本セレクタ整合性 ＆ 1279px/440pxレスポンシブ ＆ Deploy Hook 連携 (N-21, N-22, N-27)
   // ==============================================================================
   let headerFails = [];
   const cssPath = path.join(ROOT, "src/index.css");
   const rawCss = fs.readFileSync(cssPath, "utf-8");
   // コメントを除去して実ルールのみを抽出（コメントによる偽陽性を完全防止）
   const cleanCss = rawCss.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  // メディアクエリを除去したトップレベルCSS（基本ルールに存在することを検査：穴①を完全封鎖）
+  const cleanCssWithoutMedia = cleanCss.replace(/@media[^{]*\{[\s\S]*?\n\}/g, "");
 
   const requiredHeaderClasses = [
     "header-container-slim",
@@ -557,10 +560,17 @@ async function checkDbAndPhase0() {
   ];
 
   for (const cls of requiredHeaderClasses) {
-    const selectorRegex = new RegExp(`(?:^|[\\r\\n,\\s])\\.${cls}\\b[^{]*\\{`, "m");
-    if (!selectorRegex.test(cleanCss)) {
-      headerFails.push(`src/index.css にヘッダー必須クラス [.${cls}] の実セレクタ定義が存在しません`);
+    // (?![\\w-]) を用いて -DISABLED 等の別名マッチ偽陽性を完全防止（穴②を完全封鎖）
+    const selectorRegex = new RegExp(`(?:^|[\\r\\n,\\s])\\.${cls}(?![\\w-])[^{]*\\{`, "m");
+    if (!selectorRegex.test(cleanCssWithoutMedia)) {
+      headerFails.push(`src/index.css の基本ルール（メディアクエリ外）にヘッダー必須クラス [.${cls}] の実セレクタ定義が存在しません`);
     }
+  }
+
+  // N-27: 1279px 以下の画面でヘッダー省略要素が畳まれるか検査 (769〜1279px はみ出し防止)
+  const media1279Match = cleanCss.match(/@media[^{]*max-width:\s*1279px[^{]*\{([\s\S]*?)\n\}/);
+  if (!media1279Match || !media1279Match[1].includes(".hide-on-mobile")) {
+    headerFails.push("src/index.css に @media (max-width: 1279px) の .hide-on-mobile 省略ルールが存在しません (N-27)");
   }
 
   // モバイルレスポンシブ (max-width: 440px) に -slim 系クラスが包含されているか検査 (N-22 再発防止)
@@ -583,8 +593,8 @@ async function checkDbAndPhase0() {
     }
   }
 
-  report("ヘッダー CSS 厳密セレクタ ＆ モバイル440px ＆ Deploy Hook 連携 (Header & N-21/22)", headerFails.length === 0,
-    headerFails.length === 0 ? "ヘッダー主要12実セレクタ ＆ 440pxレスポンシブ網羅 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
+  report("ヘッダー CSS 基本セレクタ ＆ 1279px/440pxレスポンシブ ＆ Deploy Hook (Header & N-21/22/27)", headerFails.length === 0,
+    headerFails.length === 0 ? "基本12セレクタ(メディア外) ＆ 1279px/440px帯域網羅 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);

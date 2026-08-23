@@ -166,12 +166,12 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-xs flex items-center gap-1">
                     <span>{currentRank.icon}</span>
-                    <span className="font-mono text-[11px] font-black" style={{ color: currentRank.color }}>
+                    <span className="font-mono text-xs font-black" style={{ color: currentRank.color }}>
                       Lv.{currentRank.level}
                     </span>
                     <span className="hide-on-mobile">{currentRank.title}</span>
                   </span>
-                  <span className="text-slate-400 font-mono text-[10px]">({userVotesCount})</span>
+                  <span className="text-slate-400 font-mono text-xs">({userVotesCount})</span>
                   {streakDays > 0 && (
                     <span className="streak-mini-badge">
                       <Flame size={9} className="fill-amber-400 text-amber-400" />
