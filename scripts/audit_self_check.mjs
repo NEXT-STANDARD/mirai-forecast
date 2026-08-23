@@ -532,6 +532,57 @@ async function checkDbAndPhase0() {
   report("ガイド記事 直接.html 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク (P1-2, P1-3)", guideFails.length === 0,
     guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 実在3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
 
+  // ==============================================================================
+  // 18. ヘッダー CSS 整合性 ＆ OGP 404 制御 ＆ Deploy Hook 連携検査 (N-21 / Header Integrity)
+  // ==============================================================================
+  let headerFails = [];
+  const cssPath = path.join(ROOT, "src/index.css");
+  const cssContent = fs.readFileSync(cssPath, "utf-8");
+
+  const requiredHeaderClasses = [
+    ".header-container-slim",
+    ".header-inner-slim",
+    ".header-left-slim",
+    ".header-right-slim",
+    ".stats-badges-slim",
+    ".stat-badge-item",
+    ".stat-dot",
+    ".btn-header-subtle",
+    ".btn-header-amber",
+    ".btn-header-forecast-slim",
+    ".nav-container-slim",
+    ".category-nav-slim"
+  ];
+
+  for (const cls of requiredHeaderClasses) {
+    if (!cssContent.includes(cls)) {
+      headerFails.push(`src/index.css にヘッダー必須クラス [${cls}] のスタイル定義が存在しません`);
+    }
+  }
+
+  // _redirects の OGP 404 制御
+  const redirectsPath = path.join(ROOT, "public/_redirects");
+  if (!fs.existsSync(redirectsPath)) {
+    headerFails.push("public/_redirects が存在しません");
+  } else {
+    const redirectsContent = fs.readFileSync(redirectsPath, "utf-8");
+    if (!redirectsContent.includes("/ogp/* 404")) {
+      headerFails.push("public/_redirects に [/ogp/* 404] 定義が存在しません");
+    }
+  }
+
+  // auto-bot.yml の Deploy Hook 連携
+  const workflowPath = path.join(ROOT, ".github/workflows/auto-bot.yml");
+  if (fs.existsSync(workflowPath)) {
+    const workflowContent = fs.readFileSync(workflowPath, "utf-8");
+    if (!workflowContent.includes("CF_PAGES_DEPLOY_HOOK")) {
+      headerFails.push("auto-bot.yml に Cloudflare Pages Deploy Hook 連携ステップが存在しません");
+    }
+  }
+
+  report("ヘッダー CSS 整合性 ＆ OGP 404 制御 ＆ Deploy Hook 連携 (Header & N-21)", headerFails.length === 0,
+    headerFails.length === 0 ? "ヘッダー主要12クラス定義 ＆ OGP 404フォールバック防止 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

@@ -1,0 +1,5 @@
+# Cloudflare Pages Redirects & Fallback Control
+# Existing static files are always served first.
+# Non-existent assets under /ogp/ or /assets/ must return 404 rather than falling back to SPA HTML 200.
+/ogp/* 404
+/assets/* 404

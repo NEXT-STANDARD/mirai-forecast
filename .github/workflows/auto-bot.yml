@@ -44,3 +44,11 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/twitter_bot.mjs
+
+      - name: Trigger Cloudflare Pages Rebuild (Prerender Sync)
+        if: ${{ env.CF_PAGES_DEPLOY_HOOK != '' }}
+        env:
+          CF_PAGES_DEPLOY_HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          echo "🚀 Triggering Cloudflare Pages Deploy Hook to prerender newly synced markets..."
+          curl -s -X POST "$CF_PAGES_DEPLOY_HOOK"
