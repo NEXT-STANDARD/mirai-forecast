@@ -81,9 +81,17 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                     <td className="td-name">
                       <div className="name-wrap">
                         <span className="category-micro-tag">{(item.categoryLabel || '⚡ AI・テック').slice(0, 8)}</span>
-                      <span className="event-title-short" title={item.titleJa || item.title}>
+                      <a
+                        href={`/market/${encodeURIComponent(item.slug || item.id)}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onSelectEvent(item);
+                        }}
+                        className="event-title-short no-underline text-inherit cursor-pointer"
+                        title={item.titleJa || item.title}
+                      >
                         {item.titleJa || item.title}
-                      </span>
+                      </a>
                     </div>
                   </td>
 

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー Phase 1 検証レポート</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head><body>
+<header class="masthead"><div class="masthead-in">
+<div class="eyebrow"><span>Phase 1 検証レポート</span><span class="sep"></span><span>mirai-forecast</span><span class="sep"></span><span>2026-08-23</span></div>
+<h1>記事は良い。ただしリンクが「リンク」になっていない</h1>
+<p class="dek">description の個別化・記事ページ・トップのコピーは成立し、<strong>記事の法務対応はとくに丁寧</strong>です。
+一方 P1-3 は目的未達でした。<strong>サイト全体に <code>&lt;a href&gt;</code> が0件</strong>で、人は辿れてもクローラは辿れません。</p>
+</div></header>
+<div class="wrap">
+<div class="tally">
+<div class="ok"><span class="v">7<small>/7</small></span><span class="l">description が<br>すべて固有</span></div>
+<div class="ok"><span class="v">126<small>/126</small></span><span class="l">Phase 0 の<br>回帰なし</span></div>
+<div class="ok"><span class="v">140<small>/140</small></span><span class="l">sitemap URL が<br>直接200</span></div>
+<div class="ng"><span class="v">0<small>件</small></span><span class="l">サイト全体の<br>&lt;a href&gt;</span></div>
+<div class="ok"><span class="v">4<small>回連続</small></span><span class="l">新チェックの<br>破壊テスト合格</span></div>
+<div class="pt"><span class="v">2<small>件</small></span><span class="l">記事の<br>軽微な指摘</span></div>
+</div>
+<p><strong>対象</strong>: mirai-forecast / Phase 1（P1-1〜P1-4 ＋ 1本目の記事）</p><p><strong>検証日</strong>: 2026-08-23</p><p><strong>検証方法</strong>: 本番URLでの全数実測 ＋ ブラウザ実描画 ＋ 記事本文の精読 ＋ 破壊テスト2種</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>総括</h2></div><p><strong>4項目中3項目は成立しました。記事の法務対応はとくに丁寧です。</strong></p><div class="tblwrap"><table class="cmp"><thead><tr><th>項目</th><th>判定</th><th>実測</th></tr></thead><tbody><tr><td class=""><strong>P1-1</strong> description 個別化</td><td class="good">✅</td><td class=""><strong>7/7 すべて異なる</strong>・全て120字以内</td></tr><tr><td class=""><strong>P1-2</strong> 記事ページの器</td><td class="good">✅</td><td class="">200（307でない）／canonical自己参照／JSON-LD <code>Article</code>／sitemap収録</td></tr><tr><td class=""><strong>P1-4</strong> トップのコピー</td><td class="good">✅</td><td class="">提案どおり反映</td></tr><tr><td class=""><strong>記事の内容</strong></td><td class="good">✅</td><td class="">法的助言の否認・出典明示・回避方法の非推奨、すべて仕様どおり</td></tr><tr><td class=""><strong>P1-3</strong> 内部リンク</td><td class="bad">❌</td><td class=""><strong>サイト全体に <code>&lt;a href&gt;</code> が0件</strong>。人は辿れるが、検索エンジンは辿れない</td></tr><tr><td class="">新チェック2件</td><td class="good">✅</td><td class="">破壊テストで両方とも FAIL を検知（<strong>4ラウンド連続</strong>）</td></tr><tr><td class="">Phase 0 の回帰</td><td class="good">✅</td><td class="">126/126 維持・sitemap 140件すべて200・n&lt;3ガード違反0</td></tr></tbody></table></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">❌</span><h2>❌ P1-3 — 内部リンクが「リンク」になっていない</h2></div><h3 style="margin-top:26px">症状</h3><p>記事から関連銘柄への導線は<strong>表示され、クリックもできます</strong>。</p><p>しかし <code>&lt;a href&gt;</code> ではなく <code>&lt;div&gt;</code> のクリックハンドラで実装されています。</p><div class="evidence">記事ページ /guide/polymarket-japan
+  &lt;a href&gt; の数            : 0
+  関連銘柄の表示            : ✅ FRB・日銀・GPT-5 の3件が描画されている
+  クリックしたときの挙動     : ✅ /market/fed-decision-in-september-762 へ遷移した</div><p><strong>これはサイト全体の実装です。</strong></p><div class="evidence">トップページ
+  &lt;a href&gt; の数     : 0
+  銘柄カード         : 28枚（すべて &lt;div class="market-card-item"&gt;）
+  ヘッダーのナビ      : すべて &lt;button&gt;</div><h3 style="margin-top:26px">なぜ問題か</h3><p>P1-3 の目的は「<strong>123枚の銘柄ページを、入口ページの補強に使う</strong>」ことでした。</p><p>そのためには検索エンジンがリンクを辿れる必要があります。</p><div class="evidence">人間     : クリックできる    → 問題なし
+クローラ : リンクが存在しない → 辿れない</div><p>現状、銘柄ページは <strong>sitemap 経由でしか発見されません</strong>。</p><p>内部リンクによるクロール優先度・評価の受け渡しがゼロです。</p><p>これは Phase 1 で作り込まれたものではなく、<strong>SPA の初期からの実装</strong>です。</p><p>ただし P1-3 の受け入れ基準（「記事から3件以上の銘柄へリンクし、すべて200」）は満たしていません。</p><h3 style="margin-top:26px">チェックが通ってしまった理由</h3><p>追加された検査は、<code>relatedMarketSlugs</code> の<strong>データ妥当性</strong>を見ています。</p><div class="evidence">// 関連記事リンクが有効銘柄に実在すること (P1-3)
+const relatedMatch = guideSource.match(/relatedMarketSlugs:\s*\[([\s\S]*?)\]/);
+if (rawSlugs.length &lt; 3) { … }
+for (const slug of rawSlugs) { activeEvents.some(...) }</div><p>**「3件以上あるか」「その slug が実在するか」は見ていますが、</p><p>「<code>&lt;a href&gt;</code> として出力されているか」は見ていません。**</p><p>チェック名が「内部リンク整合性」なので、実態より広く読めてしまいます。</p><h3 style="margin-top:26px">修正案</h3><p><strong>主案：銘柄カードとナビを <code>&lt;a href&gt;</code> にする</strong></p><div class="evidence">// 現在
+&lt;div className="market-card-item" onClick={() =&gt; navigate(slug)}&gt;
+
+// 提案
+&lt;a href={`/market/${slug}`} className="market-card-item"
+   onClick={(e) =&gt; { e.preventDefault(); navigate(slug); }}&gt;</div><p><code>preventDefault</code> + <code>pushState</code> で SPA の挙動は今のまま保てます。</p><p>クローラは <code>href</code> を読み、人はSPA遷移する、という両立ができます。</p><p><strong>併せて：チェックを実体に合わせる</strong></p><p><code>dist/guide/polymarket-japan.html</code> ではなく、<strong>描画後のDOM</strong>で</p><p><code>a[href^="/market/"]</code> が3件以上あることを見る必要があります。</p><p>プリレンダーHTMLには本文が入らないため、静的検査では不可能です。</p><div class="note"><p><strong>補足</strong>：影響は記事だけではありません。トップの28枚のカードも同様なので、</p></div><div class="note"><p>修正すればサイト全体の内部リンク構造が一度に立ち上がります。</p></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ 記事の内容 — 法務対応は丁寧です</h2></div><p>仕様の「厳守事項」は<strong>すべて守られています</strong>。</p><div class="tblwrap"><table class="cmp"><thead><tr><th>厳守事項</th><th>実際の記述</th></tr></thead><tbody><tr><td class="">法的助言をしない</td><td class="">「本解説は…<strong>法的助言を構成するものではありません</strong>。個別の法解釈…必ず弁護士等の専門家にご相談ください」</td></tr><tr><td class="">法解釈は出典を明示</td><td class="">「<strong>パークス法律事務所の公開整理等</strong>によれば」</td></tr><tr><td class="">回避方法を書かない</td><td class="">「<strong>VPN等を用いて地理制限を迂回する行為は利用規約違反および法令違反リスクを伴うため推奨されません</strong>」と明確に非推奨</td></tr><tr><td class="">競合を貶めない</td><td class="">ポイ活型を「月間100万人規模」と事実として併記（Bloomberg出典つき）</td></tr><tr><td class="">売り込みは1箇所</td><td class="">第4節のみ</td></tr></tbody></table></div><p><strong>「使ってよい事実」6項目もすべて出典つきで正しく使われています。</strong></p><p>構成も指定した5節どおりです。</p><h3 style="margin-top:26px">2点だけ、気になる記述があります</h3><p><strong>① 自サイトの結論として「合法」と断定している箇所</strong></p><div class="note"><p>「情報インテリジェンスツールとしては<strong>合法的に</strong>閲覧・参照することができます」</p></div><p>閲覧行為が問題になる可能性は実務上ほぼ無いと思いますが、</p><p>仕様では「『違法です』『合法です』と自サイトの結論として断定しない」としていました。</p><p><strong>「制限の対象外です」「閲覧は制限されていません」</strong>のような事実の記述に寄せると、</p><p>記事全体の姿勢（法解釈は引用に留める）と一貫します。</p><p><strong>② 出典のない精度主張が2箇所</strong></p><div class="note"><p>「数億ドルのリアルマネーが投じられた<strong>極めて精度の高い</strong>集合知データ」</p></div><div class="note"><p>「予測市場の確率は既存の世論調査やアナリスト予想を<strong>凌駕する精度を示してきました</strong>」</p></div><p>これは事実の主張ですが、出典がありません。</p><p>そして<strong>このプロジェクトが14ラウンドかけて守ってきた姿勢と噛み合いません</strong>。</p><p><code>n&lt;3</code> なら乖離を出さない、という規律を敷いているサイトが、</p><p>自分に有利な精度主張は無根拠で書く、という形になっています。</p><p>出典を付けるか、「精度が高いとされる」程度に緩めるかの<strong>どちらかを推奨</strong>します。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ P1-1 静的ページの description</h2></div><p>7ページすべて異なり、120字を超えるものもありません。</p><div class="tblwrap"><table class="cmp"><thead><tr><th>ページ</th><th>字数</th><th>冒頭</th></tr></thead><tbody><tr><td class=""><code>/</code></td><td class="">81</td><td class="">世界最大の予測市場 Polymarket のリアルマネー確率を日本語で…</td></tr><tr><td class=""><code>/forecast</code></td><td class="">75</td><td class="">全観測銘柄一覧。経済・テック・国際情勢…</td></tr><tr><td class=""><code>/rankings</code></td><td class="">73</td><td class="">見解が最も乖離している注目銘柄ランキング…</td></tr><tr><td class=""><code>/ai-connector</code></td><td class="">81</td><td class="">Claude、ChatGPT、Cursor等から…</td></tr><tr><td class=""><code>/developers</code></td><td class="">76</td><td class="">開発者向けオープンAPI（WebMCP）ドキュメント…</td></tr><tr><td class=""><code>/letter-to-mike</code></td><td class="">80</td><td class="">Mike Eidlin 氏への公開書簡…</td></tr><tr><td class=""><code>/guide/polymarket-japan</code></td><td class="">85</td><td class="">Polymarketは日本から使えるのか？…</td></tr></tbody></table></div><p><strong>ユニーク 7/7・120字超え 0件。</strong></p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ P1-2 記事ページの器</h2></div><div class="evidence">/guide/polymarket-japan   → HTTP 200   ← 307ではない
+/guide/polymarket-japan/  → HTTP 307   ← 正規形へ集約（正しい向き）
+
+title     : Polymarket（ポリマーケット）は日本から使えるのか？…（独自）
+canonical : https://mirairadar.com/guide/polymarket-japan（自己参照）
+JSON-LD   : 1個 / @type=Article / JSON.parse 成功
+sitemap   : 収録済み</div><p>Phase 0 の教訓（<code>.html</code> 単独出力）が正しく適用されています。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ P1-4 トップのコピー</h2></div><p>提案がそのまま反映されていました。</p><div class="evidence">title : Polymarketの予測確率を日本語で ｜ 未来レーダー（MiraiRadar）
+desc  : 世界最大の予測市場 Polymarket のリアルマネー確率を日本語で。日本の生活者投票と
+        並べて、世界と日本のズレを見られます。登録不要・無料。賭けはありません。</div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ Phase 0 の回帰なし（全数）</h2></div><p>銘柄が123→126件に増えていますが、すべて追随しています。</p><div class="tblwrap"><table class="cmp"><thead><tr><th>指標</th><th>結果</th></tr></thead><tbody><tr><td class="">HTTP 200（直接）</td><td class=""><strong>126/126</strong></td></tr><tr><td class="">og:title あり</td><td class=""><strong>126/126</strong></td></tr><tr><td class="">canonical 厳密一致</td><td class=""><strong>126/126</strong></td></tr><tr><td class="">JSON-LD 妥当</td><td class=""><strong>126/126</strong></td></tr><tr><td class="">OGP画像 200/png</td><td class=""><strong>126/126</strong></td></tr><tr><td class="">n&lt;3ガード違反</td><td class=""><strong>0件</strong></td></tr><tr><td class="">sitemap</td><td class="">140URL・死にURL0・<strong>全件200</strong></td></tr></tbody></table></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">✅</span><h2>✅ 新チェック2件は破壊テストに合格</h2></div><div class="tblwrap"><table class="cmp"><thead><tr><th>テスト</th><th>破壊内容</th><th>結果</th></tr></thead><tbody><tr><td class="">P1-1</td><td class="">静的6ページの description を同一値に</td><td class="good">✅ <strong>FAIL</strong>「description が重複しています」</td></tr><tr><td class="">P1-3</td><td class=""><code>relatedMarketSlugs</code> を3→2件に</td><td class="good">✅ <strong>FAIL</strong>「関連銘柄リンク数が3件未満です (2件)」</td></tr></tbody></table></div><p><strong>破壊テスト合格は4ラウンド連続</strong>です。習慣として定着しています。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">⚠️</span><h2>⚠️ 自己検証が一度だけ 17/2 になりました</h2></div><p>クリーンリビルド直後の1回だけ「合格17件・不合格2件」が出ました。</p><p>その後3回連続で 19/19 に戻り、再現しません。</p><p><strong>原因は件数の競合と考えられます。</strong> 検証中、有効銘柄が増え続けていました。</p><div class="evidence">セッション中の推移 : 123件 → 126件 → 127件</div><p>件数一致を見るチェック（sitemap件数・プリレンダー数・有効銘柄数）は、</p><p><strong>ビルドが件数をスナップショットした後に銘柄が追加されると、偽陽性で FAIL します</strong>。</p><p>日次の銘柄生成が動いている以上、CI で時々赤くなる可能性があります。</p><p>実害はありませんが、「たまに落ちる検査」は信頼を損ねます。</p><p><strong>件数の完全一致ではなく「プリレンダーに無い有効銘柄が存在しないこと」</strong></p><p>（＝片方向の包含関係）で判定すると安定します。</p><div class="note"><p>なお、この 17/2 について<strong>どの2件が落ちたかは記録できていません</strong>。</p></div><div class="note"><p>grep の条件から外れて流れました。原因は推定です。断定はしません。</p></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>次にやること（優先順）</h2></div><div class="tblwrap"><table class="cmp"><thead><tr><th>#</th><th>内容</th><th>理由</th></tr></thead><tbody><tr><td class=""><strong>1</strong></td><td class=""><strong>銘柄カード・ナビを <code>&lt;a href&gt;</code> にする</strong></td><td class="">P1-3 の目的そのもの。サイト全体の内部リンクが一度に立ち上がる</td></tr><tr><td class=""><strong>2</strong></td><td class="">P1-3 のチェックを<strong>描画後のDOM</strong>で <code>a[href^="/market/"]</code> を数える形に</td><td class="">現在はデータ妥当性しか見ていない</td></tr><tr><td class="">3</td><td class="">記事の「合法的に」を事実記述に寄せる</td><td class="">記事全体の姿勢と一貫させる</td></tr><tr><td class="">4</td><td class="">記事の精度主張2箇所に出典を付けるか緩める</td><td class="">サイトの <code>n≥3</code> の規律と揃える</td></tr><tr><td class="">5</td><td class="">件数一致チェックを包含判定に変える</td><td class="">偽陽性のFAILを止める</td></tr><tr><td class="">6</td><td class="">P0-6（Functions）</td><td class="">前回から変化なし</td></tr></tbody></table></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>所感</h2></div><p><strong>記事は良い出来です。</strong> 私が仕様で一番心配していたのは法務でしたが、</p><p>法的助言の否認・出典の明示・VPN回避の明確な非推奨まで、指示以上に丁寧に書かれています。</p><p>「競合を貶めない」も守られていて、ミライマ等を月間100万人の事実として淡々と併記しています。</p><p>一方 P1-3 は、<strong>目的と手段が入れ替わった</strong>例でした。</p><div class="evidence">目的  : 123枚の銘柄ページで入口ページを補強する（＝クローラに辿らせる）
+実装  : 関連銘柄を3件表示し、クリックで遷移できるようにした
+結果  : 人は辿れる。クローラは辿れない。目的は未達</div><p>しかもチェックが「内部リンク整合性」という名前で通ってしまった。</p><p><code>relatedMarketSlugs</code> が3件あることは確認しているので、<strong>嘘ではありません</strong>。</p><p>ただ、確かめているものが目的とズレています。</p><p>これは第14〜16回で繰り返した「<strong>チェックのメッセージが、テストの内容より強い</strong>」形の再来です。</p><p>今回は破壊テスト自体は通っているので、質は上がっています。</p><p>残るのは「<strong>何を確かめるべきか</strong>」の設計で、ここは私のロードマップの書き方にも責任があります。</p><p>受け入れ基準に「3件以上リンクし、すべて200」と書きましたが、</p><p><strong>「<code>&lt;a href&gt;</code> として」を明記していませんでした。</strong>次から書きます。</p>
+</div></body></html>

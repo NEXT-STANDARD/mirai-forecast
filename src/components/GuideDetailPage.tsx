@@ -49,13 +49,17 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
     <div className="container main-content py-6 max-w-4xl mx-auto">
       {/* ナビゲーションバー */}
       <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-cyan-900/40">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3 py-2 rounded-lg border border-cyan-800/50 transition"
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3 py-2 rounded-lg border border-cyan-800/50 transition no-underline"
         >
           <ArrowLeft size={14} />
           <span>トップ・マーケット一覧へ戻る</span>
-        </button>
+        </a>
 
         <button
           onClick={handleTwitterShare}
@@ -158,10 +162,14 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {relatedMarkets.map((market) => (
-                <button
+                <a
                   key={market.id}
-                  onClick={() => onSelectEvent(market)}
-                  className="text-left bg-[#0f172a] hover:bg-cyan-950/60 border border-cyan-900/60 hover:border-cyan-500/80 p-3.5 rounded-xl transition duration-150 flex flex-col justify-between group shadow-sm hover:shadow-cyan-900/20"
+                  href={`/market/${encodeURIComponent(market.slug || market.id)}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSelectEvent(market);
+                  }}
+                  className="text-left bg-[#0f172a] hover:bg-cyan-950/60 border border-cyan-900/60 hover:border-cyan-500/80 p-3.5 rounded-xl transition duration-150 flex flex-col justify-between group shadow-sm hover:shadow-cyan-900/20 no-underline cursor-pointer block"
                 >
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[11px] text-cyan-400 font-mono">
@@ -176,7 +184,7 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
                     <span>データを見る</span>
                     <ArrowRight size={11} />
                   </div>
-                </button>
+                </a>
               ))}
             </div>
           </section>
@@ -187,13 +195,17 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
           <div className="text-xs text-slate-400">
             © 2026 未来レーダー ｜ 世界の集合知 × 日本の世論インテリジェンス
           </div>
-          <button
-            onClick={onBack}
-            className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-300 hover:text-white bg-cyan-900/50 hover:bg-cyan-800 px-4 py-2 rounded-lg transition border border-cyan-700/60"
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              onBack();
+            }}
+            className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-300 hover:text-white bg-cyan-900/50 hover:bg-cyan-800 px-4 py-2 rounded-lg transition border border-cyan-700/60 no-underline"
           >
             <span>未来レーダー トップへ戻る</span>
             <ArrowRight size={13} />
-          </button>
+          </a>
         </footer>
       </article>
     </div>

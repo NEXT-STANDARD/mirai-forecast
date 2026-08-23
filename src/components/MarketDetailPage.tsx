@@ -136,10 +136,17 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
     <div className="market-detail-container animate-fade-in">
       {/* パンくず ＆ 戻るバー */}
       <div className="market-detail-nav">
-        <button onClick={onBack} className="btn-back-link">
+        <a 
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="btn-back-link no-underline cursor-pointer"
+        >
           <ArrowLeft size={15} />
           <span>マーケット一覧へ戻る</span>
-        </button>
+        </a>
 
         <div className="market-detail-nav-right">
           <div className="detail-meta-tags">
@@ -244,13 +251,17 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               <span className="text-sm">📖</span>
               <span>Polymarketは日本から使える？法規制と日本語での見方を解説</span>
             </div>
-            <button
-              onClick={() => onOpenGuide('polymarket-japan')}
-              className="text-cyan-400 hover:text-cyan-200 font-mono font-bold flex items-center gap-1 hover:underline text-[11px]"
+            <a
+              href="/guide/polymarket-japan"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenGuide('polymarket-japan');
+              }}
+              className="text-cyan-400 hover:text-cyan-200 font-mono font-bold flex items-center gap-1 hover:underline text-[11px] no-underline cursor-pointer"
             >
               <span>解説記事を読む</span>
               <ChevronRight size={12} />
-            </button>
+            </a>
           </div>
         )}
       </div>

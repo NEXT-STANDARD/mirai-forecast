@@ -79,25 +79,33 @@ export const Header: React.FC<HeaderProps> = ({
         {/* 右側: アクション＆コントロール */}
         <div className="header-right-slim">
           {onOpenGuide && (
-            <button
-              onClick={() => onOpenGuide('polymarket-japan')}
-              className="btn-header-subtle hide-on-mobile"
+            <a
+              href="/guide/polymarket-japan"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenGuide('polymarket-japan');
+              }}
+              className="btn-header-subtle hide-on-mobile no-underline cursor-pointer"
               title="Polymarketは日本から使えるのか？法規制と日本語での活用ガイド"
             >
               <span className="text-cyan-400 font-mono text-[10px]">📖</span>
               <span>Polymarket解説</span>
-            </button>
+            </a>
           )}
 
           {onOpenAiConnector && (
-            <button
-              onClick={onOpenAiConnector}
-              className="btn-header-subtle hide-on-mobile"
+            <a
+              href="/ai-connector"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenAiConnector();
+              }}
+              className="btn-header-subtle hide-on-mobile no-underline cursor-pointer"
               title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
             >
               <span className="text-emerald-400 font-mono text-[10px]">🤖</span>
               <span>AI連携</span>
-            </button>
+            </a>
           )}
 
           {/* 🔊 サイバーUIサウンド切替 */}
@@ -115,25 +123,18 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {onOpenLetter && (
-            <button
-              onClick={onOpenLetter}
-              className="btn-header-subtle hide-on-xs"
+            <a
+              href="/letter-to-mike"
+              onClick={(e) => {
+                e.preventDefault();
+                onOpenLetter();
+              }}
+              className="btn-header-subtle hide-on-xs no-underline cursor-pointer"
               title="Polymarket Mike氏への公開書簡"
             >
               <span className="dot-gold-mini"></span>
               <span>📨 to Mike</span>
-            </button>
-          )}
-
-          {onOpenAiConnector && (
-            <button
-              onClick={onOpenAiConnector}
-              className="btn-header-subtle hide-on-mobile"
-              title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
-            >
-              <span className="text-emerald-400 font-mono text-[10px]">🤖</span>
-              <span>AI連携</span>
-            </button>
+            </a>
           )}
 
           {onOpenOnboarding && (

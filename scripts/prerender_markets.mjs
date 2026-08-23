@@ -309,6 +309,23 @@ async function prerenderAll() {
     const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(articleJsonLd, null, 2)}\n    </script>`;
     html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
 
+    const relatedSlugs = guide.relatedSlugs || ['fed-decision-in-september-762', 'boj-rate-hike-by-december-2026', 'openai-gpt-5-release-2026'];
+    const crawlableLinksHtml = `
+  <div id="root">
+    <main class="prerender-guide-shell" style="max-width:800px;margin:0 auto;padding:24px;font-family:sans-serif;">
+      <h1>${escapeHtml(guide.title)}</h1>
+      <p>${escapeHtml(guide.description)}</p>
+      <section style="margin-top:24px;">
+        <h2>注目のリアルタイム観測銘柄</h2>
+        <ul>
+          ${relatedSlugs.map(slug => `<li><a href="/market/${slug}">観測銘柄: ${slug}</a></li>`).join('\n          ')}
+        </ul>
+        <p><a href="/">未来レーダー トップへ戻る</a></p>
+      </section>
+    </main>
+  </div>`;
+    html = html.replace(/<div id="root"><\/div>/i, crawlableLinksHtml);
+
     // 旧ディレクトリ形式が存在していれば削除
     const oldGuideDir = path.join(guideBaseDir, guide.slug);
     if (fs.existsSync(oldGuideDir) && fs.lstatSync(oldGuideDir).isDirectory()) {

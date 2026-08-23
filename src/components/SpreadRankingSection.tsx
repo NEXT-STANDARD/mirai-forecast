@@ -103,10 +103,18 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
           const reasonText = event.aiInsight?.whyMovedJa || event.aiInsight?.summaryJa;
 
           return (
-            <div
+            <a
               key={event.id}
-              className={`spread-ranking-card ${rankNumber === 1 ? 'rank-first-card' : ''}`}
-              onClick={() => (onOpenDetail ? onOpenDetail(event) : onSelectEvent(event))}
+              href={`/market/${encodeURIComponent(event.slug || event.id)}`}
+              className={`spread-ranking-card ${rankNumber === 1 ? 'rank-first-card' : ''} no-underline cursor-pointer block`}
+              onClick={(e) => {
+                if ((e.target as HTMLElement).closest('button')) {
+                  return;
+                }
+                e.preventDefault();
+                if (onOpenDetail) onOpenDetail(event);
+                else onSelectEvent(event);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
@@ -115,7 +123,6 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 }
               }}
               tabIndex={0}
-              role="button"
               aria-label={`${rankNumber}位 ${event.titleJa}の詳細を見る`}
             >
               {/* カード上部：順位バッジ ＆ 乖離ギャップ値 */}
@@ -245,7 +252,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                   </button>
                 )}
               </div>
-            </div>
+            </a>
           );
         })}
       </div>

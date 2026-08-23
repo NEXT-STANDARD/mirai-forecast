@@ -173,10 +173,19 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
           const catalyst = event.aiInsight?.keyCatalysts?.[0];
 
           return (
-            <div 
+            <a 
               key={event.id}
-              className={`market-card-item ${hasVoted ? 'voted-card' : ''}`}
-              onClick={() => (onOpenDetail ? onOpenDetail(event) : onSelectEvent(event))}
+              href={`/market/${encodeURIComponent(event.slug || event.id)}`}
+              className={`market-card-item ${hasVoted ? 'voted-card' : ''} no-underline`}
+              onClick={(e) => {
+                // If user clicks on button inside or default link
+                if ((e.target as HTMLElement).closest('button')) {
+                  return;
+                }
+                e.preventDefault();
+                if (onOpenDetail) onOpenDetail(event);
+                else onSelectEvent(event);
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                   e.preventDefault();
@@ -185,7 +194,6 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                 }
               }}
               tabIndex={0}
-              role="button"
               aria-label={`${event.titleJa || event.title}の詳細を見る`}
             >
               {/* カードヘッダー：カテゴリ ＆ 変動率 */}
@@ -335,7 +343,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                   </button>
                 )}
               </div>
-            </div>
+            </a>
           );
         })}
       </div>

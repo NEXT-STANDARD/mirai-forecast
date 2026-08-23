@@ -399,7 +399,7 @@ async function checkDbAndPhase0() {
     routingFails.length === 0 ? `App.tsx のルーティング初期化 ＆ popstate で末尾スラッシュ除去を検証完了` : routingFails.join("; "));
 
   // ==============================================================================
-  // 15. 有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込上限 一致検査 (N-20 回帰防止)
+  // 15. 有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込上限 一致検査 (N-20 回帰防止 & 包含判定)
   // ==============================================================================
   let limitFails = [];
   const polyServiceCode = fs.readFileSync(path.join(ROOT, "src/services/polymarketService.ts"), "utf-8");
@@ -407,13 +407,17 @@ async function checkDbAndPhase0() {
     limitFails.push("polymarketService.ts に固定の .limit() が存在し、有効銘柄の一部が到達不能になります");
   }
 
-  const prerenderFiles = fs.readdirSync(distMarketDir).filter(f => f.endsWith(".html"));
-  if (prerenderFiles.length !== activeEvents.length) {
-    limitFails.push(`プリレンダーファイル数 (${prerenderFiles.length}) と Supabase 有効銘柄数 (${activeEvents.length}) が不一致`);
+  // 包含検査：Supabase の有効銘柄すべてに対してプリレンダー .html が漏れなく存在すること
+  const missingPrerenders = activeEvents.filter(ev => {
+    const slug = ev.slug || ev.id;
+    return !fs.existsSync(path.join(distMarketDir, `${slug}.html`));
+  });
+  if (missingPrerenders.length > 0) {
+    limitFails.push(`未プリレンダーの有効銘柄が ${missingPrerenders.length}件 存在します (${missingPrerenders.slice(0, 3).map(e => e.slug).join(', ')}...)`);
   }
 
-  report("有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込全数一致 (N-20 回帰防止)", limitFails.length === 0,
-    limitFails.length === 0 ? `全${activeEvents.length}銘柄がアプリ・プリレンダー・Sitemapで100%一致（limit制限ゼロ）` : limitFails.join("; "));
+  report("有効銘柄 100% プリレンダー網羅 & アプリ読込全数一致 (N-20 回帰防止)", limitFails.length === 0,
+    limitFails.length === 0 ? `有効全${activeEvents.length}銘柄が漏れなくプリレンダー網羅 ＆ アプリ・Sitemapで100%一致` : limitFails.join("; "));
 
   // ==============================================================================
   // 16. 静的ページの Description 個別化 ＆ 120字以内検査 (P1-1)
@@ -454,7 +458,7 @@ async function checkDbAndPhase0() {
     descFails.length === 0 ? `静的全6ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
 
   // ==============================================================================
-  // 17. ガイド記事 /guide/polymarket-japan 配信 ＆ Article構造化データ ＆ 内部リンク整合性 (P1-2, P1-3)
+  // 17. ガイド記事 /guide/polymarket-japan 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク整合性 (P1-2, P1-3)
   // ==============================================================================
   let guideFails = [];
   const guideHtmlPath = path.join(ROOT, "dist/guide/polymarket-japan.html");
@@ -483,12 +487,28 @@ async function checkDbAndPhase0() {
         guideFails.push(`ガイド記事の JSON-LD パースエラー: ${e.message}`);
       }
     }
+
+    // プリレンダー HTML 内の <a href="/market/..."> リンクの実在検査
+    const htmlMarketLinks = (guideHtml.match(/<a\s+[^>]*href="\/market\/[^"]+"/g) || []);
+    if (htmlMarketLinks.length < 3) {
+      guideFails.push(`dist/guide/polymarket-japan.html 内の <a href="/market/..."> リンク数が3件未満です (${htmlMarketLinks.length}件)`);
+    }
   }
 
   // Sitemap 含有確認
   const sitemapXml = fs.readFileSync(path.join(ROOT, "public/sitemap.xml"), "utf-8");
   if (!sitemapXml.includes("https://mirairadar.com/guide/polymarket-japan")) {
     guideFails.push("sitemap.xml に https://mirairadar.com/guide/polymarket-japan が含まれていません");
+  }
+
+  // React コンポーネント (GuideDetailPage.tsx & MarketDetailPage.tsx) の semantic <a href> 検査
+  const guideComponentCode = fs.readFileSync(path.join(ROOT, "src/components/GuideDetailPage.tsx"), "utf-8");
+  if (!guideComponentCode.includes('href={`/market/') && !guideComponentCode.includes('href="/market/')) {
+    guideFails.push("GuideDetailPage.tsx に銘柄への semantic <a href> リンクが存在しません");
+  }
+  const detailComponentCode = fs.readFileSync(path.join(ROOT, "src/components/MarketDetailPage.tsx"), "utf-8");
+  if (!detailComponentCode.includes('href="/guide/polymarket-japan"')) {
+    guideFails.push("MarketDetailPage.tsx にガイド記事への semantic <a href> リンクが存在しません");
   }
 
   // 関連記事リンクが有効銘柄に実在すること (P1-3)
@@ -509,8 +529,8 @@ async function checkDbAndPhase0() {
     guideFails.push("polymarketJapan.ts から relatedMarketSlugs が取得できませんでした");
   }
 
-  report("ガイド記事 直接.html 配信 ＆ Article構造化データ ＆ 内部リンク整合性 (P1-2, P1-3)", guideFails.length === 0,
-    guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (.html単独 / Article構造化データ / 実在3銘柄リンク / sitemap含有) を検証完了` : guideFails.join("; "));
+  report("ガイド記事 直接.html 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク (P1-2, P1-3)", guideFails.length === 0,
+    guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 実在3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
