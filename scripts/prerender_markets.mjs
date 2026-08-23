@@ -169,8 +169,16 @@ async function prerenderAll() {
     const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(jsonLd, null, 2)}\n    </script>`;
     html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
 
-    // 出力ディレクトリ作成 & 書き出し
-    const marketDir = path.join(DIST_DIR, 'market', slug);
+    // 出力ディレクトリ作成 & 書き出し（.html 形式 ＆ directory/index.html 形式の両方を配備）
+    const marketBaseDir = path.join(DIST_DIR, 'market');
+    if (!fs.existsSync(marketBaseDir)) {
+      fs.mkdirSync(marketBaseDir, { recursive: true });
+    }
+    // 1. Cloudflare Pages が 307 リダイレクトなしに HTTP 200 を返す直接 .html 形式
+    fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
+
+    // 2. 万一 /market/<slug>/ でアクセスされた場合のディレクトリ index.html 形式
+    const marketDir = path.join(marketBaseDir, slug);
     if (!fs.existsSync(marketDir)) {
       fs.mkdirSync(marketDir, { recursive: true });
     }
@@ -178,7 +186,7 @@ async function prerenderAll() {
     marketCount++;
   }
 
-  console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (${path.join(DIST_DIR, 'market')})！`);
+  console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html ＆ /index.html 形式両対応)！`);
 
   // ==============================================================================
   // B. 静的ページの自己参照 Canonical プリレンダー (P0-3)
@@ -199,6 +207,10 @@ async function prerenderAll() {
     html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${page.canonical}" />`);
     html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${page.canonical}" />`);
 
+    // 1. 直接 .html 形式
+    fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
+
+    // 2. ディレクトリ index.html 形式
     const pageDir = path.join(DIST_DIR, page.dir);
     if (!fs.existsSync(pageDir)) {
       fs.mkdirSync(pageDir, { recursive: true });

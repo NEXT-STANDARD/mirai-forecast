@@ -60,10 +60,11 @@ export function App() {
     }
   });
   
-  // 個別銘柄ページルーティング (/market/:slug or /market/:id)
+  // 個別銘柄ページルーティング (/market/:slug or /market/:id) - 末尾スラッシュ完全耐性
   const [detailMarketId, setDetailMarketId] = useState<string | null>(() => {
     if (typeof window === 'undefined') return null;
-    const match = window.location.pathname.match(/^\/market\/(.+)$/);
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    const match = cleanPath.match(/^\/market\/(.+)$/);
     return match ? decodeURIComponent(match[1]) : null;
   });
 
@@ -71,28 +72,34 @@ export function App() {
 
   // 🏆 予報士ハブ個別ページルーティング (/forecast, /profile, /rankings)
   const [isForecastHubOpen, setIsForecastHubOpen] = useState(() => {
-    return typeof window !== 'undefined' && (
-      window.location.pathname === '/forecast' ||
-      window.location.pathname === '/profile' ||
-      window.location.pathname === '/rankings'
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return (
+      cleanPath === '/forecast' ||
+      cleanPath === '/profile' ||
+      cleanPath === '/rankings'
     );
   });
 
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
-    if (!isLocalhost && typeof window !== 'undefined' && window.location.pathname === '/admin') {
+    if (!isLocalhost && typeof window !== 'undefined' && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin') {
       window.history.replaceState({}, '', '/');
     }
   }, [isLocalhost]);
 
   const [isLetterPageOpen, setIsLetterPageOpen] = useState(() => {
-    return typeof window !== 'undefined' && window.location.pathname === '/letter-to-mike';
+    if (typeof window === 'undefined') return false;
+    return (window.location.pathname.replace(/\/+$/, '') || '/') === '/letter-to-mike';
   });
   const [isAiConnectorOpen, setIsAiConnectorOpen] = useState(() => {
-    return typeof window !== 'undefined' && (window.location.pathname === '/ai-connector' || window.location.pathname === '/developers');
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/ai-connector' || cleanPath === '/developers';
   });
   const [isAdminOpen, setIsAdminOpen] = useState(() => {
-    return isLocalhost && typeof window !== 'undefined' && window.location.pathname === '/admin';
+    if (typeof window === 'undefined') return false;
+    return isLocalhost && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin';
   });
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
@@ -192,8 +199,15 @@ export function App() {
   // ブラウザの戻る・進む (popstate) の監視
   useEffect(() => {
     const handlePopState = () => {
-      const path = window.location.pathname;
-      if (path === '/admin') {
+      const rawPath = window.location.pathname;
+      const path = rawPath.replace(/\/+$/, '') || '/';
+      if (path === '/' || path === '') {
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+      } else if (path === '/admin') {
         if (isLocalhost) {
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
@@ -201,7 +215,6 @@ export function App() {
           setIsForecastHubOpen(false);
           setDetailMarketId(null);
         } else {
-          // 本番環境では /admin は存在しないものとしてトップへ強制リダイレクト
           window.history.replaceState({}, '', '/');
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);

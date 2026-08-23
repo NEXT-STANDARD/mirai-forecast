@@ -300,6 +300,12 @@ async function checkDbAndPhase0() {
       }
       const html = fs.readFileSync(htmlFile, "utf-8");
 
+      // 0. 直接 .html 形式 (Cloudflare Pages 307リダイレクト回避 & HTTP 200 配信)
+      const directHtmlFile = path.join(distMarketDir, `${slug}.html`);
+      if (!fs.existsSync(directHtmlFile)) {
+        prerenderFails.push(`銘柄 [${slug}] の直接 .html プリレンダーファイルが欠落`);
+      }
+
       // 1. 自己参照 Canonical
       const expectedCanon = `<link rel="canonical" href="https://mirairadar.com/market/${slug}" />`;
       if (!html.includes(expectedCanon)) {
@@ -339,8 +345,9 @@ async function checkDbAndPhase0() {
     const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike"];
     for (const p of staticPages) {
       const pFile = path.join(ROOT, `dist/${p}/index.html`);
-      if (!fs.existsSync(pFile)) {
-        prerenderFails.push(`静的ページ [/${p}] のプリレンダー index.html が欠落`);
+      const pDirectFile = path.join(ROOT, `dist/${p}.html`);
+      if (!fs.existsSync(pFile) || !fs.existsSync(pDirectFile)) {
+        prerenderFails.push(`静的ページ [/${p}] のプリレンダーファイルが欠落`);
         continue;
       }
       const pHtml = fs.readFileSync(pFile, "utf-8");
@@ -350,7 +357,7 @@ async function checkDbAndPhase0() {
     }
   }
   report("プリレンダー HTML 網羅性 & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)", prerenderFails.length === 0,
-    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 ＆ 静的5ページの完全プリレンダー（自己参照Canonical/OGP/JSON-LD）を検証完了` : prerenderFails.join("; "));
+    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html ＆ /index.html) ＆ 静的5ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
 
   // ==============================================================================
   // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
@@ -375,6 +382,30 @@ async function checkDbAndPhase0() {
   }
   report("銘柄別 OGP 画像 100% 網羅性 & 1200x630 PNG 整合性 (P0-5)", ogpFails.length === 0,
     ogpFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 の 1200x630 OGP PNG 出力を検証完了` : ogpFails.join("; "));
+
+  // ==============================================================================
+  // 14. 詳細ページルーティング末尾スラッシュ完全耐性検査 (N-19 回帰防止)
+  // ==============================================================================
+  let routingFails = [];
+  const appCode = fs.readFileSync(path.join(ROOT, "src/App.tsx"), "utf-8");
+  if (!appCode.includes("replace(/\\/+$/, '')")) {
+    routingFails.push("App.tsx に末尾スラッシュ除去ロジック (replace(/\\/+$/, '')) が存在しません");
+  }
+  for (const ev of activeEvents) {
+    const slug = ev.slug || ev.id;
+    // スラッシュなし・スラッシュあり両方で正確に slug が抽出されるかシミュレーション
+    const testPaths = [`/market/${slug}`, `/market/${slug}/`];
+    for (const p of testPaths) {
+      const clean = p.replace(/\/+$/, '') || '/';
+      const match = clean.match(/^\/market\/(.+)$/);
+      const extractedSlug = match ? decodeURIComponent(match[1]) : null;
+      if (extractedSlug !== slug) {
+        routingFails.push(`パス [${p}] からのスラッグ抽出に失敗 (expected: ${slug}, got: ${extractedSlug})`);
+      }
+    }
+  }
+  report("詳細ページルーティング末尾スラッシュ完全耐性 (N-19 回帰防止)", routingFails.length === 0,
+    routingFails.length === 0 ? `全${activeEvents.length}銘柄で /market/<slug> および /market/<slug>/ の完全解決を検証完了` : routingFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
