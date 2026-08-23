@@ -33,7 +33,10 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   if (!item) return null;
 
   const worldYes = item.worldProbYes;
-  const worldNo = item.worldProbNo;
+  // 多肢イベントでは probYes は「本命候補の確率」なので 100-probYes は「NO」ではない。
+  // 誤解を招く値を配るより、種別と本命名を明示して NO は空にする。
+  const isMulti = Boolean(item.isMultiChoice && item.leaderName);
+  const worldNo = isMulti ? null : item.worldProbNo;
   const japanYes = item.japanVotes.percentYes;
   const japanNo = 100 - japanYes;
   const gap = Math.abs(worldYes - japanYes);
@@ -48,6 +51,8 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
       'Category',
       'World_Prob_YES(%)',
       'World_Prob_NO(%)',
+      'Market_Type',
+      'Leader_Name',
       'Japan_Consensus_YES(%)',
       'Japan_Consensus_NO(%)',
       'Spread_Gap(%)',
@@ -63,7 +68,9 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
       `"${(item.titleJa || item.title).replace(/"/g, '""')}"`,
       `"${item.category}"`,
       worldYes,
-      worldNo,
+      worldNo ?? '',
+      `"${isMulti ? 'multi_choice' : 'binary'}"`,
+      `"${isMulti ? String(item.leaderName).replace(/"/g, '""') : ''}"`,
       japanYes,
       japanNo,
       gap,
@@ -101,6 +108,11 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
         source: "Polymarket",
         probYes: worldYes,
         probNo: worldNo,
+        marketType: isMulti ? "multi_choice" : "binary",
+        leaderName: isMulti ? item.leaderName : null,
+        probYesMeaning: isMulti
+          ? "本命候補の勝率（この市場は多肢選択のため YES/NO の二値ではない）"
+          : "YES の確率",
         volume24hUsd: item.volume24hUsd || 0,
         totalVolumeUsd: item.totalVolumeUsd || 0,
       },

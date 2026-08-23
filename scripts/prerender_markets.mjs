@@ -15,7 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
-import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
+import { resolvePolymarketOdds, truncateLeader } from './resolvePolymarketOdds.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -159,7 +159,7 @@ async function prerenderAll() {
     const isPolymarketObserved = !isDomestic && oddsEntry && typeof oddsEntry.probYes === 'number';
     const worldProb = isPolymarketObserved ? oddsEntry.probYes : null;
     const isMultiChoice = oddsEntry?.isMultiChoice;
-    const leaderName = oddsEntry?.leaderName;
+    const leaderName = truncateLeader(oddsEntry?.leaderName);  // 辞書由来の長い名前も必ず切り詰める
 
     const stat = voteStats.get(String(event.id)) || { yes: 0, no: 0, total: 0 };
     const n = stat.total;

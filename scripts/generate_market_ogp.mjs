@@ -13,7 +13,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import sharp from 'sharp';
 import { createClient } from '@supabase/supabase-js';
-import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
+import { resolvePolymarketOdds, truncateLeader } from './resolvePolymarketOdds.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -176,7 +176,7 @@ async function generateAllMarketOgps() {
          <text x="80" y="240" fill="#ffffff" font-family="'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif" font-size="36" font-weight="900" letter-spacing="-0.5">${escapeXml(lines[1])}</text>`;
 
     // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
-    const leaderName = isPolymarketObserved && oddsEntry.isMultiChoice ? (oddsEntry.leaderName || null) : null;
+    const leaderName = isPolymarketObserved && oddsEntry.isMultiChoice ? truncateLeader(oddsEntry.leaderName) : null;
     let worldValueText = '';
     if (isPolymarketObserved) {
       const subLine = leaderName

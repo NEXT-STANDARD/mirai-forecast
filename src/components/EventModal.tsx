@@ -89,7 +89,7 @@ export const EventModal: React.FC<EventModalProps> = ({
                 {item.worldProbYes}% <span>YES</span>
               </div>
               <div className="sub-stat">
-                NO: {item.worldProbNo}% | 24h: {item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}
+                {item.isMultiChoice && item.leaderName ? '本命以外' : 'NO'}: {item.worldProbNo}% | 24h: {item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}
               </div>
             </div>
 

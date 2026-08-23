@@ -21,6 +21,16 @@ export const isDummyCandidate = (label) => {
   return false;
 };
 
+// 表示用に本命名を整える：前後の空白を落とし、長すぎるものは省略する
+// （og:title は実務上の長さ上限があり、43文字の候補名が実在する）
+export const LEADER_NAME_MAX = 20;
+export const truncateLeader = (name) => {
+  if (!name) return null;
+  const t = String(name).trim();
+  if (!t) return null;
+  return t.length > LEADER_NAME_MAX ? t.slice(0, LEADER_NAME_MAX - 1) + "…" : t;
+};
+
 export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
   if (!ev || !ev.markets || ev.markets.length === 0) return null;
 
@@ -218,7 +228,7 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
 
     if (topM && maxProb > 0) {
       const probYes = Math.min(100, Math.max(0, Math.round(maxProb * 100)));
-      const leaderName = topM.groupItemTitle || topM.question?.replace(/^Will\s+/i, '').replace(/\s+win.*$/i, '').trim() || null;
+      const leaderName = truncateLeader(topM.groupItemTitle || topM.question?.replace(/^Will\s+/i, '').replace(/\s+win.*$/i, '').trim());
       const volume24h = ev.volume24hr || (topM.volume24hr ? parseFloat(topM.volume24hr) : 0);
       const totalVolume = ev.volume || (topM.volume ? parseFloat(topM.volume) : volume24h * 3.5);
       const probChange24h = topM.oneDayPriceChange ? Math.round(parseFloat(topM.oneDayPriceChange) * 100) : 0;

@@ -100,7 +100,10 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
           <div className="depth-sub">
             {event.hasWorldOdds ? (
               <>
-                <span>NO: {isLocked ? '?? %' : `${event.worldProbNo}%`}</span>
+                <span>
+                  {event.isMultiChoice && event.leaderName ? '本命以外: ' : 'NO: '}
+                  {isLocked ? '?? %' : `${event.worldProbNo}%`}
+                </span>
                 <span>24h取引高: ${Math.round(event.volume24hUsd / 1000).toLocaleString()}k</span>
               </>
             ) : (

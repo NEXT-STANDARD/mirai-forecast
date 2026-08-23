@@ -356,7 +356,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                   <div className="debate-card bear-card">
                     <div className="debate-card-header">
                       <span className="debate-tag-bear">🔴 NO支持の主要論拠（慎重派）</span>
-                      <span className="debate-prob font-mono text-rose-400">世界 NO {100 - item.worldProbYes}%</span>
+                      <span className="debate-prob font-mono text-rose-400">
+                        {item.isMultiChoice && item.leaderName ? `本命以外 ${100 - item.worldProbYes}%` : `世界 NO ${100 - item.worldProbYes}%`}
+                      </span>
                     </div>
                     <p className="debate-card-text">
                       {item.aiInsight?.bearCaseJa || `締切日までの時間的猶予、法規制や地政学リスク、および突発的なサプライズ懸念により、一定数のクォンツ勢が下振れリスクを警戒しています。`}

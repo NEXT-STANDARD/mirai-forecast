@@ -325,7 +325,8 @@ async function checkDbAndPhase0() {
       if (!ogTitleMatch || ogTitleMatch[2].trim().length === 0) {
         prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません (got: ${html.match(/<meta property="og:title" content="(.*?)"/)?.[1]})`);
       } else {
-        const probMatch = ogTitleMatch[1].match(/(?:世界の確率|世界本命) (\d+)%/);
+        // 【世界本命 <本命名> N%】でも確率を拾えるようにする（本命銘柄が observedProbs から落ちていた）
+        const probMatch = ogTitleMatch[1].match(/(?:世界の確率|世界本命)(?:\s+.+?)?\s+(\d+)%/);
         if (probMatch) {
           observedProbs.push(Number(probMatch[1]));
         }

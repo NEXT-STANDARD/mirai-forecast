@@ -99,7 +99,7 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
   };
 }
 
-import { resolvePolymarketOdds } from '../utils/polymarketOddsResolver';
+import { resolvePolymarketOdds, truncateLeader } from '../utils/polymarketOddsResolver';
 
 /**
  * Supabaseから「Gemini 3.7 Flash 日本語化済み銘柄」を優先取得し、
@@ -158,7 +158,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         const totalVolume = hasWorldOdds ? (live.totalVolume || 0) : 0;
         const probChange24h = hasWorldOdds ? (live.probChange24h || 0) : 0;
         const clobTokenId = live ? live.clobTokenId : undefined;
-        const leaderName = live?.leaderName || undefined;
+        const leaderName = truncateLeader(live?.leaderName) || undefined;
         const isMultiChoice = live?.isMultiChoice || false;
 
         const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
