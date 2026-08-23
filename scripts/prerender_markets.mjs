@@ -90,6 +90,46 @@ async function prerenderAll() {
     voteStats.set(v.event_id, stat);
   });
 
+  // 3. Polymarket リアルタイム市場オッズの読み込み＆多段取得 (N-30: 50% 無言フォールバック完全撤廃)
+  let marketOdds = {};
+  const oddsJsonPath = path.resolve(ROOT, 'public', 'data', 'market_odds.json');
+  if (fs.existsSync(oddsJsonPath)) {
+    try {
+      marketOdds = JSON.parse(fs.readFileSync(oddsJsonPath, 'utf-8'));
+    } catch {}
+  }
+
+  const oddsMap = new Map(Object.entries(marketOdds));
+  try {
+    for (const offset of [0, 100, 200, 300]) {
+      const pageUrl = `https://gamma-api.polymarket.com/events?limit=100&offset=${offset}&active=true&closed=false&order=volume24hr&ascending=false`;
+      const res = await fetch(pageUrl);
+      if (res.ok) {
+        const list = await res.json();
+        if (Array.isArray(list)) {
+          list.forEach(ev => {
+            if (ev.markets && ev.markets[0]) {
+              const m = ev.markets[0];
+              if (m.outcomePrices) {
+                try {
+                  const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+                  if (Array.isArray(parsed) && parsed[0]) {
+                    const prob = Math.round(parseFloat(parsed[0]) * 100);
+                    const oddsObj = { probYes: Math.min(99, Math.max(1, prob)) };
+                    oddsMap.set(String(ev.id), oddsObj);
+                    if (ev.slug) oddsMap.set(ev.slug, oddsObj);
+                  }
+                } catch {}
+              }
+            }
+          });
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Live odds fetch warning in prerender:', err.message);
+  }
+
   // ==============================================================================
   // A. 全有効銘柄ページのプリレンダー (P0-2, P0-4)
   // ==============================================================================
@@ -99,27 +139,43 @@ async function prerenderAll() {
   for (const event of events) {
     const slug = event.slug || event.id;
     const titleJa = event.title_ja || event.title_en || '未来予測銘柄';
-    const worldProb = event.world_prob_yes !== undefined && event.world_prob_yes !== null ? Number(event.world_prob_yes) : 50;
+
+    // 実オッズの厳密解決 (N-30: 50% 無言フォールバックの完全撤廃)
+    const oddsEntry = oddsMap.get(String(event.id)) || oddsMap.get(slug);
+    const isPolymarketObserved = oddsEntry && typeof oddsEntry.probYes === 'number';
+    const worldProb = isPolymarketObserved ? oddsEntry.probYes : null;
 
     const stat = voteStats.get(String(event.id)) || { yes: 0, no: 0, total: 0 };
     const n = stat.total;
     const japanProb = n > 0 ? Math.round((stat.yes / n) * 100) : 50;
     const hasConsensus = n >= 3;
-    const gap = Math.abs(worldProb - japanProb);
+    const gap = isPolymarketObserved ? Math.abs(worldProb - japanProb) : null;
 
-    // description の出し分け (n>=3 ガード準拠)
-    const description = hasConsensus
-      ? `世界のリアルマネーはYES ${worldProb}%、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
-      : `世界のリアルマネーはYES ${worldProb}%。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
+    // description の出し分け (n>=3 ガード & 世界オッズ実測値準拠)
+    let description = '';
+    let ogTitle = '';
 
-    const ogTitle = `【世界の確率 ${worldProb}%】${titleJa}`;
+    if (isPolymarketObserved) {
+      ogTitle = `【世界の確率 ${worldProb}%】${titleJa}`;
+      description = hasConsensus
+        ? `世界のリアルマネーはYES ${worldProb}%、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
+        : `世界のリアルマネーはYES ${worldProb}%。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
+    } else {
+      // 日本国内独自調査銘柄 (council / official / proposal 等)
+      ogTitle = `【日本世論調査】${titleJa}`;
+      description = hasConsensus
+        ? `日本の世論はYES ${japanProb}%（n=${n}）。未来レーダーで世論比較。`
+        : `日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
+    }
+
     const canonicalUrl = `${SITE_URL}/market/${slug}`;
     const ogImageUrl = `${SITE_URL}/ogp/market/${slug}.png`;
 
-    // JSON-LD 構造化データ (P0-4: n<3 のときは日本世論を含めない統計的一貫性ガード)
-    const variableMeasured = [
-      { "@type": "PropertyValue", "name": "世界オッズ(YES)", "value": worldProb }
-    ];
+    // JSON-LD 構造化データ (P0-4: 統計的一貫性ガード & 実オッズ反映)
+    const variableMeasured = [];
+    if (isPolymarketObserved) {
+      variableMeasured.push({ "@type": "PropertyValue", "name": "世界オッズ(YES)", "value": worldProb });
+    }
     if (hasConsensus) {
       variableMeasured.push(
         { "@type": "PropertyValue", "name": "日本世論(YES)", "value": japanProb },
@@ -131,7 +187,7 @@ async function prerenderAll() {
       "@context": "https://schema.org",
       "@type": "Dataset",
       "name": titleJa,
-      "description": "Polymarketのリアルマネー確率と日本の無料世論投票の比較データ",
+      "description": isPolymarketObserved ? "Polymarketのリアルマネー確率と日本の無料世論投票の比較データ" : "日本の世論投票データ",
       "url": canonicalUrl,
       "dateModified": event.updated_at || new Date().toISOString(),
       "creator": { "@type": "Organization", "name": "未来レーダー" },

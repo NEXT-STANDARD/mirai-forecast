@@ -286,6 +286,7 @@ async function checkDbAndPhase0() {
   // 12. プリレンダー HTML 網羅性 & 直接 .html 配信 (307根絶) & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)
   // ==============================================================================
   let prerenderFails = [];
+  const observedProbs = [];
   const distMarketDir = path.join(ROOT, "dist/market");
   if (!fs.existsSync(distMarketDir)) {
     prerenderFails.push("dist/market ディレクトリが存在しません");
@@ -313,10 +314,15 @@ async function checkDbAndPhase0() {
         prerenderFails.push(`銘柄 [${slug}] の canonical が自己参照になっていません`);
       }
 
-      // 2. og:title に銘柄名が含まれるか
-      const ogTitleMatch = html.match(/<meta property="og:title" content="【世界の確率 \d+%】(.*?)"/);
-      if (!ogTitleMatch || ogTitleMatch[1].trim().length === 0) {
-        prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません`);
+      // 2. og:title に銘柄名および妥当なプレフィックス（【世界の確率 X%】または【日本世論調査】）が含まれるか
+      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|日本世論調査)】(.*?)"/);
+      if (!ogTitleMatch || ogTitleMatch[2].trim().length === 0) {
+        prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません (got: ${html.match(/<meta property="og:title" content="(.*?)"/)?.[1]})`);
+      } else {
+        const probMatch = ogTitleMatch[1].match(/世界の確率 (\d+)%/);
+        if (probMatch) {
+          observedProbs.push(Number(probMatch[1]));
+        }
       }
 
       // 3. og:image が銘柄別PNGを指しているか
@@ -340,6 +346,12 @@ async function checkDbAndPhase0() {
         }
       }
       checkedCount++;
+    }
+
+    // N-30 構造的検査: 全銘柄が50%固定になっていないこと（確率の多様性・実測値反映を検証）
+    const distinctProbs = new Set(observedProbs);
+    if (observedProbs.length >= 20 && distinctProbs.size <= 1) {
+      prerenderFails.push(`[N-30 CRITICAL] 全ての観測銘柄 (${observedProbs.length}件) の世界確率が ${[...distinctProbs][0]}% に固定されています。実オッズが正しく反映されていません。`);
     }
 
     // 静的ページの自己参照 Canonical 検査 (P0-3)

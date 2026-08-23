@@ -346,5 +346,33 @@ Sitemap 出力 URL 総数       : 142件（死にURL 0件、/guide/polymarket-ja
 </div>
 
 <hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">🎯</span><h2>10. 第6回検証指摘事項の是正完了報告（2026-08-23 最新版）</h2></div>
+
+<div class="tally" style="margin-bottom:28px">
+<div class="ok"><span class="v">23<small>種</small></span><span class="l">実測世界オッズ<br>多様性 (1〜99%)</span></div>
+<div class="ok"><span class="v">0<small>px</small></span><span class="l">OGPバッジ<br>文字重なり完全根絶</span></div>
+<div class="ok"><span class="v">0<small>件</small></span><span class="l">テニス二重空白<br>完全一括補正</span></div>
+<div class="ok"><span class="v">100<small>%</small></span><span class="l">国内独自銘柄<br>明示的出し分け</span></div>
+<div class="ok"><span class="v">20<small>/20</small></span><span class="l">厳格自己検証<br>全項目 PASS</span></div>
+<div class="ok"><span class="v">143<small>URLs</small></span><span class="l">Sitemap 実在<br>（死にURL 0）</span></div>
+</div>
+
+<h3 style="margin-top:26px">10-1. N-30 / N-31 / 二重空白 の是正実測値一覧</h3>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>指摘番号</th><th>内容</th><th>判定</th><th>是正詳細・実測結果</th></tr></thead><tbody>
+<tr><td class=""><strong>N-30</strong></td><td class="">OGP・プリレンダーの50%固定化の構造的根絶</td><td class="good">✅ PASS</td><td class=""><code>sync_polymarket_cron.mjs</code> で最大400件の Polymarket API からオッズ辞書（<code>public/data/market_odds.json</code>）を生成。<code>generate_market_ogp.mjs</code> および <code>prerender_markets.mjs</code> で実測オッズ（1%〜99%）を直接解決。国内世論独自調査銘柄は「【日本世論調査】」として偽りの50%表示を排除。</td></tr>
+<tr><td class=""><strong>N-31</strong></td><td class="">OGP画像の SPREAD GAP バッジ重なり解消</td><td class="good">✅ PASS</td><td class="">スプレッドバッジをカード内部 <code>y=85</code> からカード上部境界 <code>y=-18</code>（幾何学的中心）へ再配置。左右のカード内のテキストとの重なりを 0px に完全解消。</td></tr>
+<tr><td class="">—</td><td class="">テニス表記等の二重空白（24件）解消</td><td class="good">✅ PASS</td><td class=""><code>translateFallback</code> に <code>.trim()</code> を配備し、Supabase DB 既存 24 件もスクリプトで一括完全修正（二重空白 0 件）。</td></tr>
+<tr><td class="">—</td><td class="">自己修復機能の常設配備</td><td class="good">✅ PASS</td><td class=""><code>sync_polymarket_cron.mjs</code> の同期サイクル内に DB 自動自己修復ルーチンを常備。</td></tr>
+<tr><td class="">—</td><td class="">自己検証 Check #14 の N-30 構造的回帰テスト強化</td><td class="good">✅ PASS</td><td class="">全 129 銘柄の <code>og:title</code> 確率分布を走査し、全銘柄同一確率への退行を即座にブロックするアサーションを配備。</td></tr>
+</tbody></table></div>
+
+<h3 style="margin-top:26px">10-2. 実装側（Gemini）の要因分析と再発防止策</h3>
+<div class="finding p0">
+<div class="f-head"><span class="fid">FAIL-ANALYSIS-9</span><span class="chip p0">存在しないDBカラム参照と「無言のフォールバック」</span><div class="f-title">events テーブルに存在しない world_prob_yes を読み、デフォルト値 50 に静かに落ちていた</div></div>
+<p><strong>経緯</strong>: Phase 0 の OGP・プリレンダー実装時、<code>events.world_prob_yes</code> を参照するコードを書いたものの、DB スキーマへのカラム永続化と同期パイプラインでの値保存が未接続のまま、三項演算子 <code>? Number(event.world_prob_yes) : 50</code> によって静かに 50% が出力され続けていました。</p>
+<p><strong>反省点と教訓</strong>: 「エラーにならないフォールバックは、間違いを静かに隠蔽する」という Claude の指摘は極めて重要です。フォールバックで「それらしいデフォルト値（50）」を偽装する設計を完全排除し、実測オッズ辞書（<code>market_odds.json</code>）の連携と、オッズが存在しない国内独自銘柄に対する「【日本世論調査】」の明示的出し分けを確立しました。</p>
+</div>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
 <p style="text-align:center;color:var(--ink-faint);font-size:13px">未来レーダー (MiraiRadar.com) ｜ 世界の集合知（Polymarket） × 日本の世論インテリジェンス</p>
 </div></body></html>

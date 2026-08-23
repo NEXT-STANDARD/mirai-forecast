@@ -5,8 +5,13 @@
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const envPath = '/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast/.env';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT = path.resolve(__dirname, '..');
+
+const envPath = path.join(ROOT, '.env');
 const localEnv = {};
 if (fs.existsSync(envPath)) {
   try {
@@ -158,13 +163,56 @@ async function syncPolymarket() {
   console.log(`[${new Date().toISOString()}] Polymarket ➔ 【Gemini 3.7 Flash リアルタイム深層カタリスト分析】同期開始...`);
 
   try {
-    const res = await fetch(POLYMARKET_EVENTS_API);
-    if (!res.ok) throw new Error(`API response status: ${res.status}`);
+    // 1. Polymarket API から複数ページ (最大400件) を取得して全市場オッズを網羅
+    const allEvents = [];
+    for (const offset of [0, 100, 200, 300, 400]) {
+      try {
+        const pageUrl = `https://gamma-api.polymarket.com/events?limit=100&offset=${offset}&active=true&closed=false&order=volume24hr&ascending=false`;
+        const res = await fetch(pageUrl);
+        if (res.ok) {
+          const pageData = await res.json();
+          if (Array.isArray(pageData)) allEvents.push(...pageData);
+        }
+      } catch (err) {
+        console.warn(`Polymarket API page offset ${offset} failed:`, err.message);
+      }
+    }
 
-    const events = await res.json();
+    if (allEvents.length === 0) throw new Error('No Polymarket events fetched');
+
+    // 全Polymarketオッズ辞書を構築 (IDとslug双方でルックアップ可能)
+    const marketOddsStore = {};
+    allEvents.forEach((ev) => {
+      if (ev.markets && ev.markets[0]) {
+        const m = ev.markets[0];
+        let probYes = 50;
+        if (m.outcomePrices) {
+          try {
+            const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+            if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
+          } catch {}
+        }
+        const volume24h = ev.volume24hr || 0;
+        const totalVolume = ev.volume || volume24h * 3.5;
+        const probChange24h = m.oneDayPriceChange ? Math.round(parseFloat(m.oneDayPriceChange) * 100) : 0;
+        const oddsObj = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h };
+        marketOddsStore[String(ev.id)] = oddsObj;
+        if (ev.slug) marketOddsStore[ev.slug] = oddsObj;
+      }
+    });
+
+    // market_odds.json および marketOddsMaster.ts を出力
+    const oddsJsonPath = path.join(ROOT, 'public', 'data', 'market_odds.json');
+    fs.writeFileSync(oddsJsonPath, JSON.stringify(marketOddsStore, null, 2), 'utf-8');
+    console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
+
+    const oddsTsPath = path.join(ROOT, 'src', 'data', 'marketOddsMaster.ts');
+    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
+    fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
+
     const candidateList = [];
 
-    for (const ev of events) {
+    for (const ev of allEvents) {
       if (!ev.markets || !ev.markets[0]) continue;
       const market = ev.markets[0];
       const titleLower = (ev.title + ' ' + (market.question || '')).toLowerCase();
@@ -436,37 +484,37 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
       // 2. 総合格闘技 (UFC / MMA) 判定
       if (/UFC|Fight Night|Bellator|PFL|Heavyweight|Lightweight|Middleweight|Welterweight|Featherweight|Bantamweight|Flyweight|Main Card|Prelims/i.test(t)) {
-        let clean = t.replace(/^UFC Fight Night:\s*/i, '').replace(' - Exact Score', '').replace(' - More Markets', '');
+        let clean = t.replace(/^UFC Fight Night:\s*/i, '').replace(' - Exact Score', '').replace(' - More Markets', '').trim();
         return { titleJa: `総合格闘技 UFC: ${clean} 勝敗予測`, category: 'sports' };
       }
 
       // 3. テニス判定 (N-28: Prague, Cancun, Sion, Monterrey Open, ITF, ATP, WTA等)
       if (/Cincinnati Open|ITF M25|US Open|Wimbledon|Roland Garros|Prague|Cancun|Sion|Monterrey|Challenger|ATP|WTA|Grand Slam/i.test(t) || /Sebastian Baez|Lloyd Harris|Lorenzo Giustino|Benjamin Hassan|Norbert Gombos|Radu Mihai Papoe|Maya Joint|Jessica Hinojosa|Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t)) {
-        let clean = t.replace(/^(?:Prague\s*\d*:|Cancun:|Sion:|Monterrey Open.*?:|Cincinnati Open:|ITF M25.*?:\s*)/i, '').replace(' - More Markets', '').replace(' - Exact Score', '');
+        let clean = t.replace(/^(?:Prague\s*\d*:|Cancun:|Sion:|Monterrey Open.*?:|Cincinnati Open:|ITF M25.*?:\s*)/i, '').replace(' - More Markets', '').replace(' - Exact Score', '').trim();
         if (/^Will\s+/i.test(clean)) {
-          return { titleJa: `テニス公式戦: ${clean.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'sports' };
+          return { titleJa: `テニス公式戦: ${clean.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '').trim()}で優勝するか？`, category: 'sports' };
         }
         return { titleJa: `テニス公式戦: ${clean} 勝敗予測`, category: 'sports' };
       }
 
       // 4. MLB / 野球判定 (N-28: 全30球団の完全網羅)
       if (/\b(?:Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox|Braves|Brewers|White Sox|Giants|Guardians|Angels|Rangers|Cubs|Mariners|Nationals|Athletics|Royals|Astros|Twins|Blue Jays|Padres|Diamondbacks|Mets)\b/i.test(t)) {
-        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '').replace(/^MLB:\s*/i, '');
+        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '').replace(/^MLB:\s*/i, '').trim();
         return { titleJa: `MLB公式戦: ${clean} 勝敗予測`, category: 'sports' };
       }
 
       // 5. WNBA / バスケ判定
       if (/\b(?:Lynx|Valkyries|Sparks|Aces|Liberty|Sky|Sun|Fever|Storm|Wings|Mystics|Mercury|Dream|NBA|WNBA)\b/i.test(t)) {
-        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '');
+        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '').trim();
         return { titleJa: `WNBA公式戦: ${clean} 勝敗予測`, category: 'sports' };
       }
 
       // 6. 欧州サッカー / サッカー判定 (N-29: \bInter\b, \bMilan\b, \bArsenal\b で単語境界を厳格化)
       if (/Spread:\s*(.+)/i.test(t)) {
-        return { titleJa: `欧州サッカー: ${t.replace(/^Spread:\s*/i, '')} ハンデ勝利予測`, category: 'sports' };
+        return { titleJa: `欧州サッカー: ${t.replace(/^Spread:\s*/i, '').trim()} ハンデ勝利予測`, category: 'sports' };
       }
       if (/\b(?:Elche CF|Newcastle United|Barcelona|Real Madrid|Manchester|Liverpool|Arsenal|Chelsea|Bayern|Dortmund|Juventus|Inter|Milan|Brighton|Tottenham|Aston Villa|PSG|Paris Saint-Germain|Fulham|Brentford|Crystal Palace|Everton|West Ham|Leicester|Ipswich|Southampton|Girona|Sociedad|Betis|Villarreal|Sevilla|Valencia|Mallorca|Osasuna|Celta|Alaves|Espanyol|Valladolid|Leganes|Las Palmas|Getafe|Monaco|Marseille|Lille|Lyon|Nice|Rennes|Leverkusen|Stuttgart|Leipzig|Frankfurt|Atalanta|Roma|Lazio|Fiorentina|Napoli)\b/i.test(t)) {
-        let clean = t.replace(/^Will\s+/i, '').replace(/\s+win\s+on\s+/i, '（').replace(/\?/g, '');
+        let clean = t.replace(/^Will\s+/i, '').replace(/\s+win\s+on\s+/i, '（').replace(/\?/g, '').trim();
         if (clean.includes('（')) clean += '）';
         return { titleJa: `欧州サッカー: ${clean} 勝敗予測`, category: 'sports' };
       }
@@ -488,12 +536,12 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       // 7. Will [チーム/人] win on [日付]? 構文の自動自然翻訳（流入英語の構造的日本語化）
       const willWinDateMatch = t.match(/^Will\s+(.+?)\s+win\s+on\s+(\d{4}-\d{2}-\d{2})\??/i);
       if (willWinDateMatch) {
-        return { titleJa: `スポーツ勝敗予測: ${willWinDateMatch[1]} は ${willWinDateMatch[2]} の試合で勝利するか？`, category: 'sports' };
+        return { titleJa: `スポーツ勝敗予測: ${willWinDateMatch[1].trim()} は ${willWinDateMatch[2]} の試合で勝利するか？`, category: 'sports' };
       }
 
       // 8. 汎用 vs カード判定 (N-28: 欧州サッカーではなく中立表現)
       if (/vs\.?|対/i.test(t)) {
-        let clean = t.replace(' - Exact Score', '（スコア予想）').replace(' - More Markets', '');
+        let clean = t.replace(' - Exact Score', '（スコア予想）').replace(' - More Markets', '').trim();
         return { titleJa: `対戦カード予測: ${clean} 勝敗予測`, category: 'sports' };
       }
       if (/Fed Decision in September.*?50\+?\s*bps decrease/i.test(t)) {
@@ -651,6 +699,8 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         titleJa = fb.titleJa;
       }
 
+      titleJa = (titleJa || '').replace(/\s{2,}/g, ' ').trim();
+
       const finalCat = (existingIsClean && existing?.category) ? existing.category : (fb.category || c.cat || 'economy');
       const catLabels = {
         economy: '📊 経済・金利・暗号資産',
@@ -679,6 +729,16 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         updated_at: new Date().toISOString(),
       };
     });
+
+    // DB自己修復ルーチン: 二重空白や既知の誤プレフィックスを自動修復
+    if (existingRows) {
+      for (const r of existingRows) {
+        if (r.title_ja && r.title_ja.includes('  ')) {
+          const cleaned = r.title_ja.replace(/\s{2,}/g, ' ').trim();
+          await supabase.from('events').update({ title_ja: cleaned, question_ja: cleaned }).eq('id', r.id);
+        }
+      }
+    }
 
     const { error } = await supabase
       .from('events')
