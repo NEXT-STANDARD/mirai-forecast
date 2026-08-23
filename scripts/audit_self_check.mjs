@@ -246,7 +246,7 @@ async function checkDbAndPhase0() {
       if (k && !k.startsWith("#")) env[k.trim()] = v.join("=").trim();
     });
     supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
-    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, end_date, is_active, updated_at").eq("is_active", true);
+    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, title_en, end_date, is_active, updated_at").eq("is_active", true);
     if (!error && events) {
       activeEvents = events;
       const graceThreshold = new Date(Date.now() - 3600 * 1000); // 1時間の猶予ウィンドウ（30分同期間隔の一過性偽陽性を防止）
@@ -622,6 +622,7 @@ async function checkDbAndPhase0() {
   // 19. 独立オラクル ＆ dist実走査によるプレースホルダ候補排除 ＆ レンジ健全性検査 (N-34 完全封鎖)
   // ==============================================================================
   let placeholderFails = [];
+  const titleEnBySlug = new Map(activeEvents.map(e => [String(e.slug || e.id), e.title_en || ""]));
   const INDEPENDENT_DUMMY_REGEX = /^([A-Z]|Will\s+[A-Z]\s+win|Will\s+another\s+team|Will\s+\[.*\]\s+win|Other|Another|Placeholder|TBD)$/i;
 
   // 1. dist/market/*.html の実ビルド成果物を走査し、本命表記やタイトルにプレースホルダが含まれていないか検査
@@ -646,9 +647,14 @@ async function checkDbAndPhase0() {
       }
     }
 
-    // WTIなどの多肢レンジ全体予測銘柄で、偽の2値オッズ（【世界の確率 0%】等）が出ていないか
-    if (/到達水準予測|価格水準予測/.test(ogTitle) && ogTitle.includes("【世界の確率")) {
-      placeholderFails.push(`${file} は多肢レンジ全体銘柄ですが、偽の2値オッズ [${ogTitle}] が出力されています`);
+    // レンジ型で偽の2値オッズが出ていないか。
+    // 判定は日本語タイトルの言い回しではなく title_en を基準にする
+    // （訳が変われば黙って無効化される直書きを避ける／第11回）
+    const slugOfFile = file.replace(/\.html$/, "");
+    const teOfFile = titleEnBySlug.get(slugOfFile) || "";
+    const namesTarget = /\?:\s*\S/.test(teOfFile) || /[<>\u2264\u2265]\s*\d/.test(teOfFile);
+    if (!namesTarget && /到達水準予測|価格水準予測/.test(ogTitle) && ogTitle.includes("【世界の確率")) {
+      placeholderFails.push(`${file} は対象が名指しされていないレンジ銘柄ですが、2値オッズ [${ogTitle}] が出力されています`);
     }
   }
 
@@ -694,6 +700,29 @@ async function checkDbAndPhase0() {
 
   report("決着済み銘柄の確定アーカイブHTML ＆ 自己参照Canonical ＆ noindex (N-37 ソフト404完全根絶)", closedArchiveFails.length === 0,
     closedArchiveFails.length === 0 ? `決着済み全${closedEvents?.length || 0}銘柄の自己参照Canonical ＆ noindex ＆ 確定アーカイブHTML配信を検証完了 (ソフト404 0件)` : closedArchiveFails.join("; "));
+
+  // ==============================================================================
+  // 21. 解決できる閾値を取りこぼしていないか (N-38 / N-39 再発防止)
+  // ==============================================================================
+  // title_en が対象を名指ししている（コロン以降＝形式A／文中の閾値＝形式B）のに
+  // 【世界観測銘柄】として数字を伏せている銘柄は、答えを持っているのに出していない。
+  // 判定は「実ビルド成果物（dist）」で行う。中間生成物（market_odds.json）は同期が
+  // 走るまで更新されず、リゾルバの是正が反映されないため（第10回の教訓）。
+  let thresholdFails = [];
+  for (const ev of activeEvents) {
+    const te = ev.title_en || "";
+    const hasColonTarget  = /\?:\s*\S/.test(te);
+    const hasInlineTarget = /[<>\u2264\u2265]\s*\d/.test(te);
+    if (!hasColonTarget && !hasInlineTarget) continue;
+    const htmlPath = path.join(distMarketDir, `${ev.slug || ev.id}.html`);
+    if (!fs.existsSync(htmlPath)) continue;
+    const og = (fs.readFileSync(htmlPath, "utf-8").match(/<meta property="og:title" content="(.*?)"/) || [])[1] || "";
+    if (og.includes("【世界観測銘柄】")) {
+      thresholdFails.push(`銘柄 [${ev.slug}] は title_en が対象を名指ししている（${hasColonTarget ? "形式A" : "形式B"}）のに【世界観測銘柄】で数字を伏せています: ${te.slice(0, 56)}`);
+    }
+  }
+  report("名指しされた閾値の取りこぼし検査 (N-38/N-39 再発防止)", thresholdFails.length === 0,
+    thresholdFails.length === 0 ? "title_en が対象を名指しする銘柄で、解決可能なオッズの取りこぼし 0件（dist 実走査）" : thresholdFails.join("; "));
 
   // ==============================================================================
   // 21. 選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制の適正性検査 (N-38 完全解決)

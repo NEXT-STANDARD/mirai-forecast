@@ -468,6 +468,19 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     console.log(`✅ ${tsPath} にTypeScriptマスターとして出力完了`);
 
     // 翻訳辞書 ＆ ルールベース翻訳フォールバック
+    // 訂正済みタイトル：保持ガードを越えて必ず適用される（誤訳の自己修復）
+    // 値は文字列、または rawQuestion を受け取って文字列を返す関数
+    const TITLE_OVERRIDES = {
+      // 英語は "…?: ↑ $150?" と特定の水準を問うのに、日本語が「到達水準予測」と
+      // 一般化されており、その水準の確率が答えにならなくなっていた (N-38)
+      '746379': (raw) => {
+        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
+        return lvl
+          ? `2026年8月にWTI原油は${lvl[2]}ドル${lvl[1] === '↑' ? '以上に到達' : '以下に下落'}するか？`
+          : '2026年8月 WTI原油先物価格の到達水準予測';
+      },
+    };
+
     const DIRECT_MAP = {
       '1': { titleJa: '米大統領選 2028：JDヴァンスが勝利するか？', category: 'politics' },
       '2': { titleJa: '日銀：9月会合で追加利上げ（0.75%へ）を実施するか？', category: 'economy' },
@@ -580,6 +593,13 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         return { titleJa: '米FRB：9月FOMCで50bp以上の大幅利下げを実施するか？', category: 'economy' };
       }
       if (/What will WTI Crude Oil.*?hit in August 2026/i.test(t)) {
+        // 英語は "…?: ↑ $150?" のように特定の水準を問う。日本語で「到達水準予測」と
+        // 一般化すると、その水準の確率が答えにならなくなる（第11回 N-38 の指摘）
+        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(t);
+        if (lvl) {
+          const dir = lvl[1] === '↑' ? '以上に到達' : '以下に下落';
+          return { titleJa: `2026年8月にWTI原油は${lvl[2]}ドル${dir}するか？`, category: 'economy' };
+        }
         return { titleJa: '2026年8月 WTI原油先物価格の到達水準予測', category: 'economy' };
       }
       if (/(Bitcoin|Ethereum|Solana|BTC|ETH|SOL)\s+price\s+on\s+([A-Za-z]+)\s*(\d+)?\??:\s*(.+)/i.test(t)) {
@@ -725,7 +745,14 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         !existing.title_ja.startsWith('経済・市場予測: Spread:');
 
       // 既存DBにすでに綺麗な日本語タイトルが存在する場合は、LLMやフォールバックによる破壊・上書きを防止して最優先保持
-      if (existingIsClean) {
+      // 保持ガードは「同期がタイトルを壊すこと」を防ぐためのものだが、
+      // 一度書かれた誤訳も永久に凍結してしまう（第6回・第11回の指摘）。
+      // リポジトリ上の明示的な訂正（TITLE_OVERRIDES）だけは保持より優先させ、
+      // DBを手作業で直さなくても是正が届くようにする。
+      const override = TITLE_OVERRIDES[String(c.id)];
+      if (override) {
+        titleJa = typeof override === 'function' ? override(c.rawQuestion) : override;
+      } else if (existingIsClean) {
         titleJa = existing.title_ja;
       } else if (!titleJa || !hasJp || englishFuncCount >= 3) {
         titleJa = fb.titleJa;

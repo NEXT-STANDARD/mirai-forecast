@@ -122,7 +122,10 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
 
   let matchedMarket = null;
 
-  if (colonTarget && !isGenericColon && !isGenericBucketQuestion) {
+  // 英語の問い（title_en）が対象を名指ししているなら、それが正。
+  // 日本語タイトルが「到達水準予測」と一般化されていても、英語側を優先する
+  // （訳の一般化で答えが出せなくなっていた／第11回 N-38）
+  if (colonTarget && !isGenericColon) {
     const colonMatches = candidateMarkets.filter(m => {
       const itemTitle = (m.groupItemTitle || m.question || '').trim().toLowerCase();
       return itemTitle === colonTarget.toLowerCase() || 
@@ -148,6 +151,19 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
       leaderName: null,
       marketQuestion: null
     };
+  }
+
+  // 2-1b. 英文中に閾値が直接書かれている形式（形式B）を拾う (N-39)
+  //   形式A : "What price will Ethereum hit in August?: ↑ 3,000?"   → コロン以降＝対象
+  //   形式B : "Will Elon Musk post <40 tweets from …?"              → 文中の "<40" が対象
+  //   バケット名（groupItemTitle）が "<40" のように同じ表記で存在するので完全一致で引く
+  if (!matchedMarket) {
+    const rawEn = dbTitleEn || ev.title || '';
+    const inline = /([<>≤≥]\s*\d[\d,]*)/.exec(rawEn);
+    if (inline) {
+      const key = inline[1].replace(/\s+/g, '');
+      matchedMarket = markets.find(m => (m.groupItemTitle || '').trim().replace(/\s+/g, '') === key) || null;
+    }
   }
 
   // 2-2. タイトルで特定候補が問われている場合 (候補集合からマッチング)
