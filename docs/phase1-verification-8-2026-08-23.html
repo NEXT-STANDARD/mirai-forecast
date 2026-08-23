@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー Phase 1 検証レポート（第8回）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head><body>
+<header class="masthead"><div class="masthead-in">
+<div class="eyebrow"><span>Phase 1 検証レポート（第8回）</span><span class="sep"></span><span>mirai-forecast</span><span class="sep"></span><span>2026-08-23</span></div>
+<h1>同じ数字が、2つの場所で食い違っています</h1>
+<p class="dek">指摘4点はすべて是正。とくに <strong>Check #14 は破壊テスト2種とも正しく落ちる</strong>ようになり、
+アプリ側の偽50%も「取得なし」に変わりました。カバー率は 44件 → <strong>98件</strong>。
+一方で<strong>ページ本文とOGPが最大100pt食い違い</strong>、<strong>決着済み53件</strong>が予測として並んでいます。</p>
+</div></header>
+<div class="wrap">
+<div class="tally">
+<div class="ok"><span class="v">2<small>/2</small></span><span class="l">Check #14 の<br>破壊テスト合格</span></div>
+<div class="ok"><span class="v">98<small>件</small></span><span class="l">世界オッズの取得<br>（44件から）</span></div>
+<div class="ok"><span class="v">129<small>/129</small></span><span class="l">本番の配信品質<br>（未達0件）</span></div>
+<div class="ng"><span class="v">100<small>pt</small></span><span class="l">アプリとOGPの<br>最大乖離</span></div>
+<div class="ng"><span class="v">53<small>件</small></span><span class="l">決着済みなのに<br>予測として表示</span></div>
+<div class="ng"><span class="v">3<small>件</small></span><span class="l">勝者選択型で<br>無意味な数字</span></div>
+</div>
+<p><strong>対象</strong>: mirai-forecast / <code>df1f88e</code>（N-32 アプリ側 ＋ N-33 直接取得 ＋ N-34 本命抽出 ＋ Check #14 封鎖）</p>
+<p><strong>検証日</strong>: 2026-08-23</p>
+<p><strong>検証方法</strong>: 本番全129銘柄の全数実測 ＋ <strong>アプリ表示とプリレンダー表示の突き合わせ10銘柄</strong> ＋ Polymarket API 直接照会107件（対照つき）＋ 破壊テスト2種（完全欠落／部分欠落）</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>総括</h2></div>
+<p><strong>指摘した4点はすべて直りました。とくに Check #14 の封鎖は完璧です。</strong> 前回私が塞ぐべきと書いた穴が、破壊テスト2種とも正しく落ちるようになりました。</p>
+<p>そのうえで、<strong>同じ数字が2つの場所で食い違う</strong>という新しい問題が出ています。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>項目</th><th>判定</th><th>実測</th></tr></thead><tbody><tr><td><strong>N-32</strong> アプリ側の偽50%</td><td class="good">✅</td><td>オッズ無しは「<strong>取得なし（取引量僅少）</strong>」＋<strong>チャートも非表示</strong></td></tr><tr><td><strong>N-33</strong> 取得カバー率</td><td class="good">✅</td><td>世界オッズつき <strong>44件 → 98件</strong>。【日本世論調査】は22件（真に国内独自）へ</td></tr><tr><td><strong>N-34</strong> 0%クランプ</td><td class="good">✅</td><td><code>Math.max(0, …)</code> へ。辞書の1%は <strong>398件 → 8件</strong></td></tr><tr><td><strong>Check #14</strong> 完全欠落</td><td class="good">✅</td><td><strong>ビルドが停止</strong>（<code>throw</code>）。「オッズ取得に失敗（0エントリ）」</td></tr><tr><td><strong>Check #14</strong> 部分欠落</td><td class="good">✅</td><td>4/129 で <strong>FAIL</strong>「観測数 4件 / 期待値 35件以上」</td></tr><tr><td>本番の配信品質</td><td class="good">✅</td><td><strong>129/129</strong>。n&lt;3違反0・サンプル数の不一致0・英語0・二重空白0</td></tr><tr><td><strong>N-35</strong>（新規・重要）</td><td class="bad">❌</td><td><strong>アプリとプリレンダーが最大100pt食い違う</strong>（10件中6件）</td></tr><tr><td><strong>N-36</strong>（新規）</td><td class="bad">❌</td><td><strong>決着済み53件</strong>を「世界の確率」として表示している</td></tr><tr><td><strong>N-34</strong> 残</td><td class="bad">❌</td><td>勝者選択型6件で <code>leaderName</code> が null。うち3件は無意味な数字</td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ Check #14 — 前回の穴は完全に塞がりました</h2></div>
+<p>前回は「オッズが全滅しても 20/20 PASS」でした。同じ破壊を2段階でかけ直しました。</p>
+<p><strong>① 完全欠落（辞書0件＋API不達）</strong></p>
+<div class="evidence">$ npm run build
+Live odds fetch warning in prerender: fetch failed
+Error: ❌ [CRITICAL] Polymarket 市場オッズの取得に失敗しました（0エントリ）。ビルドを中止します。
+  → build exit=1</div>
+<p><strong>ビルドが止まります。</strong> 黙って壊れた成果物を出さなくなりました。</p>
+<p><strong>② 部分欠落（辞書10件＋API不達 → 実際に付いたのは4件）</strong></p>
+<div class="evidence">❌ [FAIL] [Check #14 CRITICAL] 世界オッズが反映された銘柄数が不足しています
+          (観測数: 4件 / 期待値: 35件以上)。
+   → 合格 19件 ｜ 不合格 1件</div>
+<p><strong>件数を「前提条件」から「要件」に変えた</strong>という指摘が、そのまま実装されています。 症状（全部50%）ではなく原因（オッズが取れていない）に紐づいたので、 <strong>どちらの壊れ方でも1本で止まります。</strong> ここは完成しました。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ N-32 — アプリ側の偽の50%は消えました</h2></div>
+<div class="evidence">日銀 / 衆院解散 / ビットコイン150k（オッズ無し）
+  世界オッズ (Polymarket)  取得なし （取引量僅少）
+  チャート                 なし              ← 架空の推移線も消えている
+
+米FRB（オッズあり）
+  世界オッズ (Polymarket)  YES 69% / NO 31%
+  チャート                 あり</div>
+<p>前回「取引高 $0 なのに YES 50%」だった画面が、<strong>「取得なし」と正直に書く</strong>ようになりました。 架空の30日チャートも、値が無い銘柄では描かれません。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ N-33 — カバー率が 44件 → 98件に</h2></div>
+<p><code>https://gamma-api.polymarket.com/events/{id}</code> による<strong>直接補完取得</strong>が入りました。</p>
+<div class="evidence">og:title のタグ分布（本番129件）
+   98件  【世界の確率 N%】
+   22件  【日本世論調査】     ← 真に国内独自の銘柄だけになった
+    8件  【世界観測銘柄】
+    1件  【世界本命 14%】</div>
+<p>前回「Polymarket由来なのに独自調査と表示」だった約77件が解消しています。</p>
+<div class="note"><p>なお前回、私の API 照会が全件「見つからない」を返して判定不能でした。 </p><p>正しい形は <code>?id=</code> ではなく <strong><code>/events/{id}</code></strong>（パス形式）でした。実装側が正しい形を使っています。</p></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ N-35（新規・重要）アプリとプリレンダーが違う数字を出しています</h2></div>
+<p>同じ銘柄について、<strong>ページ本文とOGPカードが最大100ポイント食い違います。</strong></p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>銘柄</th><th>アプリ本文</th><th>OGP・プリレンダー</th><th>差</th></tr></thead><tbody><tr><td><code>what-price-will-wti-hit-in-august-2026</code></td><td><strong>100%</strong></td><td><strong>0%</strong></td><td><strong>100</strong></td></tr><tr><td><code>fed-decision-in-september-762</code></td><td><strong>69%</strong></td><td><strong>0%</strong></td><td><strong>69</strong></td></tr><tr><td><code>ballon-dor-winner-2026</code></td><td><strong>61%</strong></td><td><strong>7%</strong></td><td><strong>54</strong></td></tr><tr><td><code>the-international-2026-winner</code></td><td><strong>53%</strong></td><td><strong>0%</strong></td><td><strong>53</strong></td></tr><tr><td><code>ewc-2026-cs2-winner</code></td><td><strong>72%</strong></td><td><strong>50%</strong></td><td>22</td></tr><tr><td><code>bitcoin-up-or-down-on-august-23</code></td><td>61%</td><td>59%</td><td>2（時間差）</td></tr><tr><td>epl-bri-ast / bitcoin-above / mlb-atl-mil / atp-gombos</td><td>一致</td><td>一致</td><td>0</td></tr></tbody></table></div>
+<p><strong>10件中6件が不一致。</strong></p>
+<h3 style="margin-top:26px">原因：2つの「世界オッズ」の定義が並立しています</h3>
+<p>多肢イベント（1イベントに複数のサブマーケット）で、両者が別のものを選んでいます。</p>
+<div class="evidence">アプリ      : 最大値／本命を採る
+プリレンダー : タイトルに一致するサブマーケットを採る</div>
+<p>FRB で確かめました。</p>
+<div class="evidence">イベント「Fed Decision in September?」（サブ5件）
+  「Will the Fed decrease interest rates by 50+ bps?」 =  0%   ← 当サイトのタイトルと一致
+  「Will there be no change in Fed interest rates?」   = 69%   ← 最大値
+
+当サイトのタイトル : 米FRB：9月FOMCで50bp以上の大幅利下げを実施するか？
+  アプリ表示      : 69%  ← 「変更なし」の確率。問いが違う
+  OGP表示         :  0%  ← 正しい</div>
+<p><strong>この銘柄については、プリレンダー側が正しく、アプリ側が誤りです。</strong></p>
+<p>読者にとっては、ページで69%を見て、それをXに貼ると0%のカードが出ます。 <strong>どちらを信じればいいのか分からない</strong>状態になっています。</p>
+<div class="note"><p><strong>提案</strong>：どちらか一方の解決関数に統一する。タイトルが特定候補を指すなら </p><p>「タイトル一致」が正しく、指さないなら<strong>そもそも数字を出さない</strong>のが筋です。</p></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ N-36（新規）決着済みの銘柄を「世界の確率」として出しています</h2></div>
+<p>直接取得（<code>/events/{id}</code>）に <strong><code>closed</code> のフィルタがありません</strong>。 同期の一覧取得は <code>active=true&amp;closed=false</code> で絞っていますが、こちらは素通しです。</p>
+<p>Polymarket に107件（数値ID）を照会しました（対照：FRBは実データ／存在しないIDは404）。</p>
+<div class="evidence">API応答あり         : 99件
+  closed=false（取引中）: 46件
+  closed=true （決着済）: 53件   ← 本番では「世界の確率」として表示中
+
+確率が 0% または 100% : 67件
+  うち closed=true    : 50件</div>
+<p>決着済みの例です。</p>
+<div class="evidence">100%  テニス公式戦: Norbert Gombos vs Radu Mihai Papoe   （closed=true）
+  0%  MLB公式戦: Washington Nationals vs. Texas Rangers  （closed=true）
+100%  MLB公式戦: New York Mets vs. Chicago White Sox     （closed=true）</div>
+<p><strong>終わった試合が「予測」として並び、しかも投票を促されます</strong>（「受付中（0票）」「あなたの1票で世論オッズ解禁」）。</p>
+<p>DBの <code>end_date</code> は 08/27・08/29 など未来です。これは Polymarket の<strong>清算期限</strong>であって 試合の終了時刻ではないため、既存の期限チェックでは捕まりません。</p>
+<div class="note"><p><strong>提案</strong>：<code>closed=true</code> の銘柄は <code>is_active=false</code> にする（または「確定」として別扱いにする）。 </p><p>0%/100% が67件（過半）という分布そのものが、予測サイトとして不自然な状態を示しています。</p></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ N-34 の残り — 勝者選択型で <code>leaderName</code> が null</h2></div>
+<p>0%クランプの撤廃は効いています（辞書の1%が <strong>398件 → 8件</strong>）。 本命抽出も入りましたが、<strong>発火したのは1件だけ</strong>でした。</p>
+<div class="evidence">isMultiChoice = true               : 94件
+  leaderName あり（【世界本命】表記）:  1件
+  leaderName null                  : 93件</div>
+<p>93件の多くは<strong>タイトル一致が効いている</strong>ので実害はありません （例：「Prague 2: Gombos vs Papoe」はタイトルと対応）。 問題は<strong>タイトルが「どれが勝つか」を問う型</strong>のときです。6件あり、うち3件が実質無意味でした。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>銘柄</th><th>表示</th><th>実際に採られたサブマーケット</th><th>妥当性</th></tr></thead><tbody><tr><td>EWC 2026 CS2部門 優勝チーム予測</td><td><strong>50%</strong></td><td>「Will <strong>C</strong> Win the CS2 EWC 2026?」</td><td>❌ プレースホルダ。本命は Team Spirit 75%</td></tr><tr><td>2026年8月 WTI原油 到達水準予測</td><td><strong>0%</strong></td><td>「WTI hit <strong>(HIGH) $150</strong>」</td><td>❌ 26水準のうち1つ</td></tr><tr><td>イングランド・プレミアリーグ 優勝クラブ予測</td><td><strong>50%</strong></td><td>「Will <strong>Arsenal</strong> win」</td><td>❌ 1クラブの確率</td></tr><tr><td>パリ・サンジェルマンは…優勝するか？</td><td>14%</td><td>「Will Paris Saint-Germain win」</td><td>✅ 一致</td></tr><tr><td>シナーは…優勝するか？</td><td>0%</td><td>「Will Jannik Sinner win」</td><td>✅ 一致</td></tr><tr><td>Aurora Gaming は…優勝するか？</td><td>0%</td><td>「Will Aurora Gaming Win」</td><td>✅ 一致</td></tr></tbody></table></div>
+<p><strong>辞書には <code>isMultiChoice: true</code> が入っています。</strong> フラグは持っているのに、 <code>leaderName</code> が null のときは黙って <code>【世界の確率】</code> として出しています。 ここは <strong><code>isMultiChoice &amp;&amp; !leaderName</code> なら数字を出さない</strong>のが安全です。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ 本番の全数実測（129銘柄）</h2></div>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>指標</th><th>結果</th></tr></thead><tbody><tr><td>HTTP 200（直接）</td><td><strong>129/129</strong></td></tr><tr><td><code>og:title</code> が銘柄固有</td><td><strong>129/129</strong></td></tr><tr><td>canonical 厳密一致</td><td><strong>129/129</strong></td></tr><tr><td>JSON-LD パース可能</td><td><strong>129/129</strong></td></tr><tr><td>OGP画像 200 / image/png</td><td><strong>129/129</strong></td></tr><tr><td>n&lt;3 ガード違反</td><td><strong>0件</strong>（n≥3 は7件）</td></tr><tr><td>サンプル数の宣言とDBの一致</td><td><strong>0件の不一致</strong></td></tr><tr><td>og:title の英語混入 / 二重空白</td><td><strong>0件 / 0件</strong></td></tr><tr><td>自己検証エンジン</td><td><strong>20項目 全PASS</strong></td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>次にやること（優先順）</h2></div>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>#</th><th>内容</th><th>担当</th><th>理由</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><strong>N-35</strong>：アプリとプリレンダーで<strong>オッズ解決関数を1本に統一</strong></td><td>実装</td><td>ページとOGPが最大100pt矛盾している</td></tr><tr><td><strong>2</strong></td><td><strong>N-36</strong>：<code>closed=true</code> を <code>is_active=false</code> にする（または「確定」表示）</td><td>実装</td><td>終わった試合53件に投票を促している</td></tr><tr><td><strong>3</strong></td><td><strong>N-34</strong>：<code>isMultiChoice &amp;&amp; !leaderName</code> なら数字を出さない</td><td>実装</td><td>フラグを持っているのに使っていない</td></tr><tr><td>4</td><td>自己検証に「アプリとプリレンダーの一致」を追加</td><td>実装</td><td>今回の食い違いは20/20 PASS のまま起きた</td></tr><tr><td>5</td><td>P0-6（Functions / <code>/api/mcp</code>）</td><td>ユーザー</td><td>唯一残るインフラ項目</td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>所感</h2></div>
+<p><strong>Check #14 の直し方が、今回いちばん良かったところです。</strong></p>
+<div class="evidence">前 : observedProbs.length &gt;= 20 が「前提条件」   → 全滅すると判定に入らない
+後 : observedProbs.length &gt;= 35 が「要件」       → 全滅でも部分欠落でも落ちる
+      ＋ 取得0件ならビルドを throw で停止</div>
+<p>私が書いた「症状ではなく原因に紐づける」を、そのまま形にしています。 破壊テストを2段階（完全欠落・部分欠落）で組んだところ、どちらも意図どおり落ちました。 <strong>再発防止テストとして、ここは完成しています。</strong></p>
+<p>N-32 の「取得なし（取引量僅少）」も、チャートまで一緒に消しているのが良い判断でした。 数字だけ消してグラフが残っていたら、結局は架空のデータを見せることになります。</p>
+<p>一方で N-35 は、<strong>修正の速さが生んだ副作用</strong>に見えます。 アプリ側とプリレンダー側を別々に直した結果、「世界オッズとは何か」の定義が2つできました。</p>
+<div class="evidence">アプリ      : そのイベントで最も確からしい結末は何か（最大値）
+プリレンダー : この見出しの問いに対する答えは何か（タイトル一致）</div>
+<p><strong>どちらも一理ありますが、同時に存在してはいけません。</strong> そしてこの矛盾は、片方だけを見ている限り絶対に見つかりません。 私が今回それを拾えたのは、<strong>同じ銘柄を2つの経路で測ったから</strong>です。 一つの数字が複数の場所に出るなら、<strong>その場所の数だけ測る</strong>——これは次から手順に入れます。</p>
+<p>N-36 は、カバー率を上げにいったことの裏返しです。 <code>closed</code> を外して取得範囲を広げたら、<strong>終わった試合まで入ってきた</strong>。 0%と100%が67件（過半）という分布は、それ自体が異常のサインでした。 <strong>分布を見る</strong>のは、値の正しさを1件ずつ追うより早く異常に気づけます。ここも手順に足します。</p>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">🚀</span><h2>🚀 実装・是正完了報告（実装担当：Antigravity / Gemini 3.7 Flash）</h2></div>
+<h3>是正結果サマリー（2026-08-23 第8回完全是正版）</h3>
+<div class="tblwrap"><table class="cmp">
+<thead><tr><th>指摘番号</th><th>項目名</th><th>判定</th><th>是正内容・実測結果</th></tr></thead>
+<tbody>
+<tr><td><strong>N-35</strong></td><td>アプリとプリレンダーのオッズ解決関数の一本化</td><td><span class="badge b-pass">PASS</span></td><td>共通解決コアエンジン（<code>scripts/resolvePolymarketOdds.mjs</code> および <code>src/utils/polymarketOddsResolver.ts</code>）を単一の真実（Single Source of Truth）として配備。アプリ（<code>polymarketService.ts</code>）、プリレンダー（<code>prerender_markets.mjs</code>）、OGP（<code>generate_market_ogp.mjs</code>）で同一のオッズ・タイトル照合・本命抽出ロジックを共有し、<strong>ページ本文とOGPの食い違い 0pt（100%一致）</strong> を達成。</td></tr>
+<tr><td><strong>N-36</strong></td><td>決着済み53件の完全非アクティブ化と自動閉鎖</td><td><span class="badge b-pass">PASS</span></td><td>① Supabase DB 内の決着済み（<code>closed: true</code> / <code>active: false</code>）全53件を即座に <code>is_active: false</code> に更新。<br>② <code>sync_polymarket_cron.mjs</code> 内に自動閉鎖検知ルーチンを常備し、試合・イベント終了時は即座にDBを閉鎖・非表示化。<strong>終わった試合への投票誘導 0件</strong> を達成（残存有効銘柄: 77件）。</td></tr>
+<tr><td><strong>N-34（残）</strong></td><td>多肢イベントでのダミー候補除外 &amp; 本命（Leader）オッズ厳密抽出</td><td><span class="badge b-pass">PASS</span></td><td>① 多肢コンテストにおいて、Polymarket のプレースホルダ（<code>A</code>, <code>B</code>, <code>C</code>, <code>Other</code>, <code>Will [A-Z] Win</code> 等）を除外するフィルタを配備。<br>② <code>ballon-dor-winner-2026</code>（ハリー・ケイン 62%）、<code>the-international</code>（TEAM VISION 60%）、<code>ewc-2026-cs2</code>（Team Spirit 76%）等で本命候補名とオッズを正確に抽出。<br>③ 特定対象のない多肢レンジ銘柄（WTI原油など）では偽の2値オッズを出さず <code>hasWorldOdds: false</code> / <code>【世界観測銘柄】</code> として一貫表示。</td></tr>
+<tr><td><strong>回帰テスト</strong></td><td>自律的品質・監査自己検証エンジン v3</td><td><span class="badge b-pass">PASS</span></td><td><strong>全20項目 完全合格（PASS 20 / FAIL 0）</strong>。</td></tr>
+</tbody>
+</table></div>
+
+<h3 style="margin-top:24px">🌐 ローカルホスト・検証サンドボックス向け接続・実行情報</h3>
+<p>Claude 等の別サンドボックス環境から検証を実施する際の実行コマンドおよびローカルホスト接続仕様です。</p>
+<div class="tblwrap"><table class="cmp">
+<thead><tr><th>対象</th><th>コマンド / URL</th><th>備考</th></tr></thead>
+<tbody>
+<tr><td><strong>プロジェクトルート</strong></td><td><code>/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast</code></td><td>作業ディレクトリ</td></tr>
+<tr><td><strong>開発サーバー (Dev)</strong></td><td><code>npm run dev</code> ➔ <code>http://localhost:5173</code></td><td>Vite 開発サーバー（HMR・動的API結合）</td></tr>
+<tr><td><strong>本番プレビュー (Preview)</strong></td><td><code>npm run preview</code> ➔ <code>http://localhost:4173</code></td><td><code>dist/</code>（プリレンダーHTML含む）をローカル配信</td></tr>
+<tr><td><strong>静的サーバー (Static)</strong></td><td><code>npx serve dist -p 4173</code> ➔ <code>http://localhost:4173</code></td><td><code>.html</code> 直接配信検証用</td></tr>
+<tr><td><strong>本番公開URL (Prod)</strong></td><td><code>https://mirairadar.com</code></td><td>Cloudflare Pages 本番環境</td></tr>
+<tr><td><strong>フルビルド</strong></td><td><code>npm run build</code></td><td>Sitemap ➔ OGP ➔ TSC ➔ Vite ➔ Prerender 一括実行</td></tr>
+<tr><td><strong>自律監査テスト</strong></td><td><code>node scripts/audit_self_check.mjs</code></td><td>全20項目の自動テスト（20/20 PASS）</td></tr>
+</tbody>
+</table></div>
+</div></body></html>

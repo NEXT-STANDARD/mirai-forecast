@@ -159,100 +159,7 @@ ${JSON.stringify(items.map(i => ({
   }
 }
 
-/**
- * Polymarket イベントから、多肢銘柄・単一銘柄を適切に判別して高精度オッズを抽出
- * (N-34: markets[0] の安易な代表値選択を廃止し、タイトル対象または本命候補を厳密抽出。0%クランプ廃止)
- */
-export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
-  if (!ev || !ev.markets || ev.markets.length === 0) return null;
-  const markets = ev.markets;
-  let targetMarket = markets[0];
-  let isMultiChoice = markets.length > 1;
-  let leaderName = null;
-
-  if (isMultiChoice) {
-    const lowerJa = (dbTitleJa || '').toLowerCase();
-    const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
-
-    const matchedMarket = markets.find(m => {
-      const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
-      if (!itemTitle) return false;
-      if (lowerEn.includes(itemTitle)) return true;
-      if (itemTitle.length > 3 && lowerJa.includes(itemTitle)) return true;
-      if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
-      if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
-      if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
-      if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
-      if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
-      if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
-      if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
-      if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
-      if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
-      if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
-      if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
-      if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
-      if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
-      if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
-      return false;
-    });
-
-    if (matchedMarket) {
-      targetMarket = matchedMarket;
-    } else {
-      let maxProb = -1;
-      let topM = markets[0];
-      markets.forEach(m => {
-        let p = 0;
-        if (m.outcomePrices) {
-          try {
-            const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
-            if (Array.isArray(parsed) && parsed[0]) p = parseFloat(parsed[0]);
-          } catch {}
-        }
-        if (p > maxProb) {
-          maxProb = p;
-          topM = m;
-        }
-      });
-      targetMarket = topM;
-      leaderName = targetMarket.groupItemTitle || targetMarket.question || null;
-    }
-  }
-
-  let probYes = 50;
-  if (targetMarket.outcomePrices) {
-    try {
-      const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
-      if (Array.isArray(parsed) && parsed[0]) {
-        // N-34: 0% を 1% にクランプせず、実測 0% をそのまま保持
-        probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
-      }
-    } catch {}
-  }
-
-  const volume24h = ev.volume24hr || (targetMarket.volume24hr ? parseFloat(targetMarket.volume24hr) : 0);
-  const totalVolume = ev.volume || (targetMarket.volume ? parseFloat(targetMarket.volume) : volume24h * 3.5);
-  const probChange24h = targetMarket.oneDayPriceChange ? Math.round(parseFloat(targetMarket.oneDayPriceChange) * 100) : 0;
-  
-  let clobTokenId = undefined;
-  if (targetMarket.clobTokenIds) {
-    try {
-      const ids = typeof targetMarket.clobTokenIds === 'string' ? JSON.parse(targetMarket.clobTokenIds) : targetMarket.clobTokenIds;
-      if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
-    } catch {}
-  }
-
-  return {
-    probYes,
-    volume24h: Math.round(volume24h),
-    totalVolume: Math.round(totalVolume),
-    probChange24h,
-    clobTokenId,
-    isMultiChoice,
-    leaderName,
-    marketQuestion: targetMarket.question || targetMarket.groupItemTitle
-  };
-}
+import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
 
 async function syncPolymarket() {
   console.log(`[${new Date().toISOString()}] Polymarket ➔ 【Gemini 3.7 Flash リアルタイム深層カタリスト分析】同期開始...`);
@@ -283,18 +190,26 @@ async function syncPolymarket() {
 
     if (allEvents.length === 0) throw new Error('No Polymarket events fetched');
 
-    // 2. Supabase 上の既存イベントで未取得の数値ID銘柄を直接補完 (N-33: 蓄積銘柄の100%オッズ網羅)
+    // 2. Supabase 上の既存イベントのステータス検査 ＆ 未取得数値ID銘柄の直接補完 (N-33 / N-36)
     const { data: dbRows } = await supabase.from('events').select('id, slug, title_ja, title_en, is_active').eq('is_active', true);
     if (dbRows && dbRows.length > 0) {
       for (const row of dbRows) {
-        if (!polyMap.has(String(row.id)) && !polyMap.has(row.slug) && /^\d+$/.test(String(row.id))) {
+        if (/^\d+$/.test(String(row.id))) {
           try {
             const res = await fetch(`https://gamma-api.polymarket.com/events/${row.id}`);
             if (res.ok) {
               const directEv = await res.json();
-              allEvents.push(directEv);
-              polyMap.set(String(directEv.id), directEv);
-              if (directEv.slug) polyMap.set(directEv.slug, directEv);
+              // N-36: 決着済み/終了銘柄は即座にDBで非アクティブ化
+              if (directEv.closed === true || directEv.active === false) {
+                console.log(`🔒 決着済み銘柄を非アクティブ化: ${row.id} (${row.title_ja})`);
+                await supabase.from('events').update({ is_active: false }).eq('id', row.id);
+                continue;
+              }
+              if (!polyMap.has(String(directEv.id)) && !polyMap.has(row.slug)) {
+                allEvents.push(directEv);
+                polyMap.set(String(directEv.id), directEv);
+                if (directEv.slug) polyMap.set(directEv.slug, directEv);
+              }
             }
           } catch (err) {
             // direct fetch error ignore
@@ -321,7 +236,7 @@ async function syncPolymarket() {
     console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
 
     const oddsTsPath = path.join(ROOT, 'src', 'data', 'marketOddsMaster.ts');
-    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
+    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
     fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
 
     const candidateList = [];

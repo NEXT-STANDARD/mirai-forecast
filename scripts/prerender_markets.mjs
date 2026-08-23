@@ -15,6 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
+import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -90,97 +91,7 @@ async function prerenderAll() {
     voteStats.set(v.event_id, stat);
   });
 
-  // 3. Polymarket リアルタイム市場オッズの読み込み＆多段取得 (N-30, N-33, N-34: 50% 無言フォールバック完全撤廃・多肢本命抽出・0%非クランプ)
-  function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
-    if (!ev || !ev.markets || ev.markets.length === 0) return null;
-    const markets = ev.markets;
-    let targetMarket = markets[0];
-    let isMultiChoice = markets.length > 1;
-    let leaderName = null;
-
-    if (isMultiChoice) {
-      const lowerJa = (dbTitleJa || '').toLowerCase();
-      const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
-
-      const matchedMarket = markets.find(m => {
-        const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
-        if (!itemTitle) return false;
-        if (lowerEn.includes(itemTitle)) return true;
-        if (itemTitle.length > 3 && lowerJa.includes(itemTitle)) return true;
-        if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
-        if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
-        if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
-        if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
-        if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
-        if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
-        if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
-        if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
-        if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
-        if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
-        if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
-        if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
-        if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
-        if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
-        return false;
-      });
-
-      if (matchedMarket) {
-        targetMarket = matchedMarket;
-      } else {
-        let maxProb = -1;
-        let topM = markets[0];
-        markets.forEach(m => {
-          let p = 0;
-          if (m.outcomePrices) {
-            try {
-              const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
-              if (Array.isArray(parsed) && parsed[0]) p = parseFloat(parsed[0]);
-            } catch {}
-          }
-          if (p > maxProb) {
-            maxProb = p;
-            topM = m;
-          }
-        });
-        targetMarket = topM;
-        leaderName = targetMarket.groupItemTitle || targetMarket.question || null;
-      }
-    }
-
-    let probYes = 50;
-    if (targetMarket.outcomePrices) {
-      try {
-        const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
-        if (Array.isArray(parsed) && parsed[0]) {
-          probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
-        }
-      } catch {}
-    }
-
-    const volume24h = ev.volume24hr || (targetMarket.volume24hr ? parseFloat(targetMarket.volume24hr) : 0);
-    const totalVolume = ev.volume || (targetMarket.volume ? parseFloat(targetMarket.volume) : volume24h * 3.5);
-    const probChange24h = targetMarket.oneDayPriceChange ? Math.round(parseFloat(targetMarket.oneDayPriceChange) * 100) : 0;
-    
-    let clobTokenId = undefined;
-    if (targetMarket.clobTokenIds) {
-      try {
-        const ids = typeof targetMarket.clobTokenIds === 'string' ? JSON.parse(targetMarket.clobTokenIds) : targetMarket.clobTokenIds;
-        if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
-      } catch {}
-    }
-
-    return {
-      probYes,
-      volume24h: Math.round(volume24h),
-      totalVolume: Math.round(totalVolume),
-      probChange24h,
-      clobTokenId,
-      isMultiChoice,
-      leaderName,
-      marketQuestion: targetMarket.question || targetMarket.groupItemTitle
-    };
-  }
-
+  // 3. Polymarket リアルタイム市場オッズの読み込み＆多段取得 (N-30, N-33, N-34, N-35, N-36: 単一共有エンジン)
   let marketOdds = {};
   const oddsJsonPath = path.resolve(ROOT, 'public', 'data', 'market_odds.json');
   if (fs.existsSync(oddsJsonPath)) {
