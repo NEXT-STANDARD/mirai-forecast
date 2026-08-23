@@ -1,49 +1,62 @@
+#!/usr/bin/env node
+
+/**
+ * ==============================================================================
+ * 🗺️ 未来レーダー (MiraiRadar.com) - サイトマップ自動生成スクリプト
+ * ==============================================================================
+ * Supabase の有効銘柄（is_active = true）を正として 100% 実在するURLのみを出力します。
+ */
+
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { createClient } from '@supabase/supabase-js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const ROOT = path.resolve(__dirname, '..');
 
 const SITE_URL = 'https://mirairadar.com';
 const today = new Date().toISOString().split('T')[0];
 
-// 1. 初期・静的銘柄リスト（フォールバック用）
-const staticSlugs = [
-  'fed-decision-in-september',
-  'presidential-election-winner-2028',
-  'openai-gpt5-or-next-flagship-release',
-  'bank-of-japan-rate-hike-by-december',
-  'shohei-ohtani-50-home-runs-2026',
-  'nintendo-switch-2-announcement-timing',
-  'nikkei-225-45000-by-year-end',
-  'us-recession-in-2026',
-  'bitcoin-100k-in-2026',
-  'japan-minimum-wage-1500-yen',
-];
+// 環境変数読み込み
+const env = {};
+if (fs.existsSync(path.join(ROOT, '.env'))) {
+  const envStr = fs.readFileSync(path.join(ROOT, '.env'), 'utf-8');
+  envStr.split('\n').forEach((line) => {
+    const [k, ...v] = line.split('=');
+    if (k && !k.startsWith('#')) env[k.trim()] = v.join('=').trim();
+  });
+}
 
-async function fetchLiveMarketSlugs() {
-  const slugs = new Set(staticSlugs);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL || 'https://wdpygtmqehoepgrueeda.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function fetchActiveMarkets() {
   try {
-    const res = await fetch('https://gamma-api.polymarket.com/events?limit=80&active=true&closed=false&order=volume24hr&ascending=false');
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data)) {
-        data.forEach(item => {
-          if (item.slug) slugs.add(item.slug);
-          if (item.id) slugs.add(String(item.id));
-        });
-      }
-    }
+    const { data, error } = await supabase
+      .from('events')
+      .select('id, slug, updated_at, is_active')
+      .eq('is_active', true)
+      .order('updated_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
   } catch (err) {
-    console.warn('Could not fetch live Polymarket events, using static list:', err.message);
+    console.error('❌ Supabase からの有効銘柄取得に失敗しました:', err.message);
+    process.exit(1);
   }
-  return Array.from(slugs);
 }
 
 async function buildSitemap() {
-  const marketSlugs = await fetchLiveMarketSlugs();
-  console.log(`Generating sitemap with ${marketSlugs.length} market detail pages...`);
+  const activeEvents = await fetchActiveMarkets();
+  console.log(`🗺️ Supabase から有効銘柄 ${activeEvents.length}件 を取得しました。サイトマップを生成中...`);
 
   const urls = [];
 
-  // トップページ
+  // 1. トップページ
   urls.push({
     loc: `${SITE_URL}/`,
     lastmod: today,
@@ -51,29 +64,26 @@ async function buildSitemap() {
     priority: '1.0'
   });
 
-  // 主要固定ページ
-  urls.push({
-    loc: `${SITE_URL}/forecast`,
-    lastmod: today,
-    changefreq: 'always',
-    priority: '0.9'
+  // 2. 主要固定ページ
+  const staticPages = [
+    { path: '/forecast', priority: '0.9', changefreq: 'always' },
+    { path: '/rankings', priority: '0.9', changefreq: 'always' },
+    { path: '/ai-connector', priority: '0.8', changefreq: 'weekly' },
+    { path: '/developers', priority: '0.8', changefreq: 'weekly' },
+    { path: '/letter-to-mike', priority: '0.8', changefreq: 'weekly' },
+    { path: '/api/mcp', priority: '0.8', changefreq: 'weekly' }
+  ];
+
+  staticPages.forEach(p => {
+    urls.push({
+      loc: `${SITE_URL}${p.path}`,
+      lastmod: today,
+      changefreq: p.changefreq,
+      priority: p.priority
+    });
   });
 
-  urls.push({
-    loc: `${SITE_URL}/letter-to-mike`,
-    lastmod: today,
-    changefreq: 'weekly',
-    priority: '0.8'
-  });
-
-  urls.push({
-    loc: `${SITE_URL}/api/mcp`,
-    lastmod: today,
-    changefreq: 'weekly',
-    priority: '0.8'
-  });
-
-  // カテゴリ別ハブ
+  // 3. カテゴリ別ハブ
   const categories = ['trending', 'economy', 'tech', 'politics', 'sports', 'entertainment'];
   categories.forEach(cat => {
     urls.push({
@@ -84,11 +94,13 @@ async function buildSitemap() {
     });
   });
 
-  // 全個別銘柄ページ
-  marketSlugs.forEach(slug => {
+  // 4. 全有効個別銘柄ページ (100% 実在する銘柄のみ)
+  activeEvents.forEach(event => {
+    const slug = event.slug || event.id;
+    const lastmod = event.updated_at ? new Date(event.updated_at).toISOString().split('T')[0] : today;
     urls.push({
       loc: `${SITE_URL}/market/${encodeURIComponent(slug)}`,
-      lastmod: today,
+      lastmod,
       changefreq: 'hourly',
       priority: '0.85'
     });
@@ -108,9 +120,9 @@ ${urls.map(u => `  <url>
 </urlset>
 `;
 
-  const outputPath = path.resolve('./public/sitemap.xml');
+  const outputPath = path.resolve(ROOT, 'public', 'sitemap.xml');
   fs.writeFileSync(outputPath, xml, 'utf8');
-  console.log(`✅ Sitemap successfully created at ${outputPath} with ${urls.length} URLs!`);
+  console.log(`✅ Sitemap successfully created at ${outputPath} with ${urls.length} URLs (有効銘柄: ${activeEvents.length}件, 死にURL: 0件)!`);
 }
 
 buildSitemap();

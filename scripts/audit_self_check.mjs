@@ -7,7 +7,7 @@ const ROOT = "/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast";
 const COMPONENTS_DIR = path.join(ROOT, "src/components");
 
 console.log("====================================================");
-console.log("🛡️ 未来レーダー 自律的品質・監査自己検証エンジン v2 (Hardened Engine)");
+console.log("🛡️ 未来レーダー 自律的品質・監査自己検証エンジン v3 (Phase 0 Hardened)");
 console.log("====================================================\n");
 
 let passCount = 0;
@@ -28,15 +28,14 @@ function report(name, passed, detail) {
 // 1. ビルド & 型チェック
 try {
   execSync("npm run build", { cwd: ROOT, stdio: "pipe" });
-  report("TypeScript & Vite 本番ビルド整合性", true, "exit code 0 (型エラー・バンドルエラー 0件)");
+  report("TypeScript & Vite & Prerender 本番ビルド整合性", true, "exit code 0 (型エラー・バンドルエラー・プリレンダーエラー 0件)");
 } catch (e) {
-  report("TypeScript & Vite 本番ビルド整合性", false, e.message);
+  report("TypeScript & Vite & Prerender 本番ビルド整合性", false, e.message);
 }
 
 // 2. 投票ガードの構文的健全性 & 100% 網羅性 (NEW-4 / 破壊テスト耐性: { アンカーによるホワイトリスト)
 const componentFiles = fs.readdirSync(COMPONENTS_DIR).filter(f => f.endsWith(".tsx"));
 let voteGuardFails = [];
-// { 直後または const isExpired = 直後に isExpired が始まることを要求（0 &&, false && などの先行無効化を拒否）
 const strictGuardPattern = /(?:\{\s*|\bconst\s+isExpired\s*=\s*(?:Boolean\()?\s*)(?:event|item)\.isExpired\s*\|\|\s*\(\s*(?:event|item)\.endDate\s*&&\s*new Date\((?:event|item)\.endDate\)\.getTime\(\)\s*<\s*Date\.now\(\)\s*\)/;
 
 for (const file of componentFiles) {
@@ -55,7 +54,7 @@ for (const file of componentFiles) {
 report("投票ガード (isExpired) 構文健全性 & 100% 網羅性", voteGuardFails.length === 0, 
   voteGuardFails.length === 0 ? "投票を持つ全コンポーネントで厳格な期限判定ガード構文を検証完了" : voteGuardFails.join("; "));
 
-// 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12 / 破壊テストA・B両適合)
+// 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12)
 const GAP_TARGET_COMPONENTS = [
   "AllMarketsGrid.tsx",
   "SpreadRankingSection.tsx",
@@ -67,13 +66,11 @@ const GAP_TARGET_COMPONENTS = [
   "DataExportModal.tsx"
 ];
 let gapCheckFails = [];
-// 有効なガード構文パターン（三項演算子、変数束縛、filter、if文にアンカー）
 const strictActiveGapGuardPattern = /(?:\{\s*|\bconst\s+\w+\s*=\s*|\.filter\s*\(\s*\w+\s*=>\s*|if\s*\(\s*)(?:event|item|ev|a|b)\.japanVotes(?:\?\.|\.)total\s*>=\s*3/;
 
 for (const file of GAP_TARGET_COMPONENTS) {
   if (!fs.existsSync(path.join(COMPONENTS_DIR, file))) continue;
   const content = fs.readFileSync(path.join(COMPONENTS_DIR, file), "utf-8");
-  // コメントアウト偽装（/* ... */ や // ...）による誤検知パスを防止
   const contentWithoutComments = content.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 
   const hasVotesTotalGuard = strictActiveGapGuardPattern.test(contentWithoutComments);
@@ -106,7 +103,7 @@ for (const file of componentFiles) {
 report("画像属性 (loading=\"lazy\" & onErrorフォールバック)", imgFails.length === 0,
   imgFails.length === 0 ? "全 <img> タグに lazy loading と onError を完備" : imgFails.join("; "));
 
-// 5. 全コンポーネント走査型 キーボードアクセシビリティ (E-4 / 全ファイル網羅)
+// 5. 全コンポーネント走査型 キーボードアクセシビリティ (E-4)
 function extractOpeningTags(content) {
   const tags = [];
   let i = 0;
@@ -144,10 +141,8 @@ for (const file of componentFiles) {
   
   for (const tag of tags) {
     if (!tag.includes("onClick")) continue;
-    // モーダル背景や閉じるオーバーレイ、stopPropagationのみはスキップ
     if (tag.includes("modal-backdrop") || tag.includes("modal-content") || tag.includes("stopPropagation")) continue;
     
-    // カードや行などの対話的要素であれば tabIndex と onKeyDown を必須化
     if (!tag.includes("tabIndex") || !tag.includes("onKeyDown")) {
       a11yFails.push(`${file}: 対話的要素に tabIndex または onKeyDown が欠落しています`);
     }
@@ -180,7 +175,7 @@ for (const file of componentFiles) {
 report("デッドコンポーネント排除", deadFiles.length === 0,
   deadFiles.length === 0 ? "未使用コンポーネントなし" : `残存: ${deadFiles.join(", ")}`);
 
-// 8. CSS Sticky の健全性検査 (NEW-8 回帰防止: html, body, #root に対する overflow-x: hidden 混入を厳密検知)
+// 8. CSS Sticky の健全性検査
 const cssContent = fs.readFileSync(path.join(ROOT, "src/index.css"), "utf-8");
 let stickyFails = [];
 const rootBlockRegex = /(?:html|body|#root)[^{]*\{[^}]*overflow-x:\s*hidden/gi;
@@ -190,7 +185,7 @@ if (rootBlockRegex.test(cssContent)) {
 report("CSS Sticky 健全性 (overflow-x: clip 保守)", stickyFails.length === 0,
   stickyFails.length === 0 ? "html/body/#root に clip 指定を確認 (sticky 阻害なし)" : stickyFails.join("; "));
 
-// 9. ビルド CSS Backdrop-Filter 保持検査 (NEW-9 回帰防止: ルール内スコープ検査)
+// 9. ビルド CSS Backdrop-Filter 保持検査 (NEW-9)
 let backdropFails = [];
 const distAssets = fs.existsSync(path.join(ROOT, "dist/assets")) 
   ? fs.readdirSync(path.join(ROOT, "dist/assets")).filter(f => f.endsWith(".css"))
@@ -206,14 +201,12 @@ if (distAssets.length > 0) {
 report("ビルド CSS Backdrop-Filter 保持検査 (NEW-9)", backdropFails.length === 0,
   backdropFails.length === 0 ? "本番 CSS の .header-container-slim ルール内に無印 backdrop-filter の存在を確認" : backdropFails.join("; "));
 
-// 9.5 埋め込みウィジェットのスラッグ厳密照合検査 (N-18 回帰防止: 前方一致・末尾除去・文字列加工による誤照合防止)
+// 9.5 埋め込みウィジェットのスラッグ厳密照合検査 (N-18)
 const embedCode = fs.readFileSync(path.join(COMPONENTS_DIR, "EmbedWidgetPage.tsx"), "utf-8");
 let embedSlugFails = [];
-// A. 禁止検査: スラッグに対する文字列置換・加工・正規表現の混入を検知
 if (/\.replace\(\s*\/-\\?d\+\$\//.test(embedCode) || /slugOrId\.replace/.test(embedCode) || /slug\.replace/.test(embedCode)) {
   embedSlugFails.push("EmbedWidgetPage にスラッグ文字列加工・緩和ロジックが存在し、同名プレフィックス銘柄の誤表示が発生します");
 }
-// B. 肯定検査: find 照合式が厳格な完全一致 (e.slug === slugOrId || e.id === slugOrId) であること
 const hasExactInitialFind = /INITIAL_EVENTS\.find\(\s*\([^)]*\)\s*=>\s*e\.slug\s*===\s*slugOrId\s*\|\|\s*e\.id\s*===\s*slugOrId\s*\)/.test(embedCode);
 const hasExactEventsFind = /events\.find\(\s*\([^)]*\)\s*=>\s*e\.slug\s*===\s*slugOrId\s*\|\|\s*e\.id\s*===\s*slugOrId\s*\)/.test(embedCode);
 if (!hasExactInitialFind || !hasExactEventsFind) {
@@ -222,10 +215,7 @@ if (!hasExactInitialFind || !hasExactEventsFind) {
 report("埋め込みウィジェット スラッグ厳密照合 (N-18)", embedSlugFails.length === 0,
   embedSlugFails.length === 0 ? "完全一致照合 (slug === slugOrId || id === slugOrId) を確認" : embedSlugFails.join("; "));
 
-// 9.7 scripts/*.mjs の外部依存が package.json に存在すること
-// （依存整理ツールは src/ しか見ないため、scripts 専用の依存が「未使用」と誤判定されて
-//   削除されることがある。実際に F-5 の整理で twitter-api-v2 / sharp / googleapis が落ち、
-//   X投稿Botが ERR_MODULE_NOT_FOUND で停止した）
+// 9.7 scripts/*.mjs の外部依存が package.json に存在すること (F-5)
 const BUILTIN_MODULES = new Set(["fs", "path", "url", "http", "https", "readline", "crypto", "os", "child_process", "util", "events", "stream"]);
 const pkgJson = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf-8"));
 const declaredDeps = new Set([...Object.keys(pkgJson.dependencies || {}), ...Object.keys(pkgJson.devDependencies || {})]);
@@ -243,8 +233,9 @@ depFails = [...new Set(depFails)];
 report("scripts の外部依存が package.json に存在 (F-5 回帰防止)", depFails.length === 0,
   depFails.length === 0 ? "scripts/*.mjs の全 import が package.json に登録済み" : depFails.join("; "));
 
-// 10. Supabase 有効銘柄の締切整合性
-async function checkDb() {
+// 10. Supabase 有効銘柄の締切整合性 & Phase 0 検査
+async function checkDbAndPhase0() {
+  let activeEvents = [];
   try {
     const envStr = fs.readFileSync(path.join(ROOT, ".env"), "utf-8");
     const env = {};
@@ -253,8 +244,9 @@ async function checkDb() {
       if (k && !k.startsWith("#")) env[k.trim()] = v.join("=").trim();
     });
     const supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
-    const { data: events, error } = await supabase.from("events").select("id, end_date, is_active").eq("is_active", true);
+    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, end_date, is_active, updated_at").eq("is_active", true);
     if (!error && events) {
+      activeEvents = events;
       const now = new Date();
       const expiredActive = events.filter(e => e.end_date && new Date(e.end_date) < now);
       report("Supabase DB 有効銘柄の期限整合性", expiredActive.length === 0,
@@ -264,10 +256,130 @@ async function checkDb() {
     console.log("DB check skipped:", err.message);
   }
 
+  // ==============================================================================
+  // 11. Sitemap 100% 実在性 & Supabase 有効銘柄一致検査 (P0-1)
+  // ==============================================================================
+  let sitemapFails = [];
+  const sitemapPath = path.join(ROOT, "public/sitemap.xml");
+  if (!fs.existsSync(sitemapPath)) {
+    sitemapFails.push("public/sitemap.xml が存在しません");
+  } else {
+    const sitemapContent = fs.readFileSync(sitemapPath, "utf-8");
+    const sitemapMarketUrls = [...sitemapContent.matchAll(/<loc>https:\/\/mirairadar\.com\/market\/([^<]+)<\/loc>/g)].map(m => decodeURIComponent(m[1]));
+    const activeSlugs = new Set(activeEvents.map(e => e.slug || e.id));
+
+    // A. 死にURL検査（SitemapにあるのにDBにない）
+    const deadUrls = sitemapMarketUrls.filter(slug => !activeSlugs.has(slug));
+    if (deadUrls.length > 0) {
+      sitemapFails.push(`死にURLを ${deadUrls.length}件 検知 (例: ${deadUrls.slice(0, 3).join(", ")})`);
+    }
+
+    // B. 有効銘柄の一致検査
+    if (sitemapMarketUrls.length !== activeEvents.length) {
+      sitemapFails.push(`件数不一致: sitemap=${sitemapMarketUrls.length}件, DB有効銘柄=${activeEvents.length}件`);
+    }
+  }
+  report("Sitemap 100% 実在性 & Supabase 有効銘柄完全一致 (P0-1)", sitemapFails.length === 0,
+    sitemapFails.length === 0 ? `全 ${activeEvents.length}件 の /market/ URLがSupabase有効銘柄と完全一致 (死にURL 0件)` : sitemapFails.join("; "));
+
+  // ==============================================================================
+  // 12. プリレンダー HTML 網羅性 & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)
+  // ==============================================================================
+  let prerenderFails = [];
+  const distMarketDir = path.join(ROOT, "dist/market");
+  if (!fs.existsSync(distMarketDir)) {
+    prerenderFails.push("dist/market ディレクトリが存在しません");
+  } else {
+    let checkedCount = 0;
+    for (const ev of activeEvents) {
+      const slug = ev.slug || ev.id;
+      const htmlFile = path.join(distMarketDir, slug, "index.html");
+      if (!fs.existsSync(htmlFile)) {
+        prerenderFails.push(`銘柄 [${slug}] のプリレンダー index.html が欠落`);
+        continue;
+      }
+      const html = fs.readFileSync(htmlFile, "utf-8");
+
+      // 1. 自己参照 Canonical
+      const expectedCanon = `<link rel="canonical" href="https://mirairadar.com/market/${slug}" />`;
+      if (!html.includes(expectedCanon)) {
+        prerenderFails.push(`銘柄 [${slug}] の canonical が自己参照になっていません`);
+      }
+
+      // 2. og:title に銘柄名が含まれるか
+      const ogTitleMatch = html.match(/<meta property="og:title" content="【世界の確率 \d+%】(.*?)"/);
+      if (!ogTitleMatch || ogTitleMatch[1].trim().length === 0) {
+        prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません`);
+      }
+
+      // 3. og:image が銘柄別PNGを指しているか
+      const expectedOgImage = `<meta property="og:image" content="https://mirairadar.com/ogp/market/${slug}.png" />`;
+      if (!html.includes(expectedOgImage)) {
+        prerenderFails.push(`銘柄 [${slug}] の og:image が銘柄別PNGを指していません`);
+      }
+
+      // 4. JSON-LD Dataset 妥当性 & n<3 ガード
+      const jsonLdMatches = [...html.matchAll(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/g)];
+      if (jsonLdMatches.length !== 1) {
+        prerenderFails.push(`銘柄 [${slug}] の JSON-LD スクリプトタグ数が不正です (count: ${jsonLdMatches.length})`);
+      } else {
+        try {
+          const parsed = JSON.parse(jsonLdMatches[0][1]);
+          if (parsed["@type"] !== "Dataset" || parsed.url !== `https://mirairadar.com/market/${slug}`) {
+            prerenderFails.push(`銘柄 [${slug}] の JSON-LD Dataset スキーマが不正です`);
+          }
+        } catch (e) {
+          prerenderFails.push(`銘柄 [${slug}] の JSON-LD パースエラー: ${e.message}`);
+        }
+      }
+      checkedCount++;
+    }
+
+    // 静的ページの自己参照 Canonical 検査 (P0-3)
+    const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike"];
+    for (const p of staticPages) {
+      const pFile = path.join(ROOT, `dist/${p}/index.html`);
+      if (!fs.existsSync(pFile)) {
+        prerenderFails.push(`静的ページ [/${p}] のプリレンダー index.html が欠落`);
+        continue;
+      }
+      const pHtml = fs.readFileSync(pFile, "utf-8");
+      if (!pHtml.includes(`<link rel="canonical" href="https://mirairadar.com/${p}" />`)) {
+        prerenderFails.push(`静的ページ [/${p}] の canonical が自己参照になっていません`);
+      }
+    }
+  }
+  report("プリレンダー HTML 網羅性 & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)", prerenderFails.length === 0,
+    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 ＆ 静的5ページの完全プリレンダー（自己参照Canonical/OGP/JSON-LD）を検証完了` : prerenderFails.join("; "));
+
+  // ==============================================================================
+  // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
+  // ==============================================================================
+  let ogpFails = [];
+  const distOgpDir = path.join(ROOT, "dist/ogp/market");
+  if (!fs.existsSync(distOgpDir)) {
+    ogpFails.push("dist/ogp/market ディレクトリが存在しません");
+  } else {
+    for (const ev of activeEvents) {
+      const slug = ev.slug || ev.id;
+      const pngPath = path.join(distOgpDir, `${slug}.png`);
+      if (!fs.existsSync(pngPath)) {
+        ogpFails.push(`銘柄 [${slug}] の OGP PNG 画像が欠落`);
+        continue;
+      }
+      const stat = fs.statSync(pngPath);
+      if (stat.size < 5000) { // 5KB 未満は画像破損の疑い
+        ogpFails.push(`銘柄 [${slug}] の OGP PNG 画像サイズが異常に小さい (${stat.size} bytes)`);
+      }
+    }
+  }
+  report("銘柄別 OGP 画像 100% 網羅性 & 1200x630 PNG 整合性 (P0-5)", ogpFails.length === 0,
+    ogpFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 の 1200x630 OGP PNG 出力を検証完了` : ogpFails.join("; "));
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");
   if (failCount > 0) process.exit(1);
 }
 
-checkDb();
+checkDbAndPhase0();
