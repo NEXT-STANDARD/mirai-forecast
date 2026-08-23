@@ -37,7 +37,8 @@ export const ForecastHubPage: React.FC<ForecastHubPageProps> = ({
     applySeoMetadata({
       title: 'サイバー予報士プロファイル ＆ 全国ランキング ｜ 未来レーダー (MiraiRadar)',
       description: '未来レーダーのサイバー予報士ランク制度（Lv.1〜Lv.10）。あなたの未来予報的中率、連続ストリーク、投票ポートフォリオ、全国クォンツランキングをリアルタイム可視化。',
-      canonicalUrl: 'https://mirairadar.com/forecast',
+      // /forecast・/profile・/rankings が1コンポーネント。canonical は実パスから決める
+      canonicalUrl: `https://mirairadar.com${typeof window !== 'undefined' && ['/forecast', '/profile', '/rankings'].includes(window.location.pathname) ? window.location.pathname : '/forecast'}`,
       ogType: 'website',
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });

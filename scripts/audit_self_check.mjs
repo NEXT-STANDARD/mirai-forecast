@@ -764,6 +764,36 @@ async function checkDbAndPhase0() {
     englishTitleFails.length === 0 ? `有効全${activeEvents.length}銘柄で、接頭辞を除いた本文が日本語であることを確認` : englishTitleFails.join("; "));
 
   // ==============================================================================
+  // 24. 描画後 canonical の自己参照検査 (N-44)
+  // ==============================================================================
+  // プリレンダーHTMLの canonical が正しくても、React が起動後に applySeoMetadata で
+  // 上書きする。Google は描画後を見るため、そこが他所を指すと自ら索引から降りる。
+  // 静的HTMLだけを見る検査では検出できないので、ソース側で2点を強制する。
+  let canonFails = [];
+  {
+    const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan"];
+    // 複数ルートを1コンポーネントが担当する場合、canonical は実パスから決めなければならない
+    const MULTI_ROUTE_COMPONENTS = ["ForecastHubPage.tsx", "AiConnectorPage.tsx"];
+    const compDir = path.join(ROOT, "src/components");
+    for (const file of fs.readdirSync(compDir).filter(f => f.endsWith(".tsx"))) {
+      const src = fs.readFileSync(path.join(compDir, file), "utf-8");
+      const literal = src.match(/canonicalUrl:\s*['"]([^'"]+)['"]/);
+      if (literal) {
+        const url = literal[1];
+        const routePart = url.replace(/^https?:\/\/[^/]+/, "") || "/";
+        if (!PAGE_ROUTES.includes(routePart)) {
+          canonFails.push(`${file} の canonical [${url}] はページのURLではありません（APIエンドポイント等を指していないか）`);
+        }
+        if (MULTI_ROUTE_COMPONENTS.includes(file)) {
+          canonFails.push(`${file} は複数ルートを担当するのに canonical が固定値 [${url}] です。実パスから決める必要があります`);
+        }
+      }
+    }
+  }
+  report("描画後 canonical の自己参照検査 (N-44)", canonFails.length === 0,
+    canonFails.length === 0 ? "ページコンポーネントの canonical が実ページURLを指し、複数ルート担当は実パス由来であることを確認" : canonFails.join("; "));
+
+  // ==============================================================================
   // 21. 選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制の適正性検査 (N-38 完全解決)
   // ==============================================================================
   let n38Fails = [];

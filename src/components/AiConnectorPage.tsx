@@ -24,7 +24,9 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
     applySeoMetadata({
       title: 'WebMCP AI連携ガイド (Claude / Cursor / ChatGPT) ｜ 未来レーダー',
       description: '未来レーダーのWebMCPオープンAPI連携ガイド。Claude DesktopやCursor、自律型AIエージェントからリアルタイムに世界のオッズと世論スプレッドを取得。',
-      canonicalUrl: 'https://mirairadar.com/api/mcp',
+      // canonical は「そのページ自身のURL」。APIエンドポイントを指すと自ら索引から降りる
+      // （/ai-connector と /developers が1コンポーネントなので実パスから決める）
+      canonicalUrl: `https://mirairadar.com${typeof window !== 'undefined' && window.location.pathname === '/developers' ? '/developers' : '/ai-connector'}`,
       ogType: 'article'
     });
   }, []);

@@ -405,9 +405,22 @@ async function prerenderAll() {
       title: 'Polymarket（ポリマーケット）は日本から使えるのか？規制の現状と日本語での見方・活用法 ｜ 未来レーダー',
       description: '世界最大の予測市場Polymarketは日本から使えるのか？2026年現在の利用制限、賭博規制の整理、日本語でリアルマネー確率を閲覧・比較する代替手段を分かりやすく解説。',
       publishedAt: '2026-08-23',
-      canonical: `${SITE_URL}/guide/polymarket-japan`
+      canonical: `${SITE_URL}/guide/polymarket-japan`,
+      // 関連銘柄は記事ソース（src/content/guides/*.ts）を唯一の正とする。
+      // ここに二重で持つと、記事側を直してもプリレンダーに届かない（第12回 N-43）
+      sourceFile: 'src/content/guides/polymarketJapan.ts'
     }
   ];
+
+  // 記事ソースから relatedMarketSlugs を取り出す
+  const readRelatedSlugs = (sourceFile) => {
+    const abs = path.join(ROOT, sourceFile);
+    if (!fs.existsSync(abs)) return [];
+    const src = fs.readFileSync(abs, 'utf-8');
+    const m = src.match(/relatedMarketSlugs:\s*\[([\s\S]*?)\]/);
+    if (!m) return [];
+    return [...m[1].matchAll(/['"]([^'"]+)['"]/g)].map(x => x[1]);
+  };
 
   console.log(`📚 ガイド記事ページ ${guideArticles.length}件 のプリレンダーHTMLを生成中...`);
   const guideBaseDir = path.join(DIST_DIR, 'guide');
@@ -458,7 +471,18 @@ async function prerenderAll() {
     const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(articleJsonLd, null, 2)}\n    </script>`;
     html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
 
-    const relatedSlugs = guide.relatedSlugs || ['fed-decision-in-september-762', 'boj-rate-hike-by-december-2026', 'openai-gpt-5-release-2026'];
+    // 記事側のプロパティ名は relatedMarketSlugs。relatedSlugs で読んでいたため常に
+    // 未定義となり、実在しない slug を含むハードコード配列が使われていた（第12回 N-43）
+    const relatedSlugs = readRelatedSlugs(guide.sourceFile);
+    // 死んだリンクを黙って出さない：有効銘柄に無い slug があればビルドを止める
+    const activeSlugSet = new Set(events.map(e => String(e.slug || e.id)));
+    const deadSlugs = relatedSlugs.filter(sl => !activeSlugSet.has(sl));
+    if (relatedSlugs.length === 0) {
+      throw new Error(`❌ [CRITICAL] 記事 [${guide.slug}] の relatedMarketSlugs が空です。内部リンクが生成できません。`);
+    }
+    if (deadSlugs.length > 0) {
+      throw new Error(`❌ [CRITICAL] 記事 [${guide.slug}] が有効銘柄に存在しない slug へリンクしています: ${deadSlugs.join(', ')}`);
+    }
     const crawlableLinksHtml = `
   <div id="root">
     <main class="prerender-guide-shell" style="max-width:800px;margin:0 auto;padding:24px;font-family:sans-serif;">
