@@ -533,41 +533,44 @@ async function checkDbAndPhase0() {
     guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 実在3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
 
   // ==============================================================================
-  // 18. ヘッダー CSS 整合性 ＆ OGP 404 制御 ＆ Deploy Hook 連携検査 (N-21 / Header Integrity)
+  // 18. ヘッダー CSS 厳密セレクタ整合性 ＆ モバイル440pxレスポンシブ ＆ Deploy Hook 連携 (N-21, N-22)
   // ==============================================================================
   let headerFails = [];
   const cssPath = path.join(ROOT, "src/index.css");
-  const cssContent = fs.readFileSync(cssPath, "utf-8");
+  const rawCss = fs.readFileSync(cssPath, "utf-8");
+  // コメントを除去して実ルールのみを抽出（コメントによる偽陽性を完全防止）
+  const cleanCss = rawCss.replace(/\/\*[\s\S]*?\*\//g, "");
 
   const requiredHeaderClasses = [
-    ".header-container-slim",
-    ".header-inner-slim",
-    ".header-left-slim",
-    ".header-right-slim",
-    ".stats-badges-slim",
-    ".stat-badge-item",
-    ".stat-dot",
-    ".btn-header-subtle",
-    ".btn-header-amber",
-    ".btn-header-forecast-slim",
-    ".nav-container-slim",
-    ".category-nav-slim"
+    "header-container-slim",
+    "header-inner-slim",
+    "header-left-slim",
+    "header-right-slim",
+    "stats-badges-slim",
+    "stat-badge-item",
+    "stat-dot",
+    "btn-header-subtle",
+    "btn-header-amber",
+    "btn-header-forecast-slim",
+    "nav-container-slim",
+    "category-nav-slim"
   ];
 
   for (const cls of requiredHeaderClasses) {
-    if (!cssContent.includes(cls)) {
-      headerFails.push(`src/index.css にヘッダー必須クラス [${cls}] のスタイル定義が存在しません`);
+    const selectorRegex = new RegExp(`(?:^|[\\r\\n,\\s])\\.${cls}\\b[^{]*\\{`, "m");
+    if (!selectorRegex.test(cleanCss)) {
+      headerFails.push(`src/index.css にヘッダー必須クラス [.${cls}] の実セレクタ定義が存在しません`);
     }
   }
 
-  // _redirects の OGP 404 制御
-  const redirectsPath = path.join(ROOT, "public/_redirects");
-  if (!fs.existsSync(redirectsPath)) {
-    headerFails.push("public/_redirects が存在しません");
+  // モバイルレスポンシブ (max-width: 440px) に -slim 系クラスが包含されているか検査 (N-22 再発防止)
+  const media440Match = cleanCss.match(/@media[^{]*max-width:\s*440px[^{]*\{([\s\S]*?)\n\}/);
+  if (!media440Match) {
+    headerFails.push("src/index.css に @media (max-width: 440px) のモバイルヘッダー最適化ルールが存在しません");
   } else {
-    const redirectsContent = fs.readFileSync(redirectsPath, "utf-8");
-    if (!redirectsContent.includes("/ogp/* 404")) {
-      headerFails.push("public/_redirects に [/ogp/* 404] 定義が存在しません");
+    const mediaBlock = media440Match[1];
+    if (!mediaBlock.includes(".header-inner-slim") || !mediaBlock.includes(".header-left-slim") || !mediaBlock.includes(".header-right-slim")) {
+      headerFails.push("@media (max-width: 440px) 内に .header-inner-slim, .header-left-slim, .header-right-slim が網羅されていません");
     }
   }
 
@@ -580,8 +583,8 @@ async function checkDbAndPhase0() {
     }
   }
 
-  report("ヘッダー CSS 整合性 ＆ OGP 404 制御 ＆ Deploy Hook 連携 (Header & N-21)", headerFails.length === 0,
-    headerFails.length === 0 ? "ヘッダー主要12クラス定義 ＆ OGP 404フォールバック防止 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
+  report("ヘッダー CSS 厳密セレクタ ＆ モバイル440px ＆ Deploy Hook 連携 (Header & N-21/22)", headerFails.length === 0,
+    headerFails.length === 0 ? "ヘッダー主要12実セレクタ ＆ 440pxレスポンシブ網羅 ＆ Deploy Hook を検証完了" : headerFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);

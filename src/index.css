@@ -566,6 +566,7 @@ h1, h2, h3, h4, h5, h6 {
     display: none !important;
   }
 
+  .header-inner-slim,
   .header-main-bar {
     padding: 0.5rem 0.75rem;
   }
@@ -7919,14 +7920,17 @@ img, canvas, svg, video {
   }
 
   /* ヘッダーのモバイル最適化 */
+  .header-inner-slim,
   .header-main-bar {
     padding: 0.35rem 0.45rem !important;
   }
 
+  .header-left-slim,
   .header-left-cluster {
     gap: 0.3rem !important;
   }
 
+  .header-right-slim,
   .header-right-cluster {
     gap: 0.3rem !important;
   }
@@ -10179,47 +10183,98 @@ body::after {
   }
 }
 
-/* 📱 N-15: 320px 〜 360px 極小画面でのヘッダー収縮最適化 */
-@media (max-width: 360px) {
+/* 📱 N-15 / N-22: 440px 以下のモバイル画面でのヘッダー収縮最適化 (320px〜440px 完全視認) */
+@media (max-width: 440px) {
+  .header-inner-slim,
   .header-main-bar {
-    padding-left: 0.25rem !important;
-    padding-right: 0.25rem !important;
-    gap: 0.2rem !important;
+    padding-left: 0.35rem !important;
+    padding-right: 0.35rem !important;
+    gap: 0.25rem !important;
   }
+  .header-left-slim,
   .header-left-cluster {
-    gap: 0.15rem !important;
+    gap: 0.25rem !important;
     min-width: 0 !important;
     flex-shrink: 1 !important;
   }
-  .header-left-cluster h1 {
-    font-size: 0.82rem !important;
+  .header-left-slim h1,
+  .header-left-cluster h1,
+  .brand-name-bold {
+    font-size: 0.88rem !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
   }
+  .header-right-slim,
   .header-right-cluster {
-    gap: 0.15rem !important;
+    gap: 0.2rem !important;
     flex-shrink: 0 !important;
   }
   .btn-header-subtle {
-    padding: 0 0.25rem !important;
-    font-size: 0.7rem !important;
-    min-width: 24px !important;
+    padding: 0 0.35rem !important;
+    font-size: 0.72rem !important;
+    min-width: 26px !important;
+    height: 28px !important;
+  }
+  .btn-header-amber {
+    padding: 0 0.4rem !important;
+    font-size: 0.72rem !important;
     height: 28px !important;
   }
   .btn-header-forecast-slim {
-    padding: 0 0.25rem !important;
-    font-size: 0.7rem !important;
+    padding: 0 0.35rem !important;
+    font-size: 0.72rem !important;
     height: 28px !important;
+  }
+  .btn-header-refresh {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+  }
+  .btn-market-share-trigger {
+    padding: 0.35rem 0.4rem !important;
+    font-size: 0.72rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .header-inner-slim,
+  .header-main-bar {
+    padding-left: 0.2rem !important;
+    padding-right: 0.2rem !important;
+    gap: 0.15rem !important;
+  }
+  .header-left-slim,
+  .header-left-cluster {
+    gap: 0.15rem !important;
+  }
+  .brand-name-bold {
+    font-size: 0.82rem !important;
+  }
+  .header-right-slim,
+  .header-right-cluster {
+    gap: 0.15rem !important;
+  }
+  .btn-header-subtle {
+    padding: 0 0.25rem !important;
+    font-size: 0.68rem !important;
+    min-width: 24px !important;
+    height: 26px !important;
+  }
+  .btn-header-amber {
+    padding: 0 0.25rem !important;
+    font-size: 0.68rem !important;
+    height: 26px !important;
+  }
+  .btn-header-forecast-slim {
+    padding: 0 0.25rem !important;
+    font-size: 0.68rem !important;
+    height: 26px !important;
   }
   .btn-header-refresh {
     width: 26px !important;
     height: 26px !important;
     min-width: 26px !important;
-  }
-  .btn-market-share-trigger {
-    padding: 0.35rem 0.4rem !important;
-    font-size: 0.72rem !important;
   }
 }
 
