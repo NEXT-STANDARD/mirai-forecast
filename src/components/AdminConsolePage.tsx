@@ -126,24 +126,28 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
   const [realLatency, setRealLatency] = useState<number | null>(null);
 
-  // 審査待ち提案一覧の取得 ＆ 実測レイテンシ計測
+  // 審査待ち提案一覧の取得 ＆ 実測レイテンシ計測（未来の締切日を持つ審査待ち提案のみ抽出）
   const fetchProposals = async () => {
     setIsLoadingProposals(true);
     const start = performance.now();
     try {
       const client = adminSupabase || supabase;
       if (client) {
+        const nowIso = new Date().toISOString();
         const { data, error } = await client
           .from('events')
           .select('*')
           .eq('is_active', false)
+          .gte('end_date', nowIso)
           .order('updated_at', { ascending: false });
 
         const end = performance.now();
         setRealLatency(Math.round(end - start));
 
         if (!error && data) {
-          setProposals(data);
+          const nowMs = Date.now();
+          const futureOnly = data.filter(p => !p.end_date || new Date(p.end_date).getTime() > nowMs);
+          setProposals(futureOnly);
         }
       }
     } catch (err) {

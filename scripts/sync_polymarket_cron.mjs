@@ -173,6 +173,11 @@ async function syncPolymarket() {
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
 
+      // 過去日付・締切切れ銘柄の同期を完全除外（過去を占う銘柄の混入防止）
+      const nowMs = Date.now();
+      const mEndDate = market.endDate || ev.endDate;
+      if (mEndDate && new Date(mEndDate).getTime() <= nowMs) continue;
+
       let probYes = 50;
       if (market.outcomePrices) {
         try {

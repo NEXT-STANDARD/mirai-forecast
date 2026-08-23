@@ -244,6 +244,9 @@ async function runTopicCouncil() {
     candidates = FALLBACK_CANDIDATES;
   }
 
+  // 重複フィルタ（先頭15文字による類似判定）
+  const uniqueCandidates = candidates.filter(c => !existingTitles.some(t => t.includes(c.title_ja.slice(0, 15))));
+
   // 3. 厳格な二者択一（Yes/No整合性）＆ 5W1H排除フィルター（意味が分からない質問の事前自動却下）
   const forbidden5W1H = /何回|どこで|どこが|どこに|誰が|誰を|いくらに|いくらで|いつに|どれくらい|どんな|どうなる/;
   const validBinaryCandidates = uniqueCandidates.filter(c => {
@@ -254,6 +257,11 @@ async function runTopicCouncil() {
     }
     if (!/(?:か|か？|か\?)$/.test(c.title_ja.trim())) {
       console.warn(`⚠️ [自動事前却下] Yes/No疑問文形式でないタイトルを検知: "${c.title_ja}" ➔ 審査パイプライン投入を拒否しました。`);
+      return false;
+    }
+    const nowMs = Date.now();
+    if (c.end_date && new Date(c.end_date).getTime() <= nowMs) {
+      console.warn(`⚠️ [自動事前却下] 過去の日付・締切切れトピックを検知: "${c.title_ja}" (期日: ${c.end_date}) ➔ 審査パイプライン投入を拒否しました。`);
       return false;
     }
     return true;
