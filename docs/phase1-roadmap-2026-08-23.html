@@ -412,6 +412,26 @@ Sitemap 出力 URL 総数       : 142件（死にURL 0件、/guide/polymarket-ja
 <p><strong>③ テストの要件化</strong>: 回帰テストにおいて「テスト対象が存在すること自体」をアサーションの一部と定義（<code>observedProbs.length &gt;= 35</code>）。「全滅して0件になったら条件に合致せず素通りする」という偽陽性の穴を完全に排除しました。</p>
 </div>
 
+<h3 style="margin-top:26px">11-4. ローカルホスト・検証サンドボックス向け接続・実行情報</h3>
+<p>Claude 等の別サンドボックス環境から検証を実施する際の実行コマンドおよびローカルホスト接続仕様です。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>対象</th><th>コマンド / URL</th><th>備考</th></tr></thead><tbody>
+<tr><td><strong>プロジェクトルート</strong></td><td><code>/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast</code></td><td>作業ディレクトリ</td></tr>
+<tr><td><strong>開発サーバー (Dev)</strong></td><td><code>npm run dev</code> ➔ <code>http://localhost:5173</code></td><td>Vite 開発サーバー（HMR・動的API結合）</td></tr>
+<tr><td><strong>本番プレビュー (Preview)</strong></td><td><code>npm run preview</code> ➔ <code>http://localhost:4173</code></td><td><code>dist/</code>（プリレンダーHTML含む）をローカル配信</td></tr>
+<tr><td><strong>静的サーバー (Static)</strong></td><td><code>npx serve dist -p 4173</code> ➔ <code>http://localhost:4173</code></td><td><code>.html</code> 直接配信検証用</td></tr>
+<tr><td><strong>本番公開URL (Prod)</strong></td><td><code>https://mirairadar.com</code></td><td>Cloudflare Pages 本番環境</td></tr>
+<tr><td><strong>フルビルド</strong></td><td><code>npm run build</code></td><td>Sitemap ➔ OGP ➔ TSC ➔ Vite ➔ Prerender 一括実行</td></tr>
+<tr><td><strong>自律監査テスト</strong></td><td><code>node scripts/audit_self_check.mjs</code></td><td>全20項目の自動テスト（20/20 PASS）</td></tr>
+</tbody></table></div>
+
+<div class="evidence">ローカル成果物パス一覧
+─────────────────────────────────────────────
+・プリレンダーHTML : dist/market/&lt;slug&gt;.html（全129件 / 単一.html形式）
+・固定ページHTML   : dist/index.html, dist/forecast.html, dist/rankings.html, dist/ai-connector.html, dist/developers.html, dist/letter-to-mike.html, dist/guide/polymarket-japan.html
+・銘柄別OGP画像    : dist/ogp/market/&lt;slug&gt;.png（全129件 / 1200x630 PNG）
+・オッズ辞書       : public/data/market_odds.json（1,110件）
+・AIインサイト辞書 : public/data/ai_insights.json</div>
+
 <hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
 <p style="text-align:center;color:var(--ink-faint);font-size:13px">未来レーダー (MiraiRadar.com) ｜ 世界の集合知（Polymarket） × 日本の世論インテリジェンス</p>
 </div></body></html>

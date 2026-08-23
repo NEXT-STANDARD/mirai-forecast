@@ -31,6 +31,30 @@
 | **Check #14** | 回帰テストの穴の完全封鎖 | ✅ PASS | 世界オッズ観測数35件以上 & 10種類以上の多様性をアサート。ライブオッズ0件時のビルド強制停止を配備 |
 | **P0-6** | Cloudflare Functions が実行されない（`/api/mcp` が SPA HTML） | ユーザー | 唯一残るインフラ設定項目 |
 
+---
+
+### 🌐 ローカルホスト・検証サンドボックス接続情報（Localhost & Testing Environment）
+
+Claude等の別環境・サンドボックスからローカル検証を実施する際の接続・起動仕様です。
+
+| 対象 | コマンド / URL | 備考 |
+|---|---|---|
+| **プロジェクトルート** | `/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast` | 作業ディレクトリ |
+| **開発サーバー (Dev)** | `npm run dev` ➔ `http://localhost:5173` | Vite 開発サーバー（HMR・動的API結合） |
+| **本番プレビュー (Preview)** | `npm run preview` ➔ `http://localhost:4173` | `dist/`（プリレンダーHTML含む）を配信 |
+| **静的サーバー (Static)** | `npx serve dist -p 4173` ➔ `http://localhost:4173` | `.html` 直配信テスト用 |
+| **本番公開URL (Prod)** | `https://mirairadar.com` | Cloudflare Pages 本番環境 |
+| **フルビルド** | `npm run build` | Sitemap ➔ OGP ➔ TSC ➔ Vite ➔ Prerender 一括実行 |
+| **自律監査テスト** | `node scripts/audit_self_check.mjs` | 全20項目の自動テスト（20/20 PASS） |
+
+#### ローカル成果物パス
+- プリレンダーHTML: `dist/market/<slug>.html`（全129件 / 単一.html形式）
+- 固定ページHTML: `dist/index.html`, `dist/forecast.html`, `dist/rankings.html`, `dist/ai-connector.html`, `dist/developers.html`, `dist/letter-to-mike.html`, `dist/guide/polymarket-japan.html`
+- 銘柄別OGP画像: `dist/ogp/market/<slug>.png`（全129件 / 1200x630 PNG）
+- オッズ辞書: `public/data/market_odds.json`（1,110件）
+- AIインサイト辞書: `public/data/ai_insights.json`
+
+
 ### オッズ解決の仕組み（毎回ここで迷うので記録）
 
 ```

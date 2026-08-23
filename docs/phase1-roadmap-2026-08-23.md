@@ -96,4 +96,26 @@
 2. **多肢イベントの本命抽出**: 予測市場における「1イベント＝複数サブマーケット」のデータ構造に対し、単純な `markets[0]` 参照ではなく「タイトル指定候補のマッチング」または「最高確率（Leader）の抽出」を行うセマンティック解決アルゴリズムを導入。
 3. **テストの要件化**: 回帰テストにおいて「テスト対象が存在すること自体」をアサーションの一部と定義（`observedProbs.length >= 35`）。「全滅して0件になったら条件に合致せず素通りする」という偽陽性の穴を完全に排除しました。
 
+### 11-4. ローカルホスト・検証サンドボックス向け接続・実行情報
+
+Claude 等の別サンドボックス環境から検証を実施する際の実行コマンドおよびローカルホスト接続仕様です。
+
+| 対象 | コマンド / URL | 備考 |
+|---|---|---|
+| **プロジェクトルート** | `/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast` | 作業ディレクトリ |
+| **開発サーバー (Dev)** | `npm run dev` ➔ `http://localhost:5173` | Vite 開発サーバー（HMR・動的API結合） |
+| **本番プレビュー (Preview)** | `npm run preview` ➔ `http://localhost:4173` | `dist/`（プリレンダーHTML含む）をローカル配信 |
+| **静的サーバー (Static)** | `npx serve dist -p 4173` ➔ `http://localhost:4173` | `.html` 直接配信検証用 |
+| **本番公開URL (Prod)** | `https://mirairadar.com` | Cloudflare Pages 本番環境 |
+| **フルビルド** | `npm run build` | Sitemap ➔ OGP ➔ TSC ➔ Vite ➔ Prerender 一括実行 |
+| **自律監査テスト** | `node scripts/audit_self_check.mjs` | 全20項目の自動テスト（20/20 PASS） |
+
+#### ローカル成果物パス一覧
+- プリレンダーHTML: `dist/market/<slug>.html`（全129件 / 単一.html形式）
+- 固定ページHTML: `dist/index.html`, `dist/forecast.html`, `dist/rankings.html`, `dist/ai-connector.html`, `dist/developers.html`, `dist/letter-to-mike.html`, `dist/guide/polymarket-japan.html`
+- 銘柄別OGP画像: `dist/ogp/market/<slug>.png`（全129件 / 1200x630 PNG）
+- オッズ辞書: `public/data/market_odds.json`（1,110件）
+- AIインサイト辞書: `public/data/ai_insights.json`
+
+
 

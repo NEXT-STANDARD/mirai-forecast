@@ -88,13 +88,7 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/epl-2027-champion-20260701200428749</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/bitcoin-above-on-august-23-2026</loc>
+    <loc>https://mirairadar.com/market/bitcoin-up-or-down-on-august-23-2026</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -118,49 +112,7 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-before-2027</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/elon-musk-of-tweets-august-22-august-24-2026</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/atp-nakashi-tiafoe-2026-08-22</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/mlb-tor-nyy-2026-08-22</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/presidential-election-winner-2028</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/wta-bejlek-gauff-2026-08-22</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/atp-cobolli-fils-2026-08-22</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/bitcoin-up-or-down-on-august-23-2026</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -172,7 +124,19 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/atp-cobolli-fils-2026-08-22</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/mlb-tb-bal-2026-08-22</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/epl-2027-champion-20260701200428749</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -184,7 +148,19 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/wta-pegula-swiatek-2026-08-22</loc>
+    <loc>https://mirairadar.com/market/elon-musk-of-tweets-august-22-august-24-2026</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/wta-bejlek-gauff-2026-08-22</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/mlb-tor-nyy-2026-08-22</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -202,13 +178,37 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/what-price-will-ethereum-hit-before-2027</loc>
+    <loc>https://mirairadar.com/market/presidential-election-winner-2028</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-before-2027</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/market/brazil-presidential-election</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/bitcoin-above-on-august-23-2026</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/wta-pegula-swiatek-2026-08-22</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/what-price-will-ethereum-hit-before-2027</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -226,19 +226,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/fed-decision-in-september-762</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-in-august-2026</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/lal-elc-bar-2026-08-23-more-markets</loc>
+    <loc>https://mirairadar.com/market/fed-decision-in-september-762</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -250,7 +244,7 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/which-party-will-gain-most-seats-in-russian-parliamentary-election</loc>
+    <loc>https://mirairadar.com/market/epl-mac-bou-2026-08-23-more-markets</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -262,7 +256,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/epl-mac-bou-2026-08-23-more-markets</loc>
+    <loc>https://mirairadar.com/market/which-party-will-gain-most-seats-in-russian-parliamentary-election</loc>
+    <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/lal-elc-bar-2026-08-23-more-markets</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -274,13 +274,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/epl-new-liv-2026-08-23</loc>
+    <loc>https://mirairadar.com/market/bitcoin-above-on-august-24-2026</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/bitcoin-above-on-august-24-2026</loc>
+    <loc>https://mirairadar.com/market/epl-new-liv-2026-08-23</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -460,13 +460,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-sf-bos-2026-08-22</loc>
+    <loc>https://mirairadar.com/market/mlb-laa-tex-2026-08-22</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-laa-tex-2026-08-22</loc>
+    <loc>https://mirairadar.com/market/mlb-sf-bos-2026-08-22</loc>
     <lastmod>2026-08-23</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -628,13 +628,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-tor-nyy-2026-08-21</loc>
+    <loc>https://mirairadar.com/market/mlb-stl-phi-2026-08-21</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-stl-phi-2026-08-21</loc>
+    <loc>https://mirairadar.com/market/mlb-tor-nyy-2026-08-21</loc>
     <lastmod>2026-08-22</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -676,13 +676,13 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-sf-cle-2026-08-20</loc>
+    <loc>https://mirairadar.com/market/mlb-tor-tb-2026-08-20</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/mlb-tor-tb-2026-08-20</loc>
+    <loc>https://mirairadar.com/market/mlb-sf-cle-2026-08-20</loc>
     <lastmod>2026-08-20</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -712,6 +712,12 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/sam-altman-world-ai-summit-tokyo</loc>
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/official-1787044209435</loc>
     <lastmod>2026-08-18</lastmod>
     <changefreq>hourly</changefreq>
@@ -725,12 +731,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/openai-gpt5-release-2026</loc>
-    <lastmod>2026-08-18</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/sam-altman-world-ai-summit-tokyo</loc>
     <lastmod>2026-08-18</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
