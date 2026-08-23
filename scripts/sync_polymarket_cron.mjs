@@ -769,9 +769,14 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         entertainment: '🎬 エンタメ',
       };
 
-      const endDateStr = c.market.endDate || '2026-12-31';
+      // 締切はイベント単位の値を優先する。markets[0].endDate は多肢イベントでは
+      // 先頭候補の清算日で、イベント自体の締切（試合日・投票日）とずれる（第12回 N-42）
+      const endDateStr = c.ev?.endDate || c.market.endDate || '2026-12-31';
       const isExpired = new Date(endDateStr) < new Date();
-      const hasJpFinal = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(titleJa || '');
+      // 日本語判定は接頭辞を除いた本文で行う。「経済・市場予測: Will …」のように
+      // 接頭辞だけが日本語だと、英語のまま公開されるフェイルセーフの穴になる（第12回 N-41）
+      const titleBody = String(titleJa || '').replace(/^(?:経済・市場予測|国際政治動向|AI・テック予測|エンタメ予測|スポーツ予測)[:：]\s*/, '');
+      const hasJpFinal = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(titleBody);
 
       return {
         id: c.id,
