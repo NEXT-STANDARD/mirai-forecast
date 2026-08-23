@@ -214,7 +214,11 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             {item.hasWorldOdds ? (
               <span className="stat-main text-cyan-400">
                 YES {item.worldProbYes}%
-                <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+                {item.isMultiChoice && item.leaderName ? (
+                  <span className="stat-sub-prob"> ／ 本命 {item.leaderName}</span>
+                ) : (
+                  <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+                )}
               </span>
             ) : item.originType === 'domestic_poll' ? (
               <span className="stat-main text-slate-300 text-sm font-medium">

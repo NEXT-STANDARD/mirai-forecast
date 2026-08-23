@@ -172,12 +172,17 @@ async function prerenderAll() {
     let ogTitle = '';
 
     if (isPolymarketObserved) {
-      ogTitle = isMultiChoice && leaderName
-        ? `【世界本命 ${worldProb}%】${titleJa}`
+      const isLeader = isMultiChoice && leaderName;
+      // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
+      ogTitle = isLeader
+        ? `【世界本命 ${leaderName} ${worldProb}%】${titleJa}`
         : `【世界の確率 ${worldProb}%】${titleJa}`;
+      const worldPhrase = isLeader
+        ? `世界のリアルマネーは本命 ${leaderName} が ${worldProb}%`
+        : `世界のリアルマネーはYES ${worldProb}%`;
       description = hasConsensus
-        ? `世界のリアルマネーはYES ${worldProb}%、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
-        : `世界のリアルマネーはYES ${worldProb}%。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
+        ? `${worldPhrase}、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
+        : `${worldPhrase}。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
     } else if (isDomestic) {
       // 日本国内独自調査銘柄 (council / official / proposal 等)
       ogTitle = `【日本世論調査】${titleJa}`;

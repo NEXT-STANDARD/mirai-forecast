@@ -175,10 +175,15 @@ async function generateAllMarketOgps() {
       : `<text x="80" y="190" fill="#ffffff" font-family="'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif" font-size="36" font-weight="900" letter-spacing="-0.5">${escapeXml(lines[0])}</text>
          <text x="80" y="240" fill="#ffffff" font-family="'Zen Kaku Gothic New', 'Noto Sans JP', sans-serif" font-size="36" font-weight="900" letter-spacing="-0.5">${escapeXml(lines[1])}</text>`;
 
+    // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
+    const leaderName = isPolymarketObserved && oddsEntry.isMultiChoice ? (oddsEntry.leaderName || null) : null;
     let worldValueText = '';
     if (isPolymarketObserved) {
+      const subLine = leaderName
+        ? `本命 ${leaderName}　｜　この確率は本命候補のもの`
+        : `NO ${100 - worldProb}% ｜ 24h価格連動中`;
       worldValueText = `<text x="40" y="105" fill="#38bdf8" font-family="monospace, sans-serif" font-size="52" font-weight="bold">YES ${worldProb}%</text>
-         <text x="40" y="150" fill="#94a3b8" font-family="'Noto Sans JP', sans-serif" font-size="17">NO ${100 - worldProb}% ｜ 24h価格連動中</text>`;
+         <text x="40" y="150" fill="#94a3b8" font-family="'Noto Sans JP', sans-serif" font-size="17">${escapeXml(subLine)}</text>`;
     } else if (isDomestic) {
       worldValueText = `<text x="40" y="105" fill="#94a3b8" font-family="'Noto Sans JP', sans-serif" font-size="30" font-weight="bold">日本世論独自調査</text>
          <text x="40" y="150" fill="#64748b" font-family="'Noto Sans JP', sans-serif" font-size="16">世論専用（世界オッズなし）</text>`;

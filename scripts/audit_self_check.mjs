@@ -319,8 +319,9 @@ async function checkDbAndPhase0() {
         prerenderFails.push(`銘柄 [${slug}] の canonical が自己参照になっていません`);
       }
 
-      // 2. og:title に銘柄名および妥当なプレフィックス（【世界の確率 X%】/【世界本命 X%】/【日本世論調査】/【世界観測銘柄】）が含まれるか
-      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|世界本命 \d+%|日本世論調査|世界観測銘柄)】(.*?)"/);
+      // 2. og:title に銘柄名および妥当なプレフィックスが含まれるか
+      //    【世界の確率 X%】/【世界本命 <本命名> X%】/【日本世論調査】/【世界観測銘柄】
+      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|世界本命 .+? \d+%|日本世論調査|世界観測銘柄)】(.*?)"/);
       if (!ogTitleMatch || ogTitleMatch[2].trim().length === 0) {
         prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません (got: ${html.match(/<meta property="og:title" content="(.*?)"/)?.[1]})`);
       } else {
@@ -630,13 +631,16 @@ async function checkDbAndPhase0() {
     if (!ogTitleMatch) continue;
     const ogTitle = ogTitleMatch[1];
 
-    // 【世界本命 〇%】の場合、単一英文字（A, B, C等）やプレースホルダが本命になっていないか
+    // 【世界本命 <本命名> 〇%】から本命名を取り出して検査する
+    // （第11回：本命名が og:title に無く、日本語タイトルを英語式でテストして空振りしていた）
     if (ogTitle.includes("【世界本命")) {
-      const leaderMatch = ogTitle.match(/【世界本命\s*\d+%】([^｜]+)/);
-      if (leaderMatch) {
-        const text = leaderMatch[1].trim();
-        if (INDEPENDENT_DUMMY_REGEX.test(text) || /^[A-Z]$/.test(text)) {
-          placeholderFails.push(`${file} の og:title にプレースホルダ本命 [${text}] が検出されました`);
+      const leaderMatch = ogTitle.match(/【世界本命\s+(.+?)\s+(\d+)%】/);
+      if (!leaderMatch) {
+        placeholderFails.push(`${file} の og:title が【世界本命 <本命名> N%】形式になっていません: ${ogTitle.slice(0, 40)}`);
+      } else {
+        const leader = leaderMatch[1].trim();
+        if (INDEPENDENT_DUMMY_REGEX.test(leader) || /^[A-Z]$/.test(leader)) {
+          placeholderFails.push(`${file} の og:title にプレースホルダ本命 [${leader}] が検出されました`);
         }
       }
     }
