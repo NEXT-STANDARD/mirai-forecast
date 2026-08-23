@@ -241,9 +241,9 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 1.25rem;
+  padding: 0.5rem 0.8rem;
   gap: 1rem;
-  max-width: 1440px;
+  max-width: 1560px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
@@ -575,10 +575,10 @@ h1, h2, h3, h4, h5, h6 {
 /* カテゴリナビバー（スリム型） */
 .nav-container-slim {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  max-width: 1440px;
+  max-width: 1560px;
   margin: 0 auto;
   width: 100%;
-  padding: 0 1.25rem;
+  padding: 0 0.8rem;
   box-sizing: border-box;
 }
 
