@@ -2,8 +2,9 @@ import type { MarketItem, CategoryType } from '../types';
 import { supabase } from './supabaseClient';
 import { INITIAL_EVENTS } from '../data/initialEvents';
 import { AI_INSIGHTS_MASTER } from '../data/aiInsightsMaster';
+import { MARKET_ODDS_MASTER } from '../data/marketOddsMaster';
 
-const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=60&active=true&closed=false&order=volume24hr&ascending=false';
+const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=100&active=true&closed=false&order=volume24hr&ascending=false';
 
 /**
  * AIインサイトを確実に解決するセマンティック・インテリジェンス関数
@@ -117,53 +118,89 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       }
     }
 
-    // 2. Polymarket API からリアルタイムのオッズ・出来高を取得
-    let liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string }>();
+    // 2. Polymarket API からリアルタイムのオッズ・出来高を取得 (MARKET_ODDS_MASTER で初期化し最新オッズをオーバーレイ)
+    const liveOddsMap = new Map<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; leaderName?: string | null; isMultiChoice?: boolean }>();
+    
+    // マスター辞書から初期投入
+    Object.entries(MARKET_ODDS_MASTER).forEach(([key, val]) => {
+      liveOddsMap.set(key, val as any);
+    });
+
     try {
       const res = await fetch(POLYMARKET_EVENTS_API);
       if (res.ok) {
         const liveData = await res.json();
         liveData.forEach((ev: any) => {
-          if (ev.markets && ev.markets[0]) {
-            const market = ev.markets[0];
+          if (ev.markets && ev.markets.length > 0) {
+            const markets = ev.markets;
+            let targetMarket = markets[0];
+            const isMultiChoice = markets.length > 1;
+            let leaderName = null;
+
+            if (isMultiChoice) {
+              let maxProb = -1;
+              let topM = markets[0];
+              markets.forEach((m: any) => {
+                let p = 0;
+                if (m.outcomePrices) {
+                  try {
+                    const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+                    if (Array.isArray(parsed) && parsed[0]) p = parseFloat(parsed[0]);
+                  } catch {}
+                }
+                if (p > maxProb) {
+                  maxProb = p;
+                  topM = m;
+                }
+              });
+              targetMarket = topM;
+              leaderName = targetMarket.groupItemTitle || targetMarket.question || null;
+            }
+
             let probYes = 50;
-            if (market.outcomePrices) {
+            if (targetMarket.outcomePrices) {
               try {
-                const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;
-                if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
+                const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
+                if (Array.isArray(parsed) && parsed[0]) probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
               } catch {}
             }
             const volume24h = ev.volume24hr || 0;
             const totalVolume = ev.volume || volume24h * 3.5;
-            const probChange24h = market.oneDayPriceChange ? Math.round(parseFloat(market.oneDayPriceChange) * 100) : 0;
+            const probChange24h = targetMarket.oneDayPriceChange ? Math.round(parseFloat(targetMarket.oneDayPriceChange) * 100) : 0;
             
             let clobTokenId: string | undefined = undefined;
-            if (market.clobTokenIds) {
+            if (targetMarket.clobTokenIds) {
               try {
-                const ids = typeof market.clobTokenIds === 'string' ? JSON.parse(market.clobTokenIds) : market.clobTokenIds;
+                const ids = typeof targetMarket.clobTokenIds === 'string' ? JSON.parse(targetMarket.clobTokenIds) : targetMarket.clobTokenIds;
                 if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
               } catch {}
             }
 
-            const odds = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h, clobTokenId };
+            const odds = { probYes, volume24h: Math.round(volume24h), totalVolume: Math.round(totalVolume), probChange24h, clobTokenId, leaderName, isMultiChoice };
             liveOddsMap.set(String(ev.id), odds);
             if (ev.slug) liveOddsMap.set(ev.slug, odds);
           }
         });
       }
     } catch (apiErr) {
-      console.warn('Polymarket Live API failed, using cached odds:', apiErr);
+      console.warn('Polymarket Live API failed, using cached master odds:', apiErr);
     }
 
     // 3. Supabaseの日本語データ + AI_INSIGHTS_MASTER + 最新オッズを結合
     if (dbEvents.length > 0) {
       return dbEvents.map((db) => {
-        const live = liveOddsMap.get(String(db.id)) || liveOddsMap.get(db.slug);
-        const probYes = live ? live.probYes : 50;
-        const volume24h = live ? (live.volume24h || 0) : 0;
-        const totalVolume = live ? (live.totalVolume || 0) : 0;
-        const probChange24h = live ? (live.probChange24h || 0) : 0;
+        const live = liveOddsMap.get(String(db.id)) || (db.slug ? liveOddsMap.get(db.slug) : undefined);
+        const isDomestic = String(db.id).startsWith('council-') || String(db.id).startsWith('official-') || String(db.id).startsWith('proposal-') || ['japan-lower-house-dissolution-2026', 'sam-altman-world-ai-summit-tokyo', 'boj-rate-hike-september-2026'].includes(String(db.id));
+        const originType = isDomestic ? 'domestic_poll' : 'polymarket';
+        const hasWorldOdds = !isDomestic && live !== undefined && typeof live.probYes === 'number';
+
+        const probYes = hasWorldOdds ? live.probYes : 50;
+        const volume24h = hasWorldOdds ? (live.volume24h || 0) : 0;
+        const totalVolume = hasWorldOdds ? (live.totalVolume || 0) : 0;
+        const probChange24h = hasWorldOdds ? (live.probChange24h || 0) : 0;
         const clobTokenId = live ? live.clobTokenId : undefined;
+        const leaderName = live?.leaderName || undefined;
+        const isMultiChoice = live?.isMultiChoice || false;
 
         const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
 
@@ -343,6 +380,10 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           category: categoryKey,
           categoryLabel: mapped?.categoryLabel || categoryLabels[categoryKey] || '📊 経済・金利・暗号資産',
           iconUrl: db.icon_url || '',
+          hasWorldOdds,
+          originType,
+          leaderName,
+          isMultiChoice,
           worldProbYes: probYes,
           worldProbNo: 100 - probYes,
           probChange24h,

@@ -20,6 +20,10 @@ export interface MarketItem {
   category: CategoryType;
   categoryLabel: string;
   iconUrl: string;
+  hasWorldOdds?: boolean; // 🌍 世界予測市場(Polymarket)の実オッズが存在するか
+  originType?: 'polymarket' | 'domestic_poll'; // 銘柄の出所（Polymarket観測 or 日本独自世論調査）
+  leaderName?: string; // 多肢銘柄における本命候補名
+  isMultiChoice?: boolean; // 多肢イベントフラグ
   worldProbYes: number; // 0 to 100
   worldProbNo: number;
   probChange24h: number; // e.g. +12.5 or -5.2

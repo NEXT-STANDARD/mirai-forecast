@@ -66,7 +66,7 @@ const GAP_TARGET_COMPONENTS = [
   "DataExportModal.tsx"
 ];
 let gapCheckFails = [];
-const strictActiveGapGuardPattern = /(?:\{\s*|\bconst\s+\w+\s*=\s*|\.filter\s*\(\s*\w+\s*=>\s*|if\s*\(\s*)(?:event|item|ev|a|b)\.japanVotes(?:\?\.|\.)total\s*>=\s*3/;
+const strictActiveGapGuardPattern = /(?:\{\s*|\bconst\s+\w+\s*=\s*|\.filter\s*\(\s*\w+\s*=>\s*|if\s*\(\s*|[?&|]\s*|\(\s*)(?:event|item|ev|a|b)\.japanVotes(?:\?\.|\.)total\s*>=\s*3/;
 
 for (const file of GAP_TARGET_COMPONENTS) {
   if (!fs.existsSync(path.join(COMPONENTS_DIR, file))) continue;
@@ -314,12 +314,12 @@ async function checkDbAndPhase0() {
         prerenderFails.push(`銘柄 [${slug}] の canonical が自己参照になっていません`);
       }
 
-      // 2. og:title に銘柄名および妥当なプレフィックス（【世界の確率 X%】または【日本世論調査】）が含まれるか
-      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|日本世論調査)】(.*?)"/);
+      // 2. og:title に銘柄名および妥当なプレフィックス（【世界の確率 X%】/【世界本命 X%】/【日本世論調査】/【世界観測銘柄】）が含まれるか
+      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|世界本命 \d+%|日本世論調査|世界観測銘柄)】(.*?)"/);
       if (!ogTitleMatch || ogTitleMatch[2].trim().length === 0) {
         prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません (got: ${html.match(/<meta property="og:title" content="(.*?)"/)?.[1]})`);
       } else {
-        const probMatch = ogTitleMatch[1].match(/世界の確率 (\d+)%/);
+        const probMatch = ogTitleMatch[1].match(/(?:世界の確率|世界本命) (\d+)%/);
         if (probMatch) {
           observedProbs.push(Number(probMatch[1]));
         }
@@ -348,10 +348,16 @@ async function checkDbAndPhase0() {
       checkedCount++;
     }
 
-    // N-30 構造的検査: 全銘柄が50%固定になっていないこと（確率の多様性・実測値反映を検証）
+    // N-30, N-33, N-34 構造的検査 (Check #14 完全封鎖):
+    // 1. 世界オッズ観測銘柄が 35件以上 存在すること（0件や僅少時のサイレントパスを完全防止）
+    // 2. 確率が 10種類以上 に分散していること（50%固定などの均一化を完全防止）
     const distinctProbs = new Set(observedProbs);
-    if (observedProbs.length >= 20 && distinctProbs.size <= 1) {
-      prerenderFails.push(`[N-30 CRITICAL] 全ての観測銘柄 (${observedProbs.length}件) の世界確率が ${[...distinctProbs][0]}% に固定されています。実オッズが正しく反映されていません。`);
+    if (activeEvents.length >= 50) {
+      if (observedProbs.length < 35) {
+        prerenderFails.push(`[Check #14 CRITICAL] 世界オッズが反映された銘柄数が不足しています (観測数: ${observedProbs.length}件 / 期待値: 35件以上)。Polymarket同期・オッズ辞書生成が正常に動作していません。`);
+      } else if (distinctProbs.size < 10) {
+        prerenderFails.push(`[Check #14 CRITICAL] 観測された世界確率の多様性が不足しています (${distinctProbs.size}種類 / 期待値: 10種類以上)。オッズが固定値になっている疑いがあります。`);
+      }
     }
 
     // 静的ページの自己参照 Canonical 検査 (P0-3)

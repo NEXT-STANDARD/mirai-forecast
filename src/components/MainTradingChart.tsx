@@ -237,52 +237,73 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
       </div>
 
       <div className="chart-content-area">
-        {/* OHLCV クォンツ情報バー ＆ 時間軸セレクター */}
-        <div className="chart-stats-toolbar">
-            <div className="ohlcv-metrics">
-              <div className="metric-group main-prob">
-                <span className="metric-lbl">YES 確率</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="metric-val text-cyan-400 font-mono font-extrabold text-base">
-                    {activePoint?.prob ?? currentProb}%
+        {(!event.hasWorldOdds && (event.volume24hUsd === 0 && event.totalVolumeUsd === 0)) ? (
+          <div className="flex flex-col items-center justify-center p-12 text-center bg-slate-950/40 rounded-xl border border-slate-800/60 my-6">
+            <div className="w-12 h-12 rounded-full bg-cyan-950/60 flex items-center justify-center text-cyan-400 mb-3 border border-cyan-800/40 text-xl">
+              📊
+            </div>
+            <h3 className="text-base font-bold text-slate-200 mb-1">
+              {event.originType === 'domestic_poll' ? '日本世論専用調査銘柄' : '世界予測市場 取引データ準備中'}
+            </h3>
+            <p className="text-xs text-slate-400 max-w-md mb-4 leading-relaxed">
+              {event.originType === 'domestic_poll'
+                ? '当銘柄は国内独自の世論意識調査銘柄です。世界予測市場（Polymarket）の板取引履歴は存在しません。下記より直感1票を投票いただけます。'
+                : '当銘柄はPolymarket観測対象ですが、現在オーダーブック取引量が僅少のため価格推移データを受信していません。取引高の発生に伴い自動でチャートが描画されます。'}
+            </p>
+            <div className="flex items-center gap-4 text-xs font-mono bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-800">
+              <span className="text-emerald-400 font-bold">日本世論 YES: {event.japanVotes.percentYes}%</span>
+              <span className="text-slate-500">|</span>
+              <span className="text-slate-400">有効投票数: {event.japanVotes.total}票</span>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* OHLCV クォンツ情報バー ＆ 時間軸セレクター */}
+            <div className="chart-stats-toolbar">
+              <div className="ohlcv-metrics">
+                <div className="metric-group main-prob">
+                  <span className="metric-lbl">YES 確率</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="metric-val text-cyan-400 font-mono font-extrabold text-base">
+                      {activePoint?.prob ?? currentProb}%
+                    </span>
+                    <span className={`delta-tag ${isPositive ? 'pos' : 'neg'}`}>
+                      {isPositive ? '+' : ''}{delta}%
+                    </span>
+                  </div>
+                </div>
+
+                <div className="metric-group hide-on-mobile">
+                  <span className="metric-lbl">24H 変動</span>
+                  <span className={`metric-val ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {delta >= 0 ? '+' : ''}{delta}%
                   </span>
-                  <span className={`delta-tag ${isPositive ? 'pos' : 'neg'}`}>
-                    {isPositive ? '+' : ''}{delta}%
+                </div>
+                <div className="metric-group hide-on-mobile">
+                  <span className="metric-lbl">世界取引高</span>
+                  <span className="metric-val text-slate-200">
+                    ${((event.totalVolumeUsd || event.volume24hUsd || 0) / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}k
                   </span>
                 </div>
               </div>
 
-              <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">24H 変動</span>
-                <span className={`metric-val ${delta >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                  {delta >= 0 ? '+' : ''}{delta}%
-                </span>
-              </div>
-              <div className="metric-group hide-on-mobile">
-                <span className="metric-lbl">世界取引高</span>
-                <span className="metric-val text-slate-200">
-                  ${((event.totalVolumeUsd || event.volume24hUsd || 0) / 1000).toLocaleString(undefined, { maximumFractionDigits: 1 })}k
-                </span>
+              {/* 時間軸ボタン（1H / 24H / 7D / 30D / ALL） */}
+              <div className="timeframe-selector">
+                {(['1H', '24H', '7D', '30D', 'ALL'] as const).map((tf) => (
+                  <button
+                    key={tf}
+                    onClick={() => setTimeframe(tf)}
+                    className={`tf-btn ${timeframe === tf ? 'active' : ''}`}
+                  >
+                    {tf}
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* 時間軸ボタン（1H / 24H / 7D / 30D / ALL） */}
-            <div className="timeframe-selector">
-              {(['1H', '24H', '7D', '30D', 'ALL'] as const).map((tf) => (
-                <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
-                  className={`tf-btn ${timeframe === tf ? 'active' : ''}`}
-                >
-                  {tf}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* SVG 折れ線 ＋ 出来高チャート */}
-          <div className="svg-chart-container">
-            <svg
+            {/* SVG 折れ線 ＋ 出来高チャート */}
+            <div className="svg-chart-container">
+              <svg
               viewBox={`0 0 ${width} ${height}`}
               className="chart-svg"
               onMouseLeave={() => setHoverIndex(null)}
@@ -505,7 +526,9 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
               </div>
             )}
           </div>
-        </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

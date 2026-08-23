@@ -78,20 +78,34 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         {/* 世界のお金 */}
         <div className="depth-row world">
           <div className="depth-info">
-            <span className="depth-label">🌍 世界のリアルマネー (Polymarket)</span>
+            <span className="depth-label">
+              {event.originType === 'domestic_poll' ? '🇯🇵 国内独自世論調査' : '🌍 世界のリアルマネー (Polymarket)'}
+            </span>
             <span className="depth-price world-color">
-              {isLocked ? '?? %' : `YES ${event.worldProbYes}%`}
+              {isLocked
+                ? '?? %'
+                : event.hasWorldOdds
+                ? `YES ${event.worldProbYes}%`
+                : event.originType === 'domestic_poll'
+                ? '世界オッズなし'
+                : '取得なし (取引僅少)'}
             </span>
           </div>
           <div className="depth-bar-track">
             <div
               className="depth-bar-fill world-fill"
-              style={{ width: isLocked ? '50%' : `${event.worldProbYes}%` }}
+              style={{ width: isLocked ? '50%' : event.hasWorldOdds ? `${event.worldProbYes}%` : '0%' }}
             ></div>
           </div>
           <div className="depth-sub">
-            <span>NO: {isLocked ? '?? %' : `${event.worldProbNo}%`}</span>
-            <span>24h取引高: ${Math.round(event.volume24hUsd / 1000).toLocaleString()}k</span>
+            {event.hasWorldOdds ? (
+              <>
+                <span>NO: {isLocked ? '?? %' : `${event.worldProbNo}%`}</span>
+                <span>24h取引高: ${Math.round(event.volume24hUsd / 1000).toLocaleString()}k</span>
+              </>
+            ) : (
+              <span>{event.originType === 'domestic_poll' ? '日本世論専用・直接投票受付中' : 'オーダーブック流動性待機中'}</span>
+            )}
           </div>
         </div>
 
@@ -99,7 +113,11 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         <div className="spread-divider">
           <div className="spread-line"></div>
           <span className="spread-label">
-            {isLocked ? '⚡ SPREAD GAP: [ LOCKED ]' : `⚡ SPREAD GAP: ${gap}%`}
+            {isLocked
+              ? '⚡ SPREAD GAP: [ LOCKED ]'
+              : event.hasWorldOdds
+              ? `⚡ SPREAD GAP: ${gap}%`
+              : `⚡ 日本世論支持率: YES ${event.japanVotes.percentYes}%`}
           </span>
           <div className="spread-line"></div>
         </div>

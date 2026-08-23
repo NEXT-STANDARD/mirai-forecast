@@ -46,6 +46,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 }) => {
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState(item.comments || []);
+  const hasConsensus = item.japanVotes.total >= 3;
 
   // 🌐 SEO: カノニカル正規化URL・メタタグ・JSON-LD構造化データの動的最適化
   useEffect(() => {
@@ -207,11 +208,23 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
         <div className="detail-header-stats-row">
           <div className="header-stat-box">
-            <span className="stat-sub">世界オッズ (Polymarket)</span>
-            <span className="stat-main text-cyan-400">
-              YES {item.worldProbYes}%
-              <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+            <span className="stat-sub">
+              {item.originType === 'domestic_poll' ? '日本世論専用調査' : '世界オッズ (Polymarket)'}
             </span>
+            {item.hasWorldOdds ? (
+              <span className="stat-main text-cyan-400">
+                YES {item.worldProbYes}%
+                <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+              </span>
+            ) : item.originType === 'domestic_poll' ? (
+              <span className="stat-main text-slate-300 text-sm font-medium">
+                独自世論調査 <span className="stat-sub-prob">（世界オッズなし）</span>
+              </span>
+            ) : (
+              <span className="stat-main text-slate-400 text-sm font-medium">
+                取得なし <span className="stat-sub-prob">（取引量僅少）</span>
+              </span>
+            )}
           </div>
 
           <div className="header-stat-box">
@@ -224,13 +237,18 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
           <div className="header-stat-box">
             <span className="stat-sub">世論スプレッド (Gap)</span>
-            {item.japanVotes.total >= 3 ? (
+            {item.hasWorldOdds && hasConsensus ? (
               <span className="stat-main text-amber-400">
                 ⚡ {gap}% 乖離 <span className="stat-sub-prob font-mono text-[11px]">(n={item.japanVotes.total})</span>
               </span>
-            ) : (
+            ) : item.hasWorldOdds ? (
               <span className="stat-main text-slate-400 text-sm flex items-center gap-1">
                 <span>サンプル収集中</span>
+                <span className="stat-sub-prob font-mono text-[11px]">(n={item.japanVotes.total})</span>
+              </span>
+            ) : (
+              <span className="stat-main text-slate-400 text-sm flex items-center gap-1">
+                <span>世論観測中</span>
                 <span className="stat-sub-prob font-mono text-[11px]">(n={item.japanVotes.total})</span>
               </span>
             )}
@@ -238,9 +256,15 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
           <div className="header-stat-box">
             <span className="stat-sub">観測取引高 (24h / Total)</span>
-            <span className="stat-main text-slate-200" title={`24h: $${Math.round(item.volume24hUsd || 0).toLocaleString()} ｜ 累計: $${Math.round(item.totalVolumeUsd || 0).toLocaleString()}`}>
-              {formatCompactUsd(item.volume24hUsd)} <span className="stat-sub-prob">/ {formatCompactUsd(item.totalVolumeUsd)}</span>
-            </span>
+            {item.hasWorldOdds && (item.volume24hUsd > 0 || item.totalVolumeUsd > 0) ? (
+              <span className="stat-main text-slate-200" title={`24h: $${Math.round(item.volume24hUsd || 0).toLocaleString()} ｜ 累計: $${Math.round(item.totalVolumeUsd || 0).toLocaleString()}`}>
+                {formatCompactUsd(item.volume24hUsd)} <span className="stat-sub-prob">/ {formatCompactUsd(item.totalVolumeUsd)}</span>
+              </span>
+            ) : (
+              <span className="stat-main text-slate-400 text-sm">
+                — <span className="stat-sub-prob">（取引データなし）</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -280,33 +304,29 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           </div>
 
           {/* 💡 Gemini 3.7 Flash 深層カタリスト日程分析 */}
-          <div className="detail-section-card ai-catalyst-card">
-            <div className="section-card-header">
-              <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
-                <Sparkles className="text-amber-400 w-5 h-5 flex-shrink-0" />
-                <h3 className="section-card-title">AIファンダメンタルズ要因 ＆ 注目カタリスト日程</h3>
+          <div className="market-ai-analysis-card">
+            <div className="analysis-card-header">
+              <div className="flex items-center gap-2">
+                <Sparkles size={18} className="text-cyan-400" />
+                <h3 className="text-base font-bold text-slate-100">AI知性カタリスト分析</h3>
               </div>
-              <span className="badge-ai-model">Gemini 3.7 Flash 分析</span>
+              <span className="ai-model-badge">Gemini 3.7 Flash リアルタイム分析</span>
             </div>
 
-            <div className="catalyst-content-body">
-              <div className="catalyst-summary-box">
-                <h4 className="catalyst-summary-title">📌 市場コンセンサス要約</h4>
-                <p className="catalyst-summary-text">
-                  {item.aiInsight?.summaryJa || '世界のスマートマネーは、直近の市場データやカタリスト日程を織り込みながら確率を形成しています。'}
-                </p>
+            <div className="analysis-card-body">
+              <div className="analysis-summary-box">
+                <h4 className="analysis-box-title">💡 市場コンセンサス・心理サマリー</h4>
+                <p className="analysis-text">{item.aiInsight?.summaryJa || '世界最大の予測市場におけるスマートマネーのリアルタイム織り込み状況を観測中。'}</p>
               </div>
 
-              {item.aiInsight?.whyMovedJa && (
-                <div className="catalyst-why-box">
-                  <h4 className="catalyst-why-title">⚡ 変動の主因 (Why It Moved)</h4>
-                  <p className="catalyst-why-text">{item.aiInsight.whyMovedJa}</p>
-                </div>
-              )}
+              <div className="analysis-reason-box">
+                <h4 className="analysis-box-title">🔍 なぜこの確率・世論になっているのか（主要因）</h4>
+                <p className="analysis-text">{item.aiInsight?.whyMovedJa || '直近の報道やマクロ指標、関係者発言を受けた価格形成要因を分析。'}</p>
+              </div>
 
               {/* ⚔️ Gemini 3.7 知的ディベート対比（YES論拠 vs NO論拠） */}
-              <div className="ai-debate-section">
-                <div className="debate-header-bar">
+              <div className="ai-debate-section mt-4 pt-4 border-t border-slate-800/80">
+                <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 min-w-0 flex-wrap">
                     <span className="text-base flex-shrink-0">⚔️</span>
                     <span>AI知性ディベート：世界スマートマネー vs 慎重派の論拠対比</span>
@@ -319,7 +339,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                   <div className="debate-card bull-card">
                     <div className="debate-card-header">
                       <span className="debate-tag-bull">🟢 YES支持の主要論拠（強気派）</span>
-                      <span className="debate-prob font-mono text-cyan-400">世界 YES {item.worldProbYes}%</span>
+                      <span className="debate-prob font-mono text-cyan-400">
+                        {item.hasWorldOdds ? `世界 YES ${item.worldProbYes}%` : '実現・強気シナリオ'}
+                      </span>
                     </div>
                     <p className="debate-card-text">
                       {item.aiInsight?.bullCaseJa || `${item.titleJa} に関して、市場の先行指標や直近のモメンタム、関係機関の積極姿勢を織り込み、スマートマネーが強気な買いを入れている背景が存在します。`}

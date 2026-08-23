@@ -159,19 +159,122 @@ ${JSON.stringify(items.map(i => ({
   }
 }
 
+/**
+ * Polymarket イベントから、多肢銘柄・単一銘柄を適切に判別して高精度オッズを抽出
+ * (N-34: markets[0] の安易な代表値選択を廃止し、タイトル対象または本命候補を厳密抽出。0%クランプ廃止)
+ */
+export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
+  if (!ev || !ev.markets || ev.markets.length === 0) return null;
+  const markets = ev.markets;
+  let targetMarket = markets[0];
+  let isMultiChoice = markets.length > 1;
+  let leaderName = null;
+
+  if (isMultiChoice) {
+    const lowerJa = (dbTitleJa || '').toLowerCase();
+    const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
+
+    const matchedMarket = markets.find(m => {
+      const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
+      if (!itemTitle) return false;
+      if (lowerEn.includes(itemTitle)) return true;
+      if (itemTitle.length > 3 && lowerJa.includes(itemTitle)) return true;
+      if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
+      if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
+      if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
+      if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
+      if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
+      if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
+      if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
+      if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
+      if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
+      if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
+      if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
+      if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
+      if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
+      if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
+      return false;
+    });
+
+    if (matchedMarket) {
+      targetMarket = matchedMarket;
+    } else {
+      let maxProb = -1;
+      let topM = markets[0];
+      markets.forEach(m => {
+        let p = 0;
+        if (m.outcomePrices) {
+          try {
+            const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+            if (Array.isArray(parsed) && parsed[0]) p = parseFloat(parsed[0]);
+          } catch {}
+        }
+        if (p > maxProb) {
+          maxProb = p;
+          topM = m;
+        }
+      });
+      targetMarket = topM;
+      leaderName = targetMarket.groupItemTitle || targetMarket.question || null;
+    }
+  }
+
+  let probYes = 50;
+  if (targetMarket.outcomePrices) {
+    try {
+      const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
+      if (Array.isArray(parsed) && parsed[0]) {
+        // N-34: 0% を 1% にクランプせず、実測 0% をそのまま保持
+        probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
+      }
+    } catch {}
+  }
+
+  const volume24h = ev.volume24hr || (targetMarket.volume24hr ? parseFloat(targetMarket.volume24hr) : 0);
+  const totalVolume = ev.volume || (targetMarket.volume ? parseFloat(targetMarket.volume) : volume24h * 3.5);
+  const probChange24h = targetMarket.oneDayPriceChange ? Math.round(parseFloat(targetMarket.oneDayPriceChange) * 100) : 0;
+  
+  let clobTokenId = undefined;
+  if (targetMarket.clobTokenIds) {
+    try {
+      const ids = typeof targetMarket.clobTokenIds === 'string' ? JSON.parse(targetMarket.clobTokenIds) : targetMarket.clobTokenIds;
+      if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
+    } catch {}
+  }
+
+  return {
+    probYes,
+    volume24h: Math.round(volume24h),
+    totalVolume: Math.round(totalVolume),
+    probChange24h,
+    clobTokenId,
+    isMultiChoice,
+    leaderName,
+    marketQuestion: targetMarket.question || targetMarket.groupItemTitle
+  };
+}
+
 async function syncPolymarket() {
   console.log(`[${new Date().toISOString()}] Polymarket ➔ 【Gemini 3.7 Flash リアルタイム深層カタリスト分析】同期開始...`);
 
   try {
-    // 1. Polymarket API から複数ページ (最大400件) を取得して全市場オッズを網羅
+    // 1. Polymarket API から複数ページ (最大500件) を取得して全市場オッズを網羅
     const allEvents = [];
+    const polyMap = new Map();
+
     for (const offset of [0, 100, 200, 300, 400]) {
       try {
         const pageUrl = `https://gamma-api.polymarket.com/events?limit=100&offset=${offset}&active=true&closed=false&order=volume24hr&ascending=false`;
         const res = await fetch(pageUrl);
         if (res.ok) {
           const pageData = await res.json();
-          if (Array.isArray(pageData)) allEvents.push(...pageData);
+          if (Array.isArray(pageData)) {
+            allEvents.push(...pageData);
+            pageData.forEach(ev => {
+              polyMap.set(String(ev.id), ev);
+              if (ev.slug) polyMap.set(ev.slug, ev);
+            });
+          }
         }
       } catch (err) {
         console.warn(`Polymarket API page offset ${offset} failed:`, err.message);
@@ -180,24 +283,35 @@ async function syncPolymarket() {
 
     if (allEvents.length === 0) throw new Error('No Polymarket events fetched');
 
+    // 2. Supabase 上の既存イベントで未取得の数値ID銘柄を直接補完 (N-33: 蓄積銘柄の100%オッズ網羅)
+    const { data: dbRows } = await supabase.from('events').select('id, slug, title_ja, title_en, is_active').eq('is_active', true);
+    if (dbRows && dbRows.length > 0) {
+      for (const row of dbRows) {
+        if (!polyMap.has(String(row.id)) && !polyMap.has(row.slug) && /^\d+$/.test(String(row.id))) {
+          try {
+            const res = await fetch(`https://gamma-api.polymarket.com/events/${row.id}`);
+            if (res.ok) {
+              const directEv = await res.json();
+              allEvents.push(directEv);
+              polyMap.set(String(directEv.id), directEv);
+              if (directEv.slug) polyMap.set(directEv.slug, directEv);
+            }
+          } catch (err) {
+            // direct fetch error ignore
+          }
+        }
+      }
+    }
+
     // 全Polymarketオッズ辞書を構築 (IDとslug双方でルックアップ可能)
     const marketOddsStore = {};
-    allEvents.forEach((ev) => {
-      if (ev.markets && ev.markets[0]) {
-        const m = ev.markets[0];
-        let probYes = 50;
-        if (m.outcomePrices) {
-          try {
-            const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
-            if (Array.isArray(parsed) && parsed[0]) probYes = Math.round(parseFloat(parsed[0]) * 100);
-          } catch {}
-        }
-        const volume24h = ev.volume24hr || 0;
-        const totalVolume = ev.volume || volume24h * 3.5;
-        const probChange24h = m.oneDayPriceChange ? Math.round(parseFloat(m.oneDayPriceChange) * 100) : 0;
-        const oddsObj = { probYes: Math.min(99, Math.max(1, probYes)), volume24h, totalVolume, probChange24h };
-        marketOddsStore[String(ev.id)] = oddsObj;
-        if (ev.slug) marketOddsStore[ev.slug] = oddsObj;
+    const dbRowMap = new Map((dbRows || []).map(r => [String(r.id), r]));
+
+    polyMap.forEach((ev, key) => {
+      const dbRow = dbRowMap.get(String(ev.id)) || (ev.slug ? dbRowMap.get(ev.slug) : null);
+      const odds = resolvePolymarketOdds(ev, dbRow?.title_ja, dbRow?.title_en);
+      if (odds) {
+        marketOddsStore[key] = odds;
       }
     });
 
@@ -207,13 +321,16 @@ async function syncPolymarket() {
     console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
 
     const oddsTsPath = path.join(ROOT, 'src', 'data', 'marketOddsMaster.ts');
-    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
+    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
     fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
 
     const candidateList = [];
 
     for (const ev of allEvents) {
       if (!ev.markets || !ev.markets[0]) continue;
+      const odds = resolvePolymarketOdds(ev);
+      if (!odds) continue;
+
       const market = ev.markets[0];
       const titleLower = (ev.title + ' ' + (market.question || '')).toLowerCase();
 
@@ -226,7 +343,7 @@ async function syncPolymarket() {
       const mEndDate = market.endDate || ev.endDate;
       if (mEndDate && new Date(mEndDate).getTime() <= nowMs) continue;
 
-      let probYes = 50;
+      let probYes = odds.probYes;
       if (market.outcomePrices) {
         try {
           const parsed = typeof market.outcomePrices === 'string' ? JSON.parse(market.outcomePrices) : market.outcomePrices;

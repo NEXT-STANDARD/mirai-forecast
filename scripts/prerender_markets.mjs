@@ -90,7 +90,97 @@ async function prerenderAll() {
     voteStats.set(v.event_id, stat);
   });
 
-  // 3. Polymarket リアルタイム市場オッズの読み込み＆多段取得 (N-30: 50% 無言フォールバック完全撤廃)
+  // 3. Polymarket リアルタイム市場オッズの読み込み＆多段取得 (N-30, N-33, N-34: 50% 無言フォールバック完全撤廃・多肢本命抽出・0%非クランプ)
+  function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
+    if (!ev || !ev.markets || ev.markets.length === 0) return null;
+    const markets = ev.markets;
+    let targetMarket = markets[0];
+    let isMultiChoice = markets.length > 1;
+    let leaderName = null;
+
+    if (isMultiChoice) {
+      const lowerJa = (dbTitleJa || '').toLowerCase();
+      const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
+
+      const matchedMarket = markets.find(m => {
+        const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
+        if (!itemTitle) return false;
+        if (lowerEn.includes(itemTitle)) return true;
+        if (itemTitle.length > 3 && lowerJa.includes(itemTitle)) return true;
+        if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
+        if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
+        if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
+        if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
+        if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
+        if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
+        if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
+        if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
+        if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
+        if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
+        if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
+        if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
+        if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
+        if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
+        return false;
+      });
+
+      if (matchedMarket) {
+        targetMarket = matchedMarket;
+      } else {
+        let maxProb = -1;
+        let topM = markets[0];
+        markets.forEach(m => {
+          let p = 0;
+          if (m.outcomePrices) {
+            try {
+              const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+              if (Array.isArray(parsed) && parsed[0]) p = parseFloat(parsed[0]);
+            } catch {}
+          }
+          if (p > maxProb) {
+            maxProb = p;
+            topM = m;
+          }
+        });
+        targetMarket = topM;
+        leaderName = targetMarket.groupItemTitle || targetMarket.question || null;
+      }
+    }
+
+    let probYes = 50;
+    if (targetMarket.outcomePrices) {
+      try {
+        const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
+        if (Array.isArray(parsed) && parsed[0]) {
+          probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
+        }
+      } catch {}
+    }
+
+    const volume24h = ev.volume24hr || (targetMarket.volume24hr ? parseFloat(targetMarket.volume24hr) : 0);
+    const totalVolume = ev.volume || (targetMarket.volume ? parseFloat(targetMarket.volume) : volume24h * 3.5);
+    const probChange24h = targetMarket.oneDayPriceChange ? Math.round(parseFloat(targetMarket.oneDayPriceChange) * 100) : 0;
+    
+    let clobTokenId = undefined;
+    if (targetMarket.clobTokenIds) {
+      try {
+        const ids = typeof targetMarket.clobTokenIds === 'string' ? JSON.parse(targetMarket.clobTokenIds) : targetMarket.clobTokenIds;
+        if (Array.isArray(ids) && ids[0]) clobTokenId = String(ids[0]);
+      } catch {}
+    }
+
+    return {
+      probYes,
+      volume24h: Math.round(volume24h),
+      totalVolume: Math.round(totalVolume),
+      probChange24h,
+      clobTokenId,
+      isMultiChoice,
+      leaderName,
+      marketQuestion: targetMarket.question || targetMarket.groupItemTitle
+    };
+  }
+
   let marketOdds = {};
   const oddsJsonPath = path.resolve(ROOT, 'public', 'data', 'market_odds.json');
   if (fs.existsSync(oddsJsonPath)) {
@@ -101,33 +191,45 @@ async function prerenderAll() {
 
   const oddsMap = new Map(Object.entries(marketOdds));
   try {
-    for (const offset of [0, 100, 200, 300]) {
+    const polyMap = new Map();
+    for (const offset of [0, 100, 200, 300, 400]) {
       const pageUrl = `https://gamma-api.polymarket.com/events?limit=100&offset=${offset}&active=true&closed=false&order=volume24hr&ascending=false`;
       const res = await fetch(pageUrl);
       if (res.ok) {
         const list = await res.json();
         if (Array.isArray(list)) {
           list.forEach(ev => {
-            if (ev.markets && ev.markets[0]) {
-              const m = ev.markets[0];
-              if (m.outcomePrices) {
-                try {
-                  const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
-                  if (Array.isArray(parsed) && parsed[0]) {
-                    const prob = Math.round(parseFloat(parsed[0]) * 100);
-                    const oddsObj = { probYes: Math.min(99, Math.max(1, prob)) };
-                    oddsMap.set(String(ev.id), oddsObj);
-                    if (ev.slug) oddsMap.set(ev.slug, oddsObj);
-                  }
-                } catch {}
-              }
-            }
+            polyMap.set(String(ev.id), ev);
+            if (ev.slug) polyMap.set(ev.slug, ev);
           });
         }
       }
     }
+
+    for (const event of events) {
+      if (!polyMap.has(String(event.id)) && !polyMap.has(event.slug) && /^\d+$/.test(String(event.id))) {
+        try {
+          const directRes = await fetch(`https://gamma-api.polymarket.com/events/${event.id}`);
+          if (directRes.ok) {
+            const directEv = await directRes.json();
+            polyMap.set(String(directEv.id), directEv);
+            if (directEv.slug) polyMap.set(directEv.slug, directEv);
+          }
+        } catch {}
+      }
+    }
+
+    polyMap.forEach((ev, key) => {
+      const dbEv = events.find(e => String(e.id) === String(ev.id) || e.slug === ev.slug);
+      const odds = resolvePolymarketOdds(ev, dbEv?.title_ja, dbEv?.title_en);
+      if (odds) oddsMap.set(key, odds);
+    });
   } catch (err) {
     console.warn('Live odds fetch warning in prerender:', err.message);
+  }
+
+  if (oddsMap.size === 0) {
+    throw new Error('❌ [CRITICAL] Polymarket 市場オッズの取得に失敗しました（0エントリ）。ビルドを中止します。');
   }
 
   // ==============================================================================
@@ -139,11 +241,14 @@ async function prerenderAll() {
   for (const event of events) {
     const slug = event.slug || event.id;
     const titleJa = event.title_ja || event.title_en || '未来予測銘柄';
+    const isDomestic = String(event.id).startsWith('council-') || String(event.id).startsWith('official-') || String(event.id).startsWith('proposal-') || ['japan-lower-house-dissolution-2026', 'sam-altman-world-ai-summit-tokyo', 'boj-rate-hike-september-2026'].includes(String(event.id));
 
-    // 実オッズの厳密解決 (N-30: 50% 無言フォールバックの完全撤廃)
+    // 実オッズの厳密解決 (N-30, N-33, N-34: 50% 無言フォールバック完全撤廃)
     const oddsEntry = oddsMap.get(String(event.id)) || oddsMap.get(slug);
-    const isPolymarketObserved = oddsEntry && typeof oddsEntry.probYes === 'number';
+    const isPolymarketObserved = !isDomestic && oddsEntry && typeof oddsEntry.probYes === 'number';
     const worldProb = isPolymarketObserved ? oddsEntry.probYes : null;
+    const isMultiChoice = oddsEntry?.isMultiChoice;
+    const leaderName = oddsEntry?.leaderName;
 
     const stat = voteStats.get(String(event.id)) || { yes: 0, no: 0, total: 0 };
     const n = stat.total;
@@ -151,20 +256,28 @@ async function prerenderAll() {
     const hasConsensus = n >= 3;
     const gap = isPolymarketObserved ? Math.abs(worldProb - japanProb) : null;
 
-    // description の出し分け (n>=3 ガード & 世界オッズ実測値準拠)
+    // description の出し分け (n>=3 ガード & 世界オッズ実測値準拠 & N-33/N-34 正確な名乗り)
     let description = '';
     let ogTitle = '';
 
     if (isPolymarketObserved) {
-      ogTitle = `【世界の確率 ${worldProb}%】${titleJa}`;
+      ogTitle = isMultiChoice && leaderName
+        ? `【世界本命 ${worldProb}%】${titleJa}`
+        : `【世界の確率 ${worldProb}%】${titleJa}`;
       description = hasConsensus
         ? `世界のリアルマネーはYES ${worldProb}%、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
         : `世界のリアルマネーはYES ${worldProb}%。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
-    } else {
+    } else if (isDomestic) {
       // 日本国内独自調査銘柄 (council / official / proposal 等)
       ogTitle = `【日本世論調査】${titleJa}`;
       description = hasConsensus
         ? `日本の世論はYES ${japanProb}%（n=${n}）。未来レーダーで世論比較。`
+        : `日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
+    } else {
+      // Polymarket観測対象だが取引僅少
+      ogTitle = `【世界観測銘柄】${titleJa}`;
+      description = hasConsensus
+        ? `日本の世論はYES ${japanProb}%（n=${n}）。世界予測市場の流動性待機中。未来レーダーで世論比較。`
         : `日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;
     }
 
