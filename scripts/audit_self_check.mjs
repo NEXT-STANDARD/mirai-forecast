@@ -246,7 +246,7 @@ async function checkDbAndPhase0() {
       if (k && !k.startsWith("#")) env[k.trim()] = v.join("=").trim();
     });
     supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
-    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, title_en, end_date, is_active, updated_at").eq("is_active", true);
+    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, title_en, question_en, end_date, is_active, updated_at").eq("is_active", true);
     if (!error && events) {
       activeEvents = events;
       const graceThreshold = new Date(Date.now() - 3600 * 1000); // 1時間の猶予ウィンドウ（30分同期間隔の一過性偽陽性を防止）
@@ -723,6 +723,30 @@ async function checkDbAndPhase0() {
   }
   report("名指しされた閾値の取りこぼし検査 (N-38/N-39 再発防止)", thresholdFails.length === 0,
     thresholdFails.length === 0 ? "title_en が対象を名指しする銘柄で、解決可能なオッズの取りこぼし 0件（dist 実走査）" : thresholdFails.join("; "));
+
+  // ==============================================================================
+  // 22. 多肢イベントで、画面のサブタイトルが本命と別の候補を名指ししていないか (N-40)
+  // ==============================================================================
+  // question_en は詳細ページの英語サブタイトルとして表示される。多肢イベントで
+  // これが「先頭候補の問い」だと、日本語タイトル（イベント全体）・サブタイトル（別候補）・
+  // 確率（本命）の3つが画面上で食い違う。
+  let subtitleFails = [];
+  {
+    const oddsPath = path.join(ROOT, "public/data/market_odds.json");
+    const dict = fs.existsSync(oddsPath) ? JSON.parse(fs.readFileSync(oddsPath, "utf-8")) : {};
+    for (const ev of activeEvents) {
+      const entry = dict[String(ev.id)] || dict[ev.slug];
+      if (!entry || !entry.isMultiChoice || !entry.leaderName) continue;
+      const qe = ev.question_en || "";
+      if (!/^Will\s+.+\s+Win/i.test(qe)) continue;           // 個別候補を名指しする形でなければ問題なし
+      const leader = String(entry.leaderName).replace(/…$/, "").toLowerCase();
+      if (leader && !qe.toLowerCase().includes(leader)) {
+        subtitleFails.push(`銘柄 [${ev.slug}] のサブタイトルが本命 [${entry.leaderName}] とは別の候補を名指ししています: ${qe.slice(0, 56)}`);
+      }
+    }
+  }
+  report("多肢イベントのサブタイトル整合性 (N-40)", subtitleFails.length === 0,
+    subtitleFails.length === 0 ? "多肢イベントで、サブタイトルが本命以外の候補を名指しする銘柄 0件" : subtitleFails.join("; "));
 
   // ==============================================================================
   // 21. 選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制の適正性検査 (N-38 完全解決)

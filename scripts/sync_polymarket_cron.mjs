@@ -779,7 +779,10 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         title_ja: titleJa,
         title_en: c.rawQuestion,
         question_ja: titleJa,
-        question_en: c.rawQuestion,
+        // 多肢イベントでは rawQuestion が「先頭候補の問い」になり、
+        // 画面のサブタイトルが本命とは別のチームを名指ししてしまう（第12回 N-40）。
+        // 表示用の question_en だけはイベント名にする（翻訳ルールが使う rawQuestion は触らない）
+        question_en: ((c.ev?.markets?.length || 0) > 1 && c.ev?.title) ? c.ev.title : c.rawQuestion,
         category: finalCat,
         category_label: catLabels[finalCat] || c.catLabel,
         icon_url: c.ev.image || c.ev.icon || '',
