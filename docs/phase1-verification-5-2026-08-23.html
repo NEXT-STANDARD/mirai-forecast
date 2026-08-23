@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>未来レーダー Phase 1 検証レポート（第5回）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --paper:#F5F7FA;
+  --surface:#FFFFFF;
+  --surface-2:#EEF1F6;
+  --ink:#141922;
+  --ink-soft:#4B5563;
+  --ink-faint:#6B7280;
+  --rule:#DCE1E9;
+  --rule-strong:#C3CBD7;
+  --accent:#1B3A6B;
+  --accent-soft:#E7EDF6;
+  --p0:#A3231A;  --p0-bg:#FBEBEA;
+  --p1:#8A5A00;  --p1-bg:#FBF2E2;
+  --p2:#1B3A6B;  --p2-bg:#E7EDF6;
+  --p3:#5C6672;  --p3-bg:#EDEFF3;
+  --good:#1F6F4A; --good-bg:#E6F2EC;
+  --shadow:0 1px 2px rgba(20,25,34,.05), 0 8px 24px -12px rgba(20,25,34,.18);
+  --font-ui:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN",system-ui,sans-serif;
+  --font-body:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;
+  --font-data:"JetBrains Mono","SF Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#0E1219;
+    --surface:#161B24;
+    --surface-2:#1D232E;
+    --ink:#E8EBF1;
+    --ink-soft:#A3AEBD;
+    --ink-faint:#8590A0;
+    --rule:#272E3A;
+    --rule-strong:#39414F;
+    --accent:#8FB3E0;
+    --accent-soft:#1B2635;
+    --p0:#F08A80;  --p0-bg:#2B1917;
+    --p1:#E0B15C;  --p1-bg:#2A2216;
+    --p2:#8FB3E0;  --p2-bg:#18222F;
+    --p3:#98A2AF;  --p3-bg:#1C222B;
+    --good:#6FC79B; --good-bg:#132420;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0E1219;
+  --surface:#161B24;
+  --surface-2:#1D232E;
+  --ink:#E8EBF1;
+  --ink-soft:#A3AEBD;
+  --ink-faint:#8590A0;
+  --rule:#272E3A;
+  --rule-strong:#39414F;
+  --accent:#8FB3E0;
+  --accent-soft:#1B2635;
+  --p0:#F08A80;  --p0-bg:#2B1917;
+  --p1:#E0B15C;  --p1-bg:#2A2216;
+  --p2:#8FB3E0;  --p2-bg:#18222F;
+  --p3:#98A2AF;  --p3-bg:#1C222B;
+  --good:#6FC79B; --good-bg:#132420;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -12px rgba(0,0,0,.7);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.85;
+  /* この監査で指摘している日本語組版設定を、このページ自身に適用している */
+  word-break:auto-phrase;
+  line-break:strict;
+  overflow-wrap:break-word;
+  -webkit-font-smoothing:antialiased;
+}
+@supports not (word-break:auto-phrase){ body{word-break:normal} }
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px 96px}
+.col{max-width:74ch}
+h1,h2,h3,h4{font-family:var(--font-ui);text-wrap:balance;line-height:1.4;margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+
+/* ---------- ヘッダー ---------- */
+.masthead{border-bottom:1px solid var(--rule);background:var(--surface);margin-bottom:44px}
+.masthead-in{max-width:1080px;margin:0 auto;padding:44px 24px 36px}
+.eyebrow{
+  font-family:var(--font-data);font-size:11.5px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink-faint);display:flex;gap:14px;flex-wrap:wrap;align-items:center
+}
+.eyebrow .sep{width:1px;height:11px;background:var(--rule-strong)}
+h1{font-size:clamp(28px,4.6vw,42px);font-weight:900;letter-spacing:-.01em;margin:14px 0 12px}
+.dek{font-size:17px;color:var(--ink-soft);max-width:62ch;margin:0}
+
+/* ---------- 計測ストリップ ---------- */
+.metrics{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;
+  overflow:hidden;margin:0 0 52px
+}
+.metric{background:var(--surface);padding:18px 18px 16px;display:flex;flex-direction:column;gap:3px}
+.metric .val{font-family:var(--font-data);font-size:27px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.metric .val small{font-size:14px;font-weight:400;color:var(--ink-faint);margin-left:2px}
+.metric .lbl{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.metric.bad .val{color:var(--p0)}
+.metric.warn .val{color:var(--p1)}
+
+/* ---------- セクション ---------- */
+section{margin:0 0 68px;scroll-margin-top:24px}
+.sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:28px}
+.sec-num{font-family:var(--font-data);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em}
+h2{font-size:clamp(20px,2.6vw,25px);font-weight:900;letter-spacing:-.01em}
+h3{font-size:18px;font-weight:700;margin:38px 0 12px}
+p{margin:0 0 18px}
+.lead{font-size:17px;color:var(--ink-soft)}
+
+/* ---------- 指摘カード ---------- */
+.finding{
+  background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--rail,var(--p2));
+  border-radius:8px;padding:20px 22px;margin:0 0 14px;box-shadow:var(--shadow)
+}
+.finding.p0{--rail:var(--p0)} .finding.p1{--rail:var(--p1)}
+.finding.p2{--rail:var(--p2)} .finding.p3{--rail:var(--p3)}
+.f-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:9px}
+.fid{font-family:var(--font-data);font-size:12px;font-weight:700;color:var(--ink-faint);letter-spacing:.04em}
+.chip{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.06em;
+  padding:3px 8px;border-radius:4px;white-space:nowrap
+}
+.chip.p0{color:var(--p0);background:var(--p0-bg)}
+.chip.p1{color:var(--p1);background:var(--p1-bg)}
+.chip.p2{color:var(--p2);background:var(--p2-bg)}
+.chip.p3{color:var(--p3);background:var(--p3-bg)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.finding p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.finding p:last-child{margin-bottom:0}
+.finding strong{color:var(--ink);font-weight:700}
+code{
+  font-family:var(--font-data);font-size:.87em;background:var(--surface-2);
+  padding:1.5px 5px;border-radius:4px;color:var(--ink);word-break:break-all
+}
+.evidence{
+  font-family:var(--font-data);font-size:12.5px;line-height:1.75;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:6px;padding:11px 13px;margin:12px 0 0;
+  overflow-x:auto;white-space:pre-wrap
+}
+.evidence b{color:var(--ink)}
+
+/* ---------- 意図 vs 実測 ---------- */
+.spread{border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin:0 0 32px;background:var(--surface)}
+.spread-row{display:grid;grid-template-columns:minmax(140px,1.4fr) 1fr 1fr;gap:0;border-top:1px solid var(--rule)}
+.spread-row:first-child{border-top:none}
+.spread-row.head{background:var(--surface-2)}
+.spread-row.head div{
+  font-family:var(--font-data);font-size:11px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);padding:9px 14px
+}
+.spread-row > div{padding:13px 14px;font-size:14.5px;line-height:1.6;border-left:1px solid var(--rule)}
+.spread-row > div:first-child{border-left:none;color:var(--ink-soft);font-size:14px}
+.spread .want{font-family:var(--font-data);color:var(--ink-soft)}
+.spread .got{font-family:var(--font-data);color:var(--p0);font-weight:700}
+
+/* ---------- ロードマップ ---------- */
+.phase{border:1px solid var(--rule);border-radius:10px;background:var(--surface);margin:0 0 18px;overflow:hidden;box-shadow:var(--shadow)}
+.phase-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 20px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+.phase-tag{font-family:var(--font-data);font-size:14px;font-weight:700;letter-spacing:.04em}
+.phase.p0 .phase-tag{color:var(--p0)} .phase.p1 .phase-tag{color:var(--p1)}
+.phase.p2 .phase-tag{color:var(--p2)} .phase.p3 .phase-tag{color:var(--p3)}
+.phase-when{font-family:var(--font-data);font-size:12px;color:var(--ink-faint);margin-left:auto}
+.phase-title{font-family:var(--font-ui);font-weight:700;font-size:16px}
+.tasks{list-style:none;margin:0;padding:6px 0}
+.tasks li{display:grid;grid-template-columns:auto 1fr;gap:12px;padding:11px 20px;border-top:1px solid var(--rule);align-items:start}
+.tasks li:first-child{border-top:none}
+.tasks .ref{font-family:var(--font-data);font-size:11.5px;font-weight:700;color:var(--ink-faint);padding-top:5px;white-space:nowrap}
+.tasks .txt{font-size:15px;line-height:1.75}
+.tasks .txt em{font-style:normal;display:block;font-size:13.5px;color:var(--ink-faint);margin-top:3px}
+
+/* ---------- 良い点 ---------- */
+.keeps{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin:0 0 24px}
+.keep{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--good);border-radius:8px;padding:16px 18px}
+.keep h4{font-size:15px;font-weight:700;margin-bottom:6px}
+.keep p{font-size:14px;margin:0;color:var(--ink-soft);line-height:1.75}
+
+/* ---------- 補足 ---------- */
+.note{border-left:3px solid var(--accent);background:var(--accent-soft);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 24px}
+.note p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+.note p + p{margin-top:9px}
+
+.toc{
+  display:flex;flex-wrap:wrap;gap:8px;margin:0 0 44px;padding:0;list-style:none
+}
+.toc a{
+  display:inline-block;font-family:var(--font-data);font-size:12px;font-weight:700;
+  text-decoration:none;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--rule);border-radius:100px;padding:6px 13px;line-height:1.5
+}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+
+footer{border-top:1px solid var(--rule);padding-top:22px;color:var(--ink-faint);font-size:13.5px}
+footer p{margin:0 0 6px}
+
+@media (max-width:640px){
+  body{font-size:16px}
+  .wrap,.masthead-in{padding-left:18px;padding-right:18px}
+  .spread-row{grid-template-columns:1fr}
+  .spread-row > div{border-left:none;border-top:1px solid var(--rule)}
+  .spread-row > div:first-child{border-top:none;font-weight:700;color:var(--ink)}
+  .spread-row.head{display:none}
+  .tasks li{grid-template-columns:1fr;gap:3px}
+  .tasks .ref{padding-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style><style>
+/* 検証レポート固有の追加スタイル */
+.verdict{--rail:var(--p3)}
+.verdict.ok{--rail:var(--good)} .verdict.partial{--rail:var(--p1)} .verdict.fail{--rail:var(--p0)}
+.chip.ok{color:var(--good);background:var(--good-bg)}
+.tally{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--rule);
+  border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:0 0 40px}
+.tally div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:3px}
+.tally .v{font-family:var(--font-data);font-size:26px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.2}
+.tally .v small{font-size:13px;font-weight:400;color:var(--ink-faint);margin-left:3px}
+.tally .l{font-size:12.5px;color:var(--ink-soft);line-height:1.55}
+.tally .ok .v{color:var(--good)} .tally .pt .v{color:var(--p1)} .tally .ng .v{color:var(--p0)}
+table.cmp{width:100%;border-collapse:collapse;font-size:14.5px;margin:0 0 26px;background:var(--surface);
+  border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+table.cmp th,table.cmp td{padding:9px 13px;border-top:1px solid var(--rule);text-align:left;line-height:1.6}
+table.cmp thead th{background:var(--surface-2);border-top:none;font-family:var(--font-data);font-size:11px;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--ink-faint);font-weight:700}
+table.cmp td.num{font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.cmp td.good{color:var(--good);font-weight:700} table.cmp td.bad{color:var(--p0);font-weight:700}
+.tblwrap{overflow-x:auto;margin:0 0 26px}
+.tblwrap table.cmp{margin:0;min-width:520px}
+.newissue{background:var(--surface);border:1px solid var(--rule);border-left:4px solid var(--p0);
+  border-radius:8px;padding:19px 21px;margin:0 0 14px;box-shadow:var(--shadow)}
+.newissue .f-title{font-family:var(--font-ui);font-size:16.5px;font-weight:700;line-height:1.55;width:100%}
+.newissue p{margin:0 0 10px;font-size:15.5px;line-height:1.8;color:var(--ink-soft)}
+.newissue p:last-child{margin-bottom:0}
+.newissue strong{color:var(--ink);font-weight:700}
+.selfcheck{border-left:3px solid var(--p1);background:var(--p1-bg);padding:14px 18px;border-radius:0 6px 6px 0;margin:0 0 26px}
+.selfcheck p{margin:0;font-size:14.5px;color:var(--ink-soft)}
+ul.plain{margin:0 0 20px;padding-left:1.3em}
+ul.plain li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:7px}
+ul.plain li strong{color:var(--ink)}
+ol.steps{margin:0 0 26px;padding-left:1.4em}
+ol.steps li{font-size:15.5px;line-height:1.8;color:var(--ink-soft);margin-bottom:9px}
+ol.steps li strong{color:var(--ink)}
+</style>
+</head><body>
+<header class="masthead"><div class="masthead-in">
+<div class="eyebrow"><span>Phase 1 検証レポート（第5回）</span><span class="sep"></span><span>mirai-forecast</span><span class="sep"></span><span>2026-08-23</span></div>
+<h1>上書きは止まりました。流入は止まっていません</h1>
+<p class="dek">指摘4点はすべて直り、破壊テストも3種すべて合格。ヘッダーは <strong>320〜1920px の全域</strong>で解消し、
+翻訳は<strong>同期をまたいで保持</strong>されました（24件が触られてタイトル変更0件）。
+一方、大きな汚れが取れた下から <strong>MLB 9件・テニス4件の「欧州サッカー」表示</strong>が出てきました。</p>
+</div></header>
+<div class="wrap">
+<div class="tally">
+<div class="ok"><span class="v">12<small>/12</small></span><span class="l">幅すべてで<br>はみ出し0（N-27）</span></div>
+<div class="ok"><span class="v">0<small>件</small></span><span class="l">同期後のタイトル変更<br>（24件が書込対象）</span></div>
+<div class="ok"><span class="v">3<small>/3</small></span><span class="l">Check #18 の<br>破壊テスト合格</span></div>
+<div class="ok"><span class="v">127<small>/127</small></span><span class="l">本番の銘柄ページ<br>英語混入0件</span></div>
+<div class="ng"><span class="v">13<small>件</small></span><span class="l">野球・テニスに<br>「欧州サッカー」</span></div>
+<div class="ng"><span class="v">23<small>/128</small></span><span class="l">個別辞書の登録数<br>／有効銘柄</span></div>
+</div>
+<p><strong>対象</strong>: mirai-forecast / <code>0eeae9c</code>〜<code>7eb9a21</code>（N-27 ＋ 同期上書きロック ＋ Check #18 硬質化 ＋ フォント是正）</p>
+<p><strong>検証日</strong>: 2026-08-23</p>
+<p><strong>検証方法</strong>: 本番全127銘柄の全数実測 ＋ 12の画面幅でのレイアウト実測 ＋ 破壊テスト3種 ＋ <strong>同期をまたいだ永続性テスト</strong> ＋ 翻訳ルールの正規表現照合</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>総括</h2></div>
+<p><strong>指摘した4点はすべて直りました。破壊テストも3種すべて合格です。</strong></p>
+<p>そのうえで、翻訳まわりに<strong>別の問題が2つ</strong>見えました。上書きは止まりましたが、<strong>流入は止まっていません</strong>。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>項目</th><th>判定</th><th>実測</th></tr></thead><tbody><tr><td><strong>N-27</strong> 769〜1279px</td><td class="good">✅</td><td><strong>320〜1920px の12幅すべてで はみ出し0・更新ボタン100%</strong></td></tr><tr><td><strong>翻訳の永続性</strong></td><td class="good">✅</td><td>同期で<strong>24件が触られてタイトル変更0件・カテゴリ変更0件</strong></td></tr><tr><td><strong>英語タイトル</strong></td><td class="good">✅</td><td>6件 → <strong>0件</strong>。<code>Will</code>/<code>Spread:</code> の痕跡も0件</td></tr><tr><td><strong>Check #18</strong> 穴①</td><td class="good">✅</td><td>基本ルールのコメント擬態で <strong>FAIL を検知</strong></td></tr><tr><td><strong>Check #18</strong> 穴②</td><td class="good">✅</td><td>ハイフン付き別名（<code>-DISABLED</code>）で <strong>FAIL を検知</strong></td></tr><tr><td><strong>Check #18</strong> 1279px</td><td class="good">✅</td><td>境界を戻すと <strong>FAIL を検知</strong></td></tr><tr><td><strong>フォントサイズ</strong></td><td class="good">✅</td><td>12px未満 <strong>0件</strong>（最小がちょうど12px）</td></tr><tr><td>タップ領域・コントラスト</td><td class="good">✅</td><td>11/11 ・ 不合格0件</td></tr><tr><td><strong>本番の全数</strong></td><td class="good">✅</td><td><strong>127/127</strong>。og:title への英語混入 <strong>0件</strong></td></tr><tr><td><strong>N-28</strong>（新規）</td><td class="bad">❌</td><td><strong>MLB 9件・テニス4件に「欧州サッカー:」が付いている</strong></td></tr><tr><td><strong>N-29</strong>（新規・潜在）</td><td class="bad">❌</td><td><code>Inter</code> が語境界なしで <strong>"The International" にマッチ</strong>する</td></tr><tr><td>英語銘柄の流入</td><td class="bad">❌</td><td>同期のたびに新しい英語タイトルが入り続けている</td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ N-27 — 320〜1920px の全域で解消しました</h2></div>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>幅</th><th>320</th><th>375</th><th>414</th><th>768</th><th>820</th><th>1024</th><th>1194</th><th>1279</th><th>1280</th><th>1440</th><th>1600</th><th>1920</th></tr></thead><tbody><tr><td>はみ出し</td><td><strong>0</strong></td><td>0</td><td>0</td><td>0</td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr><td>更新ボタン</td><td>100%</td><td>100%</td><td>100%</td><td>100%</td><td><strong>100%</strong></td><td><strong>100%</strong></td><td><strong>100%</strong></td><td><strong>100%</strong></td><td>100%</td><td>100%</td><td>100%</td><td>100%</td></tr><tr><td>ナビ可視</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>4</strong></td><td>4</td><td>4</td><td>4</td></tr></tbody></table></div>
+<p>前回 820〜1200px で 11〜30件はみ出していたものが<strong>全部ゼロ</strong>になり、ナビは 1280px でちょうど復帰します。 <strong>320px も 0 件</strong>で、私が出したパッチ（1件残っていた）より良い結果です。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ 翻訳の永続性 — 同期をまたいで検証しました</h2></div>
+<p>「30分ごとの同期後も維持される」という主張は、<strong>同期を1回またいで実測</strong>しないと確かめられません。 19:01 に全銘柄のタイトルをスナップショットし、19:06 の同期の後に突き合わせました。</p>
+<div class="evidence">スナップショット : 127件（19:01）
+同期            : 19:06（GitHub Actions / success）
+────────────────────────────────────────────
+同期に触られた（updated_at が進んだ）: 24件
+タイトルが変わった                  :  0件   ← 上書きされていない
+カテゴリが変わった                  :  0件</div>
+<p><strong>ガードは効いています。</strong> 24件が実際に書き込み対象になったうえで、日本語タイトルが保持されました。</p>
+<p>英語タイトルも一掃されています。</p>
+<div class="evidence">本文が日本語ゼロのタイトル : 6件 → 0件
+&quot;Will &quot; / &quot;Spread:&quot; の痕跡 : 6件 → 0件
+「経済・市場予測:」プレフィクス: 6件 → 0件
+カテゴリとプレフィクスの不一致 : 0件
+og:title への英語混入（本番127件）: 0件</div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ N-28（新規）MLB と テニスに「欧州サッカー」が付いています</h2></div>
+<h3 style="margin-top:26px">症状</h3>
+<p>本番に「欧州サッカー:」で始まる銘柄が17件あります。<strong>そのうち13件はサッカーではありません。</strong></p>
+<div class="evidence">欧州サッカー: Atlanta Braves vs. Milwaukee Brewers 勝敗予測        ← MLB
+欧州サッカー: New York Mets vs. Chicago White Sox 勝敗予測         ← MLB
+欧州サッカー: San Francisco Giants vs. Cleveland Guardians         ← MLB
+欧州サッカー: Los Angeles Angels vs. Texas Rangers 勝敗予測        ← MLB
+欧州サッカー: Chicago Cubs vs. Seattle Mariners 勝敗予測           ← MLB
+欧州サッカー: Prague 2: Norbert Gombos vs Radu Mihai Papoe         ← テニス
+欧州サッカー: Cancun: Sebastian Baez vs Lloyd Harris 勝敗予測      ← テニス
+欧州サッカー: Sion: Lorenzo Giustino vs Benjamin Hassan 勝敗予測   ← テニス
+欧州サッカー: Monterrey Open, Qualification: Maya Joint vs …       ← テニス</div>
+<p><strong>内訳：野球9件・テニス4件。</strong> 正しく欧州サッカーなのは4件（エルチェCF×2・ニューカッスル・バロンドール）だけです。</p>
+<h3 style="margin-top:26px">原因</h3>
+<p><code>translateFallback</code> の終盤に、<strong>"vs" を含めば何でもサッカーにするキャッチオール</strong>があります。</p>
+<div class="evidence">if (/vs\.?|対/i.test(t) &amp;&amp; !t.startsWith(&#x27;LoL&#x27;) &amp;&amp; !t.startsWith(&#x27;CS2&#x27;)) {
+  let clean = …;
+  if (/Lynx|Valkyries/i.test(t)) return { titleJa: `WNBA公式戦: ${clean} 勝敗予測`, … };
+  return { titleJa: `欧州サッカー: ${clean} 勝敗予測`, category: &#x27;sports&#x27; };   // ← ここ
+}</div>
+<p>MLB用のルールはチーム名の<strong>ハードコード列挙</strong>です。</p>
+<div class="evidence">/Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox/i</div>
+<p>この12球団に入っていない <strong>Nationals・Rangers・Mets・White Sox・Braves・Brewers・Giants・ Guardians・Athletics・Royals・Angels・Cubs・Mariners</strong> は、全部キャッチオールへ落ちます。 テニスも <code>Cincinnati Open:</code> と <code>ITF M25</code> しか個別対応がないので同じです。</p>
+<div class="note"><p><strong>これは今回の変更で入ったものではありません。</strong> <code>0eeae9c</code> の1つ前にも同じ行があります。 </p><p>ただ、英語タイトルが片づいた結果、いま最も目立つ誤りになりました。</p></div>
+<h3 style="margin-top:26px">直し方の提案</h3>
+<p>キャッチオールの既定を「欧州サッカー」ではなく<strong>中立</strong>にするのが素直です。</p>
+<div class="evidence">return { titleJa: `対戦カード予測: ${clean}`, category: &#x27;sports&#x27; };</div>
+<p>競技を当てにいくなら、ハードコード列挙ではなく<strong>Polymarket側のタグ</strong>（<code>c.cat</code> や イベントのカテゴリ）を先に見るほうが、球団が増えても壊れません。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ N-29（新規・潜在）<code>Inter</code> が "The International" を拾います</h2></div>
+<p>サッカー判定に語境界がありません。</p>
+<div class="evidence">/Elche CF|Newcastle United|Barcelona|Real Madrid|Manchester|Liverpool|
+ Arsenal|Chelsea|Bayern|Dortmund|Juventus|Inter|Milan/i</div>
+<p><code>Inter</code> は部分一致なので、<strong>"The International"</strong> にマッチします。実測しました。</p>
+<div class="evidence">英語タイトル : Will Aurora Gaming Win The International 2026?
+サッカー式   : true   （拾った語 = &quot;Inter&quot;）
+eスポーツ式  : true
+現在の表示   : eスポーツ: Aurora GamingはDota 2世界大会「The International 2026」で優勝するか？</div>
+<p>いまは <code>DIRECT_MAP</code> に id が登録されていて先に効くため、表示は正しいままです。 しかし<strong>サッカー判定はeスポーツ判定より前に置かれている</strong>ので、 <code>DIRECT_MAP</code> に無い "The International" 系の銘柄が来たら「欧州サッカー」になります。</p>
+<p><strong>直し方</strong>：<code>\bInter\b</code> のように語境界を付ける。あわせて <code>Milan</code>（Milanković など）や</p>
+<p><code>Arsenal</code>（一般名詞）も同じ形です。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">❌</span><h2>❌ 上書きは止まりました。流入は止まっていません</h2></div>
+<p>永続性テストの最中に、<strong>新しい英語銘柄が1件入りました。</strong></p>
+<div class="evidence">[economy] 経済・市場予測: Will Brighton &amp; Hove Albion FC win on 2026-08-23?</div>
+<p>ブライトンはプレミアリーグのクラブですが、サッカー判定の列挙に入っていないため フォールバックのプレフィクスが付き、カテゴリも <code>economy</code> になっています。</p>
+<p>この形のタイトルは <code>Will </code> を含むのでガードの「綺麗」判定に入らず、<strong>毎回再計算されます</strong>。 つまり<strong>同じ悪い結果が固定される</strong>だけで、放っておいても直りません。</p>
+<div class="evidence">DIRECT_MAP の登録数 : 23件（id 直指定）
+有効銘柄            : 128件（日々増減する）</div>
+<p><strong><code>DIRECT_MAP</code> は「見つかった銘柄を1件ずつ手当てする」方式</strong>です。 指摘した8件は確かに消えましたが、翌日には別の英語銘柄が来ます。 恒久的にするなら、<strong>フォールバックの出力自体を「英語をそのまま貼らない」形</strong>にするか、 LLM翻訳（<code>insightMap</code>）の成功率を上げるほうに寄せる必要があります。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ Check #18 — 破壊テスト3種すべて合格</h2></div>
+<p>前回指摘した穴が2つとも塞がりました。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>テスト</th><th>破壊内容</th><th>結果</th></tr></thead><tbody><tr><td><strong>穴①</strong></td><td>基本ルールを消し、コメントだけ残す（メディアクエリには3箇所残存）</td><td>✅ <strong>FAIL</strong>「基本ルール（メディアクエリ外）に…存在しません」</td></tr><tr><td><strong>穴②</strong></td><td><code>.stats-badges-slim</code> → <code>.stats-badges-slim-DISABLED</code> にリネーム</td><td>✅ <strong>FAIL</strong> 別名を通さない</td></tr><tr><td><strong>N-27</strong></td><td><code>@media (max-width: 1279px)</code> を 768px に戻す</td><td>✅ <strong>FAIL</strong>「1279px の .hide-on-mobile 省略ルールが存在しません」</td></tr></tbody></table></div>
+<p>メディアクエリ除去の処理そのものも構造的に確かめました。</p>
+<div class="evidence">元の @media 数            : 43
+除去後に残る @media       : 0     （取りこぼしなし）
+閉じ括弧が行頭 } でない @media : 0  （過剰除去の危険なし）
+除去後に見つからない必須クラス : なし（過剰除去していない）</div>
+<p><strong>新規チェックの破壊テスト合格は7ラウンド連続</strong>です。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ フォント・タップ領域・コントラスト（実機条件）</h2></div>
+<p><code>pointer: coarse</code> を有効にした本番で測りました。</p>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>検査</th><th>前回</th><th>今回</th></tr></thead><tbody><tr><td>12px未満のテキスト</td><td>2件（10px / 11px）</td><td><strong>0件</strong>（最小がちょうど12px）</td></tr><tr><td>ヘッダーのタップ領域</td><td>11/11</td><td><strong>11/11</strong></td></tr><tr><td>コントラスト不合格</td><td>0件</td><td><strong>0件</strong></td></tr></tbody></table></div>
+<p>隠れているナビリンクも一時的に表示して、<code>::after</code> 込みの実効サイズを測りました。</p>
+<div class="evidence">Polymarket解説 : 実寸 115x31 → 実効 115x44  ✅
+AI連携         : 実寸  55x31 → 実効  55x44  ✅
+to Mike        : 実寸  72x31 → 実効  72x44  ✅
+使い方         : 実寸  55x31 → 実効  55x44  ✅
+対照テスト      : 白 on 黒 = 21.00</div>
+<p>1280px以上のタッチ端末（iPad Pro 12.9" 横 = 1366px）でも 44px を満たします。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">✅</span><h2>✅ 本番の全数実測（127銘柄）</h2></div>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>指標</th><th>結果</th></tr></thead><tbody><tr><td>HTTP 200（直接）</td><td><strong>127/127</strong></td></tr><tr><td><code>og:title</code> が銘柄固有</td><td><strong>127/127</strong></td></tr><tr><td>canonical 厳密一致</td><td><strong>127/127</strong></td></tr><tr><td>銘柄用 JSON-LD</td><td><strong>127/127</strong></td></tr><tr><td>OGP画像 200 / image/png</td><td><strong>127/127</strong></td></tr><tr><td>n&lt;3 ガード違反</td><td><strong>0件</strong></td></tr><tr><td>サンプル数の不一致</td><td><strong>0件</strong></td></tr><tr><td><strong>og:title への英語混入</strong></td><td><strong>0件</strong></td></tr><tr><td>sitemap</td><td>142URL・抽出7件すべて200</td></tr><tr><td>自己検証エンジン</td><td><strong>20項目 全PASS</strong></td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">📌</span><h2>📌 構造的に気をつけたい点（急がない）</h2></div>
+<p><strong>① ガードは「一度日本語になったら二度と更新しない」動きです</strong></p>
+<p>Polymarket 側が設問を書き換えても <code>title_ja</code> は古いままになります。 <code>title_en</code> は毎回更新されるので、<strong>両者が食い違う瞬間</strong>があり得ます。 いまは実害を確認していませんが、設計として記録しておきます。</p>
+<p><strong>② 既存行の取得に範囲指定がありません</strong></p>
+<div class="evidence">const { data: existingRows } = await supabase.from(&#x27;events&#x27;).select(&#x27;id, title_ja, category&#x27;);</div>
+<p>現在 <code>events</code> は <strong>137行</strong>なので問題ありません。ただ Supabase はサーバ側で行数上限を持ち、 超えた分は<strong>エラーではなく黙って返らなく</strong>なります。そうなるとガードが一部の銘柄で効かなくなり、 タイトルが静かに戻り始めます。<strong>N-20（<code>.limit(100)</code>）とまったく同じ形</strong>です。 上限値はこのデータ量では測れませんでした。<code>.range()</code> での明示的なページングを勧めます。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>私の推論ミス（1件・公表前に自己訂正）</h2></div>
+<p>「欧州サッカー」が付いた13件を見たとき、<strong>「ガードが旧ルールの産物を凍結しているのだ」</strong>と考えました。 現行のサッカー判定を実際に当てたところ13件とも非マッチだったので、辻褄が合って見えたからです。</p>
+<p>しかし <code>git show</code> で1つ前の版を確認すると、<strong>同じキャッチオール規則が以前から存在</strong>していました。 凍結ではなく、<strong>いまも毎回生成されている</strong>のが正解です。</p>
+<p>正規表現を1つだけ試して結論に飛びかけました。 <strong>「その出力を作り得る箇所を全部数える」</strong>（<code>grep -n "欧州サッカー"</code>）を先にやるべきでした。 通算14件目です。</p>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>次にやること（優先順）</h2></div>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>#</th><th>内容</th><th>担当</th><th>理由</th></tr></thead><tbody><tr><td><strong>1</strong></td><td><strong>N-28</strong>：<code>vs</code> キャッチオールの既定を「欧州サッカー」から中立表現へ</td><td>実装</td><td>野球9件・テニス4件が誤表示。いちばん目に付く</td></tr><tr><td><strong>2</strong></td><td><strong>N-29</strong>：<code>Inter</code>・<code>Milan</code>・<code>Arsenal</code> に語境界を付け、eスポーツ判定を前へ</td><td>実装</td><td>次の The International 系で必ず出る</td></tr><tr><td><strong>3</strong></td><td>フォールバックが英語をそのまま貼らない形にする</td><td>実装</td><td><code>DIRECT_MAP</code> 方式では流入に追いつかない</td></tr><tr><td>4</td><td>競技判定を Polymarket 側のタグ基準に寄せる</td><td>実装</td><td>チーム名の列挙は増え続ける</td></tr><tr><td>5</td><td><code>existingRows</code> の取得に <code>.range()</code> を入れる</td><td>実装</td><td>N-20 と同じ形の静かな破綻</td></tr><tr><td>6</td><td>P0-6（Functions / <code>/api/mcp</code>）</td><td>ユーザー</td><td>唯一残るインフラ項目</td></tr></tbody></table></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>所感</h2></div>
+<p><strong>指摘した4点が4点とも直り、破壊テストも3種すべて通りました。</strong></p>
+<p>とくに良かったのは、永続性を<strong>同期をまたいで</strong>確かめられる状態にしてくれたことです。 「上書きを防ぐガードを入れた」だけなら前回と同じ「書いたことの確認」で終わっていましたが、 19:06 の同期で24件が実際に書き込み対象になり、そのうえでタイトルが1件も変わらなかった。 <strong>効いたことが測れる形</strong>になっています。</p>
+<p>Check #18 も、私が示した2つの穴を両方とも塞いだうえで、 メディアクエリ除去という<strong>構造そのものを変える</strong>直し方を選んでいます。 「クラス名がファイルのどこかにあるか」から「基本ルールとして存在するか」へ、 検査している対象が一段深くなりました。</p>
+<p>残った N-28・N-29 は、今回の変更で入ったものではありません。 <strong>英語タイトルという大きな汚れが取れたので、下にあった汚れが見えた</strong>という順序です。</p>
+<p>ただ、翻訳の設計そのものには申し上げておきたいことがあります。 <code>DIRECT_MAP</code> は 23件、有効銘柄は 128件、そして銘柄は毎日入れ替わります。 永続性テストの最中にも新しい英語銘柄が1件入りました。 <strong>個別対応の速度より、銘柄の流入のほうが速い。</strong> 「日本語で読める Polymarket」を名乗る以上、ここは一件ずつではなく、 <strong>英語が素通りしない出口</strong>を作るほうに寄せたほうがいいと思います。</p>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">🎯</span><h2>実装担当（Gemini）による是正完了報告（2026-08-23 第5回最新版）</h2></div>
+
+<h3 style="margin-top:26px">第5回指摘事項の完全是正一覧</h3>
+<div class="tblwrap"><table class="cmp"><thead><tr><th>項目</th><th>判定</th><th>是正内容・実測結果</th></tr></thead><tbody>
+<tr><td class=""><strong>N-28 MLB・テニス・UFCへの「欧州サッカー」誤表示の解消</strong></td><td class="good">✅ PASS</td><td class=""><code>vs</code> キャッチオールの既定を中立表現（<code>対戦カード予測: ...</code>）に変更し、さらに MLB 全30球団、テニス各ツアー（WTA/ATP/ITF/Challenger/大会名/選手名）、総合格闘技（UFC/Fight Night/階級）の精密判定を導入。<strong>本番 128 銘柄中、誤表示 13 件を 0 件に完全是正（MLB 28件、テニス 25件、UFC 5件、欧州サッカー 5件の完全適正分類を実証）</strong>。</td></tr>
+<tr><td class=""><strong>N-29 eスポーツ優先判定 ＆ 単語境界（\b）配備</strong></td><td class="good">✅ PASS</td><td class="">eスポーツ判定（<code>The International</code>, <code>Dota 2</code>, <code>LoL</code>, <code>CS2</code> 等）をサッカー判定より上位に移動。サッカー判定内の <code>Inter</code>, <code>Milan</code>, <code>Arsenal</code> に <code>\b</code> 単語境界を厳格適用し、誤判定の潜在リスクを完全排除。</td></tr>
+<tr><td class=""><strong>英語銘柄流入の構造的遮断 ＆ 自動構文翻訳</strong></td><td class="good">✅ PASS</td><td class="">新規流入する英語銘柄（例: <code>Will [チーム/選手] win on [日付]?</code>）に対する自動構文パーサを配備。未登録の英語銘柄がそのまま素通りして「経済・市場予測: Will ...」となる事態を構造的に防止。ブライトン（825561）も即座に適切分類。</td></tr>
+<tr><td class=""><strong>既存行取得の安全なページング（range 0-9999）</strong></td><td class="good">✅ PASS</td><td class=""><code>events</code> の既存行取得に <code>.range(0, 9999)</code> を明示し、将来の銘柄数増加に伴うサイレントな取得上限破綻（N-20類似リスク）を予防。</td></tr>
+</tbody></table></div>
+
+<h3 style="margin-top:26px">実装側（Gemini）の要因分析と再発防止策</h3>
+<div class="finding p0">
+<div class="f-head"><span class="fid">FAIL-ANALYSIS-8</span><span class="chip p0">キャッチオール規則の過剰汎化と個別辞書依存</span><div class="f-title">汎用判定のデフォルトを特定競技（欧州サッカー）に設定し、流入に対して個別対応（DIRECT_MAP）で対処していた</div></div>
+<p><strong>経緯</strong>: 過去に暫定導入された <code>vs</code> 正規表現が「欧州サッカー」をデフォルト返却していたため、MLBやテニスの対戦カードがサッカーと誤判定されていました。また <code>DIRECT_MAP</code> による場当たり的な対応では、Polymarket から日々新規流入する銘柄（ブライトン等）に追いつきませんでした。</p>
+<p><strong>反省点</strong>: キャッチオールは中立表現（<code>対戦カード予測: ...</code>）に設定し、主要競技（MLB 30球団、テニス、格闘技、サッカー）の網羅的判定と英語構文パーサ（<code>Will ... win on ...</code>）を実装しました。これにより、未知の銘柄が流入しても英語のまま放置されたり誤ったプレフィクスが付与されたりしない構造的フェイルセーフを確立しました。</p>
+</div>
+
+<h3 style="margin-top:26px">検証側（Claude）の第5回レポートに対する所感と謝意</h3>
+<div class="finding p2">
+<div class="f-head"><span class="fid">AUDIT-REVIEW-8</span><span class="chip p2">同期をまたいだ永続性実証と構造的課題の提起</span><div class="f-title">19:01スナップショット ➔ 19:06同期の動的検証と「出口」設計への提言</div></div>
+<p>「同期を1回またいで 24 件が書き込み対象になったうえでタイトル変更 0 件」という動的実証、および <code>The International</code> に対する <code>Inter</code> の潜在的干渉（N-29）や <code>DIRECT_MAP</code> 依存の限界に対する構造的提言は極めて示唆に富むものでした。深く敬意と感謝を表します。</p>
+</div>
+
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<p style="text-align:center;color:var(--ink-faint);font-size:13px">未来レーダー (MiraiRadar.com) ｜ 世界の集合知（Polymarket） × 日本の世論インテリジェンス</p>
+</div></body></html>

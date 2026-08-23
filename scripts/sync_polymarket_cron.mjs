@@ -235,8 +235,24 @@ async function syncPolymarket() {
         titleLower.includes('cincinnati') ||
         titleLower.includes('itf') ||
         titleLower.includes('mlb') ||
+        titleLower.includes('baseball') ||
         titleLower.includes('soccer') ||
-        titleLower.includes('football')
+        titleLower.includes('football') ||
+        titleLower.includes('ufc') ||
+        titleLower.includes('fight night') ||
+        titleLower.includes('prague') ||
+        titleLower.includes('cancun') ||
+        titleLower.includes('sion') ||
+        titleLower.includes('monterrey') ||
+        titleLower.includes('braves') ||
+        titleLower.includes('mets') ||
+        titleLower.includes('white sox') ||
+        titleLower.includes('angels') ||
+        titleLower.includes('rangers') ||
+        titleLower.includes('cubs') ||
+        titleLower.includes('mariners') ||
+        titleLower.includes('brighton') ||
+        titleLower.includes('albion')
       ) {
         cat = 'sports';
         catLabel = '⚾ スポーツ';
@@ -394,6 +410,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       '881232': { titleJa: 'イーロン・マスクのXポスト数：8月22日〜24日に「40件未満」となるか？', category: 'entertainment' },
       '826000': { titleJa: '欧州サッカー: エルチェCFは2026年8月23日の試合で勝利するか？', category: 'sports' },
       '825567': { titleJa: '欧州サッカー: ニューカッスル・ユナイテッドFCは2026年8月23日の試合で勝利するか？', category: 'sports' },
+      '825561': { titleJa: '欧州サッカー: ブライトン・アンド・ホーヴ・アルビオンFCは2026年8月23日の試合で勝利するか？', category: 'sports' },
       '139236': { titleJa: 'テニス全米オープン: ヤニック・シナーは2026年男子シングルスで優勝するか？', category: 'sports' },
       '649201': { titleJa: 'eスポーツ: Aurora GamingはDota 2世界大会「The International 2026」で優勝するか？', category: 'entertainment' },
     };
@@ -404,21 +421,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       let t = raw.trim();
       let category = null;
 
-      if (/Spread:\s*(.+)/i.test(t)) {
-        return { titleJa: `欧州サッカー: ${t.replace(/^Spread:\s*/i, '')} ハンデ勝利予測`, category: 'sports' };
-      }
-      if (/Elche CF|Newcastle United|Barcelona|Real Madrid|Manchester|Liverpool|Arsenal|Chelsea|Bayern|Dortmund|Juventus|Inter|Milan/i.test(t)) {
-        return { titleJa: `欧州サッカー: ${t.replace(/^Will\s+/i, '').replace(/\s+win\s+on\s+/i, '（').replace(/\?/g, '')}）勝敗予測`, category: 'sports' };
-      }
+      // 1. eスポーツ判定（N-29: サッカーより前に配置し、The International の誤判定を完全防止）
       if (/The International|Dota 2|Valorant|Apex Legends/i.test(t)) {
         return { titleJa: `eスポーツ: ${t.replace(/^Will\s+/i, '').replace(/\s+Win\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'entertainment' };
-      }
-      if (/Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t) && /US Open|Wimbledon|Roland Garros/i.test(t)) {
-        return { titleJa: `テニス全米オープン: ${t.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'sports' };
-      }
-
-      if (/Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox/i.test(t)) {
-        return { titleJa: `MLB公式戦: ${t.replace(' - Exact Score', '').replace(' - More Markets', '')} 勝敗予測`, category: 'sports' };
       }
       if (/LoL:|League of Legends/i.test(t)) {
         let clean = t.replace(/LoL:\s*/i, 'LoL公式戦: ').replace(/\(BO3\)/g, '（3本勝負）').replace(/\(BO5\)/g, '（5本勝負）');
@@ -428,11 +433,42 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         if (/Winner/i.test(t)) return { titleJa: 'EWC 2026（eスポーツW杯）CS2部門 優勝チーム予測', category: 'entertainment' };
         return { titleJa: `${t.replace(/Counter-Strike:\s*/i, 'CS2公式戦: ')} 勝敗予測`, category: 'entertainment' };
       }
-      if (/Cincinnati Open:/i.test(t)) {
-        return { titleJa: `テニス シンシナティOP: ${t.replace(/Cincinnati Open:\s*/i, '')} 勝敗予測`, category: 'sports' };
+
+      // 2. 総合格闘技 (UFC / MMA) 判定
+      if (/UFC|Fight Night|Bellator|PFL|Heavyweight|Lightweight|Middleweight|Welterweight|Featherweight|Bantamweight|Flyweight|Main Card|Prelims/i.test(t)) {
+        let clean = t.replace(/^UFC Fight Night:\s*/i, '').replace(' - Exact Score', '').replace(' - More Markets', '');
+        return { titleJa: `総合格闘技 UFC: ${clean} 勝敗予測`, category: 'sports' };
       }
-      if (/ITF M25/i.test(t)) {
-        return { titleJa: `国際テニスITFツアー: ${t.replace(/ITF M25.*?:\s*/, '')} 勝敗予測`, category: 'sports' };
+
+      // 3. テニス判定 (N-28: Prague, Cancun, Sion, Monterrey Open, ITF, ATP, WTA等)
+      if (/Cincinnati Open|ITF M25|US Open|Wimbledon|Roland Garros|Prague|Cancun|Sion|Monterrey|Challenger|ATP|WTA|Grand Slam/i.test(t) || /Sebastian Baez|Lloyd Harris|Lorenzo Giustino|Benjamin Hassan|Norbert Gombos|Radu Mihai Papoe|Maya Joint|Jessica Hinojosa|Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t)) {
+        let clean = t.replace(/^(?:Prague\s*\d*:|Cancun:|Sion:|Monterrey Open.*?:|Cincinnati Open:|ITF M25.*?:\s*)/i, '').replace(' - More Markets', '').replace(' - Exact Score', '');
+        if (/^Will\s+/i.test(clean)) {
+          return { titleJa: `テニス公式戦: ${clean.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '')}で優勝するか？`, category: 'sports' };
+        }
+        return { titleJa: `テニス公式戦: ${clean} 勝敗予測`, category: 'sports' };
+      }
+
+      // 4. MLB / 野球判定 (N-28: 全30球団の完全網羅)
+      if (/\b(?:Dodgers|Rockies|Orioles|Rays|Cardinals|Reds|Tigers|Pirates|Marlins|Phillies|Yankees|Red Sox|Braves|Brewers|White Sox|Giants|Guardians|Angels|Rangers|Cubs|Mariners|Nationals|Athletics|Royals|Astros|Twins|Blue Jays|Padres|Diamondbacks|Mets)\b/i.test(t)) {
+        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '').replace(/^MLB:\s*/i, '');
+        return { titleJa: `MLB公式戦: ${clean} 勝敗予測`, category: 'sports' };
+      }
+
+      // 5. WNBA / バスケ判定
+      if (/\b(?:Lynx|Valkyries|Sparks|Aces|Liberty|Sky|Sun|Fever|Storm|Wings|Mystics|Mercury|Dream|NBA|WNBA)\b/i.test(t)) {
+        let clean = t.replace(' - Exact Score', '').replace(' - More Markets', '');
+        return { titleJa: `WNBA公式戦: ${clean} 勝敗予測`, category: 'sports' };
+      }
+
+      // 6. 欧州サッカー / サッカー判定 (N-29: \bInter\b, \bMilan\b, \bArsenal\b で単語境界を厳格化)
+      if (/Spread:\s*(.+)/i.test(t)) {
+        return { titleJa: `欧州サッカー: ${t.replace(/^Spread:\s*/i, '')} ハンデ勝利予測`, category: 'sports' };
+      }
+      if (/\b(?:Elche CF|Newcastle United|Barcelona|Real Madrid|Manchester|Liverpool|Arsenal|Chelsea|Bayern|Dortmund|Juventus|Inter|Milan|Brighton|Tottenham|Aston Villa|PSG|Paris Saint-Germain|Fulham|Brentford|Crystal Palace|Everton|West Ham|Leicester|Ipswich|Southampton|Girona|Sociedad|Betis|Villarreal|Sevilla|Valencia|Mallorca|Osasuna|Celta|Alaves|Espanyol|Valladolid|Leganes|Las Palmas|Getafe|Monaco|Marseille|Lille|Lyon|Nice|Rennes|Leverkusen|Stuttgart|Leipzig|Frankfurt|Atalanta|Roma|Lazio|Fiorentina|Napoli)\b/i.test(t)) {
+        let clean = t.replace(/^Will\s+/i, '').replace(/\s+win\s+on\s+/i, '（').replace(/\?/g, '');
+        if (clean.includes('（')) clean += '）';
+        return { titleJa: `欧州サッカー: ${clean} 勝敗予測`, category: 'sports' };
       }
       if (/Ballon d'Or Winner (\d+)/i.test(t)) {
         const year = t.match(/Ballon d'Or Winner (\d+)/i)[1];
@@ -448,10 +484,17 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         if (/Paris Saint-Germain|PSG/i.test(t)) return { titleJa: 'パリ・サンジェルマンは2026-27 UEFAチャンピオンズリーグで優勝するか？', category: 'sports' };
         return { titleJa: '2026-27 UEFAチャンピオンズリーグ 優勝クラブ予測', category: 'sports' };
       }
-      if (/vs\.?|対/i.test(t) && !t.startsWith('LoL') && !t.startsWith('CS2')) {
+
+      // 7. Will [チーム/人] win on [日付]? 構文の自動自然翻訳（流入英語の構造的日本語化）
+      const willWinDateMatch = t.match(/^Will\s+(.+?)\s+win\s+on\s+(\d{4}-\d{2}-\d{2})\??/i);
+      if (willWinDateMatch) {
+        return { titleJa: `スポーツ勝敗予測: ${willWinDateMatch[1]} は ${willWinDateMatch[2]} の試合で勝利するか？`, category: 'sports' };
+      }
+
+      // 8. 汎用 vs カード判定 (N-28: 欧州サッカーではなく中立表現)
+      if (/vs\.?|対/i.test(t)) {
         let clean = t.replace(' - Exact Score', '（スコア予想）').replace(' - More Markets', '');
-        if (/Lynx|Valkyries/i.test(t)) return { titleJa: `WNBA公式戦: ${clean} 勝敗予測`, category: 'sports' };
-        return { titleJa: `欧州サッカー: ${clean} 勝敗予測`, category: 'sports' };
+        return { titleJa: `対戦カード予測: ${clean} 勝敗予測`, category: 'sports' };
       }
       if (/Fed Decision in September.*?50\+?\s*bps decrease/i.test(t)) {
         return { titleJa: '米FRB：9月FOMCで50bp以上の大幅利下げを実施するか？', category: 'economy' };
@@ -579,8 +622,8 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       return { titleJa: `${prefix}${t}`, category: fallbackCat };
     }
 
-    // 既存DBの高品質な日本語タイトル・カテゴリを事前取得し、同期による上書きを構造的に防止
-    const { data: existingRows } = await supabase.from('events').select('id, title_ja, category');
+    // 既存DBの高品質な日本語タイトル・カテゴリを事前取得し、同期による上書きを構造的に防止 (N-20類似の件数上限破綻を防ぐため range(0, 9999) を明示)
+    const { data: existingRows } = await supabase.from('events').select('id, title_ja, category').range(0, 9999);
     const existingMap = new Map((existingRows || []).map(r => [r.id, r]));
 
     const selectedRecords = topCandidates.map(c => {

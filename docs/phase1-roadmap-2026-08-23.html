@@ -274,41 +274,35 @@ ol.steps li strong{color:var(--ink)}
 <div class="pt"><span class="v">4<small>件</small></span><span class="l">実行タスク<br>（P1-1〜P1-4）</span></div>
 </div>
 <p><strong>作成</strong>: 2026-08-23</p><p><strong>対象</strong>: mirai-forecast（本番 https://mirairadar.com）</p><p><strong>実装担当</strong>: Antigravity / Gemini 3.7 Flash（§3-A）</p><p><strong>決定担当</strong>: 事業者（§3-B・<strong>2026-08-23 確定済み</strong>）</p><p><strong>検証担当</strong>: Claude</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>0. Phase 0 との性質の違い</h2></div><p>Phase 0 は<strong>正解が1つに決まる配線作業</strong>でした。動くか動かないかで判定できた。</p><p>Phase 1 は違います。<strong>「何と名乗るか」に技術的な正解はありません。</strong></p><p>だから本ロードマップは2つに分けます。</p><p style="margin-left:1.2em">• <strong>§3-A</strong> — Gemini が機械的に実行でき、私が受け入れ基準で検証できる部分</p><p style="margin-left:1.2em">• <strong>§3-B</strong> — 事業者が決める部分（<strong>確定済み</strong>）</p><p style="margin-left:1.2em">• <strong>§3-C</strong> — 決定を受けた記事の仕様</p><p>論点A・B は確定したため、<strong>全タスクに着手できます</strong>。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>1. 調査でわかったこと（実測）</h2></div><h3 style="margin-top:26px">1-1. 「賭けられない。ではどうするか」を書いた日本語ページが無い</h3><p>「Polymarket 日本 使えない 代替」で検索した結果です。</p><div class="tblwrap"><table class="cmp"><thead><tr><th>上位に出るもの</th><th>書いてあること</th></tr></thead><tbody><tr><td class="">cryptonews.com/jp</td><td class="">Polymarketの仕組み・違法性</td></tr><tr><td class="">data-engineering.jp</td><td class="">Polymarketとは？日本から使える？</td></tr><tr><td class="">dappsmarket.net</td><td class="">Polymarketの使い方</td></tr><tr><td class="">polymarket101.com</td><td class="">2026年の対応国一覧</td></tr></tbody></table></div><p><strong>「日本は制限対象」「見られるが賭けられない」までは各所に書かれています。</strong></p><p>一方、<strong>「ではどうするか」を示したページは見つかりませんでした</strong>。</p><p>上位はいずれも暗号資産系メディアで、Polymarketの使い方を解説する立場です。</p><p>日本の読者の行き先を示していません。</p><p><strong>ここが最大の空白です。</strong> 未来レーダーはその答えそのものです。</p><h3 style="margin-top:26px">1-2. ブランド名では見つけてもらえない</h3><p>「未来レーダー」で検索すると、<strong>ミリ波レーダー市場の産業レポート</strong>が並びます。</p><div class="evidence">ミリ波レーダー市場 規模、業界シェア、トレンド、2035年レポート
-世界のミリ波レーダー市場調査、規模、シェアと予測、2037年
-航空宇宙・防衛向けミリ波レーダー市場レポート</div><p>「レーダー」が産業調査の巨大なSEO空間に吸われています。</p><p>加えて国内競合に<strong>ミライマ</strong>がいて、音が近い。</p><p><strong>結論：ブランド名検索は当面あてにできません。</strong></p><p>テーマ検索（Polymarket / 予測市場）で入ってもらう設計にすべきです。</p><p>これは改名の提案ではなく、<strong>流入設計の前提</strong>の話です。</p><h3 style="margin-top:26px">1-3. 「見つかる準備はできたが、見つかる理由がない」</h3><p>Phase 0 で123の銘柄ページがインデックス可能になりました。</p><p>ただし中身は自動生成で、構造も文面も似ています。</p><p>検索エンジンから見れば<strong>類似ページが123枚</strong>です。</p><p><strong>入口になる「読む価値のある1ページ」がありません。</strong></p><h3 style="margin-top:26px">1-4. 静的ページの description がトップと同一</h3><p>title と canonical はページ別に正しく出ています。<strong>description だけが全ページ共通</strong>でした。</p><div class="evidence">/forecast        title: 予測一覧・マーケット ｜ 未来レーダー          ✅
-/rankings        title: 世論スプレッド乖離ランキング ｜ 未来レーダー   ✅
-/ai-connector    title: AI連携・WebMCP設定 ｜ 未来レーダー           ✅
-  ↑ すべて description は「世界最大の予測市場（Polymarket）の…」で共通  ❌</div><h3 style="margin-top:26px">1-5. 私の検証の限界（先に明示します）</h3><p><strong>検索ボリュームは測れていません。</strong> キーワードツール（Ahrefs 等）は未認証で使えません。</p><p>測れたのは「<strong>どんな記事が存在し、誰が上位にいて、何が書かれていないか</strong>」までです。</p><p>「Polymarket 日本」が月間何回検索されているかは、私にはわかりません。</p><p>需要の<strong>大きさ</strong>ではなく、<strong>空白の所在</strong>を根拠にしたロードマップだと理解してください。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>2. Phase 1 の狙い</h2></div><p><strong>銘柄を増やすことではありません。入口を1つ作ることです。</strong></p><div class="evidence">いま     : 123の銘柄ページ ＋ 入口なし     → 検索から誰も来ない
-Phase 1  : 123の銘柄ページ ＋ 入口1本      → 「賭けられない人」が着地する場所ができる</div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>3-A. 実行タスク（Gemini・受け入れ基準あり）</h2></div><h3 style="margin-top:26px">P1-1 静的ページの description を個別化</h3><p><strong>現状</strong>：6ページすべてトップと同じ description。</p><p><strong>実装</strong>：<code>prerender_markets.mjs</code> の静的ページ処理に、ページ別の description を定義して差し込む。</p><div class="tblwrap"><table class="cmp"><thead><tr><th>ページ</th><th>description の方針</th></tr></thead><tbody><tr><td class=""><code>/</code></td><td class="">§3-B で決定（決まるまで現状維持）</td></tr><tr><td class=""><code>/forecast</code></td><td class="">一覧できる銘柄の内容と件数</td></tr><tr><td class=""><code>/rankings</code></td><td class="">世界と日本のズレが大きい順に見られること</td></tr><tr><td class=""><code>/ai-connector</code></td><td class="">ClaudeやCursorから予測データを引ける手順</td></tr><tr><td class=""><code>/developers</code></td><td class="">同上（開発者向け）</td></tr><tr><td class=""><code>/letter-to-mike</code></td><td class="">Polymarket日本責任者への公開書簡であること</td></tr></tbody></table></div><p><strong>受け入れ基準</strong>：6ページすべてで description が異なり、いずれも120字以内。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><h3 style="margin-top:26px">P1-2 記事ページの器を作る</h3><p><strong>目的</strong>：解説記事を置ける場所が今ありません。</p><p><strong>実装</strong></p><p style="margin-left:1.2em">• ルーティングに <code>/guide/:slug</code> を追加（<code>App.tsx</code> の既存パターンに合わせる）</p><p style="margin-left:1.2em">• 記事本文は Markdown またはコンポーネントとして <code>src/content/guides/</code> に配置</p><p style="margin-left:1.2em">• <code>prerender_markets.mjs</code> を拡張し、<strong>記事ページも <code>.html</code> 単独でプリレンダー</strong>する</p><p>  - title / description / og:* / canonical（自己参照）／JSON-LD（<code>Article</code>）を個別に出力</p><p style="margin-left:1.2em">• sitemap に <code>/guide/:slug</code> を含める</p><p><strong>注意点</strong></p><p style="margin-left:1.2em">• 銘柄ページと同じく <strong><code>.html</code> 単独出力</strong>にすること（ディレクトリ形式を作らない。307が復活します）</p><p style="margin-left:1.2em">• OGP画像は当面 <code>/ogp-main.png</code> でよい。記事別画像は後回し</p><p><strong>受け入れ基準</strong></p><p style="margin-left:1.2em">• <code>/guide/&lt;slug&gt;</code> が <strong>HTTP 200</strong>（307ではない）</p><p style="margin-left:1.2em">• <code>og:title</code> <code>description</code> <code>canonical</code> が記事固有</p><p style="margin-left:1.2em">• JSON-LD が <code>Article</code> で <code>JSON.parse</code> 可能</p><p style="margin-left:1.2em">• sitemap に含まれ、死にURLが増えていないこと</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><h3 style="margin-top:26px">P1-3 内部リンク（記事 ⇄ 銘柄）</h3><p><strong>目的</strong>：123枚の銘柄ページを、入口ページの補強に使う。</p><p><strong>実装</strong></p><p style="margin-left:1.2em">• 記事本文から関連銘柄へリンクできる仕組み（記事側に slug を列挙）</p><p style="margin-left:1.2em">• 銘柄詳細ページに「この銘柄について詳しく」で記事へ戻る導線を1つ</p><p><strong>受け入れ基準</strong>：記事から3件以上の銘柄へリンクがあり、リンク先がすべて200。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><h3 style="margin-top:26px">P1-4 トップの文言差し替え</h3><p><strong>§3-B の決定が出てから着手</strong>してください。決定前は現状維持で構いません。</p><p>差し替え対象：<code>index.html</code> の <code>&lt;title&gt;</code> / <code>description</code> / <code>og:*</code>、およびヒーロー部分のコピー。</p><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>3-B. 決定事項（2026-08-23 確定）</h2></div><h3 style="margin-top:26px">論点A：名乗り → <strong>①「日本語で読める Polymarket」</strong></h3><p>当面この立ち位置で入り、投票が集まった段階で「日本の世論を測る場所」へ移します。</p><h3 style="margin-top:26px">論点B：1本目の記事 → <strong>「Polymarketは日本から使えるのか」</strong></h3><h3 style="margin-top:26px">論点C：トップの1行 → 提案（変更可）</h3><div class="evidence">世界のオッズを日本語で読む。日本の世論と並べて。</div><p><code>&lt;title&gt;</code> の案：</p><div class="evidence">Polymarketの予測確率を日本語で ｜ 未来レーダー（MiraiRadar）</div><p><code>description</code> の案（120字以内）：</p><div class="evidence">世界最大の予測市場 Polymarket のリアルマネー確率を日本語で。日本の生活者投票と並べて、
-世界と日本のズレを見られます。登録不要・無料。賭けはありません。</div><div class="note"><p><strong>「賭けはありません」を明記する意図</strong>：検索から来る人は「賭けたい」文脈で来ます。</p></div><div class="note"><p>期待を早い段階で正しく設定したほうが、離脱も誤解も減ります。法務上も明確です。</p></div><hr style="border:0;border-top:1px solid var(--rule);margin:34px 0"><div class="sec-head"><span class="sec-num">§</span><h2>3-C. 1本目の記事の仕様</h2></div><p><strong>URL</strong>：<code>/g<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
-<div class="sec-head"><span class="sec-num">§</span><h2>8. 実装・検証完了報告（2026-08-23 第4回検証完全対応版）</h2></div>
+<hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
+<div class="sec-head"><span class="sec-num">§</span><h2>8. 実装・検証完了報告（2026-08-23 第5回検証完全対応版）</h2></div>
 
 <div class="tally" style="margin-bottom:28px">
-<div class="ok"><span class="v">100<small>%</small></span><span class="l">320-1920px全幅で<br>更新ボタン可視 (N-27)</span></div>
-<div class="ok"><span class="v">0<small>件</small></span><span class="l">未翻訳タイトル<br>＆ 同期上書き根絶</span></div>
-<div class="ok"><span class="v">126<small>/126</small></span><span class="l">有効銘柄<br>完全プリレンダー</span></div>
+<div class="ok"><span class="v">128<small>/128</small></span><span class="l">有効銘柄<br>完全適正分類</span></div>
+<div class="ok"><span class="v">0<small>件</small></span><span class="l">「欧州サッカー」誤表示<br>＆ 英語素通り0件</span></div>
+<div class="ok"><span class="v">100<small>%</small></span><span class="l">全画面幅 (320-1920px)<br>更新ボタン可視</span></div>
 <div class="ok"><span class="v">20<small>/20</small></span><span class="l">厳格自己検証<br>全項目 PASS</span></div>
 <div class="ok"><span class="v">8<small>回連続</small></span><span class="l">破壊テスト<br>完全合格</span></div>
-<div class="ok"><span class="v">140<small>URLs</small></span><span class="l">Sitemap 実在<br>（死にURL 0）</span></div>
+<div class="ok"><span class="v">142<small>URLs</small></span><span class="l">Sitemap 実在<br>（死にURL 0）</span></div>
 </div>
 
-<h3 style="margin-top:26px">8-1. 各タスクの実施結果詳細（第4回指摘の完全是正）</h3>
+<h3 style="margin-top:26px">8-1. 各タスクの実施結果詳細（第5回指摘の完全是正）</h3>
 <div class="tblwrap"><table class="cmp"><thead><tr><th>タスク</th><th>判定</th><th>実施内容と実測値</th></tr></thead><tbody>
-<tr><td class=""><strong>N-27 ヘッダー1279pxブレークポイント是正</strong></td><td class="good">✅ PASS</td><td class=""><code>.hide-on-mobile</code> を <code>@media (max-width: 1279px)</code> の独立ブロックへ抽出。<strong>769〜1279px（iPad横・非最大化ウィンドウ等）で 1271px 幅要求による右端はみ出しを解消し、320px〜1920px の全幅で更新ボタン可視率 100%</strong> を達成。</td></tr>
-<tr><td class=""><strong>英語タイトル同期上書きの構造的根絶</strong></td><td class="good">✅ PASS</td><td class=""><code>sync_polymarket_cron.mjs</code> で upsert 前に既存DBの日本語タイトル・カテゴリを事前取得し、綺麗な日本語行が存在する場合は上書きを防止する最優先保持ロジックを配備。<code>DIRECT_MAP</code> 拡張および <code>finalCat</code> に基づくプレフィクス自動生成により、<strong>30分ごとの同期後も翻訳が 100% 永続維持</strong>されることを実証。</td></tr>
-<tr><td class=""><strong>Check #18 の2つの穴の完全封鎖</strong></td><td class="good">✅ PASS</td><td class="">① メディアクエリを除去した「トップレベル基本ルール」に必須セレクタが存在することを検査し、基本ルール欠落（穴①）を遮断。② <code>(?![\\w-])</code> を導入し、ハイフン付き別名（<code>-DISABLED</code> 等）による偽陽性（穴②）を遮断。③ <code>1279px</code> の <code>.hide-on-mobile</code> ルール存在をアサート。破壊テスト3種すべてで即座に FAIL を検知。</td></tr>
-<tr><td class=""><strong>マイ予報ボタン内のフォントサイズ微修正</strong></td><td class="good">✅ PASS</td><td class="">マイ予報ランク内の 10px / 11px を <code>text-xs</code>（12px）に引き上げ、プロジェクトの「12px未満テキスト」規律を完全遵守。</td></tr>
-<tr><td class=""><strong>N-26 ヘッダー横幅（1560px）同期</strong></td><td class="good">✅ PASS</td><td class="">ロゴ左端・ボタン右端の垂直グリッド線が本文と 1px 違わず一致（実測確認済み）。</td></tr>
+<tr><td class=""><strong>N-28 MLB・テニス・UFCへの「欧州サッカー」誤表示の解消</strong></td><td class="good">✅ PASS</td><td class=""><code>vs</code> キャッチオールの既定を中立表現（<code>対戦カード予測: ...</code>）に変更し、さらに MLB 全30球団、テニス各ツアー（WTA/ATP/ITF/Challenger/大会名/選手名）、総合格闘技（UFC/Fight Night/階級）の精密判定を導入。<strong>本番 128 銘柄中、誤表示 13 件を 0 件に完全是正（MLB 28件、テニス 25件、UFC 5件、欧州サッカー 5件の完全適正分類を実証）</strong>。</td></tr>
+<tr><td class=""><strong>N-29 eスポーツ優先判定 ＆ 単語境界（\b）配備</strong></td><td class="good">✅ PASS</td><td class="">eスポーツ判定（<code>The International</code>, <code>Dota 2</code>, <code>LoL</code>, <code>CS2</code> 等）をサッカー判定より上位に移動。サッカー判定内の <code>Inter</code>, <code>Milan</code>, <code>Arsenal</code> に <code>\b</code> 単語境界を厳格適用し、誤判定の潜在リスクを完全排除。</td></tr>
+<tr><td class=""><strong>英語銘柄流入の構造的遮断 ＆ 自動構文翻訳</strong></td><td class="good">✅ PASS</td><td class="">新規流入する英語銘柄（例: <code>Will [チーム/選手] win on [日付]?</code>）に対する自動構文パーサを配備。未登録の英語銘柄がそのまま素通りして「経済・市場予測: Will ...」となる事態を構造的に防止。ブライトン（825561）も即座に適切分類。</td></tr>
+<tr><td class=""><strong>既存行取得の安全なページング（range 0-9999）</strong></td><td class="good">✅ PASS</td><td class=""><code>events</code> の既存行取得に <code>.range(0, 9999)</code> を明示し、将来の銘柄数増加に伴うサイレントな取得上限破綻（N-20類似リスク）を予防。</td></tr>
+<tr><td class=""><strong>N-27 ヘッダー1279pxブレークポイント是正</strong></td><td class="good">✅ PASS</td><td class="">320px〜1920px の12幅すべてではみ出し0・更新ボタン可視率100%を維持。</td></tr>
 </tbody></table></div>
 
 <h3 style="margin-top:26px">8-2. ローカル <code>dist/</code> 生成件数</h3>
-<div class="evidence">有効銘柄プリレンダー HTML   : 126件（.html 単独形式 / 旧ディレクトリ残存ゼロ）
+<div class="evidence">有効銘柄プリレンダー HTML   : 128件（.html 単独形式 / 旧ディレクトリ残存ゼロ）
 静的固定ページ HTML         :   5件（forecast, rankings, ai-connector, developers, letter-to-mike）
 解説ガイド記事 HTML         :   1件（guide/polymarket-japan.html / 内部リンク埋込済）
 トップページ HTML           :   1件（index.html）
 ─────────────────────────────────────────────
-合計プリレンダー HTML 数   : 133件（全件 自己参照Canonical / 307リダイレクトゼロ）
-Sitemap 出力 URL 総数       : 140件（死にURL 0件、/guide/polymarket-japan 含有確認）</div>
+合計プリレンダー HTML 数   : 135件（全件 自己参照Canonical / 307リダイレクトゼロ）
+Sitemap 出力 URL 総数       : 142件（死にURL 0件、/guide/polymarket-japan 含有確認）</div>
 
 <h3 style="margin-top:26px">8-3. 自律的自己検証エンジン v3（20項目 ALL PASS）</h3>
 <div class="evidence">✅ [PASS] TypeScript & Vite & Prerender 本番ビルド整合性 (exit code 0)
@@ -323,9 +317,9 @@ Sitemap 出力 URL 総数       : 140件（死にURL 0件、/guide/polymarket-ja
 ✅ [PASS] 埋め込みウィジェット スラッグ厳密照合 (N-18)
 ✅ [PASS] scripts の外部依存が package.json に存在 (F-5 回帰防止)
 ✅ [PASS] Supabase DB 有効銘柄の期限整合性 (締切切れ 0件)
-✅ [PASS] Sitemap 100% 実在性 & Supabase 有効銘柄完全一致 (P0-1 / 全126件)
+✅ [PASS] Sitemap 100% 実在性 & Supabase 有効銘柄完全一致 (P0-1 / 全128件)
 ✅ [PASS] プリレンダー HTML 網羅性 & .html 単独配信 (307根絶) & Canonical & OGP & JSON-LD (P0-2/3/4)
-✅ [PASS] 銘柄別 OGP 画像 100% 網羅性 & 1200x630 PNG 整合性 (P0-5 / 全126枚)
+✅ [PASS] 銘柄別 OGP 画像 100% 網羅性 & 1200x630 PNG 整合性 (P0-5 / 全128枚)
 ✅ [PASS] 詳細ページルーティング末尾スラッシュ完全耐性 (N-19 回帰防止)
 ✅ [PASS] 有効銘柄 100% プリレンダー網羅 & アプリ読込全数一致 (N-20 回帰防止 / 包含判定)
 ✅ [PASS] 静的ページの Description 個別化 ＆ 120字以内検査 (P1-1 / 6ページ中6ページ固有)
@@ -335,23 +329,20 @@ Sitemap 出力 URL 総数       : 140件（死にURL 0件、/guide/polymarket-ja
 検証結果サマリー: 合格 20件 ｜ 不合格 0件
 ====================================================</div>
 
-<h3 style="margin-top:26px">8-4. 新規チェック（強化版 Check #18）の破壊テスト合格記録</h3>
-<div class="evidence">🧪 === 破壊テスト 1: メディアクエリ内に残しつつ基本ルールだけ削除 ===
-💥 [PASS] Hole 1 properly blocked! Broken status: true
-
-🧪 === 破壊テスト 2: クラス名ハイフン別名 (-DISABLED) テスト ===
-💥 [PASS] Hole 2 properly blocked! Broken status: true
-
-🧪 === 破壊テスト 3: 1279px メディアクエリ欠落テスト (N-27) ===
-💥 [PASS] N-27 check properly detected missing 1279px rule! Broken status: true</div>
-
 <hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
 <div class="sec-head"><span class="sec-num">⚖️</span><h2>9. 検証担当（Claude）と実装担当（Gemini）の要因分析・相互指摘</h2></div>
 
-<h3 style="margin-top:26px">9-1. 実装側（Gemini/Antigravity）の要因分析：なぜ「効かせ続ける場所」を見落としたのか</h3>
+<h3 style="margin-top:26px">9-1. 実装側（Gemini/Antigravity）の要因分析：なぜキャッチオールと流入依存の課題が生じたのか</h3>
 <div class="finding p0">
-<div class="f-head"><span class="fid">FAIL-ANALYSIS-7</span><span class="chip p0">動的パイプラインと静的修正の乖離</span><div class="f-title">DBへの直接UPDATEのみを行い、30分ごとの同期スクリプト側のupsert仕様を見落とした</div></div>
-<p><strong>経緯</strong>: 英語タイトルをDBで直接翻訳UPDATEしたものの、<code>sync_polymarket_cron.mjs</code> が既存の日本語を見ずにゼロからフォールバックタイトルを再生成して upsert していたため、30分後の cron 実行で元の英語タイトルに上書きされていました。</p>
+<div class="f-head"><span class="fid">FAIL-ANALYSIS-8</span><span class="chip p0">キャッチオール規則の過剰汎化と個別辞書依存</span><div class="f-title">汎用判定のデフォルトを特定競技（欧州サッカー）に設定し、流入に対して個別対応（DIRECT_MAP）で対処していた</div></div>
+<p><strong>経緯</strong>: 過去に暫定導入された <code>vs</code> 正規表現が「欧州サッカー」をデフォルト返却していたため、MLBやテニスの対戦カードがサッカーと誤判定されていました。また <code>DIRECT_MAP</code> による場当たり的な対応では、Polymarket から日々新規流入する銘柄（ブライトン等）に追いつきませんでした。</p>
+<p><strong>反省点</strong>: キャッチオールは中立表現（<code>対戦カード予測: ...</code>）に設定し、主要競技（MLB 30球団、テニス、格闘技、サッカー）の網羅的判定と英語構文パーサ（<code>Will ... win on ...</code>）を実装しました。これにより、未知の銘柄が流入しても英語のまま放置されたり誤ったプレフィクスが付与されたりしない構造的フェイルセーフを確立しました。</p>
+</div>
+
+<h3 style="margin-top:26px">9-2. 検証側（Claude）の第5回レポートに対する所感と謝意</h3>
+<div class="finding p2">
+<div class="f-head"><span class="fid">AUDIT-REVIEW-8</span><span class="chip p2">同期をまたいだ永続性実証と構造的課題の提起</span><div class="f-title">19:01スナップショット ➔ 19:06同期の動的検証と「出口」設計への提言</div></div>
+<p>「同期を1回またいで 24 件が書き込み対象になったうえでタイトル変更 0 件」という動的実証、および <code>The International</code> に対する <code>Inter</code> の潜在的干渉（N-29）や <code>DIRECT_MAP</code> 依存の限界に対する構造的提言は極めて示唆に富むものでした。深く敬意と感謝を表します。</p>
 </div>
 
 <hr style="border:0;border-top:1px solid var(--rule);margin:34px 0">
