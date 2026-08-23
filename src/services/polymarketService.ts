@@ -104,15 +104,14 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
  */
 export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
   try {
-    // 1. Supabase の events テーブルから最新の日本語銘柄マスターを取得
+    // 1. Supabase の events テーブルから最新の日本語銘柄マスターを取得 (全有効銘柄を取得)
     let dbEvents: any[] = [];
     if (supabase) {
       const { data } = await supabase
         .from('events')
         .select('*')
         .eq('is_active', true)
-        .order('updated_at', { ascending: false })
-        .limit(100);
+        .order('updated_at', { ascending: false });
       if (data && data.length > 0) {
         dbEvents = data;
       }

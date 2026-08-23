@@ -169,24 +169,24 @@ async function prerenderAll() {
     const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(jsonLd, null, 2)}\n    </script>`;
     html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
 
-    // 出力ディレクトリ作成 & 書き出し（.html 形式 ＆ directory/index.html 形式の両方を配備）
+    // 出力ディレクトリ作成 & 書き出し（直接 .html 形式単独出力により 307 リダイレクトを完全根絶）
     const marketBaseDir = path.join(DIST_DIR, 'market');
     if (!fs.existsSync(marketBaseDir)) {
       fs.mkdirSync(marketBaseDir, { recursive: true });
     }
-    // 1. Cloudflare Pages が 307 リダイレクトなしに HTTP 200 を返す直接 .html 形式
-    fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
-
-    // 2. 万一 /market/<slug>/ でアクセスされた場合のディレクトリ index.html 形式
-    const marketDir = path.join(marketBaseDir, slug);
-    if (!fs.existsSync(marketDir)) {
-      fs.mkdirSync(marketDir, { recursive: true });
+    
+    // ディレクトリ形式がもし存在していれば削除（Cloudflare Pages の 307 リダイレクト優先を防ぐ）
+    const oldDir = path.join(marketBaseDir, slug);
+    if (fs.existsSync(oldDir) && fs.lstatSync(oldDir).isDirectory()) {
+      fs.rmSync(oldDir, { recursive: true, force: true });
     }
-    fs.writeFileSync(path.join(marketDir, 'index.html'), html, 'utf-8');
+
+    // Cloudflare Pages が 307 リダイレクトなしに HTTP 200 を返す直接 .html 形式
+    fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
     marketCount++;
   }
 
-  console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html ＆ /index.html 形式両対応)！`);
+  console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html 形式単独 / 307根絶)！`);
 
   // ==============================================================================
   // B. 静的ページの自己参照 Canonical プリレンダー (P0-3)
@@ -207,15 +207,14 @@ async function prerenderAll() {
     html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${page.canonical}" />`);
     html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${page.canonical}" />`);
 
-    // 1. 直接 .html 形式
-    fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
-
-    // 2. ディレクトリ index.html 形式
-    const pageDir = path.join(DIST_DIR, page.dir);
-    if (!fs.existsSync(pageDir)) {
-      fs.mkdirSync(pageDir, { recursive: true });
+    // 旧ディレクトリ形式が存在していれば削除
+    const oldPageDir = path.join(DIST_DIR, page.dir);
+    if (fs.existsSync(oldPageDir) && fs.lstatSync(oldPageDir).isDirectory()) {
+      fs.rmSync(oldPageDir, { recursive: true, force: true });
     }
-    fs.writeFileSync(path.join(pageDir, 'index.html'), html, 'utf-8');
+
+    // 直接 .html 形式
+    fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
   }
 
   console.log('✅ 全プリレンダー処理が正常完了しました！');

@@ -283,7 +283,7 @@ async function checkDbAndPhase0() {
     sitemapFails.length === 0 ? `全 ${activeEvents.length}件 の /market/ URLがSupabase有効銘柄と完全一致 (死にURL 0件)` : sitemapFails.join("; "));
 
   // ==============================================================================
-  // 12. プリレンダー HTML 網羅性 & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)
+  // 12. プリレンダー HTML 網羅性 & 直接 .html 配信 (307根絶) & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)
   // ==============================================================================
   let prerenderFails = [];
   const distMarketDir = path.join(ROOT, "dist/market");
@@ -293,18 +293,19 @@ async function checkDbAndPhase0() {
     let checkedCount = 0;
     for (const ev of activeEvents) {
       const slug = ev.slug || ev.id;
-      const htmlFile = path.join(distMarketDir, slug, "index.html");
-      if (!fs.existsSync(htmlFile)) {
-        prerenderFails.push(`銘柄 [${slug}] のプリレンダー index.html が欠落`);
-        continue;
-      }
-      const html = fs.readFileSync(htmlFile, "utf-8");
 
-      // 0. 直接 .html 形式 (Cloudflare Pages 307リダイレクト回避 & HTTP 200 配信)
+      // 0. 直接 .html 形式が存在し、かつ旧ディレクトリ index.html が存在しないこと（307 リダイレクト完全根絶）
       const directHtmlFile = path.join(distMarketDir, `${slug}.html`);
+      const dirIndexFile = path.join(distMarketDir, slug, "index.html");
       if (!fs.existsSync(directHtmlFile)) {
         prerenderFails.push(`銘柄 [${slug}] の直接 .html プリレンダーファイルが欠落`);
+        continue;
       }
+      if (fs.existsSync(dirIndexFile)) {
+        prerenderFails.push(`銘柄 [${slug}] にディレクトリ形式 index.html が残存しており、307 リダイレクトが発生します`);
+      }
+
+      const html = fs.readFileSync(directHtmlFile, "utf-8");
 
       // 1. 自己参照 Canonical
       const expectedCanon = `<link rel="canonical" href="https://mirairadar.com/market/${slug}" />`;
@@ -344,20 +345,23 @@ async function checkDbAndPhase0() {
     // 静的ページの自己参照 Canonical 検査 (P0-3)
     const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike"];
     for (const p of staticPages) {
-      const pFile = path.join(ROOT, `dist/${p}/index.html`);
       const pDirectFile = path.join(ROOT, `dist/${p}.html`);
-      if (!fs.existsSync(pFile) || !fs.existsSync(pDirectFile)) {
-        prerenderFails.push(`静的ページ [/${p}] のプリレンダーファイルが欠落`);
+      const pDirFile = path.join(ROOT, `dist/${p}/index.html`);
+      if (!fs.existsSync(pDirectFile)) {
+        prerenderFails.push(`静的ページ [/${p}.html] の直接プリレンダーファイルが欠落`);
         continue;
       }
-      const pHtml = fs.readFileSync(pFile, "utf-8");
+      if (fs.existsSync(pDirFile)) {
+        prerenderFails.push(`静的ページ [/${p}] にディレクトリ形式 index.html が残存`);
+      }
+      const pHtml = fs.readFileSync(pDirectFile, "utf-8");
       if (!pHtml.includes(`<link rel="canonical" href="https://mirairadar.com/${p}" />`)) {
         prerenderFails.push(`静的ページ [/${p}] の canonical が自己参照になっていません`);
       }
     }
   }
-  report("プリレンダー HTML 網羅性 & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)", prerenderFails.length === 0,
-    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html ＆ /index.html) ＆ 静的5ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
+  report("プリレンダー HTML 網羅性 & .html 単独配信 (307根絶) & Canonical & OGP & JSON-LD (P0-2/3/4)", prerenderFails.length === 0,
+    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html 単独出力) ＆ 静的5ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
 
   // ==============================================================================
   // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
@@ -391,21 +395,27 @@ async function checkDbAndPhase0() {
   if (!appCode.includes("replace(/\\/+$/, '')")) {
     routingFails.push("App.tsx に末尾スラッシュ除去ロジック (replace(/\\/+$/, '')) が存在しません");
   }
-  for (const ev of activeEvents) {
-    const slug = ev.slug || ev.id;
-    // スラッシュなし・スラッシュあり両方で正確に slug が抽出されるかシミュレーション
-    const testPaths = [`/market/${slug}`, `/market/${slug}/`];
-    for (const p of testPaths) {
-      const clean = p.replace(/\/+$/, '') || '/';
-      const match = clean.match(/^\/market\/(.+)$/);
-      const extractedSlug = match ? decodeURIComponent(match[1]) : null;
-      if (extractedSlug !== slug) {
-        routingFails.push(`パス [${p}] からのスラッグ抽出に失敗 (expected: ${slug}, got: ${extractedSlug})`);
-      }
-    }
-  }
   report("詳細ページルーティング末尾スラッシュ完全耐性 (N-19 回帰防止)", routingFails.length === 0,
-    routingFails.length === 0 ? `全${activeEvents.length}銘柄で /market/<slug> および /market/<slug>/ の完全解決を検証完了` : routingFails.join("; "));
+    routingFails.length === 0 ? `App.tsx のルーティング初期化 ＆ popstate で末尾スラッシュ除去を検証完了` : routingFails.join("; "));
+
+  // ==============================================================================
+  // 15. 有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込上限 一致検査 (N-20 回帰防止)
+  // ==============================================================================
+  let limitFails = [];
+  const polyServiceCode = fs.readFileSync(path.join(ROOT, "src/services/polymarketService.ts"), "utf-8");
+  // 1. polymarketService.ts の fetchLivePolymarketMarkets に limit(100) などの上限制限がないこと
+  if (/\.from\(['"]events['"]\)[^;]*\.limit\(\s*\d+\s*\)/s.test(polyServiceCode)) {
+    limitFails.push("polymarketService.ts に固定の .limit() が存在し、有効銘柄の一部が到達不能になります");
+  }
+
+  // 2. プリレンダーファイル数と Supabase 有効銘柄数の一致
+  const prerenderFiles = fs.readdirSync(distMarketDir).filter(f => f.endsWith(".html"));
+  if (prerenderFiles.length !== activeEvents.length) {
+    limitFails.push(`プリレンダーファイル数 (${prerenderFiles.length}) と Supabase 有効銘柄数 (${activeEvents.length}) が不一致`);
+  }
+
+  report("有効銘柄数 ＝ プリレンダー数 ＝ アプリ読込全数一致 (N-20 回帰防止)", limitFails.length === 0,
+    limitFails.length === 0 ? `全${activeEvents.length}銘柄がアプリ・プリレンダー・Sitemapで100%一致（limit制限ゼロ）` : limitFails.join("; "));
 
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
