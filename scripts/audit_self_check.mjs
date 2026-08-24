@@ -855,6 +855,60 @@ async function checkDbAndPhase0() {
   report("選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制適正性 (N-38 完全解決)", n38Fails.length === 0,
     n38Fails.length === 0 ? "対象選択肢が明示された市場で正しく世界オッズ（確率値）を出力し不要な抑制を根絶" : n38Fails.join("; "));
 
+  // ============================================================================
+  // 28. 静的HTMLに本文と内部リンクがあるか (N-49)
+  // ----------------------------------------------------------------------------
+  // プリレンダーは <head> の meta だけを書き換えており、<body> は
+  // <div id="root"></div> のまま出荷されていた。JSを実行しないクローラには
+  // 79URL 中 78URL が「本文0文字・内部リンク0本」で届いていた。
+  // 実装関数（staticBody / injectStaticBody）は借りず、dist の出力だけを見る。
+  // ============================================================================
+  {
+    const htmlFiles = [];
+    const walk = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) walk(full);
+        else if (e.name.endsWith(".html")) htmlFiles.push(full);
+      }
+    };
+    walk(path.join(ROOT, "dist"));
+
+    const MIN_TEXT = 80;
+    const bad = [];
+    for (const f of htmlFiles) {
+      const html = fs.readFileSync(f, "utf-8");
+      const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+      if (!bodyMatch) { bad.push(`${path.relative(ROOT, f)}: <body> が無い`); continue; }
+      // <script> と <style> の中身は本文ではない。
+      // （シェルに <style> を足した際、CSS文字列が本文としてカウントされ
+      //   本文が空でも合格しうる状態を一度作ってしまった）
+      const body = bodyMatch[1]
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "");
+      const internal = [...body.matchAll(/<a\s[^>]*href="(\/[^"]*)"/gi)].map(m => m[1]);
+      // ナビのリンク文字列だけで文字数を満たしてしまわないよう、<nav> を除いて数える。
+      // （破壊テストBの設計中に判明：ナビだけで80字を超えるので、この除去が無いと
+      //   h1も本文も空のページが合格してしまう）
+      const ownBody = body.replace(/<nav\b[\s\S]*?<\/nav>/gi, "");
+      const h1 = (ownBody.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i) || [, ""])[1]
+        .replace(/<[^>]+>/g, "").trim();
+      const ownText = ownBody.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      const rel = path.relative(ROOT, f);
+      if (internal.length === 0) bad.push(`${rel}: 内部リンク0本`);
+      else if (h1.length < 4) bad.push(`${rel}: h1が空または短すぎる（"${h1}"）`);
+      else if (ownText.length < MIN_TEXT) bad.push(`${rel}: ナビを除く本文${ownText.length}字（${MIN_TEXT}字未満）`);
+    }
+    report(
+      `静的HTMLの本文と内部リンク (N-49 / ${htmlFiles.length}ファイル全数)`,
+      bad.length === 0 && htmlFiles.length > 0,
+      bad.length === 0
+        ? `${htmlFiles.length}ファイルすべてが本文${MIN_TEXT}字以上＋内部リンク1本以上を静的に持つ`
+        : `${bad.length}件が未達: ${bad.slice(0, 5).join("; ")}${bad.length > 5 ? ` ほか${bad.length - 5}件` : ""}`
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

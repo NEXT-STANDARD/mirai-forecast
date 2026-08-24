@@ -61,6 +61,62 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// ==============================================================================
+// N-49: JSを実行しないクローラに <div id="root"></div> しか届いていなかった問題
+// ------------------------------------------------------------------------------
+// プリレンダーは <head> の meta だけを差し替えており、<body> は空のままだった。
+// そのため sitemap の 79URL 中 78URL が、静的HTMLでは本文0文字・内部リンク0本。
+// アプリは createRoot（hydrateRoot ではない）なのでマウント時にコンテナを空にする。
+// つまり #root の中に静的本文を置いても不整合は起きず、起動後に置き換わるだけ。
+// ==============================================================================
+const SITE_NAV = [
+  ['/', 'トップ（全銘柄の一覧）'],
+  ['/forecast', '予測ハブ'],
+  ['/rankings', '的中ランキング'],
+  ['/guide/polymarket-japan', 'Polymarketとは（解説記事）'],
+  ['/about', '未来レーダーについて'],
+  ['/ai-connector', 'AI連携（WebMCP）'],
+];
+
+function navHtml(currentPath) {
+  const items = SITE_NAV
+    .filter(([href]) => href !== currentPath)
+    .map(([href, label]) => `<li><a href="${href}">${escapeHtml(label)}</a></li>`)
+    .join('');
+  return `<nav aria-label="サイト内リンク"><h2>未来レーダーの他のページ</h2><ul>${items}</ul></nav>`;
+}
+
+function staticBody({ h1, lead, currentPath, facts = [], links = [], linksHeading = '関連する銘柄' }) {
+  const factsHtml = facts.length
+    ? `<dl>${facts.map(([k, v]) => `<dt>${escapeHtml(k)}</dt><dd>${escapeHtml(v)}</dd>`).join('')}</dl>`
+    : '';
+  const linksHtml = links.length
+    ? `<h2>${escapeHtml(linksHeading)}</h2><ul>${links
+        .map(([href, label]) => `<li><a href="${escapeHtml(href)}">${escapeHtml(label)}</a></li>`)
+        .join('')}</ul>`
+    : '';
+  // Tailwind の preflight が見出しもリンクも素の文字に潰すため、シェル内だけ最小限を戻す。
+  // JSが失敗したときにここが唯一の導線になるので、リンクは押せると分かる必要がある。
+  const shellStyle = '<style>#root h1{font-size:1.5rem;font-weight:700;margin:1rem 0}'
+    + '#root h2{font-size:1.1rem;font-weight:700;margin:1.25rem 0 .5rem}'
+    + '#root p{margin:.5rem 0;line-height:1.7}'
+    + '#root ul{margin:.5rem 0;padding-left:1.25rem}#root li{margin:.35rem 0;list-style:disc}'
+    + '#root dt{font-weight:700;margin-top:.5rem}#root dd{margin:0 0 .25rem}'
+    + '#root a{color:#7dd3fc;text-decoration:underline}</style>';
+  return '<div id="root">' + shellStyle
+    + `<h1>${escapeHtml(h1)}</h1><p>${escapeHtml(lead)}</p>`
+    + factsHtml + linksHtml + navHtml(currentPath)
+    + '</div>';
+}
+
+// baseHtml の空 #root を静的本文で置き換える。置換できなければ黙って進めない。
+function injectStaticBody(html, body, whatFor) {
+  if (!html.includes('<div id="root"></div>')) {
+    throw new Error(`❌ [CRITICAL] 静的本文を注入できません（${whatFor}）: <div id="root"></div> が見つかりません`);
+  }
+  return html.replace('<div id="root"></div>', body);
+}
+
 async function prerenderAll() {
   console.log('🚀 [Prerender] 銘柄ページ ＆ 静的ページのプリレンダーを開始します...');
 
@@ -267,6 +323,35 @@ async function prerenderAll() {
     }
 
     // Cloudflare Pages が 307 リダイレクトなしに HTTP 200 を返す直接 .html 形式
+    // N-49: 静的本文と内部リンクを注入（JS実行前のクローラ向け）
+    {
+      const isLeaderTop = isMultiChoice && leaderName;
+      const facts = [];
+      if (isPolymarketObserved) {
+        facts.push([
+          isLeaderTop ? `世界のリアルマネー（本命 ${leaderName}）` : '世界のリアルマネー（YES）',
+          `${worldProb}%`,
+        ]);
+      }
+      if (hasConsensus) facts.push(['日本の世論（YES）', `${japanProb}%（n=${n}）`]);
+      else facts.push(['日本の世論', `集計中（n=${n}、3票から表示）`]);
+
+      // 同カテゴリの銘柄へリンクし、静的な内部リンクグラフを作る
+      const siblings = events
+        .filter(e => String(e.id) !== String(event.id))
+        .filter(e => !event.category || e.category === event.category)
+        .slice(0, 5)
+        .map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]);
+
+      html = injectStaticBody(html, staticBody({
+        h1: titleJa,
+        lead: description,
+        currentPath: `/market/${slug}`,
+        facts,
+        links: siblings,
+      }), `銘柄 ${slug}`);
+    }
+
     fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
     marketCount++;
   }
@@ -331,6 +416,15 @@ async function prerenderAll() {
       };
       const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(jsonLd, null, 2)}\n    </script>`;
       html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
+
+      // N-49: 決着ページにも静的本文と内部リンクを置く（noindex, follow なので follow 先が要る）
+      html = injectStaticBody(html, staticBody({
+        h1: `【決着・終了】${titleJa}`,
+        lead: description,
+        currentPath: `/market/${slug}`,
+        links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+        linksHeading: 'いま予測できる銘柄',
+      }), `決着 ${slug}`);
 
       fs.writeFileSync(path.join(marketBaseDir, `${slug}.html`), html, 'utf-8');
     }
@@ -434,8 +528,42 @@ async function prerenderAll() {
       html = html.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n</head>');
     }
 
+    // N-49: 固定ページにも静的本文と内部リンクを置く
+    html = injectStaticBody(html, staticBody({
+      h1: page.h1 || page.title,
+      lead: page.description,
+      currentPath: `/${page.dir}`,
+      links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+      linksHeading: '注目の銘柄',
+    }), `固定ページ ${page.dir}`);
+
     // 直接 .html 形式
     fs.writeFileSync(path.join(DIST_DIR, `${page.dir}.html`), html, 'utf-8');
+  }
+
+  // ==============================================================================
+  // A-4. トップページ（N-49）
+  // ------------------------------------------------------------------------------
+  // dist/index.html は Vite の出力のままで、プリレンダーの対象外だった。
+  // baseHtml として読まれるだけで、本文は <div id="root"></div> の空のまま。
+  // サイトで最も重要なページが、JSを実行しないクローラには白紙で届いていた。
+  // ==============================================================================
+  {
+    const topPath = path.join(DIST_DIR, 'index.html');
+    let topHtml = fs.readFileSync(topPath, 'utf-8');
+    const topLinks = events.slice(0, 12).map(e => [
+      `/market/${e.slug || e.id}`,
+      e.title_ja || e.title_en || String(e.slug || e.id),
+    ]);
+    topHtml = injectStaticBody(topHtml, staticBody({
+      h1: '未来レーダー ｜ 世界の集合知 × 日本の世論',
+      lead: 'Polymarketのリアルマネー確率と、日本の生活者による無料投票を並べて見せています。世界がいくら賭けているかと、日本人がどう思っているかは、しばしば食い違います。',
+      currentPath: '/',
+      links: topLinks,
+      linksHeading: 'いま予測できる銘柄',
+    }), 'トップページ');
+    fs.writeFileSync(topPath, topHtml, 'utf-8');
+    console.log(`🏠 トップページに静的本文と内部リンク ${topLinks.length + SITE_NAV.length - 1}本を注入しました (N-49)`);
   }
 
   // ==============================================================================
@@ -484,8 +612,17 @@ async function prerenderAll() {
     if (!/name="robots"/.test(notFound)) {
       notFound = notFound.replace('</head>', '  <meta name="robots" content="noindex, follow" />\n</head>');
     }
+    // N-49: JSが動かなくても出口があるようにする
+    notFound = injectStaticBody(notFound, staticBody({
+      h1: 'ページが見つかりません',
+      lead: 'お探しのページは見つかりませんでした。以下から探し直せます。',
+      currentPath: '/404',
+      links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+      linksHeading: 'いま予測できる銘柄',
+    }), '404ページ');
+
     fs.writeFileSync(path.join(DIST_DIR, '404.html'), notFound, 'utf-8');
-    console.log('🚧 404.html を生成しました（ソフト404の解消）');
+    console.log('🚧 404.html を生成しました（ソフト404の解消 ＋ 静的な出口リンク）');
   }
 
   // ==============================================================================
