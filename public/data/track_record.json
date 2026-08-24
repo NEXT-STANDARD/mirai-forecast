@@ -1,0 +1,813 @@
+{
+ "generatedAt": "2026-08-24T13:45:18.545Z",
+ "method": {
+  "forecastPoint": "決着の24時間前の市場価格",
+  "minVotesForJapan": 3,
+  "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
+ },
+ "summary": {
+  "worldScored": 35,
+  "worldHits": 24,
+  "worldAccuracy": 69,
+  "japanScored": 0,
+  "japanHits": 0,
+  "japanAccuracy": null,
+  "skipped": {
+   "api": 0,
+   "unresolved": 4,
+   "noHistory": 0,
+   "noMarket": 0
+  }
+ },
+ "breakdown": {
+  "all": {
+   "n": 35,
+   "hits": 24,
+   "accuracy": 69
+  },
+  "sports": {
+   "n": 21,
+   "hits": 11,
+   "accuracy": 52
+  },
+  "nonSports": {
+   "n": 14,
+   "hits": 13,
+   "accuracy": 93
+  },
+  "excludingDegenerate": {
+   "n": 29,
+   "hits": 18,
+   "accuracy": 62
+  },
+  "nonSportsExcludingDegenerate": {
+   "n": 9,
+   "hits": 8,
+   "accuracy": 89
+  }
+ },
+ "calibration": [
+  {
+   "band": "0-19%",
+   "n": 10,
+   "happenedRate": 20
+  },
+  {
+   "band": "20-39%",
+   "n": 9,
+   "happenedRate": 33
+  },
+  {
+   "band": "40-59%",
+   "n": 8,
+   "happenedRate": 50
+  },
+  {
+   "band": "60-79%",
+   "n": 4,
+   "happenedRate": 25
+  },
+  {
+   "band": "80-100%",
+   "n": 4,
+   "happenedRate": 100
+  }
+ ],
+ "records": [
+  {
+   "id": "776884",
+   "slug": "spacex-starship-flight-test-14",
+   "titleJa": "経済・市場予測: Will SpaceX Starship Flight Test 14 launch by August 31?",
+   "category": "economy",
+   "endDate": "2027-07-01T03:59:00+00:00",
+   "subject": "August 31",
+   "world": {
+    "prob": 1,
+    "at": "2026-08-23T12:00:16.000Z",
+    "points": 193,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "893334",
+   "slug": "wta-tagger-starodu-2026-08-23",
+   "titleJa": "テニス公式戦: Lilli Tagger vs Yulia Starodubtseva 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-31T01:30:00+00:00",
+   "subject": "Tagger",
+   "world": {
+    "prob": 50,
+    "at": "2026-08-23T18:00:13.000Z",
+    "points": 9,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "893332",
+   "slug": "wta-ruzic-bartunk-2026-08-23",
+   "titleJa": "テニス公式戦: Antonia Ruzic vs Nikola Bartunkova 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-31T01:00:00+00:00",
+   "subject": "Over",
+   "world": {
+    "prob": 59,
+    "at": "2026-08-23T18:00:11.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "865232",
+   "slug": "mlb-atl-mil-2026-08-23",
+   "titleJa": "MLB公式戦: Atlanta Braves vs. Milwaukee Brewers 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-30T23:10:00+00:00",
+   "subject": "Atlanta Braves",
+   "world": {
+    "prob": 46,
+    "at": "2026-08-23T00:00:18.000Z",
+    "points": 51,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "893317",
+   "slug": "wta-joint-putints-2026-08-23",
+   "titleJa": "テニス公式戦: Maya Joint vs Yulia Putintseva 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-30T22:30:00+00:00",
+   "subject": "Over",
+   "world": {
+    "prob": 47,
+    "at": "2026-08-23T15:00:24.000Z",
+    "points": 6,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "888506",
+   "slug": "highest-temperature-in-taipei-on-august-24-2026",
+   "titleJa": "経済・市場予測: Will the highest temperature in Taipei be 22°C or below on August 24?",
+   "category": "economy",
+   "endDate": "2026-08-24T12:00:00+00:00",
+   "subject": "22°C or below",
+   "world": {
+    "prob": 1,
+    "at": "2026-08-23T12:00:12.000Z",
+    "points": 20,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "893096",
+   "slug": "what-price-will-bitcoin-hit-on-august-23-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on August 23?: ↑ 84,000?",
+   "category": "economy",
+   "endDate": "2026-08-24T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 21,
+    "at": "2026-08-23T15:00:27.000Z",
+    "points": 7,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "863010",
+   "slug": "what-price-will-ethereum-hit-august-17-23-2026",
+   "titleJa": "イーサリアムは8月17〜23日に2,600ドルに到達するか？",
+   "category": "economy",
+   "endDate": "2026-08-24T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-08-18T18:00:16.000Z",
+    "points": 22,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "862998",
+   "slug": "what-price-will-bitcoin-hit-august-17-23-2026",
+   "titleJa": "ビットコインは8月17〜23日に78,000ドルに到達するか？",
+   "category": "economy",
+   "endDate": "2026-08-24T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-08-23T03:00:20.000Z",
+    "points": 55,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 2,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "698601",
+   "slug": "nfl-sea-ten-2026-08-24",
+   "titleJa": "対戦カード予測: Seahawks vs. Titans 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-24T00:00:00+00:00",
+   "subject": "Seahawks",
+   "world": {
+    "prob": 35,
+    "at": "2026-08-23T03:00:15.000Z",
+    "points": 244,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "826222",
+   "slug": "lal-elc-bar-2026-08-23-more-markets",
+   "titleJa": "欧州サッカー: エルチェCF ハンデ勝利予測 (スプレッド -1.5)",
+   "category": "sports",
+   "endDate": "2026-08-23T19:30:00+00:00",
+   "subject": "Elche CF",
+   "world": {
+    "prob": 3,
+    "at": "2026-08-22T21:00:35.000Z",
+    "points": 109,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "826000",
+   "slug": "lal-elc-bar-2026-08-23",
+   "titleJa": "欧州サッカー: エルチェCFは2026年8月23日の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T19:30:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 10,
+    "at": "2026-08-22T15:00:16.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "824700",
+   "slug": "sea-tor-mil-2026-08-23",
+   "titleJa": "スポーツ勝敗予測: Torino FC は 2026-08-23 の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T18:45:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 21,
+    "at": "2026-08-22T15:00:12.000Z",
+    "points": 111,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "825565",
+   "slug": "fl1-psg-ren-2026-08-23",
+   "titleJa": "欧州サッカー: Paris Saint-Germain FC（2026-08-23） 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T18:45:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 21,
+    "at": "2026-08-22T21:00:28.000Z",
+    "points": 110,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "825834",
+   "slug": "fl1-psg-ren-2026-08-23-more-markets",
+   "titleJa": "欧州サッカー: Paris Saint-Germain FC (-1.5) ハンデ勝利予測",
+   "category": "sports",
+   "endDate": "2026-08-23T18:45:00+00:00",
+   "subject": "Over",
+   "world": {
+    "prob": 67,
+    "at": "2026-08-22T15:00:12.000Z",
+    "points": 109,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "824697",
+   "slug": "sea-ven-lec-2026-08-23",
+   "titleJa": "スポーツ勝敗予測: Venezia FC は 2026-08-23 の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T16:30:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 26,
+    "at": "2026-08-22T15:00:16.000Z",
+    "points": 111,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "885916",
+   "slug": "bitcoin-up-or-down-on-august-23-2026",
+   "titleJa": "ビットコイン：8月23日に前日比プラスで引けるか？",
+   "category": "economy",
+   "endDate": "2026-08-23T16:00:00+00:00",
+   "subject": "Up",
+   "world": {
+    "prob": 51,
+    "at": "2026-08-22T15:00:12.000Z",
+    "points": 16,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 1,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "885917",
+   "slug": "ethereum-up-or-down-on-august-23-2026",
+   "titleJa": "経済・市場予測: Ethereum Up or Down on August 23?",
+   "category": "economy",
+   "endDate": "2026-08-23T16:00:00+00:00",
+   "subject": "Up",
+   "world": {
+    "prob": 51,
+    "at": "2026-08-22T15:00:19.000Z",
+    "points": 16,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "859786",
+   "slug": "ethereum-above-on-august-23-2026",
+   "titleJa": "イーサリアム価格は8月23日に1,400ドルを上回るか？",
+   "category": "economy",
+   "endDate": "2026-08-23T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 99,
+    "at": "2026-08-22T15:00:15.000Z",
+    "points": 56,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "859791",
+   "slug": "bitcoin-above-on-august-23-2026",
+   "titleJa": "ビットコイン価格は8月23日に54,000ドルを上回るか？",
+   "category": "economy",
+   "endDate": "2026-08-23T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-08-22T15:00:16.000Z",
+    "points": 56,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "825567",
+   "slug": "epl-new-liv-2026-08-23",
+   "titleJa": "欧州サッカー: ニューカッスル・ユナイテッドFCは2026年8月23日の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T15:30:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 26,
+    "at": "2026-08-22T15:00:15.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "825994",
+   "slug": "lal-mad-vil-2026-08-23",
+   "titleJa": "スポーツ勝敗予測: Club Atlético de Madrid は 2026-08-23 の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T15:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 53,
+    "at": "2026-08-22T15:00:15.000Z",
+    "points": 107,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "825845",
+   "slug": "epl-mac-bou-2026-08-23-more-markets",
+   "titleJa": "欧州サッカー: Manchester City FC (-1.5) ハンデ勝利予測",
+   "category": "sports",
+   "endDate": "2026-08-23T13:00:00+00:00",
+   "subject": "Manchester City FC",
+   "world": {
+    "prob": 43,
+    "at": "2026-08-22T15:00:16.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "825552",
+   "slug": "epl-mac-bou-2026-08-23",
+   "titleJa": "マンチェスター・シティは8月23日の試合で順当に勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T13:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 20,
+    "at": "2026-08-22T15:00:14.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "825561",
+   "slug": "epl-bri-ast-2026-08-23",
+   "titleJa": "欧州サッカー: ブライトン・アンド・ホーヴ・アルビオンFCは2026年8月23日の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-23T13:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 27,
+    "at": "2026-08-22T15:00:15.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "888264",
+   "slug": "what-price-will-bitcoin-hit-on-august-22-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on August 22?: ↑ 86,000?",
+   "category": "economy",
+   "endDate": "2026-08-23T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-08-22T18:00:20.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "817945",
+   "slug": "ufc-ser2-vit3-2026-08-22",
+   "titleJa": "総合格闘技 UFC: Serghei Spivac vs. Vitor Petrino (Heavyweight, Main Card) 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T03:59:59.999+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 30,
+    "at": "2026-08-21T21:00:17.000Z",
+    "points": 113,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "861801",
+   "slug": "ufc-chr52-nas-2026-08-22",
+   "titleJa": "総合格闘技 UFC: Chris Padilla vs. Nasrat Haqparast (Lightweight, Prelims) 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T03:59:59.999+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 11,
+    "at": "2026-08-21T21:00:14.000Z",
+    "points": 48,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "861796",
+   "slug": "ufc-mas-mar83-2026-08-22",
+   "titleJa": "総合格闘技 UFC: Mason Jones vs. MarQuel Mederos (Lightweight, Main Card) 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T03:59:59.999+00:00",
+   "subject": "Mason Jones",
+   "world": {
+    "prob": 76,
+    "at": "2026-08-21T21:00:16.000Z",
+    "points": 49,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "868749",
+   "slug": "ufc-gau-stador-2026-08-22",
+   "titleJa": "総合格闘技 UFC: Gauge Young vs. Stan Dorsainvil (Lightweight, Prelims) 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T03:59:59.999+00:00",
+   "subject": "Gauge Young",
+   "world": {
+    "prob": 61,
+    "at": "2026-08-21T21:00:15.000Z",
+    "points": 38,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "817934",
+   "slug": "ufc-ant-gre3-2026-08-22",
+   "titleJa": "総合格闘技 UFC: Anthony Hernandez vs. Gregory Rodrigues (Middleweight, Main Card) 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-23T03:59:59.999+00:00",
+   "subject": "Anthony Hernandez",
+   "world": {
+    "prob": 65,
+    "at": "2026-08-22T03:00:13.000Z",
+    "points": 114,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "871083",
+   "slug": "us-ceasefire-against-iran-continues-throughptptpt",
+   "titleJa": "米国の対イラン停戦措置は8月22日まで継続するか？",
+   "category": "politics",
+   "endDate": "2026-08-22T23:59:00+00:00",
+   "subject": "August 22",
+   "world": {
+    "prob": 100,
+    "at": "2026-08-23T12:00:18.000Z",
+    "points": 48,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "628311",
+   "slug": "us-iran-60-day-negotiation-period-extended-20260624044855448",
+   "titleJa": "米イラン間の60日間交渉期間はさらに延長されるか？",
+   "category": "politics",
+   "endDate": "2026-08-20T23:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 1,
+    "at": "2026-08-20T03:00:15.000Z",
+    "points": 221,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "711714",
+   "slug": "israel-x-iran-ceasefire-continues-throughptptpt-20260716224448963",
+   "titleJa": "イスラエル・イラン間の停戦合意は継続するか？",
+   "category": "politics",
+   "endDate": "2026-07-18T23:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-07-26T18:00:26.000Z",
+    "points": 27,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "828873",
+   "slug": "ewc-2026-cs2-winner-20260810160005076",
+   "titleJa": "EWC 2026（eスポーツW杯）CS2部門 優勝チーム予測",
+   "category": "entertainment",
+   "endDate": null,
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-08-15T12:00:18.000Z",
+    "points": 46,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": true
+  }
+ ]
+}
