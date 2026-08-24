@@ -46,11 +46,12 @@ n<3 ガード違反   0件 ／ 英語混入 0件 ／ 二重空白 0件
 | 16 | [ui-ux-audit-verification-16-2026-08-20.md](ui-ux-audit-verification-16-2026-08-20.md) | N-18（埋め込みが別銘柄を表示） |
 | 17 | [ui-ux-audit-verification-17-2026-08-20.md](ui-ux-audit-verification-17-2026-08-20.md) | 監査期の完了判定 |
 
-### 戦略・計画（2026-08-23）
+### 戦略・計画（2026-08-23〜24）
 
 | ファイル | 内容 |
 |---|---|
 | [business-roadmap-2026-12.md](business-roadmap-2026-12.md) | **【公式】事業戦略・ロードマップ（2026年8月〜12月：Web3×集合知 非胴元型インテリジェンス・メディア構想）** |
+| [about-page-implementation-plan-2026-08-24.md](about-page-implementation-plan-2026-08-24.md) | **【実装計画】「About Us（私たちについて）」インテリジェンス・メディア宣言ページ構築計画** |
 | [strategy-2026-08-23.md](strategy-2026-08-23.md) | 今後の展開のブレスト（Phase 0〜3 の骨子） |
 | [phase0-roadmap-2026-08-23.md](phase0-roadmap-2026-08-23.md) | Phase 0（配線）の修正ロードマップ |
 | [phase1-roadmap-2026-08-23.md](phase1-roadmap-2026-08-23.md) | Phase 1（名乗り）のロードマップ |
