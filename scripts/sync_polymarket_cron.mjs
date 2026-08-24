@@ -25,7 +25,8 @@ if (fs.existsSync(envPath)) {
   } catch {}
 }
 
-// --dry-run: DBへの書き込みと Gemini 呼び出しを一切行わず、選定結果だけを表示する。
+// --dry-run: DB書き込み・ファイル書き込み・Gemini 呼び出しを一切行わず、選定結果だけを表示する。
+// （当初はDB書き込みしか止めておらず、生成ファイルを書き換えてビルドを壊した）
 // フィルタを変えたときに、本番データを触らずに効果を確認するために使う。
 const DRY_RUN = process.argv.includes('--dry-run');
 
@@ -236,12 +237,12 @@ async function syncPolymarket() {
 
     // market_odds.json および marketOddsMaster.ts を出力
     const oddsJsonPath = path.join(ROOT, 'public', 'data', 'market_odds.json');
-    fs.writeFileSync(oddsJsonPath, JSON.stringify(marketOddsStore, null, 2), 'utf-8');
+    if (!DRY_RUN) fs.writeFileSync(oddsJsonPath, JSON.stringify(marketOddsStore, null, 2), 'utf-8');
     console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
 
     const oddsTsPath = path.join(ROOT, 'src', 'data', 'marketOddsMaster.ts');
-    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
-    fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
+    const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null; matchedLabel?: string | null; matchedMarketId?: string | null; outcomeSubject?: string | null }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
+    if (!DRY_RUN) fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
 
 
 // ==============================================================================
@@ -541,7 +542,7 @@ const isSportsCandidate = (ev, market) =>
     });
 
     // public/data/ai_insights.json に保存
-    fs.writeFileSync(INSIGHTS_JSON_PATH, JSON.stringify(insightsJsonStore, null, 2));
+    if (!DRY_RUN) fs.writeFileSync(INSIGHTS_JSON_PATH, JSON.stringify(insightsJsonStore, null, 2));
     console.log(`✅ ${INSIGHTS_JSON_PATH} に深層カタリスト分析を保存完了`);
 
     // src/data/aiInsightsMaster.ts にTypeScriptマスターとして出力
@@ -562,7 +563,7 @@ export interface AiInsightData {
 
 export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringify(insightsJsonStore, null, 2)};
 `;
-    fs.writeFileSync(tsPath, tsContent);
+    if (!DRY_RUN) fs.writeFileSync(tsPath, tsContent);
     console.log(`✅ ${tsPath} にTypeScriptマスターとして出力完了`);
 
     // 翻訳辞書 ＆ ルールベース翻訳フォールバック

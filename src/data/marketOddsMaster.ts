@@ -1,5 +1,5 @@
 // Polymarket リアルタイムオッズマスター (自動生成)
-export const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null }> = {
+export const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null; matchedLabel?: string | null; matchedMarketId?: string | null; outcomeSubject?: string | null }> = {
   "30828": {
     "probYes": 5,
     "hasWorldOdds": true,
