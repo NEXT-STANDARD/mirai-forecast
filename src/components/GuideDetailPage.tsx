@@ -174,7 +174,10 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[11px] text-cyan-400 font-mono">
                       <span>{market.categoryLabel}</span>
-                      <span className="font-bold text-cyan-300">世界オッズ: {market.worldProbYes}%</span>
+                      {/* N-61: 世界オッズが無い銘柄では既定値の50が出ていた（本番実測で2件） */}
+                      <span className="font-bold text-cyan-300">
+                        {market.hasWorldOdds ? `世界オッズ: ${market.worldProbYes}%` : '世界オッズ: 取得なし'}
+                      </span>
                     </div>
                     <div className="text-xs font-bold text-slate-100 line-clamp-2 group-hover:text-cyan-300 transition">
                       {market.titleJa}

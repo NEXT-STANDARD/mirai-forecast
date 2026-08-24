@@ -47,7 +47,10 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
       : `世界マネーもYES ${worldYes}%で過熱中！あなたも同じ見解？👇`;
   } else if (userVote === 'NO') {
     stanceHeadline = '【私はNOに投票しました⚡️】';
-    opinionHook = worldYes >= 50
+    // N-61: 世界オッズが無い銘柄では既定値の50を根拠にした文面を作らない
+    opinionHook = !item.hasWorldOdds
+      ? `この銘柄はまだ世界のオッズが出ていません。日本の皆さんはどう思いますか？👇`
+      : worldYes >= 50
       ? `世界（Polymarket）はYES ${worldYes}%と強気だけど、私は逆張りのNO派！\nあなたの直感はどちらを支持する？👇`
       : framingOf(item).kind !== 'yes'
         ? `世界の見立ては ${framingOf(item).subject}（${worldYes}%）。日本の皆さんはどう思いますか？👇`

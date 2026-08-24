@@ -96,8 +96,11 @@ export const WatchlistTable: React.FC<WatchlistTableProps> = ({
                   </td>
 
                   <td className="td-prob text-right">
+                    {/* N-61: 世界オッズが無い銘柄で既定値の50が出ないようにする */}
                     <span className="prob-mono-val">
-                      {item.worldProbYes}<span className="pct-sign">%</span>
+                      {item.hasWorldOdds
+                        ? <>{item.worldProbYes}<span className="pct-sign">%</span></>
+                        : <span className="text-slate-500">—</span>}
                     </span>
                   </td>
 

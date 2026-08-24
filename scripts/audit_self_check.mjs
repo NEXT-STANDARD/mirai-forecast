@@ -1315,6 +1315,48 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 36. 世界オッズの既定値ガード（Phase 1 の締め / N-61）
+  // ----------------------------------------------------------------------------
+  // 既定値50は2箇所で生まれる。
+  //   polymarketService.ts  probYes    = hasWorldOdds ? live.probYes : 50
+  //   polymarketService.ts  percentYes = total > 0 ? … : 50
+  // 日本側（percentYes）は導出された検査で守られていたが、
+  // 世界側（worldProbYes/No）には同等の検査が無かった。
+  // そのため N-61 の「世界 NO 50%」が生き残り、ガイド記事も
+  // 「世界オッズ: 50%」を2件表示していた（本番実測）。
+  //
+  // N-62（型を number|null にして91箇所を型で守る）は Phase 2 へ回した。
+  // その代わり、ここで「表示する面は hasWorldOdds を見ていること」を要求する。
+  // 母集団はコードから導出するので、Phase 2 で面が増えても自動で入る。
+  // ============================================================================
+  {
+    const SHOWS = /worldProb(?:Yes|No)/;
+    const worldFails = [];
+    let worldScanned = 0;
+    if (fs.existsSync(COMPONENTS_DIR)) {
+      for (const f of fs.readdirSync(COMPONENTS_DIR).filter(x => x.endsWith(".tsx"))) {
+        // 管理画面は運用者向けの生データ。n>=3 ガードと同じ理由で対象外。
+        if (/^Admin/.test(f)) continue;
+        const src = fs.readFileSync(path.join(COMPONENTS_DIR, f), "utf-8");
+        const shown = src.split("\n").filter(l =>
+          SHOWS.test(l) && !/style=|width:/.test(l) && /%|`/.test(l));
+        if (shown.length === 0) continue;
+        worldScanned++;
+        if (!/hasWorldOdds/.test(src)) {
+          worldFails.push(`${f}: 世界オッズを${shown.length}箇所で表示しているが hasWorldOdds を見ていない（既定値50が漏れる）`);
+        }
+      }
+    }
+    report(
+      `世界オッズの既定値ガード (N-61 / ${worldScanned}コンポーネントを導出)`,
+      worldFails.length === 0 && worldScanned > 0,
+      worldFails.length === 0
+        ? `世界オッズを表示する ${worldScanned}コンポーネントすべてが hasWorldOdds を見ている`
+        : worldFails.join("; ")
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

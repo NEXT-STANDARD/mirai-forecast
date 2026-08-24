@@ -287,7 +287,10 @@ https://mirairadar.com/forecast
                     <h3 className="hub-vote-title">{event.titleJa || event.title}</h3>
 
                     <div className="hub-vote-meta">
-                      <span className="hub-vote-meta-world">🌍 世界オッズ: {positiveLabel(event)} {event.worldProbYes}%</span>
+                      {/* N-61: 世界オッズが無い銘柄では既定値の50を出さない */}
+                      <span className="hub-vote-meta-world">
+                        {event.hasWorldOdds ? `🌍 世界オッズ: ${positiveLabel(event)} ${event.worldProbYes}%` : '🌍 世界オッズ: 取得なし'}
+                      </span>
                       {/* N-60: n<3 では割合を出さない（既定値50%が漏れる） */}
                       <span className="hub-vote-meta-japan">
                         {event.japanVotes.total >= 3

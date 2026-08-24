@@ -86,11 +86,16 @@ export const EventModal: React.FC<EventModalProps> = ({
                 <span className="dot world"></span>
                 <span>世界のお金（Polymarket）</span>
               </div>
+              {/* N-61: 世界オッズが無い銘柄では既定値の50を出さない */}
               <div className="prob-number world">
-                {item.worldProbYes}% <span>{positiveLabel(item)}</span>
+                {item.hasWorldOdds
+                  ? <>{item.worldProbYes}% <span>{positiveLabel(item)}</span></>
+                  : <span className="text-slate-400 text-base">取得なし</span>}
               </div>
               <div className="sub-stat">
-                {negativeLabel(item)}: {item.worldProbNo}% | 24h: {item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}
+                {item.hasWorldOdds
+                  ? `${negativeLabel(item)}: ${item.worldProbNo}% | 24h: ${item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}`
+                  : '取引量僅少（Polymarket 板データなし）'}
               </div>
             </div>
 
