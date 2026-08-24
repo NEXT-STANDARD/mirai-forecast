@@ -36,14 +36,17 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function fetchActiveMarkets() {
   try {
+    // is_listed 列は DDL 適用前は存在しないため、列指定ではなく '*' で取り、
+    // クライアント側で `!== false`（列なし＝掲載）に倒す (Phase 2-A)
     const { data, error } = await supabase
       .from('events')
-      .select('id, slug, updated_at, is_active')
+      .select('*')
       .eq('is_active', true)
       .order('updated_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    // 観測対象外（is_listed=false）は sitemap に載せない。ページ自体は noindex で残る
+    return (data || []).filter((e) => e.is_listed !== false);
   } catch (err) {
     console.error('❌ Supabase からの有効銘柄取得に失敗しました:', err.message);
     process.exit(1);

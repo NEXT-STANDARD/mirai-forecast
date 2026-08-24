@@ -455,8 +455,12 @@ export function App() {
     };
   }, [loadMarketData]);
 
-  // 2. カテゴリー別フィルタリング（🔥人気急上昇対応）
-  const filteredEvents = events.filter((m) => {
+  // 2. 掲載面（一覧・ランキング・統計）は is_listed の銘柄だけで構成する (Phase 2-A)。
+  //    events 全体は詳細ページの解決に残す：観測対象外の銘柄も 404 にはしない。
+  const listedEvents = events.filter((m) => m.isListed !== false);
+
+  // カテゴリー別フィルタリング（🔥人気急上昇対応）
+  const filteredEvents = listedEvents.filter((m) => {
     if (selectedCategory === 'all') return true;
     if (selectedCategory === 'trending') {
       return m.isTrending || m.volume24hUsd > 80000 || Math.abs(m.probChange24h) >= 6;
@@ -464,10 +468,10 @@ export function App() {
     return m.category === selectedCategory;
   });
 
-  // 3. 実データ集計
-  const totalVolume = events.reduce((sum, item) => sum + item.totalVolumeUsd, 0);
-  const totalMarketsCount = events.length;
-  const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
+  // 3. 実データ集計（掲載中の銘柄のみ）
+  const totalVolume = listedEvents.reduce((sum, item) => sum + item.totalVolumeUsd, 0);
+  const totalMarketsCount = listedEvents.length;
+  const totalJapanVotes = listedEvents.reduce((sum, item) => sum + item.japanVotes.total, 0);
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
     // N-54: 1銘柄につき1票。
@@ -556,7 +560,7 @@ export function App() {
     return ev && Boolean(ev.resolvedChoice);
   }).length;
 
-  const currentFocusedEvent = events.find(e => e.id === activeTopicId) || filteredEvents[0] || events[0];
+  const currentFocusedEvent = listedEvents.find(e => e.id === activeTopicId) || filteredEvents[0] || listedEvents[0];
 
   return (
     <div className="min-h-screen bg-primary pb-36 md:pb-12">
@@ -605,7 +609,7 @@ export function App() {
           <main className="container main-content">
             <GuideDetailPage
               slug={guideSlug}
-              allEvents={events}
+              allEvents={listedEvents}
               onSelectEvent={(ev) => handleOpenMarketDetail(ev)}
               onBack={handleCloseGuide}
             />
@@ -640,7 +644,7 @@ export function App() {
           <main className="container main-content">
             <MarketDetailPage
               item={events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!}
-              allEvents={events}
+              allEvents={listedEvents}
               userVote={userVotes[events.find(e => e.id === detailMarketId || e.slug === detailMarketId)!.id] || null}
               onVote={handleVote}
               onOpenShare={(event) => setSelectedShareEvent(event)}
@@ -676,7 +680,7 @@ export function App() {
 
             {/* ⚡ 注目の世論スプレッド乖離ランキング（キラー第1弾） */}
             <SpreadRankingSection
-              events={events}
+              events={listedEvents}
               userVotes={userVotes}
               onVote={handleVote}
               onSelectEvent={handleOpenMarketDetail}
@@ -686,7 +690,7 @@ export function App() {
 
             {/* 🎴 すべての観測銘柄（全銘柄カードグリッド ＆ 即時投票） */}
             <AllMarketsGrid
-              events={events}
+              events={listedEvents}
               userVotes={userVotes}
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}

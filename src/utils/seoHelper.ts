@@ -10,6 +10,8 @@ export interface SeoConfig {
   ogType?: string;
   ogImage?: string;
   jsonLd?: Record<string, any>;
+  /** 観測対象外（is_listed=false）ページ用。SPA遷移で残留しないよう、falseなら robots meta を除去する */
+  noindex?: boolean;
 }
 
 const DEFAULT_OG_IMAGE = 'https://mirairadar.com/ogp-main.png';
@@ -53,7 +55,17 @@ export function applySeoMetadata(config: SeoConfig) {
   updateMetaName('twitter:url', config.canonicalUrl);
   updateMetaName('twitter:image', config.ogImage || DEFAULT_OG_IMAGE);
 
-  // 6. JSON-LD 構造化データの更新
+  // 6. robots (noindex) の付与・除去
+  //    付与だけだと、観測対象外ページ → 通常ページのSPA遷移で noindex が残留し
+  //    掲載中の銘柄まで検索から消える。必ず両方向を扱う。
+  const robotsEl = document.querySelector<HTMLMetaElement>("meta[name='robots']");
+  if (config.noindex) {
+    updateMetaName('robots', 'noindex');
+  } else if (robotsEl) {
+    robotsEl.remove();
+  }
+
+  // 7. JSON-LD 構造化データの更新
   if (config.jsonLd) {
     let scriptTag = document.querySelector<HTMLScriptElement>("script[type='application/ld+json']#dynamic-seo-jsonld");
     if (!scriptTag) {

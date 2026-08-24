@@ -50,6 +50,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   const [commentInput, setCommentInput] = useState('');
   const [comments, setComments] = useState(item.comments || []);
   const hasConsensus = item.japanVotes.total >= 3;
+  // Phase 2-A: 観測対象外（is_listed=false）。決着でも削除でもないので、
+  // ページは残して noindex + 告知バナーだけを出す。
+  const isDelisted = item.isListed === false;
 
   // 🌐 SEO: カノニカル正規化URL・メタタグ・JSON-LD構造化データの動的最適化
   useEffect(() => {
@@ -73,6 +76,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
       description,
       canonicalUrl,
       ogType: 'article',
+      noindex: item.isListed === false,
       jsonLd: {
         "@context": "https://schema.org",
         "@type": "ItemPage",
@@ -149,6 +153,16 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
   return (
     <div className="market-detail-container animate-fade-in">
+      {isDelisted && (
+        <div
+          role="note"
+          className="mb-4 rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm leading-relaxed text-amber-200"
+        >
+          <strong>【観測対象外】</strong>
+          この銘柄は現在、未来レーダーの定点観測（厳選20銘柄）の対象外です。
+          決着した、という意味ではありません。記録のためページは残しています。
+        </div>
+      )}
       {/* パンくず ＆ 戻るバー */}
       <div className="market-detail-nav">
         <a 

@@ -335,6 +335,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         return {
           id: String(db.id),
           slug: db.slug || `topic-${db.id}`,
+          isListed: db.is_listed !== false,
           title: db.title_en || db.title_ja || 'Market Topic',
           titleJa: resolvedTitleJa,
           question: db.question_en || db.title_ja || 'Question',

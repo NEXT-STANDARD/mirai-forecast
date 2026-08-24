@@ -132,6 +132,10 @@ async function prerenderAll() {
     process.exit(1);
   }
 
+  // Phase 2-A: 静的シェルの「掲載面」リンク（トップ・関連銘柄・静的ページ）は掲載中の銘柄だけで作る。
+  // プリレンダー自体は全有効銘柄に対して行う（観測対象外は noindex で残す）。
+  const listedEvents = events.filter(e => e.is_listed !== false);
+
   // 2. 投票データの集計
   const { data: voteLogs } = await supabase
     .from('japan_vote_logs')
@@ -335,6 +339,12 @@ async function prerenderAll() {
     // 3. canonical 置換 (自己参照)
     html = html.replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${canonicalUrl}" />`);
 
+    // 3b. 観測対象外（is_listed=false）は noindex を立てる (Phase 2-A)。
+    //     ページは残す：「決着した」とも「存在しない」とも言わないため、404にも既定タイトルにもしない。
+    if (event.is_listed === false) {
+      html = html.replace('</head>', '  <meta name="robots" content="noindex" />\n</head>');
+    }
+
     // 4. OGP 置換
     html = html.replace(/<meta property="og:type" content=".*?" \/>/i, `<meta property="og:type" content="article" />`);
     html = html.replace(/<meta property="og:url" content=".*?" \/>/i, `<meta property="og:url" content="${canonicalUrl}" />`);
@@ -381,7 +391,7 @@ async function prerenderAll() {
       else facts.push(['日本の世論', `集計中（n=${n}、3票から表示）`]);
 
       // 同カテゴリの銘柄へリンクし、静的な内部リンクグラフを作る
-      const siblings = events
+      const siblings = listedEvents
         .filter(e => String(e.id) !== String(event.id))
         .filter(e => !event.category || e.category === event.category)
         .slice(0, 5)
@@ -466,7 +476,7 @@ async function prerenderAll() {
         h1: `【決着・終了】${titleJa}`,
         lead: description,
         currentPath: `/market/${slug}`,
-        links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+        links: listedEvents.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
         linksHeading: 'いま予測できる銘柄',
       }), `決着 ${slug}`);
 
@@ -577,7 +587,7 @@ async function prerenderAll() {
       h1: page.h1 || page.title,
       lead: page.description,
       currentPath: `/${page.dir}`,
-      links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+      links: listedEvents.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
       linksHeading: '注目の銘柄',
     }), `固定ページ ${page.dir}`);
 
@@ -595,7 +605,7 @@ async function prerenderAll() {
   {
     const topPath = path.join(DIST_DIR, 'index.html');
     let topHtml = fs.readFileSync(topPath, 'utf-8');
-    const topLinks = events.slice(0, 12).map(e => [
+    const topLinks = listedEvents.slice(0, 12).map(e => [
       `/market/${e.slug || e.id}`,
       e.title_ja || e.title_en || String(e.slug || e.id),
     ]);
@@ -661,7 +671,7 @@ async function prerenderAll() {
       h1: 'ページが見つかりません',
       lead: 'お探しのページは見つかりませんでした。以下から探し直せます。',
       currentPath: '/404',
-      links: events.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
+      links: listedEvents.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
       linksHeading: 'いま予測できる銘柄',
     }), '404ページ');
 

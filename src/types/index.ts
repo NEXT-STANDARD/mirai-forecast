@@ -36,6 +36,10 @@ export interface MarketItem {
   isTrending?: boolean; // 🔥 人気急上昇フラグ
   isElectionBlackout?: boolean; // 🏛️ 公選法第138条の3遵守（選挙公示・投票期間中の安全ロック）
   isExpired?: boolean; // 🏁 投票締切終了フラグ
+  /** Phase 2-A: サイトに掲載するか（is_listed）。false は【観測対象外】＝一覧・sitemapから外すが
+   *  ページは noindex で残す。「決着」とも「存在しない」とも言わないため is_active とは別に持つ。
+   *  DDL適用前は列が無く undefined になるので、判定は必ず `=== false` で行う。 */
+  isListed?: boolean;
   resolvedChoice?: 'YES' | 'NO' | null; // 🏁 結果確定（的中判定用）
   clobTokenId?: string; // 📈 Polymarket CLOB prices-history 用のアセットID
   

@@ -253,7 +253,8 @@ async function checkDbAndPhase0() {
       if (k && !k.startsWith("#")) env[k.trim()] = v.join("=").trim();
     });
     supabase = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY || env.VITE_SUPABASE_ANON_KEY);
-    const { data: events, error } = await supabase.from("events").select("id, slug, title_ja, title_en, question_en, end_date, is_active, updated_at").eq("is_active", true);
+    // is_listed 列は DDL 適用前は存在しないため列指定にせず '*' で取る (Phase 2-A)
+    const { data: events, error } = await supabase.from("events").select("*").eq("is_active", true);
     if (!error && events) {
       activeEvents = events;
       const graceThreshold = new Date(Date.now() - 3600 * 1000); // 1時間の猶予ウィンドウ（30分同期間隔の一過性偽陽性を防止）
@@ -278,27 +279,33 @@ async function checkDbAndPhase0() {
   } else {
     const sitemapContent = fs.readFileSync(sitemapPath, "utf-8");
     const sitemapMarketUrls = [...sitemapContent.matchAll(/<loc>https:\/\/mirairadar\.com\/market\/([^<]+)<\/loc>/g)].map(m => decodeURIComponent(m[1]));
-    const activeSlugs = new Set(activeEvents.map(e => e.slug || e.id));
+    // Phase 2-A: sitemap に載るのは「掲載中（is_listed）」のみ。観測対象外は noindex でページだけ残る
+    const listedActive = activeEvents.filter(e => e.is_listed !== false);
+    const listedSlugs = new Set(listedActive.map(e => e.slug || e.id));
 
-    // A. 死にURL検査（SitemapにあるのにDBにない）
-    const deadUrls = sitemapMarketUrls.filter(slug => !activeSlugs.has(slug));
+    // A. 死にURL検査（Sitemapにあるのに掲載中でない）
+    const deadUrls = sitemapMarketUrls.filter(slug => !listedSlugs.has(slug));
     if (deadUrls.length > 0) {
-      sitemapFails.push(`死にURLを ${deadUrls.length}件 検知 (例: ${deadUrls.slice(0, 3).join(", ")})`);
+      sitemapFails.push(`死にURL・非掲載URLを ${deadUrls.length}件 検知 (例: ${deadUrls.slice(0, 3).join(", ")})`);
     }
 
-    // B. 有効銘柄の一致検査
-    if (sitemapMarketUrls.length !== activeEvents.length) {
-      sitemapFails.push(`件数不一致: sitemap=${sitemapMarketUrls.length}件, DB有効銘柄=${activeEvents.length}件`);
+    // B. 掲載銘柄の一致検査
+    if (sitemapMarketUrls.length !== listedActive.length) {
+      sitemapFails.push(`件数不一致: sitemap=${sitemapMarketUrls.length}件, DB掲載銘柄=${listedActive.length}件`);
     }
   }
-  report("Sitemap 100% 実在性 & Supabase 有効銘柄完全一致 (P0-1)", sitemapFails.length === 0,
-    sitemapFails.length === 0 ? `全 ${activeEvents.length}件 の /market/ URLがSupabase有効銘柄と完全一致 (死にURL 0件)` : sitemapFails.join("; "));
+  report("Sitemap 100% 実在性 & Supabase 掲載銘柄完全一致 (P0-1)", sitemapFails.length === 0,
+    sitemapFails.length === 0 ? `全 ${activeEvents.filter(e => e.is_listed !== false).length}件 の /market/ URLがSupabase掲載銘柄と完全一致 (死にURL 0件)` : sitemapFails.join("; "));
 
   // ==============================================================================
   // 12. プリレンダー HTML 網羅性 & 直接 .html 配信 (307根絶) & 自己参照 Canonical & OGP & JSON-LD 検査 (P0-2, P0-3, P0-4)
   // ==============================================================================
   let prerenderFails = [];
   const observedProbs = [];
+  // Phase 2-A: 掲載状態（is_listed）と noindex の一致検査。母集団は走査対象の全有効銘柄から導出
+  const listingFails = [];
+  let listedSeen = 0;
+  let unlistedSeen = 0;
   const distMarketDir = path.join(ROOT, "dist/market");
   if (!fs.existsSync(distMarketDir)) {
     prerenderFails.push("dist/market ディレクトリが存在しません");
@@ -360,6 +367,15 @@ async function checkDbAndPhase0() {
           prerenderFails.push(`銘柄 [${slug}] の JSON-LD パースエラー: ${e.message}`);
         }
       }
+      // 5. Phase 2-A: 掲載中なら noindex が無く、観測対象外なら noindex があること。
+      //    どちらか一方だけ検査すると「全銘柄に noindex」のような全壊を見逃すため、両方向を照合する
+      const hasNoindex = html.includes('<meta name="robots" content="noindex" />');
+      const shouldNoindex = ev.is_listed === false;
+      if (shouldNoindex) unlistedSeen++; else listedSeen++;
+      if (hasNoindex !== shouldNoindex) {
+        listingFails.push(`銘柄 [${slug}] の noindex が掲載状態と食い違っています (掲載=${!shouldNoindex}, noindex=${hasNoindex})`);
+      }
+
       checkedCount++;
     }
 
@@ -402,6 +418,11 @@ async function checkDbAndPhase0() {
   }
   report("プリレンダー HTML 網羅性 & .html 単独配信 (307根絶) & Canonical & OGP & JSON-LD (P0-2/3/4)", prerenderFails.length === 0,
     prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html 単独出力) ＆ 静的5ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
+
+  report("掲載/観測対象外と noindex の一致 (Phase 2-A)", listingFails.length === 0,
+    listingFails.length === 0
+      ? `掲載 ${listedSeen}件は noindex なし ／ 観測対象外 ${unlistedSeen}件は noindex あり、で全件一致`
+      : listingFails.join("; "));
 
   // ==============================================================================
   // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
