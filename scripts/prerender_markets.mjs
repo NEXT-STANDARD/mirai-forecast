@@ -390,16 +390,24 @@ async function prerenderAll() {
       if (hasConsensus) facts.push(['日本の世論（YES）', `${japanProb}%（n=${n}）`]);
       else facts.push(['日本の世論', `集計中（n=${n}、3票から表示）`]);
 
-      // 同カテゴリの銘柄へリンクし、静的な内部リンクグラフを作る
-      const siblings = listedEvents
-        .filter(e => String(e.id) !== String(event.id))
-        .filter(e => !event.category || e.category === event.category)
+      // 同カテゴリの銘柄へリンクし、静的な内部リンクグラフを作る。
+      // 絞り込み後はカテゴリ内の掲載が1件だけのことがある（スポーツ枠1件で実際に起きた）。
+      // 同カテゴリを優先しつつ、5本に満たない分は他カテゴリの掲載銘柄で補完する
+      const otherListed = listedEvents.filter(e => String(e.id) !== String(event.id));
+      const sameCat = otherListed.filter(e => !event.category || e.category === event.category);
+      const crossCat = otherListed.filter(e => !sameCat.includes(e));
+      const siblings = [...sameCat, ...crossCat]
         .slice(0, 5)
         .map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]);
 
+      // Phase 2-A: 観測対象外の説明はランタイムのバナーだけでなく静的シェルにも置く。
+      // JS を実行しない読者・クローラーにも状態が伝わり、noindex の理由が本文で読める
+      const delistedNote = event.is_listed === false
+        ? '【観測対象外】この銘柄は現在、未来レーダーの定点観測（厳選20銘柄）の対象外です。決着した、という意味ではありません。記録のためページを残しています。 '
+        : '';
       html = injectStaticBody(html, staticBody({
         h1: titleJa,
-        lead: description,
+        lead: delistedNote + description,
         currentPath: `/market/${slug}`,
         facts,
         links: siblings,
