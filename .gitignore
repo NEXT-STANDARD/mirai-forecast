@@ -38,3 +38,6 @@ gen-lang-client*.json
 # （テンプレートだけは追跡する）
 docs/*.html
 !docs/_report_template.html
+
+# N-58: ビルド内でオッズを共有するための一時ファイル
+.build-cache/

@@ -1146,6 +1146,61 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 33. 配列propに依存してデータ取得している useEffect (N-57)
+  // ----------------------------------------------------------------------------
+  // LiveTape が useEffect(..., [events]) で Supabase を叩いていた。
+  // events は配列propなので中身が同じでも参照が変わるたびに再取得が走る。
+  // 読み込み時に events は3回入れ替わる（初期値 → Supabase → Polymarket反映）ため、
+  // 同じクエリが 216ms / 358ms / 560ms の3回発火していた（本番実測）。
+  // 30秒ごとの更新でも起きるので、タブを開いている限り無駄が積み上がる。
+  //
+  // 取得を伴う効果は「1回だけ（[]）」か「プリミティブなキー依存」であるべき。
+  // 判定式は修正前の LiveTape（実際の N-57）を食わせて検算済み。
+  // ============================================================================
+  {
+    const NET = /supabase[\s\S]{0,80}\.from\(|\bfetch\(|\b(?:load|fetch|sync|refresh)[A-Z]\w*\s*\(/;
+    const SUSPECT = /^(events|items|markets|data|list|rows|votes|entries)$/;
+    const effectFails = [];
+    let effectsScanned = 0;
+    const walkSrc = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) { walkSrc(full); continue; }
+        if (!/\.(tsx|ts)$/.test(e.name)) continue;
+        const src = fs.readFileSync(full, "utf-8");
+        for (const m of src.matchAll(/useEffect\(\s*\(\s*\)\s*=>\s*\{/g)) {
+          let i = m.index + m[0].length, depth = 1;
+          while (i < src.length && depth > 0) {
+            if (src[i] === "{") depth++;
+            else if (src[i] === "}") depth--;
+            i++;
+          }
+          const dm = /^\s*,\s*\[([^\]]*)\]/.exec(src.slice(i, i + 140));
+          if (!dm) continue;
+          const body = src.slice(m.index + m[0].length, i);
+          if (!NET.test(body)) continue;
+          effectsScanned++;
+          const deps = dm[1].split(",").map(d => d.trim()).filter(Boolean);
+          const bad = deps.filter(d => SUSPECT.test(d));
+          if (bad.length > 0) {
+            const line = src.slice(0, m.index).split("\n").length;
+            effectFails.push(`${path.relative(ROOT, full)}:${line} → 依存に [${bad.join(", ")}] があり、参照が変わるたび再取得する`);
+          }
+        }
+      }
+    };
+    walkSrc(path.join(ROOT, "src"));
+    report(
+      `取得を伴う useEffect の依存 (N-57 / ${effectsScanned}件の取得効果)`,
+      effectFails.length === 0 && effectsScanned > 0,
+      effectFails.length === 0
+        ? `取得を伴う ${effectsScanned}件の効果は、いずれも [] かプリミティブなキーに依存している`
+        : effectFails.join("; ")
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

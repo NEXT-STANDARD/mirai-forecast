@@ -145,6 +145,25 @@ async function generateAllMarketOgps() {
     console.warn('Live odds fetch warning in OGP generation:', err.message);
   }
 
+  // N-58: 解決したオッズをビルド内で共有する。
+  //   OGP画像は vite build の前、プリレンダーは後に走る。
+  //   それぞれが別々に Polymarket を叩いていたため、その間（20〜30秒）に
+  //   価格が動くと共有カードとリンク先ページの数字が食い違っていた。
+  //   実測：bitcoin-up-or-down で 画像66% vs og:title64%。
+  //   ここで書き出したスナップショットをプリレンダーが読む。
+  try {
+    const cacheDir = path.resolve(ROOT, '.build-cache');
+    fs.mkdirSync(cacheDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(cacheDir, 'odds-snapshot.json'),
+      JSON.stringify({ generatedAt: new Date().toISOString(), odds: Object.fromEntries(oddsMap) }, null, 1),
+      'utf-8'
+    );
+    console.log(`📸 オッズのスナップショットを保存しました（${oddsMap.size}件 / N-58）`);
+  } catch (err) {
+    console.warn('オッズのスナップショット保存に失敗:', err.message);
+  }
+
   const width = 1200;
   const height = 630;
 

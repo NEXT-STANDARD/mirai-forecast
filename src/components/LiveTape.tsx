@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Activity, Zap, TrendingUp, TrendingDown } from 'lucide-react';
 import type { MarketItem } from '../types';
 import { supabase } from '../services/supabaseClient';
@@ -12,76 +12,95 @@ interface TapeItem {
   location?: string;
 }
 
+interface VoteLogRow {
+  id: string;
+  event_id: string;
+  choice: string;
+  voted_at: string | null;
+  device_type: string | null;
+}
+
 interface LiveTapeProps {
   events?: MarketItem[];
 }
 
 export const LiveTape: React.FC<LiveTapeProps> = ({ events = [] }) => {
-  const [tape, setTape] = useState<TapeItem[]>([]);
+  // N-57: 取得と表示を分ける。
+  //   以前は useEffect(..., [events]) で、events は配列propなので
+  //   中身が同じでも参照が変わるたびに Supabase へ再取得が飛んでいた。
+  //   読み込み時に events は3回入れ替わる（初期値 → Supabase → Polymarket反映）ため、
+  //   同じクエリが 216ms / 358ms / 560ms の3回発火していた（本番実測）。
+  //   30秒ごとの更新でも同じことが起きるので、開いている限り増え続ける。
+  const [voteLogs, setVoteLogs] = useState<VoteLogRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 1. Supabaseから本物のリアル投票ログを取得し、銘柄タイトルと紐付ける
+  // 取得は「マウント時 ＋ 30秒ごと」。events の参照が変わっても再取得しない。
+  //   本体（App.tsx）と同じ周期・同じ作法（非表示時は休止）に揃える。
+  //   以前は events の参照変化に釣られて1周期あたり3回飛んでいた。
   useEffect(() => {
-    async function loadRealTape() {
+    let alive = true;
+    async function loadVoteLogs() {
       if (!supabase) {
         setIsLoading(false);
         return;
       }
-
       try {
-        const { data: voteLogs } = await supabase
+        const { data } = await supabase
           .from('japan_vote_logs')
           .select('id, event_id, choice, voted_at, device_type')
           .order('voted_at', { ascending: false })
           .limit(10);
-
-        const realItems: TapeItem[] = [];
-
-        if (voteLogs && voteLogs.length > 0) {
-          voteLogs.forEach((v) => {
-            const ev = events.find((e) => e.id === v.event_id || e.slug === v.event_id);
-            const title = ev ? ev.titleJa : (v.event_id.length > 20 ? '注目観測銘柄' : `世論銘柄 [${v.event_id}]`);
-            const d = v.voted_at ? new Date(v.voted_at) : new Date();
-            const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
-
-            realItems.push({
-              id: v.id,
-              time: timeStr,
-              type: v.choice === 'YES' ? 'VOTE_YES' : 'VOTE_NO',
-              title,
-              amountOrProb: v.choice === 'YES' ? 'YES 投票' : 'NO 投票',
-              location: v.device_type === 'MOBILE' ? 'モバイル' : 'PC端末',
-            });
-          });
-        }
-
-        // 2. 実データのあるPolymarketの高出来高銘柄（実数）も追加
-        const topVolumeEvents = events
-          .filter((e) => e.volume24hUsd > 10000)
-          .sort((a, b) => b.volume24hUsd - a.volume24hUsd)
-          .slice(0, 5);
-
-        topVolumeEvents.forEach((ev) => {
-          realItems.push({
-            id: `vol-${ev.id}`,
-            time: `実測出来高`,
-            type: 'SMART_MONEY',
-            title: ev.titleJa,
-            amountOrProb: `$${Math.round(ev.volume24hUsd / 1000).toLocaleString()}k 取引高`,
-            location: 'Polymarket',
-          });
-        });
-
-        setTape(realItems);
+        if (alive) setVoteLogs((data as VoteLogRow[]) || []);
       } catch (err) {
-        console.error('Error fetching real tape:', err);
+        console.warn('歩み値の取得に失敗しました:', err);
       } finally {
-        setIsLoading(false);
+        if (alive) setIsLoading(false);
       }
     }
+    loadVoteLogs();
+    const interval = setInterval(() => {
+      if (typeof document !== 'undefined' && !document.hidden) loadVoteLogs();
+    }, 30000);
+    return () => { alive = false; clearInterval(interval); };
+  }, []);
 
-    loadRealTape();
-  }, [events]);
+  // 表示は voteLogs と events から導出する。ここでは取得しない。
+  const tape = useMemo<TapeItem[]>(() => {
+    const realItems: TapeItem[] = [];
+
+    voteLogs.forEach((v) => {
+      const ev = events.find((e) => e.id === v.event_id || e.slug === v.event_id);
+      const title = ev ? ev.titleJa : (String(v.event_id).length > 20 ? '注目観測銘柄' : `世論銘柄 [${v.event_id}]`);
+      const d = v.voted_at ? new Date(v.voted_at) : new Date();
+      const timeStr = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+      realItems.push({
+        id: v.id,
+        time: timeStr,
+        type: v.choice === 'YES' ? 'VOTE_YES' : 'VOTE_NO',
+        title,
+        amountOrProb: v.choice === 'YES' ? 'YES 投票' : 'NO 投票',
+        location: v.device_type === 'MOBILE' ? 'モバイル' : 'PC端末',
+      });
+    });
+
+    // 実データのあるPolymarketの高出来高銘柄（実数）も追加
+    events
+      .filter((e) => e.volume24hUsd > 10000)
+      .sort((a, b) => b.volume24hUsd - a.volume24hUsd)
+      .slice(0, 5)
+      .forEach((ev) => {
+        realItems.push({
+          id: `vol-${ev.id}`,
+          time: `実測出来高`,
+          type: 'SMART_MONEY',
+          title: ev.titleJa,
+          amountOrProb: `$${Math.round(ev.volume24hUsd / 1000).toLocaleString()}k 取引高`,
+          location: 'Polymarket',
+        });
+      });
+
+    return realItems;
+  }, [voteLogs, events]);
 
   return (
     <div className="terminal-pane live-tape-pane">

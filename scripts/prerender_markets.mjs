@@ -157,7 +157,31 @@ async function prerenderAll() {
   }
 
   const oddsMap = new Map(Object.entries(marketOdds));
+
+  // N-58: OGP生成が同じビルド内で解決したオッズがあれば、それを使う。
+  //   ここで独自に取り直すと、vite build を挟んだぶん（20〜30秒）価格が動き、
+  //   共有カードとリンク先ページで数字が食い違う。
+  //   スナップショットが無い・古い場合は従来どおり自前で取りに行く。
+  let usedSnapshot = false;
   try {
+    const snapPath = path.resolve(ROOT, '.build-cache', 'odds-snapshot.json');
+    if (fs.existsSync(snapPath)) {
+      const snap = JSON.parse(fs.readFileSync(snapPath, 'utf-8'));
+      const ageMs = Date.now() - new Date(snap.generatedAt).getTime();
+      const entries = Object.entries(snap.odds || {});
+      if (ageMs >= 0 && ageMs < 10 * 60 * 1000 && entries.length > 0) {
+        for (const [k, v] of entries) oddsMap.set(k, v);
+        usedSnapshot = true;
+        console.log(`📸 OGP生成のオッズを再利用しました（${entries.length}件 / 生成から${Math.round(ageMs / 1000)}秒 / N-58）`);
+      } else {
+        console.log(`📸 スナップショットが古いか空のため使いません（${Math.round(ageMs / 1000)}秒前 / ${entries.length}件）`);
+      }
+    }
+  } catch (err) {
+    console.warn('スナップショットの読み込みに失敗:', err.message);
+  }
+
+  if (!usedSnapshot) try {
     const polyMap = new Map();
     for (const offset of [0, 100, 200, 300, 400]) {
       const pageUrl = `https://gamma-api.polymarket.com/events?limit=100&offset=${offset}&active=true&closed=false&order=volume24hr&ascending=false`;
