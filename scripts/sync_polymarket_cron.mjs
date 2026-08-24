@@ -25,6 +25,10 @@ if (fs.existsSync(envPath)) {
   } catch {}
 }
 
+// --dry-run: DBへの書き込みと Gemini 呼び出しを一切行わず、選定結果だけを表示する。
+// フィルタを変えたときに、本番データを触らずに効果を確認するために使う。
+const DRY_RUN = process.argv.includes('--dry-run');
+
 const supabaseUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || localEnv.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY || localEnv.GEMINI_API_KEY;
@@ -202,7 +206,7 @@ async function syncPolymarket() {
               // N-36: 決着済み/終了銘柄は即座にDBで非アクティブ化
               if (directEv.closed === true || directEv.active === false) {
                 console.log(`🔒 決着済み銘柄を非アクティブ化: ${row.id} (${row.title_ja})`);
-                await supabase.from('events').update({ is_active: false }).eq('id', row.id);
+                if (!DRY_RUN) await supabase.from('events').update({ is_active: false }).eq('id', row.id);
                 continue;
               }
               if (!polyMap.has(String(directEv.id)) && !polyMap.has(row.slug)) {
@@ -239,7 +243,65 @@ async function syncPolymarket() {
     const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
     fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
 
+
+// ==============================================================================
+// N-64: 日本の読者が判断できない銘柄を、同期の段階で弾く
+// ------------------------------------------------------------------------------
+// 実測（有効73件）で分かったこと：
+//   ・多肢イベント34件のAPI取得はすべて成功している。壊れているのは取得ではなく「翻訳」。
+//   ・元が128択の候補者レースを「この1人が選ばれるか？」に平板化していた。
+//     読者は残り127人を見られないので、15% と言われても判断のしようがない。
+//   ・日常的な個別対戦カード（テニス・欧州サッカーの1試合）が3件混ざっていた。
+//
+// 価格バケット（BTCの44択など）は弾いてはいけない。
+// 「3,000ドルに到達するか」は選択肢が多くても読者が判断できる問いだから。
+// 判別は groupItemTitle が数値しきい値か候補者名かで行う（実データ14例で検算済み）。
+// ==============================================================================
+const FIELD_TOO_LARGE = 20;   // これ以上の候補数から1つを切り出すと全体像が見えない
+const NUMERIC_BUCKET = /^[<>≤≥↑↓\s$¥￥]*[\d,.]+\s*(?:%|bps?|\([^)]*\))?$/i;
+const DAILY_MATCH = /\bvs\.?\s|\bmatch winner\b|\d{4}-\d{2}-\d{2}/i;
+const SPORTS_HINT = /\b(atp|wta|mlb|nba|nfl|nhl|premier league|la liga|serie a|bundesliga|ligue 1|champions league|open|cup|match|game)\b/i;
+const SPORTS_QUOTA = 3;       // 上位25件のうちスポーツに割り当てる上限
+const SUBJECT_QUOTA = 2;      // 同じ主体（bitcoin / musk など）から採る上限
+// 目標構成：全体20銘柄のうち国内40%（8件）・厳選グローバル60%（12件）。
+// 同期が担当するのはグローバル枠だけなので、ここは12件に絞る。
+// 従来は25件を取っており、国内銘柄の居場所が無かった。
+const GLOBAL_QUOTA = 12;
+
+// イベント名から日付・数値・定型語を落として「主体になりうる単語」を取り出す。
+// 主体の一覧は持たない。同じ単語が2回出たら3回目以降を採らない、という数え方にする。
+// 実データ12件で検算：BTC が 5件 → 2件 に減り、ETH・マスクは2件のまま残った。
+//（STOP は多様性を上げるための語彙であって正しさの判定ではない。
+//  漏れても「少し多様性が下がる」だけで、誤った表示にはつながらない）
+const MONTHS = 'january|february|march|april|may|june|july|august|september|october|november|december';
+const STOP = new Set(('the and for will what hit out before any day next who win wins price above below ' +
+  'under over end enter reach signed into law flight test with from that this').split(' '));
+function subjectWords(ev) {
+  const t = String(ev.title || '')
+    .toLowerCase()
+    .replace(new RegExp(`\\b(${MONTHS})\\b`, 'g'), ' ')
+    .replace(/\d+/g, ' ')
+    .replace(/[^a-z\s]/g, ' ');
+  return t.split(/\s+/).filter(w => w.length > 3 && !STOP.has(w));
+}
+
+function curationReject(ev, market) {
+  const fieldSize = (ev.markets || []).length;
+  const gi = (market.groupItemTitle || '').trim();
+  const evTitle = String(ev.title || '');
+
+  if (DAILY_MATCH.test(evTitle)) return '日常的な個別対戦カード';
+  if (fieldSize >= FIELD_TOO_LARGE && !NUMERIC_BUCKET.test(gi)) {
+    return `${fieldSize}択レースから1候補を切り出す形（読者に全体像が見えない）`;
+  }
+  return null;
+}
+
+const isSportsCandidate = (ev, market) =>
+  SPORTS_HINT.test(String(ev.title || '') + ' ' + String(market.question || ''));
+
     const candidateList = [];
+    const curationRejects = [];
 
     for (const ev of allEvents) {
       if (!ev.markets || !ev.markets[0]) continue;
@@ -252,6 +314,13 @@ async function syncPolymarket() {
       if (SENSITIVE_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (JAPAN_ELECTION_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
       if (IRRELEVANT_KEYWORDS.some(kw => titleLower.includes(kw))) continue;
+
+      // N-64: 読者が判断できない形の銘柄を弾く
+      const rejectWhy = curationReject(ev, market);
+      if (rejectWhy) {
+        curationRejects.push(`${String(ev.title || '').slice(0, 46)} — ${rejectWhy}`);
+        continue;
+      }
 
       // 過去日付・締切切れ銘柄の同期を完全除外（過去を占う銘柄の混入防止）
       const nowMs = Date.now();
@@ -378,16 +447,45 @@ async function syncPolymarket() {
         catLabel,
         volume24h,
         score: jScore,
+        isSports: isSportsCandidate(ev, market),
+        subjectWords: subjectWords(ev),
       });
     }
 
     // 日本親和性スコア順で上位25件を厳選
     candidateList.sort((a, b) => b.score - a.score);
-    const topCandidates = candidateList.slice(0, 25);
+
+    // N-64: スポーツは上限3件まで。スコア上位から順に埋め、超えた分は落とす。
+    let sportsTaken = 0;
+    const topCandidates = [];
+    const sportsDropped = [];
+    const wordSeen = new Map();
+    const subjectDropped = [];
+    for (const c of candidateList) {
+      if (topCandidates.length >= GLOBAL_QUOTA) break;
+      if (c.isSports && sportsTaken >= SPORTS_QUOTA) { sportsDropped.push(c.rawQuestion.slice(0, 40)); continue; }
+
+      // N-64: 同じ主体を何本も並べない。BTC価格だけで5/12件という状態を防ぐ。
+      const hit = c.subjectWords.find(w => (wordSeen.get(w) || 0) >= SUBJECT_QUOTA);
+      if (hit) { subjectDropped.push(`${hit}: ${c.rawQuestion.slice(0, 32)}`); continue; }
+
+      c.subjectWords.forEach(w => wordSeen.set(w, (wordSeen.get(w) || 0) + 1));
+      if (c.isSports) sportsTaken++;
+      topCandidates.push(c);
+    }
+
+    if (curationRejects.length > 0) {
+      console.log(`🧹 読者が判断できない形として除外: ${curationRejects.length}件`);
+      curationRejects.slice(0, 6).forEach(r => console.log(`     - ${r}`));
+      if (curationRejects.length > 6) console.log(`     … ほか${curationRejects.length - 6}件`);
+    }
+    console.log(`⚽ スポーツ枠: ${sportsTaken}/${SPORTS_QUOTA}件を採用${sportsDropped.length ? `（枠外で除外 ${sportsDropped.length}件）` : ''}`);
+    console.log(`🎯 主体上限(${SUBJECT_QUOTA}件/主体): 採用${topCandidates.length}件${subjectDropped.length ? `（同一主体の重複で除外 ${subjectDropped.length}件）` : ''}`);
 
     // Gemini 3.7 Flash でタイトルと個別深層カタリストを一括生成
     console.log(`🤖 ${topCandidates.length}件の市場データについて Gemini 3.7 Flash がリアルタイム情勢分析を生成中...`);
-    const insights = await generateInsightsWithGemini(topCandidates);
+    const insights = DRY_RUN ? [] : await generateInsightsWithGemini(topCandidates);
+    if (DRY_RUN) console.log('🧪 [dry-run] Gemini 呼び出しを省略しました');
     const insightMap = new Map();
     const insightsJsonStore = {};
 
@@ -802,14 +900,22 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       for (const r of existingRows) {
         if (r.title_ja && r.title_ja.includes('  ')) {
           const cleaned = r.title_ja.replace(/\s{2,}/g, ' ').trim();
-          await supabase.from('events').update({ title_ja: cleaned, question_ja: cleaned }).eq('id', r.id);
+          if (!DRY_RUN) await supabase.from('events').update({ title_ja: cleaned, question_ja: cleaned }).eq('id', r.id);
         }
       }
     }
 
-    const { error } = await supabase
-      .from('events')
-      .upsert(selectedRecords, { onConflict: 'id' });
+    const { error } = DRY_RUN
+      ? { error: null }
+      : await supabase.from('events').upsert(selectedRecords, { onConflict: 'id' });
+    if (DRY_RUN) console.log(`🧪 [dry-run] ${selectedRecords.length}件の upsert を省略しました`);
+    if (DRY_RUN) {
+      console.log('\n🧪 [dry-run] このフィルタで選ばれる銘柄一覧');
+      selectedRecords.forEach((r, i) => {
+        console.log(`   ${String(i + 1).padStart(2)}. [${r.category || '-'}] ${String(r.title_ja || r.title_en || r.id).slice(0, 52)}`);
+      });
+      console.log('');
+    }
 
     if (error) {
       console.error('Supabase upsert error:', error.message);
@@ -839,7 +945,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
           refreshRecords.push({ id: row.id, question_en: nextQuestionEn, end_date: nextEndDate, updated_at: new Date().toISOString() });
         }
         if (refreshRecords.length > 0) {
-          const { error: rErr } = await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
+          const { error: rErr } = DRY_RUN
+            ? { error: null }
+            : await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
           if (rErr) console.error('派生フィールドの更新に失敗:', rErr.message);
           else console.log(`🔄 上位25件外の有効銘柄 ${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
         } else {
@@ -850,7 +958,7 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
 
       // 期限切れ銘柄を自動的に非アクティブ化
-      await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
+      if (!DRY_RUN) await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
       console.log(`\n🎉 【深層個別カタリスト分析 完了！】 厳選 ${selectedRecords.length}件 を同期完了！`);
       console.log('✅ 個別分析サンプル:');
       selectedRecords.slice(0, 3).forEach((r, i) => {
