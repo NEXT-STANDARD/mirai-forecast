@@ -25,7 +25,7 @@
   "subject": null
  },
  "elon-musk-of-tweets-august-22-august-24-2026": {
-  "prob": 16,
+  "prob": 15,
   "framing": "yes",
   "subject": null
  },
@@ -115,7 +115,7 @@
   "subject": null
  },
  "bitcoin-up-or-down-on-august-24-2026": {
-  "prob": 62,
+  "prob": 64,
   "framing": "subject",
   "subject": "Up"
  },
