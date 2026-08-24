@@ -174,7 +174,9 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
           <div className="embed-bar-track">
             <div 
               className="embed-bar-fill bg-emerald-400" 
-              style={{ width: `${hasValidJapanVotes ? japanYes : 50}%` }}
+              /* N-61: ラベルは「サンプル収集中」なのに、バーだけ半分まで伸びていた。
+                 読者は半分のバーを「50%」と読む。集計中はバーも伸ばさない。 */
+              style={{ width: `${hasValidJapanVotes ? japanYes : 0}%` }}
             ></div>
           </div>
         </div>
