@@ -16,6 +16,7 @@ interface HeaderProps {
   onOpenLetter?: () => void;
   onOpenGuide?: (slug?: string) => void;
   onOpenAbout?: () => void;
+  onOpenTrackRecord?: () => void;
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
   onOpenOnboarding?: () => void;
@@ -37,6 +38,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenLetter,
   onOpenGuide,
   onOpenAbout,
+  onOpenTrackRecord,
   onOpenPropose,
   onOpenMyForecast,
   onOpenOnboarding,
@@ -115,6 +117,20 @@ export const Header: React.FC<HeaderProps> = ({
                 title="未来レーダーについて（ミッション・気象台モデル・3大上場基準）"
               >
                 <span>About</span>
+              </a>
+            )}
+
+            {onOpenTrackRecord && (
+              <a
+                href="/track-record"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenTrackRecord();
+                }}
+                className="header-nav-link"
+                title="的中トラックレコード（決着済み全銘柄の予測 vs 結果・全量公開）"
+              >
+                <span>的中記録</span>
               </a>
             )}
 

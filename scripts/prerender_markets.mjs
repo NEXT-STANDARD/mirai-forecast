@@ -75,6 +75,7 @@ const SITE_NAV = [
   ['/rankings', '的中ランキング'],
   ['/guide/polymarket-japan', 'Polymarketとは（解説記事）'],
   ['/about', '未来レーダーについて'],
+  ['/track-record', '的中トラックレコード（全決着の予測 vs 結果）'],
   ['/ai-connector', 'AI連携（WebMCP）'],
 ];
 
@@ -496,6 +497,17 @@ async function prerenderAll() {
   // ==============================================================================
   // B. 静的ページの自己参照 Canonical ＆ 固有 description プリレンダー (P1-1)
   // ==============================================================================
+  let trackRecordFacts = [];
+  try {
+    const tr = JSON.parse(fs.readFileSync(path.join(ROOT, 'public', 'data', 'track_record.json'), 'utf-8'));
+    trackRecordFacts = [
+      ['採点した決着銘柄', `${tr.summary.worldScored}件（${new Date(tr.generatedAt).toISOString().slice(0, 10)} 時点）`],
+      ['全体の的中率', `${tr.summary.worldAccuracy}%（${tr.summary.worldHits}/${tr.summary.worldScored}件）`],
+      ['スポーツの1試合を除く', `${tr.breakdown.nonSports.accuracy}%（${tr.breakdown.nonSports.hits}/${tr.breakdown.nonSports.n}件）`],
+      ['24時間前にほぼ確定していた分を除く', `${tr.breakdown.excludingDegenerate.accuracy}%（${tr.breakdown.excludingDegenerate.hits}/${tr.breakdown.excludingDegenerate.n}件）`],
+    ];
+  } catch {}
+
   const staticPages = [
     {
       dir: 'forecast',
@@ -526,6 +538,15 @@ async function prerenderAll() {
       title: 'Mikeへの手紙 ｜ 未来レーダー',
       description: 'Polymarket日本市場責任者 Mike Eidlin 氏への公開書簡。日本における予測市場の健全な発展と、未来レーダーが目指す世論インテリジェンスの理念。',
       canonical: `${SITE_URL}/letter-to-mike`
+    },
+    {
+      // Phase 2 / B: 的中トラックレコード。実数は track_record.json から静的本文に載せる
+      dir: 'track-record',
+      h1: '的中トラックレコード',
+      title: '的中トラックレコード ｜ 未来レーダー',
+      description: '世界の予測市場は本当に当たるのか。決着済み全銘柄の「24時間前の予測」と実際の結果を全量公開。削除も選別もしない的中トラックレコード。',
+      canonical: `${SITE_URL}/track-record`,
+      facts: trackRecordFacts,
     },
     {
       dir: 'about',
@@ -595,6 +616,7 @@ async function prerenderAll() {
       h1: page.h1 || page.title,
       lead: page.description,
       currentPath: `/${page.dir}`,
+      facts: page.facts || [],
       links: listedEvents.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
       linksHeading: '注目の銘柄',
     }), `固定ページ ${page.dir}`);

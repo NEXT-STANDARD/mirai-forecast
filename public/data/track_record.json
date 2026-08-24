@@ -1,66 +1,66 @@
 {
- "generatedAt": "2026-08-24T13:45:18.545Z",
+ "generatedAt": "2026-08-24T23:30:10.614Z",
  "method": {
   "forecastPoint": "決着の24時間前の市場価格",
   "minVotesForJapan": 3,
   "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
  },
  "summary": {
-  "worldScored": 35,
-  "worldHits": 24,
-  "worldAccuracy": 69,
+  "worldScored": 41,
+  "worldHits": 28,
+  "worldAccuracy": 68,
   "japanScored": 0,
   "japanHits": 0,
   "japanAccuracy": null,
   "skipped": {
    "api": 0,
-   "unresolved": 4,
+   "unresolved": 6,
    "noHistory": 0,
    "noMarket": 0
   }
  },
  "breakdown": {
   "all": {
-   "n": 35,
-   "hits": 24,
-   "accuracy": 69
+   "n": 41,
+   "hits": 28,
+   "accuracy": 68
   },
   "sports": {
-   "n": 21,
-   "hits": 11,
+   "n": 23,
+   "hits": 12,
    "accuracy": 52
   },
   "nonSports": {
-   "n": 14,
-   "hits": 13,
-   "accuracy": 93
+   "n": 18,
+   "hits": 16,
+   "accuracy": 89
   },
   "excludingDegenerate": {
-   "n": 29,
-   "hits": 18,
-   "accuracy": 62
+   "n": 32,
+   "hits": 19,
+   "accuracy": 59
   },
   "nonSportsExcludingDegenerate": {
-   "n": 9,
+   "n": 10,
    "hits": 8,
-   "accuracy": 89
+   "accuracy": 80
   }
  },
  "calibration": [
   {
    "band": "0-19%",
-   "n": 10,
-   "happenedRate": 20
+   "n": 11,
+   "happenedRate": 18
   },
   {
    "band": "20-39%",
-   "n": 9,
-   "happenedRate": 33
+   "n": 10,
+   "happenedRate": 40
   },
   {
    "band": "40-59%",
-   "n": 8,
-   "happenedRate": 50
+   "n": 11,
+   "happenedRate": 55
   },
   {
    "band": "60-79%",
@@ -69,32 +69,11 @@
   },
   {
    "band": "80-100%",
-   "n": 4,
+   "n": 5,
    "happenedRate": 100
   }
  ],
  "records": [
-  {
-   "id": "776884",
-   "slug": "spacex-starship-flight-test-14",
-   "titleJa": "経済・市場予測: Will SpaceX Starship Flight Test 14 launch by August 31?",
-   "category": "economy",
-   "endDate": "2027-07-01T03:59:00+00:00",
-   "subject": "August 31",
-   "world": {
-    "prob": 1,
-    "at": "2026-08-23T12:00:16.000Z",
-    "points": 193,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": false,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
-  },
   {
    "id": "893334",
    "slug": "wta-tagger-starodu-2026-08-23",
@@ -180,17 +159,17 @@
    "isDegenerate": false
   },
   {
-   "id": "888506",
-   "slug": "highest-temperature-in-taipei-on-august-24-2026",
-   "titleJa": "経済・市場予測: Will the highest temperature in Taipei be 22°C or below on August 24?",
+   "id": "899509",
+   "slug": "what-price-will-bitcoin-hit-on-august-24-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on August 24?: ↑ 84,000?",
    "category": "economy",
-   "endDate": "2026-08-24T12:00:00+00:00",
-   "subject": "22°C or below",
+   "endDate": "2026-08-25T04:00:00+00:00",
+   "subject": "↑ 84,000",
    "world": {
-    "prob": 1,
-    "at": "2026-08-23T12:00:12.000Z",
-    "points": 20,
-    "usedFallback": false
+    "prob": 3,
+    "at": "2026-08-24T15:00:18.000Z",
+    "points": 7,
+    "usedFallback": true
    },
    "japan": null,
    "japanVotes": 0,
@@ -199,6 +178,153 @@
    "japanCorrect": null,
    "isSports": false,
    "isDegenerate": false
+  },
+  {
+   "id": "885120",
+   "slug": "spx-up-or-down-on-august-24-2026",
+   "titleJa": "経済・市場予測: S&P 500 (SPX) Up or Down on August 24?",
+   "category": "economy",
+   "endDate": "2026-08-24T20:00:00+00:00",
+   "subject": "Up",
+   "world": {
+    "prob": 57,
+    "at": "2026-08-23T18:00:11.000Z",
+    "points": 27,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "831816",
+   "slug": "lal-mala-dep-2026-08-24",
+   "titleJa": "スポーツ勝敗予測: Málaga CF は 2026-08-24 の試合で勝利するか？",
+   "category": "sports",
+   "endDate": "2026-08-24T19:30:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 33,
+    "at": "2026-08-23T18:00:17.000Z",
+    "points": 108,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "831378",
+   "slug": "epl-ful-che-2026-08-24",
+   "titleJa": "欧州サッカー: Fulham FC（2026-08-24） 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-24T19:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 53,
+    "at": "2026-08-23T18:00:18.000Z",
+    "points": 109,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "865852",
+   "slug": "bitcoin-above-on-august-24-2026",
+   "titleJa": "ビットコイン価格は8月24日に54,000ドルを上回るか？",
+   "category": "economy",
+   "endDate": "2026-08-24T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-08-23T12:00:20.000Z",
+    "points": 56,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "890387",
+   "slug": "bitcoin-up-or-down-on-august-24-2026",
+   "titleJa": "ビットコイン：8月24日に前日比プラスで引けるか？",
+   "category": "economy",
+   "endDate": "2026-08-24T16:00:00+00:00",
+   "subject": "Up",
+   "world": {
+    "prob": 51,
+    "at": "2026-08-23T12:00:26.000Z",
+    "points": 15,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "881232",
+   "slug": "elon-musk-of-tweets-august-22-august-24-2026",
+   "titleJa": "イーロン・マスクのXポスト数：8月22日〜24日に「40件未満」となるか？",
+   "category": "entertainment",
+   "endDate": "2026-08-24T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-08-23T18:00:19.000Z",
+    "points": 32,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "888506",
+   "slug": "highest-temperature-in-taipei-on-august-24-2026",
+   "titleJa": "経済・市場予測: Will the highest temperature in Taipei be 22°C or below on August 24?",
+   "category": "economy",
+   "endDate": "2026-08-24T12:00:00+00:00",
+   "subject": "22°C or below",
+   "world": {
+    "prob": 0,
+    "at": "2026-08-23T18:00:11.000Z",
+    "points": 21,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
   },
   {
    "id": "893096",
@@ -273,7 +399,7 @@
    "world": {
     "prob": 35,
     "at": "2026-08-23T03:00:15.000Z",
-    "points": 244,
+    "points": 241,
     "usedFallback": false
    },
    "japan": null,
@@ -734,8 +860,8 @@
    "subject": "August 22",
    "world": {
     "prob": 100,
-    "at": "2026-08-23T12:00:18.000Z",
-    "points": 48,
+    "at": "2026-08-23T21:00:57.000Z",
+    "points": 51,
     "usedFallback": false
    },
    "japan": null,
@@ -756,7 +882,7 @@
    "world": {
     "prob": 1,
     "at": "2026-08-20T03:00:15.000Z",
-    "points": 221,
+    "points": 218,
     "usedFallback": false
    },
    "japan": null,
@@ -777,7 +903,7 @@
    "world": {
     "prob": 100,
     "at": "2026-07-26T18:00:26.000Z",
-    "points": 27,
+    "points": 24,
     "usedFallback": false
    },
    "japan": null,

@@ -24,6 +24,7 @@ const MarketDetailPage = lazy(() => import('./components/MarketDetailPage').then
 const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m => ({ default: m.EmbedWidgetPage })));
 const GuideDetailPage = lazy(() => import('./components/GuideDetailPage').then(m => ({ default: m.GuideDetailPage })));
 const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
+const TrackRecordPage = lazy(() => import('./components/TrackRecordPage').then(m => ({ default: m.TrackRecordPage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -100,6 +101,13 @@ export function App() {
     return cleanPath === '/about';
   });
 
+  // 🎯 的中トラックレコード (/track-record) - 末尾スラッシュ完全耐性
+  const [isTrackRecordOpen, setIsTrackRecordOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/track-record';
+  });
+
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
     if (!isLocalhost && typeof window !== 'undefined' && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin') {
@@ -154,17 +162,38 @@ export function App() {
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
     setIsAboutPageOpen(true);
+    setIsTrackRecordOpen(false);
     window.history.pushState({}, '', '/about');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleCloseAbout = () => {
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
+  const handleOpenTrackRecord = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(true);
+    window.history.pushState({}, '', '/track-record');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseTrackRecord = () => {
+    setIsTrackRecordOpen(false);
     window.history.pushState({}, '', '/');
   };
 
   const handleOpenMarketDetail = (market: MarketItem) => {
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
     setIsAdminOpen(false);
@@ -183,6 +212,7 @@ export function App() {
   const handleOpenGuide = (slug: string = 'polymarket-japan') => {
     setDetailMarketId(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -201,6 +231,7 @@ export function App() {
     setDetailMarketId(null);
     setGuideSlug(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -218,6 +249,7 @@ export function App() {
     setDetailMarketId(null);
     setGuideSlug(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -235,6 +267,7 @@ export function App() {
     setDetailMarketId(null);
     setGuideSlug(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -252,6 +285,7 @@ export function App() {
     setDetailMarketId(null);
     setGuideSlug(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsForecastHubOpen(false);
@@ -269,6 +303,7 @@ export function App() {
     setDetailMarketId(null);
     setGuideSlug(null);
     setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
@@ -286,6 +321,7 @@ export function App() {
       const path = rawPath.replace(/\/+$/, '') || '/';
       if (path === '/' || path === '') {
         setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -294,6 +330,16 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/about') {
         setIsAboutPageOpen(true);
+    setIsTrackRecordOpen(false);
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+        setGuideSlug(null);
+      } else if (path === '/track-record') {
+        setIsTrackRecordOpen(true);
+        setIsAboutPageOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -303,6 +349,7 @@ export function App() {
       } else if (path === '/admin') {
         if (isLocalhost) {
           setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -312,6 +359,7 @@ export function App() {
         } else {
           window.history.replaceState({}, '', '/');
           setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -321,6 +369,7 @@ export function App() {
         }
       } else if (path === '/letter-to-mike') {
         setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
         setIsAiConnectorOpen(false);
@@ -329,6 +378,7 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/ai-connector' || path === '/developers') {
         setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
@@ -337,6 +387,7 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/forecast' || path === '/profile' || path === '/rankings') {
         setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -349,6 +400,7 @@ export function App() {
           setGuideSlug(decodeURIComponent(guideMatch[1]));
           setDetailMarketId(null);
           setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -361,6 +413,7 @@ export function App() {
           setDetailMarketId(decodeURIComponent(match[1]));
           setGuideSlug(null);
           setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -369,6 +422,7 @@ export function App() {
           setDetailMarketId(null);
           setGuideSlug(null);
           setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -575,6 +629,7 @@ export function App() {
         onOpenLetter={handleOpenLetter}
         onOpenGuide={handleOpenGuide}
         onOpenAbout={handleOpenAbout}
+        onOpenTrackRecord={handleOpenTrackRecord}
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={handleOpenForecastHub}
@@ -602,6 +657,12 @@ export function App() {
               onBack={handleCloseAbout}
               onOpenProposeModal={() => setIsProposeModalOpen(true)}
             />
+          </main>
+        </Suspense>
+      ) : isTrackRecordOpen ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING TRACK RECORD...</div>}>
+          <main className="container main-content">
+            <TrackRecordPage onBack={handleCloseTrackRecord} />
           </main>
         </Suspense>
       ) : guideSlug ? (

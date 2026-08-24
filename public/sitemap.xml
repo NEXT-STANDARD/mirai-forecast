@@ -28,6 +28,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/track-record</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/guide/polymarket-japan</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>weekly</changefreq>
@@ -52,19 +58,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/elon-musk-of-tweets-august-21-august-28-2026</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
     <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320</loc>
-    <lastmod>2026-08-24</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/what-price-will-wti-hit-in-august-2026</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -82,7 +76,7 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-in-august-2026</loc>
+    <loc>https://mirairadar.com/market/elon-musk-of-tweets-august-21-august-28-2026</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -94,7 +88,19 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-in-august-2026</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/fed-decision-in-september-762</loc>
+    <lastmod>2026-08-24</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/what-price-will-wti-hit-in-august-2026</loc>
     <lastmod>2026-08-24</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
