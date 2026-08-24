@@ -19,16 +19,42 @@ export const supabase = createClient(
  *   localStorage.setItem('mirairadar_admin_key', '<service_role key>')
  * 鍵が無ければ anon クライアントにフォールバックし、書き込みは RLS に弾かれる。
  */
+/** JWT の形（3パート・payload に role）をしているかだけ確認する。値の正しさは検証しない */
+const looksLikeJwt = (k: string): boolean => {
+  const parts = k.split('.');
+  if (parts.length !== 3) return false;
+  try {
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return typeof payload?.role === 'string';
+  } catch {
+    return false;
+  }
+};
+
 const readAdminKey = (): string => {
   if (typeof window === 'undefined') return '';
   try {
-    return window.localStorage.getItem('mirairadar_admin_key') || '';
+    const raw = (window.localStorage.getItem('mirairadar_admin_key') || '').trim();
+    // プレースホルダのまま貼られた場合（'<service_role key>' 等）に、
+    // 鍵が入っているように見えて書き込みだけ失敗する状態を防ぐ
+    return looksLikeJwt(raw) ? raw : '';
   } catch {
     return '';
   }
 };
 
 export const hasAdminKey = (): boolean => readAdminKey().length > 0;
+
+/** 保存されている値が JWT の形をしていない（プレースホルダ等）かどうか */
+export const hasInvalidAdminKey = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  try {
+    const raw = (window.localStorage.getItem('mirairadar_admin_key') || '').trim();
+    return raw.length > 0 && !looksLikeJwt(raw);
+  } catch {
+    return false;
+  }
+};
 
 export const getAdminClient = () =>
   createClient(supabaseUrl, readAdminKey() || supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.e30.dummy');

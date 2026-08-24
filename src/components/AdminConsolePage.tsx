@@ -20,7 +20,7 @@ import {
   Edit3,
   BookOpen
 } from 'lucide-react';
-import { supabase, getAdminClient, hasAdminKey } from '../services/supabaseClient';
+import { supabase, getAdminClient, hasAdminKey, hasInvalidAdminKey } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
 
 interface AdminConsolePageProps {
@@ -980,9 +980,12 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   <div className="bulk-warning-bar">
                     <XCircle size={14} />
                     <span>
-                      管理者キーが未設定です。書き込みは RLS に弾かれます。ブラウザのコンソールで
-                      <code> localStorage.setItem('mirairadar_admin_key', '&lt;service_role key&gt;') </code>
-                      を一度実行してから再読み込みしてください。
+                      {hasInvalidAdminKey()
+                        ? '保存されている管理者キーが JWT の形をしていません（プレースホルダのまま貼られている可能性があります）。'
+                        : '管理者キーが未設定です。'}
+                      書き込みは RLS に弾かれます。ブラウザのコンソールで
+                      <code> localStorage.setItem('mirairadar_admin_key', 'eyJ…（.env の SUPABASE_SERVICE_ROLE_KEY の値）') </code>
+                      を実行してから再読み込みしてください。<strong>山括弧ごと置き換えてください。</strong>
                     </span>
                   </div>
                 )}
