@@ -1256,6 +1256,65 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 35. ハイドレーション後の SEO 上書きが既定値を出していないか (N-61)
+  // ----------------------------------------------------------------------------
+  // プリレンダーは hasWorldOdds / n>=3 を見て既定値を抑制している。
+  // ところがクライアントの applySeoMetadata が、生の値で description を
+  // 上書きしていた。実測（世界オッズ取得なし・投票0件の銘柄）：
+  //   プリレンダーHTML : 日本の世論は集計中（n=0）
+  //   ハイドレーション後: 【世界オッズ YES 50% vs 日本世論 YES 50%】…
+  // 50 はどちらも既定値。description は og:description と JSON-LD の両方に入るので、
+  // 機械可読な面だけが嘘をつく形になっていた。有効銘柄の53件が n<3 で該当した。
+  //
+  // Check #30 は dist の静的HTMLしか見ないため、この上書きは見えない。
+  // ブラウザを動かせないので、上書きする側のソースを見る。
+  // 判定式は修正前の MarketDetailPage（実際の N-61）で検算済み。
+  // ============================================================================
+  {
+    const VAL = /worldProb(?:Yes|No)|japanVotes(?:\?\.|\.)percentYes/;
+    const GUARD = /hasWorldOdds|hasConsensus|japanVotes(?:\?\.|\.)total\s*>=\s*3/;
+    const seoFails = [];
+    let seoScanned = 0;
+    const walkSeo = (dir) => {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) { walkSeo(full); continue; }
+        if (!/\.(tsx|ts)$/.test(e.name)) continue;
+        if (/seoHelper/.test(e.name)) continue;   // ヘルパー本体は対象外
+        const src = fs.readFileSync(full, "utf-8");
+        if (!src.includes("applySeoMetadata(")) continue;
+        for (const m of src.matchAll(/useEffect\(\s*\(\s*\)\s*=>\s*\{/g)) {
+          let i = m.index + m[0].length, depth = 1;
+          while (i < src.length && depth > 0) {
+            if (src[i] === "{") depth++;
+            else if (src[i] === "}") depth--;
+            i++;
+          }
+          const body = src.slice(m.index + m[0].length, i);
+          if (!body.includes("applySeoMetadata(")) continue;
+          if (!VAL.test(body)) continue;
+          seoScanned++;
+          if (!GUARD.test(body)) {
+            const line = src.slice(0, m.index).split("\n").length;
+            seoFails.push(`${path.relative(ROOT, full)}:${line} → SEO上書きで確率を使っているがガードが無い（既定値50%が漏れる）`);
+          }
+        }
+      }
+    };
+    walkSeo(path.join(ROOT, "src"));
+    report(
+      `SEO上書きの既定値ガード (N-61 / 確率を使う上書き ${seoScanned}件)`,
+      seoFails.length === 0,
+      seoFails.length === 0
+        ? (seoScanned === 0
+            ? "SEO上書きで確率を使っている箇所は無い"
+            : `確率を使う ${seoScanned}件の上書きは、いずれも hasWorldOdds / n>=3 を見ている`)
+        : seoFails.join("; ")
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

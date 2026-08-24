@@ -55,7 +55,18 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   useEffect(() => {
     const slug = item.slug || item.id;
     const canonicalUrl = `https://mirairadar.com/market/${encodeURIComponent(slug)}`;
-    const description = `【世界オッズ YES ${item.worldProbYes}% vs 日本世論 YES ${item.japanVotes.percentYes}%】${item.titleJa}。世界のリアルマネー確率と日本のリアルタイム世論を徹底分析・比較。`;
+    // N-61: 既定値をそのまま出さない。
+    //   hasWorldOdds が false のとき worldProbYes は 50、n<3 のとき percentYes は 50 という
+    //   既定値になる。プリレンダーはこれを抑制しているのに、
+    //   ここでの上書きが「世界オッズ YES 50% vs 日本世論 YES 50%」に塗り替えていた（本番実測）。
+    //   description は og:description と JSON-LD の両方に入るので、機械可読な面が嘘をつく。
+    const worldPhrase = item.hasWorldOdds
+      ? `世界オッズ ${positiveLabel(item)} ${item.worldProbYes}%`
+      : '世界オッズ 取得なし（取引量僅少）';
+    const japanPhrase = hasConsensus
+      ? `日本世論 YES ${item.japanVotes.percentYes}%（n=${item.japanVotes.total}）`
+      : `日本世論 集計中（n=${item.japanVotes.total}）`;
+    const description = `【${worldPhrase} vs ${japanPhrase}】${item.titleJa}。世界のリアルマネー確率と日本のリアルタイム世論を徹底分析・比較。`;
 
     applySeoMetadata({
       title: `${item.titleJa} ｜ 未来レーダー（MiraiRadar）`,
@@ -74,11 +85,11 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           "suggestedAnswer": [
             {
               "@type": "Answer",
-              "text": `世界のスマートマネー予測（Polymarket）: YES ${item.worldProbYes}%`
+              "text": `世界のスマートマネー予測（Polymarket）: ${worldPhrase}`
             },
             {
               "@type": "Answer",
-              "text": `日本の生活者世論コンセンサス: YES ${item.japanVotes.percentYes}%`
+              "text": `日本の生活者世論コンセンサス: ${japanPhrase}`
             }
           ]
         }
@@ -371,7 +382,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                     <div className="debate-card-header">
                       <span className="debate-tag-bear">🔴 {negativeSideName(item)}支持の主要論拠（慎重派）</span>
                       <span className="debate-prob font-mono text-rose-400">
-                        {`世界 ${negativeLabel(item)} ${100 - item.worldProbYes}%`}
+                        {/* N-61: 強気側は hasWorldOdds でガードされているのに、
+                            慎重側だけ既定値の 50 から「世界 NO 50%」を出していた。 */}
+                        {item.hasWorldOdds ? `世界 ${negativeLabel(item)} ${100 - item.worldProbYes}%` : '慎重・リスクシナリオ'}
                       </span>
                     </div>
                     <p className="debate-card-text">
