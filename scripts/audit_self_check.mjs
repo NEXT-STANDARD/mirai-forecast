@@ -962,6 +962,76 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 30. 1ページ内の4面が同じ主語を名乗っているか (N-53)
+  // ----------------------------------------------------------------------------
+  // 「その確率は何の確率か」は og:title / description / 静的シェル / JSON-LD の
+  // 4か所に出る。第11回に og:title だけ直し、第13回に OGP画像とアプリを直し、
+  // それでも JSON-LD と静的シェルが「YES」のまま残った（N-53）。
+  // 同じ判断を複数箇所で書くと、直し漏れた面だけが古いまま残る。
+  //
+  // この検査は「正しい主語」を知らない。4面が食い違っていないかだけを見る。
+  // 正解を持たないぶん実装から独立していて、どの面を直し忘れても落ちる。
+  // ============================================================================
+  {
+    const crossFails = [];
+    let crossChecked = 0;
+    const distMarket = path.join(ROOT, "dist/market");
+    if (!fs.existsSync(distMarket)) {
+      crossFails.push("dist/market が存在しません");
+    } else {
+      for (const file of fs.readdirSync(distMarket).filter(f => f.endsWith(".html"))) {
+        const html = fs.readFileSync(path.join(distMarket, file), "utf-8");
+        const og = (html.match(/<meta property="og:title" content="(.*?)"/) || [, ""])[1];
+        if (og.startsWith("【決着・終了】") || og.includes("【日本世論調査】") || og.includes("【世界観測銘柄】")) continue;
+
+        // 4面それぞれから主語を取り出す（取れなければ null）
+        let fromOg = null;
+        let m;
+        if ((m = og.match(/^【世界本命\s+(.+?)\s+\d+%】/))) fromOg = `本命 ${m[1]}`;
+        else if ((m = og.match(/^【世界の確率「(.+?)」\d+%】/))) fromOg = m[1];
+        else if (/^【世界の確率 \d+%】/.test(og)) fromOg = "YES";
+
+        const desc = (html.match(/<meta name="description" content="(.*?)"/) || [, ""])[1];
+        let fromDesc = null;
+        if ((m = desc.match(/世界のリアルマネーは本命\s+(.+?)\s+が\s*\d+%/))) fromDesc = `本命 ${m[1]}`;
+        else if ((m = desc.match(/世界のリアルマネーは「(.+?)」に\s*\d+%/))) fromDesc = m[1];
+        else if (/世界のリアルマネーはYES\s*\d+%/.test(desc)) fromDesc = "YES";
+
+        const shell = (html.match(/<dt>世界のリアルマネー（(.+?)）<\/dt>/) || [, null])[1];
+
+        let fromLd = null;
+        const ldRaw = (html.match(/<script type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/) || [, ""])[1];
+        try {
+          const ld = JSON.parse(ldRaw);
+          const v = (ld.variableMeasured || []).find(x => /^世界オッズ\(/.test(x.name || ""));
+          if (v) fromLd = String(v.name).replace(/^世界オッズ\(/, "").replace(/\)$/, "");
+        } catch { /* パース不可は検査 #4 の担当 */ }
+
+        const surfaces = { "og:title": fromOg, "description": fromDesc, "静的シェル": shell, "JSON-LD": fromLd };
+        const present = Object.entries(surfaces).filter(([, v]) => v !== null && v !== undefined);
+        const missing = Object.entries(surfaces).filter(([, v]) => v === null || v === undefined).map(([k]) => k);
+        if (missing.length > 0) {
+          crossFails.push(`${file}: ${missing.join("/")} から主語を読み取れません`);
+          continue;
+        }
+        crossChecked++;
+        const uniq = [...new Set(present.map(([, v]) => v))];
+        if (uniq.length > 1) {
+          crossFails.push(`${file}: 面ごとに主語が違います → ${present.map(([k, v]) => `${k}="${v}"`).join(" / ")}`);
+        }
+      }
+      if (crossChecked === 0) crossFails.push("突き合わせ対象が0件（抽出パターンが実際の出力と噛み合っていない）");
+    }
+    report(
+      `確率の主語の面間一致 (N-53 / ${crossChecked}銘柄)`,
+      crossFails.length === 0,
+      crossFails.length === 0
+        ? `og:title・description・静的シェル・JSON-LD の4面が全銘柄で同じ主語を名乗っている`
+        : `${crossFails.length}件が不一致: ${crossFails.slice(0, 3).join("; ")}${crossFails.length > 3 ? ` ほか${crossFails.length - 3}件` : ""}`
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

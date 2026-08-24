@@ -223,20 +223,27 @@ async function prerenderAll() {
     const hasConsensus = n >= 3;
     const gap = isPolymarketObserved ? Math.abs(worldProb - japanProb) : null;
 
+    // N-50/N-53: この確率が「何の確率か」は1か所で決める。
+    //   outcomeSubject : outcomes[0] が "Yes" でない（例「Pablo Carreno Busta」）＝YESではない
+    //   matchedLabel   : 日本語タイトルが問いになっていない場合の対象（例「Arsenal」「↑ $150」）
+    //   どちらも無ければ、その数字は素直に YES の確率。
+    //
+    // ここをブロックの中で個別に計算していたため、og:title だけ直って
+    // JSON-LD と静的シェルが「YES」のまま残った（N-53）。
+    // 1銘柄につき1回だけ決めて、全ての面がこれを使う。
+    const isLeader = Boolean(isPolymarketObserved && isMultiChoice && leaderName);
+    const titleIsQuestion = /か[？?]\s*$/.test(titleJa);
+    const subject = (!isPolymarketObserved || isLeader) ? null : truncateLeader(
+      oddsEntry?.outcomeSubject || (!titleIsQuestion ? oddsEntry?.matchedLabel : null)
+    );
+    // 確率の主語を各面が同じ言葉で名乗るための共通ラベル
+    const probSubjectLabel = isLeader ? `本命 ${leaderName}` : (subject || 'YES');
+
     // description の出し分け (n>=3 ガード & 世界オッズ実測値準拠 & N-33/N-34 正確な名乗り)
     let description = '';
     let ogTitle = '';
 
     if (isPolymarketObserved) {
-      const isLeader = isMultiChoice && leaderName;
-      // N-50: この確率が「何の確率か」を出す。
-      //   outcomeSubject : outcomes[0] が "Yes" でない（例「Pablo Carreno Busta」）＝YESではない
-      //   matchedLabel   : 日本語タイトルが問いになっていない場合の対象（例「Arsenal」「↑ $150」）
-      //   どちらも無ければ、その数字は素直に YES の確率なので従来どおり。
-      const titleIsQuestion = /か[？?]\s*$/.test(titleJa);
-      const subject = isLeader ? null : truncateLeader(
-        oddsEntry?.outcomeSubject || (!titleIsQuestion ? oddsEntry?.matchedLabel : null)
-      );
       // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
       ogTitle = isLeader
         ? `【世界本命 ${leaderName} ${worldProb}%】${titleJa}`
@@ -271,7 +278,9 @@ async function prerenderAll() {
     // JSON-LD 構造化データ (P0-4: 統計的一貫性ガード & 実オッズ反映)
     const variableMeasured = [];
     if (isPolymarketObserved) {
-      variableMeasured.push({ "@type": "PropertyValue", "name": "世界オッズ(YES)", "value": worldProb });
+      // N-53: og:title と同じ主語を名乗る。ここが「YES」のままだと、
+      //   機械可読な面だけが嘘をつく（AIクローラが読むのはこちら）。
+      variableMeasured.push({ "@type": "PropertyValue", "name": `世界オッズ(${probSubjectLabel})`, "value": worldProb });
     }
     if (hasConsensus) {
       variableMeasured.push(
@@ -337,11 +346,10 @@ async function prerenderAll() {
     // Cloudflare Pages が 307 リダイレクトなしに HTTP 200 を返す直接 .html 形式
     // N-49: 静的本文と内部リンクを注入（JS実行前のクローラ向け）
     {
-      const isLeaderTop = isMultiChoice && leaderName;
       const facts = [];
       if (isPolymarketObserved) {
         facts.push([
-          isLeaderTop ? `世界のリアルマネー（本命 ${leaderName}）` : '世界のリアルマネー（YES）',
+          `世界のリアルマネー（${probSubjectLabel}）`,
           `${worldProb}%`,
         ]);
       }
