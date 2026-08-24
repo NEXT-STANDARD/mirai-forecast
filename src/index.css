@@ -3866,7 +3866,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Proposals Grid */
 .proposals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  /* minmax(360px, …) は容器が360px未満でも360pxを強制し、モバイルで16pxはみ出していた。
+     min() を挟んで容器幅を上限にする */
+  grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
   gap: 1rem;
 }
 
@@ -3885,7 +3887,10 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   margin-bottom: 0.5rem;
+  min-width: 0;
 }
 
 .category-tag-admin {
@@ -10384,3 +10389,114 @@ body::after {
 
 
 
+
+
+/* ── 提案審査パイプライン：一括操作 ─────────────────────────── */
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.9rem;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 8px;
+}
+.bulk-checkbox-label,
+.proposal-select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+.bulk-checkbox-label input[type="checkbox"],
+.proposal-select-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+.bulk-count {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  font-family: var(--font-data, monospace);
+}
+.bulk-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.bulk-progress {
+  font-size: 0.78rem;
+  color: #38bdf8;
+  font-family: var(--font-data, monospace);
+}
+.bulk-warning-bar {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.65rem 0.9rem;
+  margin-bottom: 0.75rem;
+  background: rgba(244, 63, 94, 0.1);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  border-radius: 8px;
+  color: #fda4af;
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.bulk-warning-bar code {
+  font-family: var(--font-data, monospace);
+  font-size: 0.72rem;
+  color: #fecdd3;
+  word-break: break-all;
+}
+.proposal-admin-card.is-selected {
+  border-color: rgba(56, 189, 248, 0.65);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.35);
+}
+.bulk-target-list {
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+  line-height: 1.9;
+}
+
+/* 44px タップ領域（pointer: coarse の共通ルールはチェックボックスに効かないため個別に） */
+@media (pointer: coarse) {
+  .bulk-checkbox-label input[type="checkbox"],
+  .proposal-select-label input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+  }
+  .bulk-checkbox-label,
+  .proposal-select-label {
+    min-height: 44px;
+  }
+}
+
+/* 提案の種別フィルタ・バッジ */
+.bulk-kind-filter { display: flex; gap: 0.35rem; flex-wrap: wrap; }
+.kind-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.3rem 0.6rem; font-size: 0.74rem; font-weight: 700;
+  color: #94a3b8; background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 999px; cursor: pointer;
+  transition: all 0.15s ease; white-space: nowrap;
+}
+.kind-chip:hover { color: #e2e8f0; border-color: rgba(56, 189, 248, 0.5); }
+.kind-chip.active { color: #0f172a; background: #38bdf8; border-color: #38bdf8; }
+.kind-chip-count { font-family: var(--font-data, monospace); opacity: 0.85; }
+.kind-badge {
+  padding: 0.15rem 0.45rem; font-size: 0.68rem; font-weight: 700; border-radius: 4px; white-space: nowrap;
+}
+.kind-badge.user { color: #6ee7b7; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); }
+.kind-badge.archive { color: #fcd34d; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.32); }
+@media (pointer: coarse) { .kind-chip { min-height: 44px; } }

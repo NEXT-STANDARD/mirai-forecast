@@ -20,7 +20,7 @@ import {
   Edit3,
   BookOpen
 } from 'lucide-react';
-import { supabase, adminSupabase } from '../services/supabaseClient';
+import { supabase, getAdminClient, hasAdminKey } from '../services/supabaseClient';
 import type { MarketItem, CategoryType } from '../types';
 
 interface AdminConsolePageProps {
@@ -109,6 +109,89 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   const [editIsBlackout, setEditIsBlackout] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
+  // ── 提案の種別（キューにはユーザー提案と Polymarket 由来が混在する） ──────
+  // is_active=false は「審査待ち」だけでなく「決着してアーカイブされた銘柄」も意味する。
+  // 両者を同じ画面で一括削除すると、決着アーカイブのページごと消えてしまうので分ける。
+  type ProposalKind = 'user' | 'archive';
+  const kindOf = (item: ProposalItem): ProposalKind =>
+    /^(proposal-|council-|official-)/.test(String(item.id)) ? 'user' : 'archive';
+  const kindLabel = (k: ProposalKind) => (k === 'user' ? 'ユーザー提案' : 'Polymarket由来・決着済み');
+  const [kindFilter, setKindFilter] = useState<'all' | ProposalKind>('all');
+  const visibleProposals = proposals.filter(p => kindFilter === 'all' || kindOf(p) === kindFilter);
+
+  // ── 一括操作（チェックボックス選択 → まとめて承認／却下） ──────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | null>(null);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+  const selectAll = () => setSelectedIds(new Set(visibleProposals.map(p => p.id)));
+  const clearSelection = () => setSelectedIds(new Set());
+  const selectedItems = proposals.filter(p => selectedIds.has(p.id));
+  const selectedArchives = selectedItems.filter(p => kindOf(p) === 'archive');
+
+  // 1件分の承認／却下。一括処理から再利用する
+  const approveOne = async (item: ProposalItem) => {
+    const client = getAdminClient() || supabase;
+    const { data, error } = await client
+      .from('events')
+      .update({ is_active: true, updated_at: new Date().toISOString() })
+      .eq('id', item.id)
+      .select();
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('RLS権限により更新対象が0件でした');
+  };
+
+  const rejectOne = async (item: ProposalItem) => {
+    const client = getAdminClient() || supabase;
+    // 外部キー制約のある関連テーブルを先に掃除してから本体を削除
+    await client.from('polymarket_price_history').delete().eq('event_id', item.id);
+    await client.from('japan_vote_logs').delete().eq('event_id', item.id);
+    const { data, error } = await client.from('events').delete().eq('id', item.id).select();
+    if (error) throw error;
+    if (!data || data.length === 0) throw new Error('RLS権限により削除対象が0件でした');
+  };
+
+  // 一括実行：1件ずつ順に処理し、失敗したものは選択に残して原因を表示する
+  const executeBulk = async () => {
+    if (!bulkAction || selectedItems.length === 0) return;
+    const targets = [...selectedItems];
+    const run = bulkAction === 'approve' ? approveOne : rejectOne;
+    const failures: { title: string; reason: string }[] = [];
+    const succeeded: string[] = [];
+
+    setBulkProgress({ done: 0, total: targets.length });
+    for (let i = 0; i < targets.length; i++) {
+      const item = targets[i];
+      try {
+        await run(item);
+        succeeded.push(item.id);
+      } catch (err: any) {
+        failures.push({ title: item.title_ja, reason: err?.message || '不明なエラー' });
+      }
+      setBulkProgress({ done: i + 1, total: targets.length });
+    }
+
+    setProposals(prev => prev.filter(p => !succeeded.includes(p.id)));
+    setSelectedIds(new Set(failures.length ? targets.filter(t => !succeeded.includes(t.id)).map(t => t.id) : []));
+    setBulkProgress(null);
+    setBulkAction(null);
+    if (bulkAction === 'approve') onRefreshMarkets();
+
+    const verb = bulkAction === 'approve' ? '承認' : '却下';
+    if (failures.length === 0) {
+      showToast('success', `${succeeded.length}件を一括${verb}しました。`);
+    } else {
+      showToast('error', `${succeeded.length}件を${verb}。${failures.length}件が失敗（選択に残しています）: ${failures[0].reason}`);
+    }
+  };
+
   const startEditProposal = (item: ProposalItem) => {
     setEditingProposal(item);
     setEditTitle(item.title_ja);
@@ -131,7 +214,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     setIsLoadingProposals(true);
     const start = performance.now();
     try {
-      const client = adminSupabase || supabase;
+      const client = getAdminClient() || supabase;
       if (client) {
         const nowIso = new Date().toISOString();
         const { data, error } = await client
@@ -170,7 +253,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      const client = adminSupabase || supabase;
+      const client = getAdminClient() || supabase;
       if (client) {
         const { data, error } = await client
           .from('events')
@@ -202,7 +285,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      const client = adminSupabase || supabase;
+      const client = getAdminClient() || supabase;
       if (client) {
         // 1. 外部キー制約（Foreign Key）のある関連テーブル（価格推移ログ・投票ログ）を事前にクリーンアップ
         await client.from('polymarket_price_history').delete().eq('event_id', item.id);
@@ -240,7 +323,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
     setProcessingId(item.id);
     try {
-      const client = adminSupabase || supabase;
+      const client = getAdminClient() || supabase;
       if (client) {
         const { data, error } = await client
           .from('events')
@@ -313,7 +396,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
     };
 
     try {
-      const client = adminSupabase || supabase;
+      const client = getAdminClient() || supabase;
       if (client) {
         const { error } = await client.from('events').insert(newRecord);
         if (error) throw error;
@@ -892,11 +975,95 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                 </p>
               </div>
             ) : (
+              <>
+                {!hasAdminKey() && (
+                  <div className="bulk-warning-bar">
+                    <XCircle size={14} />
+                    <span>
+                      管理者キーが未設定です。書き込みは RLS に弾かれます。ブラウザのコンソールで
+                      <code> localStorage.setItem('mirairadar_admin_key', '&lt;service_role key&gt;') </code>
+                      を一度実行してから再読み込みしてください。
+                    </span>
+                  </div>
+                )}
+
+                <div className="bulk-action-bar">
+                  <label className="bulk-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={visibleProposals.length > 0 && visibleProposals.every(p => selectedIds.has(p.id))}
+                      onChange={(e) => (e.target.checked ? selectAll() : clearSelection())}
+                      aria-label="すべての提案を選択"
+                    />
+                    <span>すべて選択</span>
+                  </label>
+
+                  <div className="bulk-kind-filter">
+                    {([['all', 'すべて'], ['user', 'ユーザー提案'], ['archive', 'Polymarket由来・決着済み']] as const).map(([k, label]) => {
+                      const count = k === 'all' ? proposals.length : proposals.filter(p => kindOf(p) === k).length;
+                      return (
+                        <button
+                          key={k}
+                          className={`kind-chip ${kindFilter === k ? 'active' : ''}`}
+                          onClick={() => { setKindFilter(k); clearSelection(); }}
+                          disabled={bulkProgress !== null}
+                        >
+                          {label} <span className="kind-chip-count">{count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <span className="bulk-count">
+                    {selectedIds.size > 0 ? `${selectedIds.size} / ${visibleProposals.length} 件を選択中` : `${visibleProposals.length} 件を表示`}
+                  </span>
+
+                  <div className="bulk-btn-group">
+                    <button
+                      className="btn-approve"
+                      onClick={() => setBulkAction('approve')}
+                      disabled={selectedIds.size === 0 || bulkProgress !== null}
+                    >
+                      <CheckCircle2 size={14} />
+                      <span>選択した{selectedIds.size || ''}件を承認</span>
+                    </button>
+                    <button
+                      className="btn-reject"
+                      onClick={() => setBulkAction('reject')}
+                      disabled={selectedIds.size === 0 || bulkProgress !== null}
+                    >
+                      <XCircle size={14} />
+                      <span>選択した{selectedIds.size || ''}件を却下・削除</span>
+                    </button>
+                    {selectedIds.size > 0 && (
+                      <button className="btn-action-sm" onClick={clearSelection} disabled={bulkProgress !== null}>
+                        選択を解除
+                      </button>
+                    )}
+                  </div>
+
+                  {bulkProgress && (
+                    <span className="bulk-progress" role="status">
+                      処理中 {bulkProgress.done} / {bulkProgress.total}
+                    </span>
+                  )}
+                </div>
+
               <div className="proposals-grid">
-                {proposals.map((item) => (
-                  <div key={item.id} className="proposal-admin-card">
+                {visibleProposals.map((item) => (
+                  <div key={item.id} className={`proposal-admin-card ${selectedIds.has(item.id) ? 'is-selected' : ''}`}>
                     <div className="card-top-row">
+                      <label className="proposal-select-label">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(item.id)}
+                          onChange={() => toggleSelect(item.id)}
+                          disabled={bulkProgress !== null}
+                          aria-label={`${item.title_ja} を選択`}
+                        />
+                      </label>
                       <span className="category-tag-admin">{item.category_label}</span>
+                      <span className={`kind-badge ${kindOf(item)}`}>{kindLabel(kindOf(item))}</span>
                       <span className="timestamp-tag">{new Date(item.updated_at).toLocaleString('ja-JP')}</span>
                     </div>
 
@@ -939,6 +1106,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   </div>
                 ))}
               </div>
+              </>
             )}
           </div>
         )}
@@ -1212,6 +1380,71 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       </div>
 
       {/* ⚡ 承認 ＆ 本番公開 確認モーダル */}
+      {/* 一括操作の確認モーダル：件数と対象を必ず見せてから実行する */}
+      {bulkAction && (
+        <div className="modal-backdrop" onClick={() => bulkProgress === null && setBulkAction(null)}>
+          <div className="modal-card admin-confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`confirm-modal-header ${bulkAction === 'approve' ? 'bg-emerald-950/40 border-b border-emerald-500/30' : 'bg-rose-950/40 border-b border-rose-500/30'}`}>
+              <div className="flex items-center gap-2">
+                {bulkAction === 'approve'
+                  ? <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                  : <XCircle className="w-5 h-5 text-rose-400" />}
+                <div>
+                  <span className={`text-[10px] font-mono font-bold tracking-wider ${bulkAction === 'approve' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    BULK {bulkAction === 'approve' ? 'APPROVE' : 'REJECT'} // 一括{bulkAction === 'approve' ? '承認' : '却下'}確認
+                  </span>
+                  <h3 className="text-sm font-bold text-slate-100">
+                    {selectedItems.length}件を{bulkAction === 'approve' ? '本番公開' : '完全に削除'}します
+                  </h3>
+                </div>
+              </div>
+              <button onClick={() => setBulkAction(null)} className="modal-close-btn" disabled={bulkProgress !== null}>
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="confirm-modal-body">
+              {bulkAction === 'reject' && (
+                <p className="text-xs text-rose-300 mb-2">
+                  削除は取り消せません。関連する価格推移ログ・投票ログも併せて削除されます。
+                </p>
+              )}
+              {bulkAction === 'reject' && selectedArchives.length > 0 && (
+                <p className="text-xs text-amber-300 mb-2">
+                  ⚠️ このうち <strong>{selectedArchives.length}件</strong> は決着済みのアーカイブ銘柄です。
+                  削除すると <code>/market/&lt;slug&gt;</code> の「決着・終了」ページも消え、
+                  そのURLは 404 になります（現在は noindex で残しています）。
+                </p>
+              )}
+              <ul className="bulk-target-list">
+                {selectedItems.slice(0, 12).map(it => (
+                  <li key={it.id}>{it.title_ja}</li>
+                ))}
+                {selectedItems.length > 12 && <li className="text-slate-400">…ほか {selectedItems.length - 12} 件</li>}
+              </ul>
+              {bulkProgress && (
+                <p className="text-xs text-slate-300 mt-2">処理中 {bulkProgress.done} / {bulkProgress.total}</p>
+              )}
+            </div>
+
+            <div className="confirm-modal-footer">
+              <button className="btn-action-sm" onClick={() => setBulkAction(null)} disabled={bulkProgress !== null}>
+                キャンセル
+              </button>
+              <button
+                className={bulkAction === 'approve' ? 'btn-approve' : 'btn-reject'}
+                onClick={executeBulk}
+                disabled={bulkProgress !== null || selectedItems.length === 0}
+              >
+                {bulkProgress
+                  ? `処理中 ${bulkProgress.done}/${bulkProgress.total}`
+                  : `${selectedItems.length}件を${bulkAction === 'approve' ? '承認して公開' : '却下して削除'}`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {approvingProposal && (
         <div className="modal-backdrop" onClick={() => setApprovingProposal(null)}>
           <div className="modal-card admin-confirm-modal" onClick={(e) => e.stopPropagation()}>

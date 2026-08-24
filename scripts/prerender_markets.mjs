@@ -410,6 +410,37 @@ async function prerenderAll() {
   }
 
   // ==============================================================================
+  // B-1. 公開バンドルに service_role キーが混入していないか (N-48)
+  // ==============================================================================
+  // Vite は import.meta.env.VITE_* をビルド時に文字列として埋め込む。
+  // VITE_SUPABASE_SERVICE_ROLE_KEY が定義されていると、全権キーが公開JSに載る。
+  // 実測：ローカルビルドの dist に service_role の JWT が1件混入していた（本番は無事）。
+  // 二度と出荷されないよう、ここで止める。
+  {
+    const assetsDir = path.join(DIST_DIR, 'assets');
+    const leaked = [];
+    if (fs.existsSync(assetsDir)) {
+      for (const f of fs.readdirSync(assetsDir).filter(x => x.endsWith('.js'))) {
+        const body = fs.readFileSync(path.join(assetsDir, f), 'utf-8');
+        for (const m of body.matchAll(/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g)) {
+          try {
+            const claims = JSON.parse(Buffer.from(m[0].split('.')[1], 'base64').toString());
+            if (claims.role && claims.role !== 'anon') leaked.push(`${f} (role=${claims.role})`);
+          } catch {}
+        }
+      }
+    }
+    if (leaked.length > 0) {
+      throw new Error(
+        `❌ [CRITICAL] 公開バンドルに anon 以外の Supabase キーが含まれています: ${[...new Set(leaked)].join(', ')}\n` +
+        `   .env の VITE_SUPABASE_SERVICE_ROLE_KEY を削除してください（VITE_ 接頭辞はバンドルに埋め込まれます）。\n` +
+        `   管理者コンソールの鍵は localStorage('mirairadar_admin_key') から実行時に読みます。`
+      );
+    }
+    console.log('🔐 公開バンドルの鍵検査：anon 以外のキーは含まれていません');
+  }
+
+  // ==============================================================================
   // B-2. 404.html（ソフト404の解消 / N-47）
   // ==============================================================================
   // Cloudflare Pages は 404.html があれば、未知のパスにそれを 404 で返す。
