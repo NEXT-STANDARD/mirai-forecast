@@ -1032,6 +1032,70 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 31. 投票データに重複が混ざっていないか (N-54)
+  // ----------------------------------------------------------------------------
+  // ソースにガードが書いてあるかではなく、実データに重複が出ていないかを見る。
+  // 「1人1票」はコードの形ではなくデータの性質なので、データ側で測る。
+  //
+  // 判定対象は voter_key を持つ行だけ。DDL 適用前の既存行（voter_key が NULL）は
+  // そもそも同一人物か判定できないので母集団に入れない。
+  // 日付でなくデータで母集団を絞るので、時間が経っても壊れない（N-52 の反省）。
+  // ============================================================================
+  if (supabase) {
+    const voteFails = [];
+    let keyed = 0, unkeyed = 0;
+    const { data: votes, error: vErr } = await supabase
+      .from("japan_vote_logs").select("*").limit(5000);
+
+    if (vErr) {
+      voteFails.push(`japan_vote_logs を読めません: ${vErr.message}`);
+    } else {
+      const hasKeyColumn = votes.length === 0 || "voter_key" in votes[0];
+      keyed = votes.filter(v => v.voter_key).length;
+      unkeyed = votes.length - keyed;
+
+      // (1) 同じ銘柄に同じキーが二度
+      const seen = new Map();
+      for (const v of votes.filter(x => x.voter_key)) {
+        const k = `${v.event_id}::${v.voter_key}`;
+        seen.set(k, (seen.get(k) || 0) + 1);
+      }
+      const dups = [...seen.entries()].filter(([, c]) => c > 1);
+      if (dups.length > 0) {
+        voteFails.push(`同一銘柄に同一キーの重複 ${dups.length}組（例 ${dups[0][0].slice(0, 40)} が${dups[0][1]}回）`);
+      }
+
+      // (2) 連打の痕跡：同じ銘柄・キーつきの票が5秒以内に連続
+      const byEvent = {};
+      for (const v of votes.filter(x => x.voter_key && x.voted_at)) {
+        (byEvent[v.event_id] ||= []).push(v);
+      }
+      let bursts = 0;
+      for (const rows of Object.values(byEvent)) {
+        rows.sort((a, b) => new Date(a.voted_at) - new Date(b.voted_at));
+        for (let i = 1; i < rows.length; i++) {
+          if ((new Date(rows[i].voted_at) - new Date(rows[i - 1].voted_at)) / 1000 <= 5) bursts++;
+        }
+      }
+      if (bursts > 0) voteFails.push(`5秒以内の連続投票 ${bursts}組（連打が素通りしている疑い）`);
+
+      if (!hasKeyColumn) {
+        // 失敗にはしない。DDL はユーザーが実行するもので、実装側の不備ではない。
+        console.log(`   ℹ️  voter_key 列が未作成です（scripts/patch_n54_voter_key.sql 未適用）。既存 ${votes.length}件は判定対象外。`);
+      }
+    }
+    report(
+      `投票データの重複 (N-54 / キーつき${keyed}件・キー無し${unkeyed}件)`,
+      voteFails.length === 0,
+      voteFails.length === 0
+        ? (keyed === 0
+            ? `キーつきの投票はまだ0件（DDL適用後に実効化）。既存${unkeyed}件は判定対象外`
+            : `キーつき${keyed}件に重複・連打なし`)
+        : voteFails.join("; ")
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");
