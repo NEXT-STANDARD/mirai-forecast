@@ -69,7 +69,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
         <div className="spread-header-content">
           <div className="spread-title-row">
             <Flame size={20} className="text-amber-400 animate-pulse flex-shrink-0" />
-            <h3 className="spread-ranking-title">注目の世論スプレッド乖離ランキング</h3>
+            <h2 className="spread-ranking-title">注目の世論スプレッド乖離ランキング</h2>
             <span className="spread-live-badge font-mono">⚡ リアルタイム最大ギャップ</span>
           </div>
           <p className="spread-ranking-subtitle">
@@ -153,9 +153,9 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
               </div>
 
               {/* 銘柄タイトル */}
-              <h4 className="spread-card-title" title={event.titleJa}>
+              <h3 className="spread-card-title" title={event.titleJa}>
                 {event.titleJa}
-              </h4>
+              </h3>
 
               {/* ⭐️ デュアル世論スプレッドメーター（世界 vs 日本） */}
               <div className="spread-meter-box">

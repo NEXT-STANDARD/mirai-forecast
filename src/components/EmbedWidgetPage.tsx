@@ -129,16 +129,20 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
         )}
       </div>
 
-      {/* 銘柄タイトル */}
-      <a 
-        href={`https://mirairadar.com/market/${item.slug || item.id}?ref=embed_title`} 
-        target="_blank" 
-        rel="noopener noreferrer" 
-        className="embed-market-title"
-      >
-        <span>{item.titleJa || item.title}</span>
-        <ExternalLink size={12} className="opacity-60 flex-shrink-0" />
-      </a>
+      {/* 銘柄タイトル
+          N-59: 埋め込みは iframe 内の独立した文書なので、この文書の主題を h1 にする。
+          見た目を変えないよう、既存の <a> はそのまま包むだけにする。 */}
+      <h1 className="embed-market-heading">
+        <a 
+          href={`https://mirairadar.com/market/${item.slug || item.id}?ref=embed_title`} 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          className="embed-market-title"
+        >
+          <span>{item.titleJa || item.title}</span>
+          <ExternalLink size={12} className="opacity-60 flex-shrink-0" />
+        </a>
+      </h1>
 
       {/* 世論対比バー */}
       <div className="embed-metrics-grid">

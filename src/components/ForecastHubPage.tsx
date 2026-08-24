@@ -125,6 +125,8 @@ https://mirairadar.com/forecast
       >
         <div className="forecast-hub-hero-inner">
           <div className="flex-1">
+            <h1 className="page-heading-sr">サイバー予報士プロファイル ＆ 全国ランキング ｜ 未来レーダー</h1>
+
             <div className="flex items-center gap-2 mb-2">
               <span className="hub-hero-tag font-mono">CYBER FORECASTER PROFILE</span>
               <span className="hub-hero-level font-mono font-black" style={{ color: currentRank.color }}>
@@ -132,12 +134,15 @@ https://mirairadar.com/forecast
               </span>
             </div>
 
-            <h1 className="hub-hero-title" style={{ color: currentRank.color }}>
+            {/* N-59: ここは訪問者自身の称号であって、ページの主題ではない。
+                h1 だと「このページは何か」を称号が名乗ってしまうので p に降格し、
+                ページの主題は上の h1 が担う。見た目は変えていない。 */}
+            <p className="hub-hero-title" style={{ color: currentRank.color }}>
               {currentRank.title}
               <span className="hub-hero-title-en font-mono text-sm text-slate-400 ml-3">
                 // {currentRank.titleEn}
               </span>
-            </h1>
+            </p>
 
             <p className="hub-hero-desc">{currentRank.description}</p>
           </div>

@@ -1201,6 +1201,55 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 34. ページの h1（ハイドレーション後） (N-59)
+  // ----------------------------------------------------------------------------
+  // 静的HTMLには N-49 で全ページに h1 を入れたが、React が置き換えた後は崩れていた。
+  //   /            → h1 なし（最初の見出しが銘柄タイトルの h2）
+  //   /forecast    → h1 が「見習い観測員// Novice Observer」＝訪問者自身の称号
+  //   /embed/…     → h1 なし（iframe 内の独立した文書なのに見出しが無い）
+  // Check #28 は静的HTMLしか見ていないため、これを通していた。
+  //
+  // ブラウザを動かせないので、描画するソースの側を見る。
+  //   (1) ページを構成するファイルは h1 を持つこと
+  //   (2) h1 の中身が訪問者固有の状態でないこと（ランク・レベル・連続日数など）
+  // 判定式は修正前の App.tsx / ForecastHubPage（実際の N-59）で検算済み。
+  // ============================================================================
+  {
+    const H1_BLOCK = /<h1\b[\s\S]*?<\/h1>/g;
+    const PERSONAL = /\{[^}]*\b\w*(?:[Rr]ank|[Uu]serName|[Ss]treak|[Ll]evel)\w*/;
+    const pageFiles = [path.join(ROOT, "src/App.tsx")];
+    const compDir = path.join(ROOT, "src/components");
+    if (fs.existsSync(compDir)) {
+      for (const f of fs.readdirSync(compDir).filter(f => /Page\.tsx$/.test(f))) {
+        pageFiles.push(path.join(compDir, f));
+      }
+    }
+    const h1Fails = [];
+    for (const f of pageFiles) {
+      if (!fs.existsSync(f)) continue;
+      const src = fs.readFileSync(f, "utf-8");
+      const blocks = src.match(H1_BLOCK) || [];
+      const rel = path.relative(ROOT, f);
+      if (blocks.length === 0) {
+        h1Fails.push(`${rel}: h1 が無い`);
+        continue;
+      }
+      for (const b of blocks) {
+        if (PERSONAL.test(b)) {
+          h1Fails.push(`${rel}: h1 が訪問者固有の状態を出している → ${b.replace(/\s+/g, " ").slice(0, 50)}`);
+        }
+      }
+    }
+    report(
+      `ページの h1 (N-59 / ${pageFiles.length}ファイル)`,
+      h1Fails.length === 0 && pageFiles.length > 1,
+      h1Fails.length === 0
+        ? `ページを構成する ${pageFiles.length}ファイルすべてが h1 を持ち、いずれも訪問者固有の状態ではない`
+        : h1Fails.join("; ")
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

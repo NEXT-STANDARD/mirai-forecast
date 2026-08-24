@@ -98,7 +98,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
       <div className="markets-section-header">
         <div className="section-title-group">
           <div className="flex items-center gap-2">
-            <h3 className="section-main-title">すべての観測銘柄</h3>
+            <h2 className="section-main-title">すべての観測銘柄</h2>
             <span className="markets-count-badge font-mono">{filteredEvents.length}件</span>
           </div>
           <p className="section-subtitle">
@@ -227,9 +227,9 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
               </div>
 
               {/* カードメインタイトル */}
-              <h4 className="card-market-title" title={event.titleJa || event.title}>
+              <h3 className="card-market-title" title={event.titleJa || event.title}>
                 {event.titleJa || event.title}
-              </h4>
+              </h3>
 
               {/* ⭐️ デュアル世論スプレッド（世界マネー vs 日本世論） */}
               <div className="card-spread-container">

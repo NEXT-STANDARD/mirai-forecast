@@ -21,7 +21,7 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
             <ShieldCheck size={20} className="text-emerald-400" />
           </div>
           <div className="compliance-header-text">
-            <h4 className="compliance-title">コンプライアンス及び利用規約に関する重要事項</h4>
+            <h2 className="compliance-title">コンプライアンス及び利用規約に関する重要事項</h2>
             <p className="compliance-subtitle">
               未来レーダー（MiraiRadar.com）は、世界の分散型市場データを中立的に報道・分析するオルタナティブデータ＆世論調査メディアです。
             </p>

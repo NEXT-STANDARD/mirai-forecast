@@ -656,6 +656,12 @@ export function App() {
       ) : (
         <>
           <main className="container main-content">
+            {/* N-59: トップページに h1 が無く、最初の見出しが銘柄タイトルの h2 だった。
+                視覚的にはヘッダーがブランドを担っているので、意味だけを補う。 */}
+            <h1 className="page-heading-sr">
+              未来レーダー ｜ 世界の集合知（Polymarket）と日本の世論を並べて見る
+            </h1>
+
             {/* 証券会社風 プロトレーディングターミナル */}
             <TradingTerminal
               events={filteredEvents}

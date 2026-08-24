@@ -10548,3 +10548,27 @@ body::after {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* N-59: ページ見出し（視覚的には隠すが、支援技術とクローラには届く）
+   トップと予測ハブは、視覚的にはヘッダーやランク表示が主役で
+   ページ見出しの置き場がない。だが h1 が無い／ページの主題でないのは別問題なので、
+   意味だけを補う。display:none や visibility:hidden では読み上げられないため使わない。 */
+.page-heading-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* N-59: 埋め込みの銘柄名を h1 にしたが、見出しの既定余白でレイアウトを変えない */
+.embed-market-heading {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
