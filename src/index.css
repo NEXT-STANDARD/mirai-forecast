@@ -2854,10 +2854,12 @@ h1, h2, h3, h4, h5, h6 {
    Letter to Mike Dedicated Page
    ======================================================== */
 .letter-page-container {
-  max-width: 860px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 0 3rem;
+  padding: 1rem 0 3rem;
   animation: fade-in 0.3s ease;
+  box-sizing: border-box;
 }
 
 .letter-nav-bar {
@@ -3609,9 +3611,11 @@ h1, h2, h3, h4, h5, h6 {
    Admin Console Active Root & HUD Header
    ======================================================== */
 .admin-console-root {
-  max-width: 1200px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 1rem 0 3rem;
+  box-sizing: border-box;
 }
 
 .mission-hud-header {
@@ -7341,12 +7345,14 @@ h1, h2, h3, h4, h5, h6 {
    AiConnectorPage: WebMCP Open AI Knowledge Hub Styles
    ======================================================== */
 .ai-connector-page {
-  max-width: 1080px;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 1rem 0 4rem;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  box-sizing: border-box;
 }
 
 .connector-nav-bar {
@@ -9785,9 +9791,11 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem 0 3rem 0;
-  max-width: 1200px;
+  padding: 1rem 0 3rem 0;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .forecast-hub-nav {

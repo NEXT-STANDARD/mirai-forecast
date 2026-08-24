@@ -46,7 +46,7 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
   };
 
   return (
-    <div className="container main-content py-6 max-w-4xl mx-auto">
+    <div className="w-full animate-fade-in text-slate-200 py-2">
       {/* ナビゲーションバー */}
       <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-cyan-900/40">
         <a

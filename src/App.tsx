@@ -246,6 +246,23 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenAiConnector = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAboutPageOpen(false);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAiConnectorOpen(true);
+    window.history.pushState({}, '', '/ai-connector');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseAiConnector = () => {
+    setIsAiConnectorOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleGoHome = () => {
     setDetailMarketId(null);
     setGuideSlug(null);
@@ -556,7 +573,7 @@ export function App() {
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={handleOpenForecastHub}
         onOpenOnboarding={() => setIsOnboardingOpen(true)}
-        onOpenAiConnector={() => setIsAiConnectorOpen(true)}
+        onOpenAiConnector={handleOpenAiConnector}
         userVotesCount={Object.keys(userVotes).length}
         streakDays={streak.currentStreak}
         resolvedNotificationsCount={resolvedNotificationsCount}
@@ -601,7 +618,7 @@ export function App() {
       ) : isAiConnectorOpen ? (
         <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING CONNECTOR...</div>}>
           <main className="container main-content">
-            <AiConnectorPage onBack={() => setIsAiConnectorOpen(false)} />
+            <AiConnectorPage onBack={handleCloseAiConnector} />
           </main>
         </Suspense>
       ) : isForecastHubOpen ? (
@@ -717,7 +734,7 @@ export function App() {
       <DataExportModal
         item={selectedDataExportEvent}
         onClose={() => setSelectedDataExportEvent(null)}
-        onOpenAiConnector={() => setIsAiConnectorOpen(true)}
+        onOpenAiConnector={handleOpenAiConnector}
       />
 
 
