@@ -33,10 +33,17 @@ export const LetterToMikePage: React.FC<LetterToMikePageProps> = ({ onBack }) =>
     <div className="letter-page-container">
       {/* ナビゲーションバー */}
       <div className="letter-nav-bar">
-        <button className="btn-back-terminal" onClick={onBack}>
-          <ArrowLeft size={16} />
-          <span>未来レーダー ターミナルへ戻る</span>
-        </button>
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3.5 py-2 rounded-lg border border-cyan-800/50 transition no-underline cursor-pointer"
+        >
+          <ArrowLeft size={14} />
+          <span>トップ・マーケット一覧へ戻る</span>
+        </a>
 
         <div className="letter-nav-actions">
           {/* 言語切り替え */}
@@ -243,10 +250,17 @@ export const LetterToMikePage: React.FC<LetterToMikePageProps> = ({ onBack }) =>
 
         {/* フッターアクション */}
         <div className="letter-footer-cta">
-          <button className="btn-footer-back" onClick={onBack}>
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              onBack();
+            }}
+            className="btn-footer-back no-underline cursor-pointer"
+          >
             <ArrowLeft size={15} />
-            <span>未来レーダー ターミナルへ戻る</span>
-          </button>
+            <span>未来レーダー トップへ戻る</span>
+          </a>
 
           <button className="btn-footer-share" onClick={handleTwitterShare}>
             <Share2 size={15} />

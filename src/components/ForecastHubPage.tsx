@@ -94,10 +94,17 @@ https://mirairadar.com/forecast
     <div className="forecast-hub-page-container">
       {/* 1. ナビゲーションバー */}
       <div className="forecast-hub-nav">
-        <button onClick={onBack} className="btn-back-link">
-          <ArrowLeft size={16} />
-          <span>マーケット一覧へ戻る</span>
-        </button>
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3.5 py-2 rounded-lg border border-cyan-800/50 transition no-underline cursor-pointer"
+        >
+          <ArrowLeft size={14} />
+          <span>トップ・マーケット一覧へ戻る</span>
+        </a>
 
         <div className="flex items-center gap-2">
           <button onClick={handleShareToX} className="btn-market-share-trigger">

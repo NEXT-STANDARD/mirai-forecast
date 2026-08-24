@@ -65,7 +65,7 @@
   "subject": null
  },
  "epl-2027-champion-20260701200428749": {
-  "prob": 52,
+  "prob": 53,
   "framing": "subject",
   "subject": "Arsenal"
  },
@@ -75,7 +75,7 @@
   "subject": null
  },
  "elon-musk-of-tweets-august-22-august-24-2026": {
-  "prob": 18,
+  "prob": 17,
   "framing": "yes",
   "subject": null
  },
@@ -110,7 +110,7 @@
   "subject": null
  },
  "bitcoin-up-or-down-on-august-24-2026": {
-  "prob": 60,
+  "prob": 56,
   "framing": "subject",
   "subject": "Up"
  },

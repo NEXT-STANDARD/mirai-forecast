@@ -57,10 +57,17 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
     <div className="ai-connector-page animate-fade-in">
       {/* ナビゲーションバー */}
       <div className="connector-nav-bar">
-        <button onClick={onBack} className="btn-back-link">
-          <ArrowLeft size={16} />
-          <span>ターミナルへ戻る</span>
-        </button>
+        <a
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3.5 py-2 rounded-lg border border-cyan-800/50 transition no-underline cursor-pointer"
+        >
+          <ArrowLeft size={14} />
+          <span>トップ・マーケット一覧へ戻る</span>
+        </a>
 
         <div className="flex items-center gap-2">
           <span className="badge-mcp-status font-mono">

@@ -147,7 +147,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           className="btn-back-link no-underline cursor-pointer"
         >
           <ArrowLeft size={15} />
-          <span>マーケット一覧へ戻る</span>
+          <span>トップ・マーケット一覧へ戻る</span>
         </a>
 
         <div className="market-detail-nav-right">
