@@ -28,6 +28,7 @@ interface MarketDetailPageProps {
   onOpenShare: (item: MarketItem) => void;
   onOpenEmbed?: (item: MarketItem) => void;
   onOpenDataExport?: (item: MarketItem) => void;
+  onOpenInfographicStudio?: (item: MarketItem) => void;
   onBack: () => void;
   onSelectRelatedEvent: (item: MarketItem) => void;
   onOpenGuide?: (slug?: string) => void;
@@ -41,6 +42,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   onOpenShare,
   onOpenEmbed,
   onOpenDataExport,
+  onOpenInfographicStudio,
   onBack,
   onSelectRelatedEvent,
   onOpenGuide,
@@ -185,6 +187,18 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               >
                 <Code2 size={13} className="text-cyan-400" />
                 <span>記事に埋め込む</span>
+              </button>
+            )}
+
+            {onOpenInfographicStudio && (
+              <button 
+                onClick={() => onOpenInfographicStudio(item)} 
+                className="btn-market-embed-trigger"
+                title="X投稿用の高品質インフォグラフィック速報画像を生成"
+                style={{ borderColor: 'rgba(245, 158, 11, 0.4)', color: '#fde68a' }}
+              >
+                <Sparkles size={13} className="text-amber-400" />
+                <span>𝕏速報カード</span>
               </button>
             )}
 

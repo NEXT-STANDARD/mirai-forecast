@@ -13,6 +13,7 @@ import { EmbedModal } from './components/EmbedModal';
 import { DataExportModal } from './components/DataExportModal';
 import { PwaInstallBanner } from './components/PwaInstallBanner';
 import { TermsModal } from './components/TermsModal';
+import { InfographicStudioModal } from './components/InfographicStudioModal';
 
 // 🚀 コードスプリッティング（初期ロード爆速化）
 const LetterToMikePage = lazy(() => import('./components/LetterToMikePage').then(m => ({ default: m.LetterToMikePage })));
@@ -49,6 +50,7 @@ export function App() {
   const [selectedShareEvent, setSelectedShareEvent] = useState<MarketItem | null>(null);
   const [selectedEmbedEvent, setSelectedEmbedEvent] = useState<MarketItem | null>(null);
   const [selectedDataExportEvent, setSelectedDataExportEvent] = useState<MarketItem | null>(null);
+  const [selectedInfographicEvent, setSelectedInfographicEvent] = useState<MarketItem | null>(null);
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [termsTab, setTermsTab] = useState<'terms' | 'privacy'>('terms');
@@ -644,6 +646,7 @@ export function App() {
               onOpenShare={(event) => setSelectedShareEvent(event)}
               onOpenEmbed={(event) => setSelectedEmbedEvent(event)}
               onOpenDataExport={(event) => setSelectedDataExportEvent(event)}
+              onOpenInfographicStudio={(event) => setSelectedInfographicEvent(event)}
               onBack={handleCloseMarketDetail}
               onSelectRelatedEvent={handleOpenMarketDetail}
               onOpenGuide={handleOpenGuide}
@@ -735,6 +738,12 @@ export function App() {
         item={selectedDataExportEvent}
         onClose={() => setSelectedDataExportEvent(null)}
         onOpenAiConnector={handleOpenAiConnector}
+      />
+
+      {/* 🎨 𝕏速報インフォグラフィック・スタジオ */}
+      <InfographicStudioModal
+        item={selectedInfographicEvent}
+        onClose={() => setSelectedInfographicEvent(null)}
       />
 
 

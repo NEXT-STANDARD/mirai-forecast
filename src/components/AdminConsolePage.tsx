@@ -21,6 +21,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { supabase, getAdminClient, hasAdminKey, hasInvalidAdminKey } from '../services/supabaseClient';
+import { InfographicStudioModal } from './InfographicStudioModal';
 import type { MarketItem, CategoryType } from '../types';
 
 interface AdminConsolePageProps {
@@ -83,6 +84,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
   // 検索フィルター
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStudioEvent, setSelectedStudioEvent] = useState<MarketItem | null>(null);
 
   // 認証処理 (PIN: 2026)
   const handleLogin = (e: React.FormEvent) => {
@@ -1291,6 +1293,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                     <th className="text-right">世界オッズ (YES%)</th>
                     <th className="text-right">世論乖離 (GAP)</th>
                     <th className="text-right">24h取引高</th>
+                    <th className="text-center">𝕏速報</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1327,6 +1330,17 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                         </td>
                         <td className="text-right font-mono text-slate-400">
                           ${Math.round(item.volume24hUsd / 1000).toLocaleString()}k
+                        </td>
+                        <td className="text-center">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedStudioEvent(item)}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-amber-950/40 hover:bg-amber-900/60 border border-amber-500/40 text-amber-300 text-xs font-mono font-bold transition cursor-pointer"
+                            title="インフォグラフィック速報画像を生成"
+                          >
+                            <Sparkles size={11} className="text-amber-400" />
+                            <span>𝕏速報</span>
+                          </button>
                         </td>
                       </tr>
                     );
@@ -1650,6 +1664,12 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
           <span>{toastMessage.text}</span>
         </div>
       )}
+
+      {/* 🎨 𝕏速報インフォグラフィック・スタジオ */}
+      <InfographicStudioModal
+        item={selectedStudioEvent}
+        onClose={() => setSelectedStudioEvent(null)}
+      />
     </div>
   );
 };

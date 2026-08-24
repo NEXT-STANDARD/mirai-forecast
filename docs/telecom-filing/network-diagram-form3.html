@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>様式第3 ネットワーク構成図 ｜ ＤＥＬＩＣＩＯＵＳ株式会社</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 15mm 15mm 15mm 15mm;
+    }
+    body {
+      font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", sans-serif;
+      color: #111827;
+      background: #ffffff;
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #1e293b;
+      padding-bottom: 10px;
+    }
+    .doc-title {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      margin: 0;
+    }
+    .doc-meta {
+      text-align: right;
+      font-size: 12px;
+      color: #334155;
+    }
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+    .meta-table th, .meta-table td {
+      border: 1px solid #cbd5e1;
+      padding: 8px 12px;
+    }
+    .meta-table th {
+      background: #f1f5f9;
+      width: 25%;
+      text-align: left;
+      font-weight: 600;
+      color: #1e293b;
+    }
+    .diagram-card {
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 15px;
+      background: #f8fafc;
+      margin-bottom: 20px;
+    }
+    .diagram-title {
+      font-size: 14px;
+      font-weight: bold;
+      color: #0f172a;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .notes-box {
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 12px 16px;
+      background: #ffffff;
+      font-size: 12px;
+      color: #334155;
+    }
+    .notes-box h4 {
+      margin: 0 0 6px 0;
+      font-size: 13px;
+      color: #0f172a;
+    }
+    .notes-box ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .notes-box li {
+      margin-bottom: 4px;
+    }
+    .footer-stamp {
+      margin-top: 25px;
+      text-align: right;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .no-print {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="no-print" style="background: #0284c7; color: white; padding: 12px; text-align: center; border-radius: 6px; margin-bottom: 20px; font-weight: bold;">
+    💡 このページをブラウザの「印刷」（Cmd + P / Ctrl + P）から「PDFとして保存」してe-Govに添付してください。
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 class="doc-title">様式第３（第９条第１項第１号関係）</h1>
+        <div style="font-size: 15px; font-weight: bold; margin-top: 4px; color: #0284c7;">ネットワーク構成図</div>
+      </div>
+      <div class="doc-meta">
+        <div>提出日：2026年 8月 24日</div>
+        <div>提出先：総務省 関東総合通信局長 殿</div>
+      </div>
+    </div>
+
+    <table class="meta-table">
+      <tr>
+        <th>届出者（法人名）</th>
+        <td><strong>ＤＥＬＩＣＩＯＵＳ株式会社</strong></td>
+      </tr>
+      <tr>
+        <th>代表者氏名</th>
+        <td>代表取締役　大山　圭太</td>
+      </tr>
+      <tr>
+        <th>本社所在地</th>
+        <td>東京都中央区銀座１丁目１５番４号ヒューリック銀座一丁目昭和通りビル７階</td>
+      </tr>
+      <tr>
+        <th>提供する電気通信役務</th>
+        <td>
+          <strong>インターネット関連サービス（電子掲示板サービス）</strong><br>
+          <span style="font-size: 12px; color: #475569;">※Webメディア「未来レーダー（MiraiRadar.com）」における世論投票および利用者コメント投稿機能</span>
+        </td>
+      </tr>
+      <tr>
+        <th>サービスURL</th>
+        <td>https://mirairadar.com</td>
+      </tr>
+      <tr>
+        <th>電気通信回線設備</th>
+        <td><strong>非設置</strong>（他社クラウドインフラ及び公衆回線を利用）</td>
+      </tr>
+    </table>
+
+    <div class="diagram-card">
+      <div class="diagram-title">
+        <span>■ システム及びネットワーク構成図（情報の送受信フロー）</span>
+      </div>
+
+      <!-- SVG Network Architecture Diagram -->
+      <svg viewBox="0 0 740 310" width="100%" height="310" xmlns="http://www.w3.org/2000/svg" style="background: white; border: 1px solid #e2e8f0; border-radius: 6px;">
+        <!-- Background Grid / Groups -->
+        <rect x="15" y="20" width="190" height="260" rx="8" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5" />
+        <text x="110" y="42" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">【利用者端末】</text>
+        
+        <!-- User Box 1 -->
+        <rect x="30" y="60" width="160" height="85" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+        <text x="110" y="85" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">投稿利用者（端末）</text>
+        <text x="110" y="105" font-size="10" fill="#64748b" text-anchor="middle">PC / スマートフォン</text>
+        <text x="110" y="125" font-size="10" fill="#0284c7" text-anchor="middle">Webブラウザ（HTTPS）</text>
+
+        <!-- User Box 2 -->
+        <rect x="30" y="165" width="160" height="85" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+        <text x="110" y="190" font-size="12" font-weight="bold" fill="#0f172a" text-anchor="middle">閲覧利用者（端末）</text>
+        <text x="110" y="210" font-size="10" fill="#64748b" text-anchor="middle">不特定の一般インターネット利用者</text>
+        <text x="110" y="230" font-size="10" fill="#0284c7" text-anchor="middle">Webブラウザ（HTTPS）</text>
+
+        <!-- Public Internet Cloud -->
+        <rect x="250" y="90" width="110" height="120" rx="20" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,3" />
+        <text x="305" y="145" font-size="11" font-weight="bold" fill="#334155" text-anchor="middle">インターネット</text>
+        <text x="305" y="165" font-size="10" fill="#64748b" text-anchor="middle">（公衆通信網）</text>
+
+        <!-- Arrows: Users to Internet -->
+        <path d="M 190 102 L 250 130" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+        <text x="215" y="108" font-size="9" fill="#0369a1" font-weight="bold">① 投稿</text>
+
+        <path d="M 250 170 L 190 208" stroke="#10b981" stroke-width="2" fill="none" marker-end="url(#arrow-green)" />
+        <text x="200" y="200" font-size="9" fill="#047857" font-weight="bold">④ 閲覧</text>
+
+        <!-- Server Side Box -->
+        <rect x="400" y="20" width="325" height="260" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+        <text x="562" y="42" font-size="12" font-weight="bold" fill="#1e293b" text-anchor="middle">【当社利用クラウド設備（非設置）】</text>
+
+        <!-- Web/CDN Server -->
+        <rect x="420" y="60" width="285" height="85" rx="6" fill="#ffffff" stroke="#6366f1" stroke-width="1.5" />
+        <text x="562" y="85" font-size="12" font-weight="bold" fill="#312e81" text-anchor="middle">CDN / Webフロントエンドサーバー</text>
+        <text x="562" y="105" font-size="10" fill="#4338ca" text-anchor="middle">Cloudflare Pages（Cloudflare, Inc.）</text>
+        <text x="562" y="125" font-size="9" fill="#64748b" text-anchor="middle">プロトコル: HTTPS (Port 443 / TLS 1.3)</text>
+
+        <!-- DB / API Server -->
+        <rect x="420" y="165" width="285" height="90" rx="6" fill="#ffffff" stroke="#059669" stroke-width="1.5" />
+        <text x="562" y="190" font-size="12" font-weight="bold" fill="#064e3b" text-anchor="middle">データベース ＆ APIサーバー</text>
+        <text x="562" y="210" font-size="10" fill="#047857" text-anchor="middle">Supabase Cloud（PostgreSQL / AWS Tokyo）</text>
+        <text x="562" y="230" font-size="9" fill="#64748b" text-anchor="middle">プロトコル: HTTPS / Secure WebSocket (Port 443)</text>
+        <text x="562" y="244" font-size="9" fill="#0f766e" text-anchor="middle">（投票・コメントデータの保存・管理）</text>
+
+        <!-- Arrows: Internet to Cloudflare -->
+        <path d="M 360 135 L 420 102" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+        <text x="380" y="112" font-size="9" fill="#0369a1" font-weight="bold">② アクセス</text>
+
+        <!-- Arrows: Cloudflare to DB -->
+        <path d="M 562 145 L 562 165" stroke="#0284c7" stroke-width="2" fill="none" marker-end="url(#arrow)" />
+        <text x="572" y="157" font-size="9" fill="#0369a1" font-weight="bold">③ 保存/中継</text>
+
+        <!-- Markers -->
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7" />
+          </marker>
+          <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="notes-box">
+      <h4>■ 構成及び通信手順の説明</h4>
+      <ol>
+        <li><strong>利用形態</strong>：利用者が端末（PC/スマホ）のWebブラウザからインターネット経由で「未来レーダー（https://mirairadar.com）」にアクセスし、各予測銘柄に対して世論投票およびコメントを投稿します。</li>
+        <li><strong>通信暗号化</strong>：すべての通信はHTTPS/TLS暗号化プロトコル（標準ポート443）を用いて安全に暗号化通信が行われます。</li>
+        <li><strong>データ管理</strong>：投稿されたコメントおよび世論データは、クラウドAPI/データベースサーバー（Supabase / AWS東京データセンター）に蓄積・保管されます。</li>
+        <li><strong>公衆配信（掲示板役務）</strong>：蓄積された投票集計結果およびコメント情報は、インターネット網を介して他の不特定多数の閲覧利用者に対してWebコンテンツとしてリアルタイム配信（公衆送信）されます。</li>
+        <li><strong>設備の非設置</strong>：当社は物理的な自前回線設備を保有せず、Cloudflare, Inc. および Supabase, Inc. が提供するクラウドサービスを利用して役務を提供します。</li>
+      </ol>
+    </div>
+
+    <div class="footer-stamp">
+      上記のとおり相違ありません。<br>
+      2026年 8月 24日<br><br>
+      <strong>ＤＥＬＩＣＩＯＵＳ株式会社</strong><br>
+      代表取締役　大山　圭太
+    </div>
+  </div>
+
+</body>
+</html>

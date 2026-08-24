@@ -1,33 +1,18 @@
 {
- "which-company-has-best-ai-model-end-of-august-20260717015626546": {
-  "prob": 98,
-  "framing": "yes",
-  "subject": null
- },
- "next-french-presidential-election": {
-  "prob": 32,
-  "framing": "yes",
-  "subject": null
- },
- "bitcoin-above-on-august-25-2026": {
-  "prob": 100,
-  "framing": "yes",
-  "subject": null
- },
- "lal-mala-dep-2026-08-24": {
-  "prob": 41,
-  "framing": "yes",
-  "subject": null
- },
  "atp-busta-vallejo-2026-08-24": {
   "prob": 0,
   "framing": "subject",
   "subject": "Pablo Carreno Busta"
  },
- "elon-musk-of-tweets-august-21-august-28-2026": {
-  "prob": 0,
+ "which-company-has-best-ai-model-end-of-august-20260717015626546": {
+  "prob": 98,
   "framing": "yes",
   "subject": null
+ },
+ "epl-2027-champion-20260701200428749": {
+  "prob": 53,
+  "framing": "subject",
+  "subject": "Arsenal"
  },
  "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
   "prob": 6,
@@ -39,13 +24,43 @@
   "framing": "yes",
   "subject": null
  },
+ "what-price-will-ethereum-hit-before-2027": {
+  "prob": 53,
+  "framing": "yes",
+  "subject": null
+ },
+ "bitcoin-above-on-august-25-2026": {
+  "prob": 100,
+  "framing": "yes",
+  "subject": null
+ },
+ "next-french-presidential-election": {
+  "prob": 32,
+  "framing": "yes",
+  "subject": null
+ },
+ "elon-musk-of-tweets-august-22-august-24-2026": {
+  "prob": 16,
+  "framing": "yes",
+  "subject": null
+ },
+ "lal-mala-dep-2026-08-24": {
+  "prob": 41,
+  "framing": "yes",
+  "subject": null
+ },
  "brazil-presidential-election": {
   "prob": 0,
   "framing": "yes",
   "subject": null
  },
  "what-price-will-ethereum-hit-in-august-2026": {
-  "prob": 7,
+  "prob": 6,
+  "framing": "yes",
+  "subject": null
+ },
+ "uefa-champions-league-2027-champion-20260701202025549": {
+  "prob": 14,
   "framing": "yes",
   "subject": null
  },
@@ -54,28 +69,8 @@
   "framing": "yes",
   "subject": null
  },
- "what-price-will-ethereum-hit-before-2027": {
-  "prob": 53,
-  "framing": "yes",
-  "subject": null
- },
  "what-price-will-bitcoin-hit-before-2027": {
-  "prob": 31,
-  "framing": "yes",
-  "subject": null
- },
- "epl-2027-champion-20260701200428749": {
-  "prob": 53,
-  "framing": "subject",
-  "subject": "Arsenal"
- },
- "uefa-champions-league-2027-champion-20260701202025549": {
-  "prob": 14,
-  "framing": "yes",
-  "subject": null
- },
- "elon-musk-of-tweets-august-22-august-24-2026": {
-  "prob": 17,
+  "prob": 32,
   "framing": "yes",
   "subject": null
  },
@@ -84,8 +79,8 @@
   "framing": "yes",
   "subject": null
  },
- "presidential-election-winner-2028": {
-  "prob": 23,
+ "bitcoin-above-on-august-24-2026": {
+  "prob": 100,
   "framing": "yes",
   "subject": null
  },
@@ -94,8 +89,8 @@
   "framing": "yes",
   "subject": null
  },
- "bitcoin-above-on-august-24-2026": {
-  "prob": 100,
+ "presidential-election-winner-2028": {
+  "prob": 23,
   "framing": "yes",
   "subject": null
  },
@@ -109,13 +104,18 @@
   "framing": "yes",
   "subject": null
  },
+ "elon-musk-of-tweets-august-21-august-28-2026": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
  "bitcoin-up-or-down-on-august-24-2026": {
-  "prob": 56,
+  "prob": 53,
   "framing": "subject",
   "subject": "Up"
  },
  "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
-  "prob": 33,
+  "prob": 34,
   "framing": "yes",
   "subject": null
  },
@@ -180,7 +180,7 @@
   "subject": null
  },
  "who-will-be-the-next-prime-minister-of-israel-after-the-next-election": {
-  "prob": 27,
+  "prob": 26,
   "framing": "yes",
   "subject": null
  },
