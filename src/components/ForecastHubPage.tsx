@@ -288,7 +288,12 @@ https://mirairadar.com/forecast
 
                     <div className="hub-vote-meta">
                       <span className="hub-vote-meta-world">🌍 世界オッズ: {positiveLabel(event)} {event.worldProbYes}%</span>
-                      <span className="hub-vote-meta-japan">🇯🇵 日本世論: YES {event.japanVotes.percentYes}%</span>
+                      {/* N-60: n<3 では割合を出さない（既定値50%が漏れる） */}
+                      <span className="hub-vote-meta-japan">
+                        {event.japanVotes.total >= 3
+                          ? `🇯🇵 日本世論: YES ${event.japanVotes.percentYes}%（n=${event.japanVotes.total}）`
+                          : `🇯🇵 日本世論: 集計中（n=${event.japanVotes.total}）`}
+                      </span>
                     </div>
                   </div>
                 ))}

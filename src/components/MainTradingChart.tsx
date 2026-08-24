@@ -251,10 +251,17 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
                 ? '当銘柄は国内独自の世論意識調査銘柄です。世界予測市場（Polymarket）の板取引履歴は存在しません。下記より直感1票を投票いただけます。'
                 : '当銘柄はPolymarket観測対象ですが、現在オーダーブック取引量が僅少のため価格推移データを受信していません。取引高の発生に伴い自動でチャートが描画されます。'}
             </p>
+            {/* N-60: n<3 では割合を出さない。
+                投票0件のとき percentYes は既定値の 50 になるため、
+                「有効投票数: 0票」と「日本世論 YES: 50%」が並んで表示されていた（本番実測）。 */}
             <div className="flex items-center gap-4 text-xs font-mono bg-slate-900/80 px-4 py-2 rounded-lg border border-slate-800">
-              <span className="text-emerald-400 font-bold">日本世論 YES: {event.japanVotes.percentYes}%</span>
+              {event.japanVotes.total >= 3 ? (
+                <span className="text-emerald-400 font-bold">日本世論 YES: {event.japanVotes.percentYes}%</span>
+              ) : (
+                <span className="text-amber-400 font-bold">日本世論 集計中</span>
+              )}
               <span className="text-slate-500">|</span>
-              <span className="text-slate-400">有効投票数: {event.japanVotes.total}票</span>
+              <span className="text-slate-400">有効投票数: {event.japanVotes.total}票（3票から割合を表示）</span>
             </div>
           </div>
         ) : (

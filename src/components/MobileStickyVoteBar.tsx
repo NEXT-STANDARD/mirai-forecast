@@ -20,6 +20,7 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
 
   const isExpired = Boolean(event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()));
   const isLocked = !userVote;
+  const hasEnoughVotes = event.japanVotes.total >= 3;
   const gap = Math.abs(event.worldProbYes - event.japanVotes.percentYes);
 
   const handleVote = (choice: 'YES' | 'NO') => {
@@ -92,7 +93,12 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
               <span className="voted-tag">
                 <CheckCircle2 size={12} /> [{userVote}] 投票済み
               </span>
-              <span className="spread-gap-pill">ギャップ: {gap}%</span>
+              {/* N-60: 投票したかではなく、サンプル数で開示を判断する。
+                  n=1（自分の1票だけ）で乖離を出すと、自分のクリックが
+                  世論を作ったように見えてしまう。 */}
+              <span className="spread-gap-pill">
+                {hasEnoughVotes ? `ギャップ: ${gap}%（n=${event.japanVotes.total}）` : `世論集計中（n=${event.japanVotes.total}）`}
+              </span>
             </div>
 
             <button

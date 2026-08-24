@@ -55,16 +55,22 @@ report("投票ガード (isExpired) 構文健全性 & 100% 網羅性", voteGuard
   voteGuardFails.length === 0 ? "投票を持つ全コンポーネントで厳格な期限判定ガード構文を検証完了" : voteGuardFails.join("; "));
 
 // 3. 乖離ギャップ（Gap/乖離）基準の全コンポーネント統一性 (NEW-6 / A-3 / N-12)
-const GAP_TARGET_COMPONENTS = [
-  "AllMarketsGrid.tsx",
-  "SpreadRankingSection.tsx",
-  "MarketDetailPage.tsx",
-  "EmbedWidgetPage.tsx",
-  "EventModal.tsx",
-  "OgpPreviewModal.tsx",
-  "WatchlistTable.tsx",
-  "DataExportModal.tsx"
-];
+// N-60: ここは8ファイルの固定リストだった。
+//   実際に日本世論の割合を描画しているのは13ファイルで、5ファイルが検査外だった。
+//   検査は「全8コンポーネント統一性」と名乗りながら、母集団の4割を見ていなかった。
+//   実害：MainTradingChart が投票0件の銘柄で「有効投票数: 0票」と
+//   「日本世論 YES: 50%」を並べて表示していた（既定値50%の漏れ・本番実測）。
+//   人が列挙する限り、面が増えたときに漏れる。コードから導出する。
+const GAP_TARGET_COMPONENTS = fs.existsSync(COMPONENTS_DIR)
+  ? fs.readdirSync(COMPONENTS_DIR)
+      .filter(f => f.endsWith(".tsx"))
+      .filter(f => /japanVotes(?:\?\.|\.)percentYes/.test(fs.readFileSync(path.join(COMPONENTS_DIR, f), "utf-8")))
+      // 管理画面は運用者向けの生データ。n=1 の銘柄も見えないと運用にならないので、
+      // n>=3 ガードの対象外にする。カテゴリ単位の除外なので、
+      // 新しい面が増えたときに「入れ忘れて見逃す」向きには倒れない
+      //（除外の取りこぼしは過検出になるだけで、defect を通すことはない）。
+      .filter(f => !/^Admin/.test(f))
+  : [];
 let gapCheckFails = [];
 const strictActiveGapGuardPattern = /(?:\{\s*|\bconst\s+\w+\s*=\s*|\.filter\s*\(\s*\w+\s*=>\s*|if\s*\(\s*|[?&|]\s*|\(\s*)(?:event|item|ev|a|b)\.japanVotes(?:\?\.|\.)total\s*>=\s*3/;
 
@@ -83,8 +89,8 @@ for (const file of GAP_TARGET_COMPONENTS) {
     gapCheckFails.push(`${file}: サンプル数 (n=) 表示なし`);
   }
 }
-report("乖離基準 (japanVotes >= 3 & n=併記) の全8コンポーネント統一性", gapCheckFails.length === 0,
-  gapCheckFails.length === 0 ? "乖離を表示する全8コンポーネントで n>=3 ガード & n= 併記を検証完了" : gapCheckFails.join("; "));
+report(`乖離基準 (japanVotes >= 3 & n=併記) の統一性（${GAP_TARGET_COMPONENTS.length}コンポーネントを導出）`, gapCheckFails.length === 0,
+  gapCheckFails.length === 0 ? `日本世論の割合を描画する ${GAP_TARGET_COMPONENTS.length}コンポーネントすべてで n>=3 ガード & n= 併記を確認` : gapCheckFails.join("; "));
 
 // 4. 画像属性 (loading=\"lazy\" & onError) (C-4)
 let imgFails = [];

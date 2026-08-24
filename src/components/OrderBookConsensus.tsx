@@ -21,6 +21,9 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
   const [justUnlocked, setJustUnlocked] = useState(false);
 
   const isLocked = !userVote;
+  // N-60: 開示の条件は「投票したか」だけだった。それだと自分の1票しかない銘柄でも
+  //   乖離が出てしまい、自分のクリックが世論を作ったように見える。サンプル数も見る。
+  const hasEnoughVotes = event.japanVotes.total >= 3;
   const gap = Math.abs(event.worldProbYes - event.japanVotes.percentYes);
 
   const handleVote = (choice: 'YES' | 'NO') => {
@@ -117,11 +120,15 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         <div className="spread-divider">
           <div className="spread-line"></div>
           <span className="spread-label">
+            {/* N-60: 解禁の条件は「投票したか」だったが、それだけでは
+                自分の1票しかない銘柄でも乖離が出てしまう。サンプル数も見る。 */}
             {isLocked
               ? '⚡ SPREAD GAP: [ LOCKED ]'
+              : !hasEnoughVotes
+              ? `⚡ 世論集計中（n=${event.japanVotes.total}／3票から表示）`
               : event.hasWorldOdds
-              ? `⚡ SPREAD GAP: ${gap}%`
-              : `⚡ 日本世論支持率: YES ${event.japanVotes.percentYes}%`}
+              ? `⚡ SPREAD GAP: ${gap}%（n=${event.japanVotes.total}）`
+              : `⚡ 日本世論支持率: YES ${event.japanVotes.percentYes}%（n=${event.japanVotes.total}）`}
           </span>
           <div className="spread-line"></div>
         </div>
