@@ -10500,3 +10500,18 @@ body::after {
 .kind-badge.user { color: #6ee7b7; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); }
 .kind-badge.archive { color: #fcd34d; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.32); }
 @media (pointer: coarse) { .kind-chip { min-height: 44px; } }
+
+/* 一括操作は破壊的なので、未選択のときに押せそうに見えないようにする */
+.bulk-action-bar button:disabled,
+.confirm-modal-footer button:disabled,
+.card-btn-row button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+  filter: grayscale(0.65);
+}
+.bulk-action-bar button:disabled:hover,
+.confirm-modal-footer button:disabled:hover,
+.card-btn-row button:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
