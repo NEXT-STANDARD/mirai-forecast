@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { framingOf } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { 
   X, 
@@ -48,8 +49,8 @@ export const OgpPreviewModal: React.FC<OgpPreviewModalProps> = ({
     stanceHeadline = '【私はNOに投票しました⚡️】';
     opinionHook = worldYes >= 50
       ? `世界（Polymarket）はYES ${worldYes}%と強気だけど、私は逆張りのNO派！\nあなたの直感はどちらを支持する？👇`
-      : item.isMultiChoice && item.leaderName
-        ? `世界の本命は ${item.leaderName}（${worldYes}%）。日本の皆さんはどう思いますか？👇`
+      : framingOf(item).kind !== 'yes'
+        ? `世界の見立ては ${framingOf(item).subject}（${worldYes}%）。日本の皆さんはどう思いますか？👇`
         : `世界もNO ${item.worldProbNo}%で一致！日本の皆さんはどう思いますか？👇`;
   }
 

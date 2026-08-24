@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { positiveLabel, positiveSideName, negativeSideName } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { Sparkles, Calendar, ExternalLink, RefreshCw } from 'lucide-react';
 import { fetchMarketPriceHistory, type HistoricalPricePoint } from '../services/polymarketService';
@@ -262,7 +263,7 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             <div className="chart-stats-toolbar">
               <div className="ohlcv-metrics">
                 <div className="metric-group main-prob">
-                  <span className="metric-lbl">YES 確率</span>
+                  <span className="metric-lbl">{positiveLabel(event)} 確率</span>
                   <div className="flex items-baseline gap-1">
                     <span className="metric-val text-cyan-400 font-mono font-extrabold text-base">
                       {activePoint?.prob ?? currentProb}%
@@ -490,13 +491,13 @@ export const MainTradingChart: React.FC<MainTradingChartProps> = ({
             {/* ⚔️ ミニ・ディベート対比バー */}
             <div className="chart-debate-preview">
               <div className="chart-debate-col bull">
-                <span className="chart-debate-tag">🟢 YES論拠 (強気派)</span>
+                <span className="chart-debate-tag">🟢 {positiveSideName(event)}論拠 (強気派)</span>
                 <p className="chart-debate-text">
                   {event.aiInsight?.bullCaseJa || '先行指標の好転や機関マネーの買いが先行して確率を押し上げ中。'}
                 </p>
               </div>
               <div className="chart-debate-col bear">
-                <span className="chart-debate-tag">🔴 NO論拠 (慎重派)</span>
+                <span className="chart-debate-tag">🔴 {negativeSideName(event)}論拠 (慎重派)</span>
                 <p className="chart-debate-text">
                   {event.aiInsight?.bearCaseJa || '日程的な時間不足や下振れサプライズ懸念により慎重姿勢を維持。'}
                 </p>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { framingOf } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { 
   X, 
@@ -35,7 +36,10 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
   const worldYes = item.worldProbYes;
   // 多肢イベントでは probYes は「本命候補の確率」なので 100-probYes は「NO」ではない。
   // 誤解を招く値を配るより、種別と本命名を明示して NO は空にする。
-  const isMulti = Boolean(item.isMultiChoice && item.leaderName);
+  // N-50: 本命型だけでなく、outcomes[0] が "Yes" でない市場（テニスの勝敗など）も
+  //   100-probYes は「NO」ではない。判定は probabilityLabel に集約する。
+  const framing = framingOf(item);
+  const isMulti = framing.kind !== 'yes';
   const worldNo = isMulti ? null : item.worldProbNo;
   const japanYes = item.japanVotes.percentYes;
   const japanNo = 100 - japanYes;
@@ -109,10 +113,13 @@ export const DataExportModal: React.FC<DataExportModalProps> = ({
         probYes: worldYes,
         probNo: worldNo,
         marketType: isMulti ? "multi_choice" : "binary",
-        leaderName: isMulti ? item.leaderName : null,
-        probYesMeaning: isMulti
-          ? "本命候補の勝率（この市場は多肢選択のため YES/NO の二値ではない）"
-          : "YES の確率",
+        leaderName: framing.kind === 'leader' ? framing.subject : null,
+        probSubject: framing.subject,
+        probYesMeaning: framing.kind === 'leader'
+          ? `本命 ${framing.subject} の勝率（この市場は多肢選択のため YES/NO の二値ではない）`
+          : framing.kind === 'subject'
+            ? `「${framing.subject}」の確率（この市場は YES/NO の二値ではない）`
+            : "YES の確率",
         volume24hUsd: item.volume24hUsd || 0,
         totalVolumeUsd: item.totalVolumeUsd || 0,
       },

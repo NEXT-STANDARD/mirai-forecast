@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { negativeLabel } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { ShieldCheck, Share2, CheckCircle2, ArrowRight, Lock, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -101,7 +102,7 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
             {event.hasWorldOdds ? (
               <>
                 <span>
-                  {event.isMultiChoice && event.leaderName ? '本命以外: ' : 'NO: '}
+                  {negativeLabel(event)}{': '}
                   {isLocked ? '?? %' : `${event.worldProbNo}%`}
                 </span>
                 <span>24h取引高: ${Math.round(event.volume24hUsd / 1000).toLocaleString()}k</span>

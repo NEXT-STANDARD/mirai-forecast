@@ -229,13 +229,25 @@ async function prerenderAll() {
 
     if (isPolymarketObserved) {
       const isLeader = isMultiChoice && leaderName;
+      // N-50: この確率が「何の確率か」を出す。
+      //   outcomeSubject : outcomes[0] が "Yes" でない（例「Pablo Carreno Busta」）＝YESではない
+      //   matchedLabel   : 日本語タイトルが問いになっていない場合の対象（例「Arsenal」「↑ $150」）
+      //   どちらも無ければ、その数字は素直に YES の確率なので従来どおり。
+      const titleIsQuestion = /か[？?]\s*$/.test(titleJa);
+      const subject = isLeader ? null : truncateLeader(
+        oddsEntry?.outcomeSubject || (!titleIsQuestion ? oddsEntry?.matchedLabel : null)
+      );
       // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
       ogTitle = isLeader
         ? `【世界本命 ${leaderName} ${worldProb}%】${titleJa}`
-        : `【世界の確率 ${worldProb}%】${titleJa}`;
+        : subject
+          ? `【世界の確率「${subject}」${worldProb}%】${titleJa}`
+          : `【世界の確率 ${worldProb}%】${titleJa}`;
       const worldPhrase = isLeader
         ? `世界のリアルマネーは本命 ${leaderName} が ${worldProb}%`
-        : `世界のリアルマネーはYES ${worldProb}%`;
+        : subject
+          ? `世界のリアルマネーは「${subject}」に ${worldProb}%`
+          : `世界のリアルマネーはYES ${worldProb}%`;
       description = hasConsensus
         ? `${worldPhrase}、日本の世論はYES ${japanProb}%（n=${n}）。乖離${gap}ポイント。未来レーダーで比較。`
         : `${worldPhrase}。日本の世論は集計中（n=${n}）。あなたの直感を1秒で投票。`;

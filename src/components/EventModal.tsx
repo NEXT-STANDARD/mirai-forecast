@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { positiveLabel, negativeLabel } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { X, Sparkles, Share2, MessageSquare, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { TerminalChart } from './TerminalChart';
@@ -86,10 +87,10 @@ export const EventModal: React.FC<EventModalProps> = ({
                 <span>世界のお金（Polymarket）</span>
               </div>
               <div className="prob-number world">
-                {item.worldProbYes}% <span>YES</span>
+                {item.worldProbYes}% <span>{positiveLabel(item)}</span>
               </div>
               <div className="sub-stat">
-                {item.isMultiChoice && item.leaderName ? '本命以外' : 'NO'}: {item.worldProbNo}% | 24h: {item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}
+                {negativeLabel(item)}: {item.worldProbNo}% | 24h: {item.probChange24h > 0 ? `+${item.probChange24h}%` : `${item.probChange24h}%`}
               </div>
             </div>
 

@@ -160,6 +160,9 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
         const clobTokenId = live ? live.clobTokenId : undefined;
         const leaderName = truncateLeader(live?.leaderName) || undefined;
         const isMultiChoice = live?.isMultiChoice || false;
+        // N-50: outcomes[0] が "Yes" でない市場（テニスの勝敗など）は、
+        //   その数字を YES と呼べない。主語を持ち回して表示側で使う。
+        const outcomeSubject = truncateLeader(live?.outcomeSubject) || undefined;
 
         const isTrending = volume24h > 50000 || Math.abs(probChange24h) >= 5;
 
@@ -343,6 +346,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
           originType,
           leaderName,
           isMultiChoice,
+          outcomeSubject,
           worldProbYes: probYes,
           worldProbNo: 100 - probYes,
           probChange24h,

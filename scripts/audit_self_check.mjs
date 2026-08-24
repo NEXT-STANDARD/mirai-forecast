@@ -321,12 +321,13 @@ async function checkDbAndPhase0() {
 
       // 2. og:title に銘柄名および妥当なプレフィックスが含まれるか
       //    【世界の確率 X%】/【世界本命 <本命名> X%】/【日本世論調査】/【世界観測銘柄】
-      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|世界本命 .+? \d+%|日本世論調査|世界観測銘柄)】(.*?)"/);
+      // N-50: 確率の主語を出す形【世界の確率「<主語>」N%】を追加
+      const ogTitleMatch = html.match(/<meta property="og:title" content="【(世界の確率 \d+%|世界の確率「.+?」\d+%|世界本命 .+? \d+%|日本世論調査|世界観測銘柄)】(.*?)"/);
       if (!ogTitleMatch || ogTitleMatch[2].trim().length === 0) {
         prerenderFails.push(`銘柄 [${slug}] の og:title に銘柄名が正しく埋め込まれていません (got: ${html.match(/<meta property="og:title" content="(.*?)"/)?.[1]})`);
       } else {
         // 【世界本命 <本命名> N%】でも確率を拾えるようにする（本命銘柄が observedProbs から落ちていた）
-        const probMatch = ogTitleMatch[1].match(/(?:世界の確率|世界本命)(?:\s+.+?)?\s+(\d+)%/);
+        const probMatch = ogTitleMatch[1].match(/(?:世界の確率|世界本命)(?:\s*[「\s].+?[」\s])?\s*(\d+)%/);
         if (probMatch) {
           observedProbs.push(Number(probMatch[1]));
         }
@@ -823,16 +824,21 @@ async function checkDbAndPhase0() {
   // 21. 選択肢明示型市場の個別オッズ解決 ＆ 観測銘柄抑制の適正性検査 (N-38 完全解決)
   // ==============================================================================
   let n38Fails = [];
-  const requiredOddsSlugs = [
-    "what-price-will-ethereum-hit-in-august-2026",
-    "how-many-fed-rate-cuts-in-2026",
-    "what-price-will-bitcoin-hit-in-august-2026",
-    "what-price-will-ethereum-hit-august-17-23-2026",
-    "what-price-will-bitcoin-hit-before-2027",
-    "what-price-will-bitcoin-hit-august-17-23-2026",
-    "what-price-will-ethereum-hit-before-2027",
-    "what-price-will-xrp-hit-in-august-2026"
-  ];
+  // N-52: 固定の slug 一覧を持っていたため、銘柄が決着するたびに検査が落ちていた。
+  //   （実測：2026-08-24 04:00 UTC に "…august-17-23-2026" が決着し、その40分後に赤くなった）
+  //   本来の不変条件は「有効かつ英語タイトルが対象を名指ししている銘柄は世界オッズを出す」。
+  //   有効銘柄から毎回導出するので、銘柄の入れ替わりで壊れない。
+  const namesSpecificTarget = (titleEn) => {
+    const t = String(titleEn || "");
+    if (/[<>\u2264\u2265]\s*\d/.test(t)) return true;              // 文中の閾値（形式B）
+    if (!t.includes(":")) return false;
+    const tail = t.split(":").pop().trim().replace(/[?？]$/, "");
+    if (!tail) return false;
+    return !/^(winner|champion|\d{4} champion|match winner)$/i.test(tail);  // 一般的な接尾辞は対象ではない
+  };
+  const requiredOddsSlugs = activeEvents
+    .filter(ev => namesSpecificTarget(ev.title_en))
+    .map(ev => String(ev.slug || ev.id));
 
   for (const slug of requiredOddsSlugs) {
     const htmlPath = path.join(distMarketDir, `${slug}.html`);
@@ -906,6 +912,53 @@ async function checkDbAndPhase0() {
       bad.length === 0
         ? `${htmlFiles.length}ファイルすべてが本文${MIN_TEXT}字以上＋内部リンク1本以上を静的に持つ`
         : `${bad.length}件が未達: ${bad.slice(0, 5).join("; ")}${bad.length > 5 ? ` ほか${bad.length - 5}件` : ""}`
+    );
+  }
+
+  // ============================================================================
+  // 29. OGP画像とプリレンダーHTMLの「枠組み」一致 (N-50 / N-51)
+  // ----------------------------------------------------------------------------
+  // 表示している確率が「何の確率か」は3通りある。
+  //   yes     : outcomes[0] が "Yes"        → 【世界の確率 N%】     / 画像「YES N%」
+  //   subject : outcomes[0] が人名等         → 【世界の確率「S」N%】 / 画像「N%」＋主語
+  //   leader  : 多肢の本命                   → 【世界本命 S N%】     / 画像「本命 N%」＋本命名
+  // OGP画像（vite build 前）とHTML（build 後）は別プロセスなので、
+  // 両者が食い違えば片方が嘘になる。N-30（全OGPが50%）とN-35（最大100pt乖離）はこの型だった。
+  // 画像側が何を描いたかは _manifest.json に記録させ、dist の HTML と突き合わせる。
+  // ============================================================================
+  {
+    const manPath = path.join(ROOT, "dist/ogp/market/_manifest.json");
+    const frameFails = [];
+    if (!fs.existsSync(manPath)) {
+      frameFails.push("dist/ogp/market/_manifest.json が存在しません（OGP生成がマニフェストを出していない）");
+    } else {
+      const man = JSON.parse(fs.readFileSync(manPath, "utf-8"));
+      let checked = 0;
+      for (const [slug, m] of Object.entries(man)) {
+        const htmlPath = path.join(ROOT, "dist/market", `${slug}.html`);
+        if (!fs.existsSync(htmlPath)) continue;
+        const html = fs.readFileSync(htmlPath, "utf-8");
+        const og = (html.match(/<meta property="og:title" content="(.*?)"/) || [, ""])[1];
+        if (og.startsWith("【決着・終了】")) continue;   // アーカイブは対象外
+        checked++;
+        let want;
+        if (m.framing === "yes")          want = new RegExp(`^【世界の確率 ${m.prob}%】`);
+        else if (m.framing === "subject") want = new RegExp(`^【世界の確率「${m.subject.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}」${m.prob}%】`);
+        else if (m.framing === "leader")  want = new RegExp(`^【世界本命 ${m.subject.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} ${m.prob}%】`);
+        else if (m.framing === "domestic") want = /^【日本世論調査】/;
+        else                               want = /^【世界観測銘柄】/;
+        if (!want.test(og)) {
+          frameFails.push(`${slug}: 画像は ${m.framing}${m.prob !== null ? ` ${m.prob}%` : ""}${m.subject ? ` (${m.subject})` : ""} を描いたが og:title は「${og.slice(0, 34)}」`);
+        }
+      }
+      if (checked === 0) frameFails.push("突き合わせ対象が0件（マニフェストと dist が噛み合っていない）");
+    }
+    report(
+      "OGP画像とHTMLの枠組み一致 (N-50 / N-51)",
+      frameFails.length === 0,
+      frameFails.length === 0
+        ? "画像に描いた確率の枠組み（YES / 主語つき / 本命）と og:title が全件一致"
+        : `${frameFails.length}件が不一致: ${frameFails.slice(0, 3).join("; ")}${frameFails.length > 3 ? ` ほか${frameFails.length - 3}件` : ""}`
     );
   }
 

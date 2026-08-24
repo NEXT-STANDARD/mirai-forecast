@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { positiveLabel, negativeLabel, subjectNote, framingOf, positiveSideName, negativeSideName } from '../utils/probabilityLabel';
 import { 
   ArrowLeft, 
   Sparkles, 
@@ -213,11 +214,10 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             </span>
             {item.hasWorldOdds ? (
               <span className="stat-main text-cyan-400">
-                YES {item.worldProbYes}%
-                {item.isMultiChoice && item.leaderName ? (
-                  <span className="stat-sub-prob"> ／ 本命 {item.leaderName}</span>
-                ) : (
-                  <span className="stat-sub-prob"> / NO {100 - item.worldProbYes}%</span>
+                {positiveLabel(item)} {item.worldProbYes}%
+                <span className="stat-sub-prob"> / {negativeLabel(item)} {100 - item.worldProbYes}%</span>
+                {subjectNote(item) && (
+                  <span className="stat-subject-note">{subjectNote(item)}</span>
                 )}
               </span>
             ) : item.originType === 'domestic_poll' ? (
@@ -342,9 +342,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                   {/* 🟢 YES派（実現・強気派）の論拠 */}
                   <div className="debate-card bull-card">
                     <div className="debate-card-header">
-                      <span className="debate-tag-bull">🟢 YES支持の主要論拠（強気派）</span>
+                      <span className="debate-tag-bull">🟢 {positiveSideName(item)}支持の主要論拠（強気派）</span>
                       <span className="debate-prob font-mono text-cyan-400">
-                        {item.hasWorldOdds ? `世界 YES ${item.worldProbYes}%` : '実現・強気シナリオ'}
+                        {item.hasWorldOdds ? `世界 ${positiveLabel(item)} ${item.worldProbYes}%` : '実現・強気シナリオ'}
                       </span>
                     </div>
                     <p className="debate-card-text">
@@ -355,9 +355,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                   {/* 🔴 NO派（慎重・懐疑・リスク派）の論拠 */}
                   <div className="debate-card bear-card">
                     <div className="debate-card-header">
-                      <span className="debate-tag-bear">🔴 NO支持の主要論拠（慎重派）</span>
+                      <span className="debate-tag-bear">🔴 {negativeSideName(item)}支持の主要論拠（慎重派）</span>
                       <span className="debate-prob font-mono text-rose-400">
-                        {item.isMultiChoice && item.leaderName ? `本命以外 ${100 - item.worldProbYes}%` : `世界 NO ${100 - item.worldProbYes}%`}
+                        {`世界 ${negativeLabel(item)} ${100 - item.worldProbYes}%`}
                       </span>
                     </div>
                     <p className="debate-card-text">
@@ -411,7 +411,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               <div className="rule-item">
                 <strong>判定基準（Criteria）:</strong>
                 <p>
-                  公式締切日（{item.endDate}）までに、質問文「{item.question}」が公式機関によって公式に確認された場合、YESとして判定（Resolution）されます。それ以外の場合はNOとして決済されます。
+                  {subjectNote(item)
+                    ? `公式締切日（${item.endDate}）までに「${item.question}」が公式機関によって確定されます。表示している確率は「${framingOf(item).subject}」が結果になる確率で、この市場は YES/NO の二値ではありません。`
+                    : `公式締切日（${item.endDate}）までに、質問文「${item.question}」が公式機関によって公式に確認された場合、YESとして判定（Resolution）されます。それ以外の場合はNOとして決済されます。`}
                 </p>
               </div>
 

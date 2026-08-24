@@ -1,0 +1,357 @@
+{
+ "atp-busta-vallejo-2026-08-24": {
+  "prob": 0,
+  "framing": "subject",
+  "subject": "Pablo Carreno Busta"
+ },
+ "which-company-has-best-ai-model-end-of-august-20260717015626546": {
+  "prob": 98,
+  "framing": "yes",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
+  "prob": 34,
+  "framing": "yes",
+  "subject": null
+ },
+ "bitcoin-above-on-august-25-2026": {
+  "prob": 100,
+  "framing": "yes",
+  "subject": null
+ },
+ "wta-ruzic-bartunk-2026-08-23": {
+  "prob": 0,
+  "framing": "subject",
+  "subject": "Antonia Ruzic"
+ },
+ "elon-musk-of-tweets-august-21-august-28-2026": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "wta-tagger-starodu-2026-08-23": {
+  "prob": 0,
+  "framing": "subject",
+  "subject": "Lilli Tagger"
+ },
+ "uefa-champions-league-2027-champion-20260701202025549": {
+  "prob": 14,
+  "framing": "yes",
+  "subject": null
+ },
+ "brazil-presidential-election": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "republican-presidential-nominee-2028": {
+  "prob": 2,
+  "framing": "yes",
+  "subject": null
+ },
+ "next-french-presidential-election": {
+  "prob": 32,
+  "framing": "yes",
+  "subject": null
+ },
+ "elon-musk-of-tweets-august-18-august-25": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "epl-2027-champion-20260701200428749": {
+  "prob": 51,
+  "framing": "subject",
+  "subject": "Arsenal"
+ },
+ "democratic-presidential-nominee-2028": {
+  "prob": 15,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-ethereum-hit-before-2027": {
+  "prob": 53,
+  "framing": "yes",
+  "subject": null
+ },
+ "elon-musk-of-tweets-august-22-august-24-2026": {
+  "prob": 9,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-ethereum-hit-in-august-2026": {
+  "prob": 6,
+  "framing": "yes",
+  "subject": null
+ },
+ "how-many-fed-rate-cuts-in-2026": {
+  "prob": 86,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-bitcoin-hit-before-2027": {
+  "prob": 32,
+  "framing": "yes",
+  "subject": null
+ },
+ "presidential-election-winner-2028": {
+  "prob": 23,
+  "framing": "yes",
+  "subject": null
+ },
+ "bitcoin-above-on-august-24-2026": {
+  "prob": 100,
+  "framing": "yes",
+  "subject": null
+ },
+ "fed-decision-in-september-762": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-bitcoin-hit-in-august-2026": {
+  "prob": 1,
+  "framing": "yes",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
+  "prob": 6,
+  "framing": "yes",
+  "subject": null
+ },
+ "council-politics-1787522817751": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-economy-1787522817651": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787522817851": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787522817952": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
+  "prob": 71,
+  "framing": "yes",
+  "subject": null
+ },
+ "will-china-invade-taiwan-by-december-31-2027": {
+  "prob": 12,
+  "framing": "yes",
+  "subject": null
+ },
+ "ballon-dor-winner-2026": {
+  "prob": 7,
+  "framing": "yes",
+  "subject": null
+ },
+ "2026-mens-us-open-winner-tennis": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "brazil-presidential-election-first-round-2nd-place": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-xrp-hit-in-august-2026": {
+  "prob": 1,
+  "framing": "yes",
+  "subject": null
+ },
+ "fed-rate-hike-in-2026": {
+  "prob": 55,
+  "framing": "yes",
+  "subject": null
+ },
+ "who-will-be-the-next-prime-minister-of-israel-after-the-next-election": {
+  "prob": 27,
+  "framing": "yes",
+  "subject": null
+ },
+ "council-politics-1787443855084": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-economy-1787443855185": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787443855386": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787443855285": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787397349291": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "where-will-the-next-next-round-of-us-iran-peace-talks-beptptpt-20260623023740663": {
+  "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "council-politics-1787397349393": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787397349493": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-economy-1787397349593": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-economy-1787393726091": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787393726191": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787393726291": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787393726391": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787393725990": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "what-price-will-wti-hit-in-august-2026": {
+  "prob": 0,
+  "framing": "subject",
+  "subject": "↑ $150"
+ },
+ "official-1787048085663": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "official-1787048081444": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "openai-gpt5-release-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "sam-altman-world-ai-summit-tokyo": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "official-1787044209435": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "spacex-starship-orbital-landing": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "putin-out-before-2027": {
+  "prob": 8,
+  "framing": "yes",
+  "subject": null
+ },
+ "pro-football-2027-champion-20260729185915366": {
+  "prob": 14,
+  "framing": "leader",
+  "subject": "Los Angeles Rams"
+ },
+ "fed-rate-cut-50bps-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "japan-lower-house-dissolution-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "bitcoin-reaches-150k-in-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "us-presidential-election-2028-vance": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "official-1787046123636": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "official-1787046120279": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "official-1787046116414": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "proposal-ohtani-60hr-1787044134976": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "official-1787044213329": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "official-1787044205330": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "boj-rate-hike-september-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ }
+}

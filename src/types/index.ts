@@ -23,6 +23,9 @@ export interface MarketItem {
   hasWorldOdds?: boolean; // 🌍 世界予測市場(Polymarket)の実オッズが存在するか
   originType?: 'polymarket' | 'domestic_poll'; // 銘柄の出所（Polymarket観測 or 日本独自世論調査）
   leaderName?: string; // 多肢銘柄における本命候補名
+  /** N-50: この確率の主語。outcomes[0] が "Yes" でないとき（例「Lilli Tagger」）に入る。
+   *  値があるとき、その数字を YES と呼んではいけない（NO も 100-x では表せない）。 */
+  outcomeSubject?: string;
   isMultiChoice?: boolean; // 多肢イベントフラグ
   worldProbYes: number; // 0 to 100
   worldProbNo: number;

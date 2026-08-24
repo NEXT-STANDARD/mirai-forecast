@@ -10515,3 +10515,13 @@ body::after {
   transform: none;
   box-shadow: none;
 }
+
+/* N-50: 確率の主語（YES/NOでない場合に何の確率かを示す） */
+.stat-subject-note {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: #fbbf24;
+}

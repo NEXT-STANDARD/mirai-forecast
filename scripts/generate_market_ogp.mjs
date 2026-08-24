@@ -150,6 +150,8 @@ async function generateAllMarketOgps() {
 
   console.log(`🚀 全 ${events.length}件 の有効銘柄 OGP を生成中...`);
 
+  const manifest = {};
+
   let count = 0;
   for (const event of events) {
     const slug = event.slug || event.id;
@@ -177,12 +179,24 @@ async function generateAllMarketOgps() {
 
     // 多肢イベントは「誰の確率か」を必ず併記する（N-34/第11回指摘）
     const leaderName = isPolymarketObserved && oddsEntry.isMultiChoice ? truncateLeader(oddsEntry.leaderName) : null;
+    // N-50: 見出しの数字を「YES」と呼べるのは outcomes[0] が Yes のときだけ。
+    //   カード幅490px・52pxフォントでは見出しに約14文字しか入らないので、
+    //   名前は下段に置き、見出しからは誤った "YES" を外すにとどめる。
+    const titleIsQuestion = /か[？?]\s*$/.test(title);
+    const subject = leaderName ? null : truncateLeader(
+      oddsEntry?.outcomeSubject || (!titleIsQuestion ? oddsEntry?.matchedLabel : null)
+    );
     let worldValueText = '';
     if (isPolymarketObserved) {
+      const headline = leaderName ? `本命 ${worldProb}%`
+                     : subject    ? `${worldProb}%`
+                     : `YES ${worldProb}%`;
       const subLine = leaderName
-        ? `本命 ${leaderName}　｜　この確率は本命候補のもの`
-        : `NO ${100 - worldProb}% ｜ 24h価格連動中`;
-      worldValueText = `<text x="40" y="105" fill="#38bdf8" font-family="monospace, sans-serif" font-size="52" font-weight="bold">YES ${worldProb}%</text>
+        ? `本命 ${leaderName}（YES/NOではありません）`
+        : subject
+          ? `「${subject}」の確率です（YES/NOではありません）`
+          : `NO ${100 - worldProb}% ｜ 24h価格連動中`;
+      worldValueText = `<text x="40" y="105" fill="#38bdf8" font-family="monospace, sans-serif" font-size="52" font-weight="bold">${escapeXml(headline)}</text>
          <text x="40" y="150" fill="#94a3b8" font-family="'Noto Sans JP', sans-serif" font-size="17">${escapeXml(subLine)}</text>`;
     } else if (isDomestic) {
       worldValueText = `<text x="40" y="105" fill="#94a3b8" font-family="'Noto Sans JP', sans-serif" font-size="30" font-weight="bold">日本世論独自調査</text>
@@ -288,6 +302,16 @@ async function generateAllMarketOgps() {
 </svg>
 `;
 
+    // N-50/N-51: 画像に何を描いたかを記録する。
+    //   OGP画像とプリレンダーHTMLは別プロセスで生成されるので、
+    //   両者の枠組み（YES / 主語つき / 本命）が食い違っていないかを検査 #29 で突き合わせる。
+    manifest[slug] = {
+      prob: isPolymarketObserved ? worldProb : null,
+      framing: !isPolymarketObserved ? (isDomestic ? 'domestic' : 'none')
+             : leaderName ? 'leader' : subject ? 'subject' : 'yes',
+      subject: leaderName || subject || null,
+    };
+
     const outPath = path.join(OUT_DIR, `${slug}.png`);
     await sharp(Buffer.from(svg))
       .png({ quality: 90 })
@@ -296,7 +320,8 @@ async function generateAllMarketOgps() {
     count++;
   }
 
-  console.log(`✅ ${count}件 の銘柄別OGP画像を出力完了 (${OUT_DIR})！`);
+  fs.writeFileSync(path.join(OUT_DIR, '_manifest.json'), JSON.stringify(manifest, null, 1), 'utf-8');
+  console.log(`✅ ${count}件 の銘柄別OGP画像を出力完了 (${OUT_DIR})！ / _manifest.json も出力`);
 }
 
 generateAllMarketOgps();

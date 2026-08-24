@@ -23,6 +23,19 @@ export const isDummyCandidate = (label) => {
 
 // 表示用に本命名を整える：前後の空白を落とし、長すぎるものは省略する
 // （og:title は実務上の長さ上限があり、43文字の候補名が実在する）
+// N-50: 表示している確率が「何の確率か」を呼び出し側に渡す。
+//   outcomes[0] が "Yes" なら「YES x%」で正しい。
+//   人名やチーム名なら、その数字は YES ではなくその対象のもの。
+//   実測：36件中2件（テニスの勝敗市場）が該当し、"YES 0%" と表示されていた。
+const outcomeSubject = (m) => {
+  if (!m) return null;
+  let oc = m.outcomes;
+  if (typeof oc === 'string') { try { oc = JSON.parse(oc); } catch { return null; } }
+  if (!Array.isArray(oc) || !oc[0]) return null;
+  const first = String(oc[0]).trim();
+  return /^yes$/i.test(first) ? null : first;   // "Yes" は主語なし＝YES表記で正しい
+};
+
 export const LEADER_NAME_MAX = 20;
 export const truncateLeader = (name) => {
   if (!name) return null;
@@ -101,7 +114,9 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
       clobTokenId,
       isMultiChoice: false,
       leaderName: null,
-      marketQuestion: targetMarket.question || targetMarket.groupItemTitle
+      marketQuestion: targetMarket.question || targetMarket.groupItemTitle,
+      matchedMarketId: targetMarket.id ? String(targetMarket.id) : null,
+      outcomeSubject: outcomeSubject(targetMarket)
     };
   }
 
@@ -217,7 +232,11 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
       probChange24h,
       isMultiChoice: true,
       leaderName: null,
-      marketQuestion: matchedMarket.question || matchedMarket.groupItemTitle
+      marketQuestion: matchedMarket.question || matchedMarket.groupItemTitle,
+      // N-50: 解決した対象そのもの（"Arsenal" / "↑ $150"）と、確率の主語
+      matchedLabel: (matchedMarket.groupItemTitle || '').trim() || null,
+      matchedMarketId: matchedMarket.id ? String(matchedMarket.id) : null,
+      outcomeSubject: outcomeSubject(matchedMarket)
     };
   }
 
@@ -258,7 +277,10 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
         probChange24h,
         isMultiChoice: true,
         leaderName,
-        marketQuestion: topM.question || topM.groupItemTitle
+        marketQuestion: topM.question || topM.groupItemTitle,
+        matchedMarketId: topM.id ? String(topM.id) : null,
+        // 本命型は leaderName が主語なので outcomeSubject は使わない
+        outcomeSubject: null
       };
     }
   }

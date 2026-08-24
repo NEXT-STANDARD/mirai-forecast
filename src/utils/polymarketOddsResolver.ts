@@ -19,7 +19,20 @@ export interface ResolvedPolymarketOdds {
   isMultiChoice: boolean;
   leaderName: string | null;
   marketQuestion: string | null;
+  /** N-50: この確率の主語。outcomes[0] が "Yes" でないとき（例「Lilli Tagger」）に入る。
+   *  値が入っていたら、その数字を YES と呼んではいけない。 */
+  outcomeSubject: string | null;
 }
+
+// N-50: outcomes[0] が "Yes" でなければ、その確率は YES のものではない。
+const outcomeSubjectOf = (m: any): string | null => {
+  if (!m) return null;
+  let oc = m.outcomes;
+  if (typeof oc === 'string') { try { oc = JSON.parse(oc); } catch { return null; } }
+  if (!Array.isArray(oc) || !oc[0]) return null;
+  const first = String(oc[0]).trim();
+  return /^yes$/i.test(first) ? null : first;
+};
 
 export const isDummyCandidate = (label?: string | null): boolean => {
   if (!label) return true;
@@ -62,7 +75,8 @@ export function resolvePolymarketOdds(
       probChange24h: 0,
       isMultiChoice: ev.markets.length > 1,
       leaderName: null,
-      marketQuestion: null
+      marketQuestion: null,
+      outcomeSubject: null,
     };
   }
 
@@ -82,7 +96,8 @@ export function resolvePolymarketOdds(
         probChange24h: 0,
         isMultiChoice: false,
         leaderName: null,
-        marketQuestion: targetMarket.question || targetMarket.groupItemTitle
+        marketQuestion: targetMarket.question || targetMarket.groupItemTitle,
+        outcomeSubject: null,
       };
     }
 
@@ -118,7 +133,8 @@ export function resolvePolymarketOdds(
       clobTokenId,
       isMultiChoice: false,
       leaderName: null,
-      marketQuestion: targetMarket.question || targetMarket.groupItemTitle
+      marketQuestion: targetMarket.question || targetMarket.groupItemTitle,
+      outcomeSubject: outcomeSubjectOf(targetMarket),
     };
   }
 
@@ -163,7 +179,8 @@ export function resolvePolymarketOdds(
       probChange24h: 0,
       isMultiChoice: true,
       leaderName: null,
-      marketQuestion: null
+      marketQuestion: null,
+      outcomeSubject: null,
     };
   }
 
@@ -218,7 +235,8 @@ export function resolvePolymarketOdds(
       probChange24h,
       isMultiChoice: true,
       leaderName: null,
-      marketQuestion: matchedMarket.question || matchedMarket.groupItemTitle
+      marketQuestion: matchedMarket.question || matchedMarket.groupItemTitle,
+      outcomeSubject: outcomeSubjectOf(matchedMarket),
     };
   }
 
@@ -259,7 +277,8 @@ export function resolvePolymarketOdds(
         probChange24h,
         isMultiChoice: true,
         leaderName,
-        marketQuestion: topM.question || topM.groupItemTitle
+        marketQuestion: topM.question || topM.groupItemTitle,
+        outcomeSubject: null,
       };
     }
   }
@@ -276,6 +295,7 @@ export function resolvePolymarketOdds(
     probChange24h: 0,
     isMultiChoice: true,
     leaderName: null,
-    marketQuestion: null
+    marketQuestion: null,
+    outcomeSubject: null,
   };
 }
