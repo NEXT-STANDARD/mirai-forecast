@@ -278,6 +278,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
                 <div className="card-quick-vote-row" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => onVote(event.id, 'YES')}
+                    disabled={hasVoted}
                     className={`btn-card-vote btn-vote-yes ${userVote === 'YES' ? 'selected' : ''}`}
                   >
                     <span className="vote-label">YES</span>
@@ -286,6 +287,7 @@ export const AllMarketsGrid: React.FC<AllMarketsGridProps> = ({
 
                   <button
                     onClick={() => onVote(event.id, 'NO')}
+                    disabled={hasVoted}
                     className={`btn-card-vote btn-vote-no ${userVote === 'NO' ? 'selected' : ''}`}
                   >
                     <span className="vote-label">NO</span>

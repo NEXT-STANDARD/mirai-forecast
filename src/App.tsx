@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense, useRef } from 'react';
 import { Header } from './components/Header';
 import { TradingTerminal } from './components/TradingTerminal';
 import { MobileStickyVoteBar } from './components/MobileStickyVoteBar';
@@ -118,6 +118,8 @@ export function App() {
     if (typeof window === 'undefined') return false;
     return isLocalhost && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin';
   });
+  // N-54: 連打をレンダーをまたがずに止めるための同期ガード
+  const votedGuardRef = useRef<Record<string, boolean>>({});
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
       const saved = localStorage.getItem('mirairadar_user_votes');
@@ -449,6 +451,17 @@ export function App() {
   const totalJapanVotes = events.reduce((sum, item) => sum + item.japanVotes.total, 0);
 
   const handleVote = (eventId: string, choice: 'YES' | 'NO') => {
+    // N-54: 1銘柄につき1票。
+    //   japan_vote_logs には利用者を識別する列が無く、重複を後から取り除けない。
+    //   ボタン側には disabled が無いため、連打・YES→NO の切替がそのまま
+    //   行数として積み上がっていた（実データ48件中に2.2秒差のYES→YESが1組）。
+    //   投票ボタンは6コンポーネントから呼ばれるので、各所ではなく
+    //   唯一の絞り込み点であるここで止める。
+    //   state だけで判定すると、同一レンダー内の連打は両方とも
+    //   古い userVotes を見て通り抜ける。ref で同期的に塞ぐ。
+    if (userVotes[eventId] || votedGuardRef.current[eventId]) return;
+    votedGuardRef.current[eventId] = true;
+
     // 🔊 サイバーパンク電子音 ＆ 触覚フィードバック
     cyberSound.playVote(choice);
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {

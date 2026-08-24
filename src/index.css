@@ -10525,3 +10525,7 @@ body::after {
   line-height: 1.5;
   color: #fbbf24;
 }
+
+/* N-54: 投票済みのボタンは押せないことを示す（1銘柄1票） */
+.btn-card-vote:disabled { opacity: 0.55; cursor: default; }
+.btn-card-vote:disabled.selected { opacity: 1; }

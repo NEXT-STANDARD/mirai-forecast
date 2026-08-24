@@ -204,6 +204,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
                 <div className="spread-vote-group" onClick={(e) => e.stopPropagation()}>
                   <button
                     onClick={() => onVote(event.id, 'YES')}
+                    disabled={Boolean(userVote)}
                     className={`btn-ranking-vote btn-rank-yes ${userVote === 'YES' ? 'active' : ''}`}
                   >
                     <span>YES</span>
@@ -212,6 +213,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
 
                   <button
                     onClick={() => onVote(event.id, 'NO')}
+                    disabled={Boolean(userVote)}
                     className={`btn-ranking-vote btn-rank-no ${userVote === 'NO' ? 'active' : ''}`}
                   >
                     <span>NO</span>
