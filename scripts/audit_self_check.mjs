@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
 import { createClient } from "@supabase/supabase-js";
+import { isDomesticEvent } from "./resolvePolymarketOdds.mjs";
 
 const ROOT = "/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast";
 const COMPONENTS_DIR = path.join(ROOT, "src/components");
@@ -363,14 +364,21 @@ async function checkDbAndPhase0() {
     }
 
     // N-30, N-33, N-34 構造的検査 (Check #14 完全封鎖):
-    // 1. 世界オッズ観測銘柄が 35件以上 存在すること（0件や僅少時のサイレントパスを完全防止）
-    // 2. 確率が 10種類以上 に分散していること（50%固定などの均一化を完全防止）
+    // 1. 世界オッズを名乗れる母集団（＝国内以外の有効銘柄）の6割以上が実際に確率を出していること
+    //    （固定値35件は銘柄の自然減で偽陽性を出した。母集団はDBから導出する）
+    // 2. 確率が観測数の1/4以上の種類に分散していること（50%固定などの均一化を防止）
+    // 3. 国内判定そのものが壊れて母集団が消えるサイレントパスも塞ぐ
+    const globalEvents = activeEvents.filter(e => !isDomesticEvent(e.id));
     const distinctProbs = new Set(observedProbs);
-    if (activeEvents.length >= 50) {
-      if (observedProbs.length < 35) {
-        prerenderFails.push(`[Check #14 CRITICAL] 世界オッズが反映された銘柄数が不足しています (観測数: ${observedProbs.length}件 / 期待値: 35件以上)。Polymarket同期・オッズ辞書生成が正常に動作していません。`);
-      } else if (distinctProbs.size < 10) {
-        prerenderFails.push(`[Check #14 CRITICAL] 観測された世界確率の多様性が不足しています (${distinctProbs.size}種類 / 期待値: 10種類以上)。オッズが固定値になっている疑いがあります。`);
+    if (activeEvents.length >= 20 && globalEvents.length < Math.ceil(activeEvents.length * 0.2)) {
+      prerenderFails.push(`[Check #14 CRITICAL] グローバル銘柄が異常に少なすぎます (${globalEvents.length}/${activeEvents.length}件)。国内判定 (isDomesticEvent) が壊れている疑いがあります。`);
+    } else if (globalEvents.length >= 8) {
+      const oddsFloor = Math.ceil(globalEvents.length * 0.6);
+      const distinctFloor = Math.max(5, Math.ceil(observedProbs.length * 0.25));
+      if (observedProbs.length < oddsFloor) {
+        prerenderFails.push(`[Check #14 CRITICAL] 世界オッズが反映された銘柄数が不足しています (観測数: ${observedProbs.length}件 / 導出下限: ${oddsFloor}件 = グローバル${globalEvents.length}件の60%)。Polymarket同期・オッズ辞書生成が正常に動作していません。`);
+      } else if (distinctProbs.size < distinctFloor) {
+        prerenderFails.push(`[Check #14 CRITICAL] 観測された世界確率の多様性が不足しています (${distinctProbs.size}種類 / 導出下限: ${distinctFloor}種類)。オッズが固定値になっている疑いがあります。`);
       }
     }
 

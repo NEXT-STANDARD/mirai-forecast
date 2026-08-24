@@ -36,6 +36,18 @@ const outcomeSubject = (m) => {
   return /^yes$/i.test(first) ? null : first;   // "Yes" は主語なし＝YES表記で正しい
 };
 
+// 国内銘柄（Polymarket に対応市場がなく、世界オッズを持たない）の判定。
+// prerender / OGP生成 / 自己検証がそれぞれ手元にコピーを持つとルールが漂流するため、ここに一元化する。
+export const DOMESTIC_FIXED_IDS = new Set([
+  'japan-lower-house-dissolution-2026',
+  'sam-altman-world-ai-summit-tokyo',
+  'boj-rate-hike-september-2026',
+]);
+export const isDomesticEvent = (id) => {
+  const s = String(id);
+  return s.startsWith('council-') || s.startsWith('official-') || s.startsWith('proposal-') || DOMESTIC_FIXED_IDS.has(s);
+};
+
 export const LEADER_NAME_MAX = 20;
 export const truncateLeader = (name) => {
   if (!name) return null;

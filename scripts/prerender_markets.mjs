@@ -15,7 +15,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
-import { resolvePolymarketOdds, truncateLeader } from './resolvePolymarketOdds.mjs';
+import { resolvePolymarketOdds, truncateLeader, isDomesticEvent } from './resolvePolymarketOdds.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -232,7 +232,7 @@ async function prerenderAll() {
   for (const event of events) {
     const slug = event.slug || event.id;
     const titleJa = event.title_ja || event.title_en || '未来予測銘柄';
-    const isDomestic = String(event.id).startsWith('council-') || String(event.id).startsWith('official-') || String(event.id).startsWith('proposal-') || ['japan-lower-house-dissolution-2026', 'sam-altman-world-ai-summit-tokyo', 'boj-rate-hike-september-2026'].includes(String(event.id));
+    const isDomestic = isDomesticEvent(event.id);
 
     // 実オッズの厳密解決 (N-30, N-33, N-34: 50% 無言フォールバック完全撤廃)
     const oddsEntry = oddsMap.get(String(event.id)) || oddsMap.get(slug);
