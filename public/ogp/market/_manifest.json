@@ -1,66 +1,26 @@
 {
- "what-price-will-ethereum-hit-august-24-30-2026": {
-  "prob": 4,
-  "framing": "yes",
-  "subject": null
- },
  "how-many-fed-rate-cuts-in-2026": {
   "prob": 86,
   "framing": "yes",
   "subject": null
  },
- "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
-  "prob": 35,
-  "framing": "yes",
-  "subject": null
- },
- "democratic-presidential-nominee-2028": {
-  "prob": 15,
-  "framing": "yes",
-  "subject": null
- },
- "elon-musk-of-tweets-august-22-august-24-2026": {
+ "what-price-will-wti-hit-in-august-2026": {
   "prob": 0,
   "framing": "yes",
   "subject": null
  },
- "epl-2027-champion-20260701200428749": {
-  "prob": 53,
-  "framing": "subject",
-  "subject": "Arsenal"
- },
- "epl-ful-che-2026-08-24": {
-  "prob": 24,
-  "framing": "subject",
-  "subject": "Fulham FC"
- },
- "what-price-will-ethereum-hit-before-2027": {
-  "prob": 55,
+ "what-price-will-ethereum-hit-august-24-30-2026": {
+  "prob": 2,
   "framing": "yes",
   "subject": null
  },
- "bitcoin-up-or-down-on-august-24-2026": {
-  "prob": 95,
-  "framing": "subject",
-  "subject": "Up"
- },
- "bitcoin-above-on-august-25-2026": {
-  "prob": 100,
+ "elon-musk-of-tweets-august-21-august-28-2026": {
+  "prob": 0,
   "framing": "yes",
   "subject": null
  },
- "next-french-presidential-election": {
-  "prob": 32,
-  "framing": "yes",
-  "subject": null
- },
- "which-company-has-best-ai-model-end-of-august-20260717015626546": {
-  "prob": 98,
-  "framing": "yes",
-  "subject": null
- },
- "presidential-election-winner-2028": {
-  "prob": 23,
+ "what-price-will-ethereum-hit-in-august-2026": {
+  "prob": 6,
   "framing": "yes",
   "subject": null
  },
@@ -69,28 +29,18 @@
   "framing": "yes",
   "subject": null
  },
- "what-price-will-bitcoin-hit-before-2027": {
-  "prob": 30,
-  "framing": "yes",
-  "subject": null
- },
- "uefa-champions-league-2027-champion-20260701202025549": {
-  "prob": 14,
-  "framing": "yes",
-  "subject": null
- },
- "what-price-will-ethereum-hit-in-august-2026": {
-  "prob": 10,
-  "framing": "yes",
-  "subject": null
- },
- "brazil-presidential-election": {
+ "strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320": {
   "prob": 0,
   "framing": "yes",
   "subject": null
  },
- "bitcoin-above-on-august-24-2026": {
-  "prob": 100,
+ "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
+  "prob": 34,
+  "framing": "yes",
+  "subject": null
+ },
+ "what-price-will-bitcoin-hit-before-2027": {
+  "prob": 28,
   "framing": "yes",
   "subject": null
  },
@@ -104,18 +54,53 @@
   "framing": "yes",
   "subject": null
  },
- "atp-busta-vallejo-2026-08-24": {
-  "prob": 0,
-  "framing": "subject",
-  "subject": "Pablo Carreno Busta"
- },
- "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
-  "prob": 71,
+ "what-price-will-ethereum-hit-before-2027": {
+  "prob": 56,
   "framing": "yes",
   "subject": null
  },
- "strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320": {
+ "democratic-presidential-nominee-2028": {
+  "prob": 14,
+  "framing": "yes",
+  "subject": null
+ },
+ "next-french-presidential-election": {
+  "prob": 33,
+  "framing": "yes",
+  "subject": null
+ },
+ "presidential-election-winner-2028": {
+  "prob": 23,
+  "framing": "yes",
+  "subject": null
+ },
+ "bitcoin-above-on-august-25-2026": {
+  "prob": 100,
+  "framing": "yes",
+  "subject": null
+ },
+ "epl-2027-champion-20260701200428749": {
+  "prob": 52,
+  "framing": "subject",
+  "subject": "Arsenal"
+ },
+ "which-company-has-best-ai-model-end-of-august-20260717015626546": {
+  "prob": 98,
+  "framing": "yes",
+  "subject": null
+ },
+ "brazil-presidential-election": {
   "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "uefa-champions-league-2027-champion-20260701202025549": {
+  "prob": 14,
+  "framing": "yes",
+  "subject": null
+ },
+ "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
+  "prob": 72,
   "framing": "yes",
   "subject": null
  },
@@ -124,18 +109,8 @@
   "framing": "yes",
   "subject": null
  },
- "lal-mala-dep-2026-08-24": {
-  "prob": 41,
-  "framing": "yes",
-  "subject": null
- },
  "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
   "prob": 6,
-  "framing": "yes",
-  "subject": null
- },
- "elon-musk-of-tweets-august-21-august-28-2026": {
-  "prob": 0,
   "framing": "yes",
   "subject": null
  },
@@ -185,12 +160,12 @@
   "subject": null
  },
  "fed-rate-hike-in-2026": {
-  "prob": 55,
+  "prob": 56,
   "framing": "yes",
   "subject": null
  },
  "who-will-be-the-next-prime-minister-of-israel-after-the-next-election": {
-  "prob": 27,
+  "prob": 28,
   "framing": "yes",
   "subject": null
  },
@@ -264,11 +239,6 @@
   "framing": "domestic",
   "subject": null
  },
- "what-price-will-wti-hit-in-august-2026": {
-  "prob": 0,
-  "framing": "subject",
-  "subject": "↑ $150"
- },
  "official-1787048085663": {
   "prob": null,
   "framing": "domestic",
@@ -284,9 +254,9 @@
   "framing": "none",
   "subject": null
  },
- "sam-altman-world-ai-summit-tokyo": {
+ "official-1787044209435": {
   "prob": null,
-  "framing": "none",
+  "framing": "domestic",
   "subject": null
  },
  "openai-gpt5-release-2026": {
@@ -294,9 +264,9 @@
   "framing": "none",
   "subject": null
  },
- "official-1787044209435": {
+ "sam-altman-world-ai-summit-tokyo": {
   "prob": null,
-  "framing": "domestic",
+  "framing": "none",
   "subject": null
  },
  "putin-out-before-2027": {
