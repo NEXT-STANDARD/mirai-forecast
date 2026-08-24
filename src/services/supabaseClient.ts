@@ -111,11 +111,15 @@ const isDuplicateVoteError = (err: { code?: string } | null): boolean => !!err &
 
 /**
  * 日本人ユーザーの投票をSupabaseにリアルタイム送信
+ *
+ * @returns 新しい1票として記録できたら true。
+ *   埋め込みウィジェット（N-56）は、この戻り値が true のときだけ表示を動かす。
+ *   記録できていないのに数字だけ動かすと、読者に嘘の世論を見せることになる。
  */
-export async function submitVoteToSupabase(eventId: string, choice: 'YES' | 'NO') {
+export async function submitVoteToSupabase(eventId: string, choice: 'YES' | 'NO'): Promise<boolean> {
   if (!supabaseAnonKey && !import.meta.env.VITE_SUPABASE_ANON_KEY) {
     console.warn('[Supabase] VITE_SUPABASE_ANON_KEY が未設定です');
-    return;
+    return false;
   }
 
   const base = {
@@ -139,9 +143,14 @@ export async function submitVoteToSupabase(eventId: string, choice: 'YES' | 'NO'
       ({ error } = await insert(base));
     }
 
-    if (isDuplicateVoteError(error)) return;   // 二重投票は正常系
-    if (error) console.warn('[Supabase] 投票送信に失敗しました:', error.message);
+    if (isDuplicateVoteError(error)) return false;   // 二重投票は正常系。ただし新しい1票ではない
+    if (error) {
+      console.warn('[Supabase] 投票送信に失敗しました:', error.message);
+      return false;
+    }
+    return true;
   } catch (err) {
     console.warn('[Supabase] 投票送信中にネットワークエラー:', err);
+    return false;
   }
 }

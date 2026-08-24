@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { framingOf } from '../utils/probabilityLabel';
+import { framingOf, positiveLabel } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { 
   X, 
@@ -328,7 +328,14 @@ ${shareUrl}
                   <Globe2 size={12} className="text-cyan-400" />
                   <span>世界のリアルマネー (Polymarket)</span>
                 </div>
-                <div className="ogp-col-prob world-text font-mono">YES {worldYes}%</div>
+                {/* N-55: 実際に配信されるOGP画像と同じ枠組みで見せる。
+                    プレビューだけ「YES」だと、共有カードと食い違う。 */}
+                <div className="ogp-col-prob world-text font-mono">{positiveLabel(item)} {worldYes}%</div>
+                {framingOf(item).kind !== 'yes' && (
+                  <div className="embed-subject-note">
+                    {framingOf(item).kind === 'leader' ? `本命 ${framingOf(item).subject}` : `対象: ${framingOf(item).subject}`}
+                  </div>
+                )}
                 <div className="ogp-bar-track">
                   <div className="ogp-bar-fill world-bar" style={{ width: `${worldYes}%` }}></div>
                 </div>

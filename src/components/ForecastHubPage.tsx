@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { positiveLabel } from '../utils/probabilityLabel';
 import { 
   Award,
   ArrowLeft, 
@@ -281,7 +282,7 @@ https://mirairadar.com/forecast
                     <h3 className="hub-vote-title">{event.titleJa || event.title}</h3>
 
                     <div className="hub-vote-meta">
-                      <span className="hub-vote-meta-world">🌍 世界オッズ: YES {event.worldProbYes}%</span>
+                      <span className="hub-vote-meta-world">🌍 世界オッズ: {positiveLabel(event)} {event.worldProbYes}%</span>
                       <span className="hub-vote-meta-japan">🇯🇵 日本世論: YES {event.japanVotes.percentYes}%</span>
                     </div>
                   </div>

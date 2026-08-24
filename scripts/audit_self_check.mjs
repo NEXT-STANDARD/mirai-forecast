@@ -1096,6 +1096,56 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 32. 世界確率を「YES」と直書きしている箇所が残っていないか (N-55)
+  // ----------------------------------------------------------------------------
+  // 同じ数字を出す面が増えるたび、新しい面だけが「YES」のまま取り残されてきた。
+  //   第11回 og:title → 第13回 OGP画像・アプリ → 第14回 JSON-LD・静的シェル
+  //   → 第15回 埋め込みウィジェット・予測ハブ
+  // 4ラウンド同じ型を繰り返している。dist を見る検査（#29 #30）は
+  // プリレンダー出力しか見ないので、クライアント描画の面は素通りする。
+  //
+  // ここはソースを見る。worldProbYes/No の直前に YES/NO が直書きされていたら落とす。
+  // 判定式は既知の良例・悪例7件で検算済み（日本世論の "YES" は本物なので拾わない）。
+  // ============================================================================
+  {
+    // 直接参照だけでなく、別名を経由した参照も追う。
+    //   const worldYes = item.worldProbYes;   ← 別行で別名を付けて
+    //   YES {worldYes}%                        ← 別行で直書きする形が実際の N-55 だった。
+    // 同一行しか見ない版では、書いた本人（この検査）が対象の欠陥を見逃していた。
+    const HARDCODED = /(?<![A-Za-z])(YES|NO)\s*\{[^}]*worldProb(Yes|No)/;
+    const ALIAS_DECL = /\bconst\s+(\w+)\s*=\s*\w+(?:\?\.|\.)worldProb(?:Yes|No)\b/g;
+    const srcDir = path.join(ROOT, "src");
+    const offenders = [];
+    let scanned = 0;
+    const walk = (dir) => {
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, e.name);
+        if (e.isDirectory()) { walk(full); continue; }
+        if (!/\.(tsx|ts)$/.test(e.name)) continue;
+        scanned++;
+        const raw = fs.readFileSync(full, "utf-8");
+        const aliases = [...raw.matchAll(ALIAS_DECL)].map(m => m[1]);
+        const aliasRe = aliases.length
+          ? new RegExp(`(?<![A-Za-z])(YES|NO)\\s*\\{[^}]*\\b(${aliases.join("|")})\\b`)
+          : null;
+        raw.split("\n").forEach((line, i) => {
+          if (HARDCODED.test(line) || (aliasRe && aliasRe.test(line))) {
+            offenders.push(`${path.relative(ROOT, full)}:${i + 1} → ${line.trim().slice(0, 60)}`);
+          }
+        });
+      }
+    };
+    if (fs.existsSync(srcDir)) walk(srcDir);
+    report(
+      `世界確率のYES直書き (N-55 / ${scanned}ファイル走査)`,
+      offenders.length === 0 && scanned > 0,
+      offenders.length === 0
+        ? `世界確率を表示する箇所はすべて probabilityLabel を経由している`
+        : `${offenders.length}件が直書き: ${offenders.slice(0, 3).join(" ／ ")}${offenders.length > 3 ? ` ほか${offenders.length - 3}件` : ""}`
+    );
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

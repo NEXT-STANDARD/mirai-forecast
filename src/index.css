@@ -10537,3 +10537,14 @@ body::after {
 /* N-54: 投票済みのボタンは押せないことを示す（1銘柄1票） */
 .btn-card-vote:disabled { opacity: 0.55; cursor: default; }
 .btn-card-vote:disabled.selected { opacity: 1; }
+
+/* N-55: 埋め込みウィジェットの確率の主語（幅が狭いので名前のみ） */
+.embed-subject-note {
+  margin-top: 0.15rem;
+  font-size: 0.6rem;
+  line-height: 1.3;
+  color: #94a3b8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
