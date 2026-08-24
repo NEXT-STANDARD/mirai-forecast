@@ -372,6 +372,30 @@ async function prerenderAll() {
       canonical: `${SITE_URL}/letter-to-mike`
     },
     {
+      dir: 'about',
+      title: '未来レーダーについて ｜ 世界の集合知 × 日本の世論インテリジェンス・メディア',
+      description: '世界の集合知（Polymarket）と日本の世論を対比し未来を可視化する非胴元型インテリジェンス・メディア。気象台モデル、3大上場基準、WebMCP連携を宣言。',
+      canonical: `${SITE_URL}/about`,
+      jsonLd: {
+        "@context": "https://schema.org",
+        "@type": "AboutPage",
+        "name": "未来レーダーについて",
+        "description": "世界の集合知（Polymarket）と日本の世論を対比し未来を可視化する非胴元型インテリジェンス・メディア",
+        "url": `${SITE_URL}/about`,
+        "mainEntity": {
+          "@type": "Organization",
+          "name": "未来レーダー",
+          "url": SITE_URL,
+          "logo": `${SITE_URL}/ogp-main.png`,
+          "founder": {
+            "@type": "Person",
+            "name": "霧島フェニックス",
+            "alternateName": "Phoenix Kirishima"
+          }
+        }
+      }
+    },
+    {
       // 個人ページ。索引はしないが、404.html を置くとソフト404ではなく本物の404に
       // なるため、実在するルートはプリレンダーしておく必要がある（第12回 N-47）
       dir: 'profile',
@@ -394,6 +418,11 @@ async function prerenderAll() {
     html = html.replace(/<meta name="twitter:title" content=".*?" \/>/i, `<meta name="twitter:title" content="${escapeHtml(page.title)}" />`);
     html = html.replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${escapeHtml(page.description)}" />`);
     html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${page.canonical}" />`);
+
+    if (page.jsonLd) {
+      const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(page.jsonLd, null, 2)}\n    </script>`;
+      html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLdScript);
+    }
 
     // 旧ディレクトリ形式が存在していれば削除
     const oldPageDir = path.join(DIST_DIR, page.dir);

@@ -22,6 +22,7 @@ const ForecastHubPage = lazy(() => import('./components/ForecastHubPage').then(m
 const MarketDetailPage = lazy(() => import('./components/MarketDetailPage').then(m => ({ default: m.MarketDetailPage })));
 const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m => ({ default: m.EmbedWidgetPage })));
 const GuideDetailPage = lazy(() => import('./components/GuideDetailPage').then(m => ({ default: m.GuideDetailPage })));
+const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -90,6 +91,13 @@ export function App() {
     );
   });
 
+  // 🏛️ 公式「About Us（私たちについて）」ページルーティング (/about) - 末尾スラッシュ完全耐性
+  const [isAboutPageOpen, setIsAboutPageOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/about';
+  });
+
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
     if (!isLocalhost && typeof window !== 'undefined' && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin') {
@@ -134,7 +142,25 @@ export function App() {
   const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
 
   // URL 履歴管理
+  const handleOpenAbout = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAboutPageOpen(true);
+    window.history.pushState({}, '', '/about');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseAbout = () => {
+    setIsAboutPageOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenMarketDetail = (market: MarketItem) => {
+    setIsAboutPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
     setIsAdminOpen(false);
@@ -152,6 +178,7 @@ export function App() {
 
   const handleOpenGuide = (slug: string = 'polymarket-japan') => {
     setDetailMarketId(null);
+    setIsAboutPageOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -169,6 +196,7 @@ export function App() {
   const handleOpenLetter = () => {
     setDetailMarketId(null);
     setGuideSlug(null);
+    setIsAboutPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -185,6 +213,7 @@ export function App() {
   const handleOpenForecastHub = () => {
     setDetailMarketId(null);
     setGuideSlug(null);
+    setIsAboutPageOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -201,6 +230,7 @@ export function App() {
   const handleOpenAdmin = () => {
     setDetailMarketId(null);
     setGuideSlug(null);
+    setIsAboutPageOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -217,6 +247,7 @@ export function App() {
   const handleGoHome = () => {
     setDetailMarketId(null);
     setGuideSlug(null);
+    setIsAboutPageOpen(false);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
@@ -233,6 +264,15 @@ export function App() {
       const rawPath = window.location.pathname;
       const path = rawPath.replace(/\/+$/, '') || '/';
       if (path === '/' || path === '') {
+        setIsAboutPageOpen(false);
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+        setGuideSlug(null);
+      } else if (path === '/about') {
+        setIsAboutPageOpen(true);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -241,6 +281,7 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/admin') {
         if (isLocalhost) {
+          setIsAboutPageOpen(false);
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -249,6 +290,7 @@ export function App() {
           setGuideSlug(null);
         } else {
           window.history.replaceState({}, '', '/');
+          setIsAboutPageOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -257,6 +299,7 @@ export function App() {
           setGuideSlug(null);
         }
       } else if (path === '/letter-to-mike') {
+        setIsAboutPageOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
         setIsAiConnectorOpen(false);
@@ -264,6 +307,7 @@ export function App() {
         setDetailMarketId(null);
         setGuideSlug(null);
       } else if (path === '/ai-connector' || path === '/developers') {
+        setIsAboutPageOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
@@ -271,6 +315,7 @@ export function App() {
         setDetailMarketId(null);
         setGuideSlug(null);
       } else if (path === '/forecast' || path === '/profile' || path === '/rankings') {
+        setIsAboutPageOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -282,6 +327,7 @@ export function App() {
         if (guideMatch) {
           setGuideSlug(decodeURIComponent(guideMatch[1]));
           setDetailMarketId(null);
+          setIsAboutPageOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -293,6 +339,7 @@ export function App() {
         if (match) {
           setDetailMarketId(decodeURIComponent(match[1]));
           setGuideSlug(null);
+          setIsAboutPageOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -300,6 +347,7 @@ export function App() {
         } else {
           setDetailMarketId(null);
           setGuideSlug(null);
+          setIsAboutPageOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -490,6 +538,7 @@ export function App() {
         totalJapanVotes={totalJapanVotes}
         onOpenLetter={handleOpenLetter}
         onOpenGuide={handleOpenGuide}
+        onOpenAbout={handleOpenAbout}
         onGoHome={handleGoHome}
         onOpenPropose={() => setIsProposeModalOpen(true)}
         onOpenMyForecast={handleOpenForecastHub}
@@ -507,6 +556,15 @@ export function App() {
               onBack={handleCloseAdmin}
               events={events}
               onRefreshMarkets={loadMarketData}
+            />
+          </main>
+        </Suspense>
+      ) : isAboutPageOpen ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING ABOUT...</div>}>
+          <main className="container main-content">
+            <AboutPage
+              onBack={handleCloseAbout}
+              onOpenProposeModal={() => setIsProposeModalOpen(true)}
             />
           </main>
         </Suspense>
@@ -666,6 +724,7 @@ export function App() {
       />
 
       <ComplianceBanner
+        onOpenAbout={handleOpenAbout}
         onOpenTerms={() => {
           setTermsTab('terms');
           setIsTermsOpen(true);

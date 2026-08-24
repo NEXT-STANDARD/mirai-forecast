@@ -4,11 +4,13 @@ import { ShieldCheck, Info, Scale, Lock } from 'lucide-react';
 interface ComplianceBannerProps {
   onOpenTerms?: () => void;
   onOpenPrivacy?: () => void;
+  onOpenAbout?: () => void;
 }
 
 export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
   onOpenTerms,
   onOpenPrivacy,
+  onOpenAbout,
 }) => {
   return (
     <footer id="compliance-footer" className="compliance-footer">
@@ -62,6 +64,21 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
         {/* フッター規約リンク ＆ コピーライト */}
         <div className="footer-bottom-row">
           <div className="footer-links-group">
+            {onOpenAbout && (
+              <a
+                href="/about"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenAbout();
+                }}
+                className="footer-link-btn text-cyan-400/90 hover:text-cyan-300 font-semibold"
+              >
+                未来レーダーについて
+              </a>
+            )}
+            {onOpenAbout && (onOpenTerms || onOpenPrivacy) && (
+              <span className="footer-link-divider">｜</span>
+            )}
             {onOpenTerms && (
               <button onClick={onOpenTerms} className="footer-link-btn">
                 利用規約

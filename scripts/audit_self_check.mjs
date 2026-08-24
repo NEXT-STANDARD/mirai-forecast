@@ -452,6 +452,7 @@ async function checkDbAndPhase0() {
     { name: "トップ (/)", file: path.join(ROOT, "dist/index.html") },
     { name: "予測一覧 (/forecast)", file: path.join(ROOT, "dist/forecast.html") },
     { name: "ランキング (/rankings)", file: path.join(ROOT, "dist/rankings.html") },
+    { name: "About (/about)", file: path.join(ROOT, "dist/about.html") },
     { name: "AI連携 (/ai-connector)", file: path.join(ROOT, "dist/ai-connector.html") },
     { name: "開発者 (/developers)", file: path.join(ROOT, "dist/developers.html") },
     { name: "Mikeへの手紙 (/letter-to-mike)", file: path.join(ROOT, "dist/letter-to-mike.html") }
@@ -480,7 +481,7 @@ async function checkDbAndPhase0() {
     }
   }
   report("静的ページの Description 個別化 ＆ 120字以内検査 (P1-1)", descFails.length === 0,
-    descFails.length === 0 ? `静的全6ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
+    descFails.length === 0 ? `静的全7ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
 
   // ==============================================================================
   // 17. ガイド記事 /guide/polymarket-japan 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク整合性 (P1-2, P1-3)

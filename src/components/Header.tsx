@@ -15,6 +15,7 @@ interface HeaderProps {
   onRefresh: () => void;
   onOpenLetter?: () => void;
   onOpenGuide?: (slug?: string) => void;
+  onOpenAbout?: () => void;
   onOpenPropose?: () => void;
   onOpenMyForecast?: () => void;
   onOpenOnboarding?: () => void;
@@ -35,6 +36,7 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh,
   onOpenLetter,
   onOpenGuide,
+  onOpenAbout,
   onOpenPropose,
   onOpenMyForecast,
   onOpenOnboarding,
@@ -99,6 +101,20 @@ export const Header: React.FC<HeaderProps> = ({
                 title="Claude / Cursor / ChatGPT 向け WebMCP 連携ガイド"
               >
                 <span>AI連携</span>
+              </a>
+            )}
+
+            {onOpenAbout && (
+              <a
+                href="/about"
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpenAbout();
+                }}
+                className="header-nav-link"
+                title="未来レーダーについて（ミッション・気象台モデル・3大上場基準）"
+              >
+                <span>About</span>
               </a>
             )}
 

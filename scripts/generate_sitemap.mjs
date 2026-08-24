@@ -68,6 +68,7 @@ async function buildSitemap() {
   const staticPages = [
     { path: '/forecast', priority: '0.9', changefreq: 'always' },
     { path: '/rankings', priority: '0.9', changefreq: 'always' },
+    { path: '/about', priority: '0.8', changefreq: 'weekly' },
     { path: '/guide/polymarket-japan', priority: '0.9', changefreq: 'weekly' },
     { path: '/ai-connector', priority: '0.8', changefreq: 'weekly' },
     { path: '/developers', priority: '0.8', changefreq: 'weekly' },
