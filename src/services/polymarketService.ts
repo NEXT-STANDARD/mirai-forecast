@@ -99,7 +99,7 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
   };
 }
 
-import { resolvePolymarketOdds, truncateLeader } from '../utils/polymarketOddsResolver';
+import { resolvePolymarketOdds, truncateLeader, isDomesticEvent } from '../utils/polymarketOddsResolver';
 
 /**
  * Supabaseから「Gemini 3.7 Flash 日本語化済み銘柄」を優先取得し、
@@ -149,7 +149,7 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
     if (dbEvents.length > 0) {
       return dbEvents.map((db) => {
         const live = liveOddsMap.get(String(db.id)) || (db.slug ? liveOddsMap.get(db.slug) : undefined);
-        const isDomestic = String(db.id).startsWith('council-') || String(db.id).startsWith('official-') || String(db.id).startsWith('proposal-') || ['japan-lower-house-dissolution-2026', 'sam-altman-world-ai-summit-tokyo', 'boj-rate-hike-september-2026'].includes(String(db.id));
+        const isDomestic = isDomesticEvent(db.id);
         const originType = isDomestic ? 'domestic_poll' : 'polymarket';
         const hasWorldOdds = !isDomestic && live !== undefined && typeof live.probYes === 'number' && live.hasWorldOdds !== false;
 
