@@ -1,14 +1,14 @@
 {
- "generatedAt": "2026-08-25T08:05:52.535Z",
+ "generatedAt": "2026-08-25T08:10:33.124Z",
  "method": {
   "forecastPoint": "決着の24時間前の市場価格",
   "minVotesForJapan": 3,
   "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
  },
  "summary": {
-  "worldScored": 37,
-  "worldHits": 26,
-  "worldAccuracy": 70,
+  "worldScored": 42,
+  "worldHits": 29,
+  "worldAccuracy": 69,
   "japanScored": 0,
   "japanHits": 0,
   "japanAccuracy": null,
@@ -21,36 +21,36 @@
  },
  "breakdown": {
   "all": {
-   "n": 37,
-   "hits": 26,
-   "accuracy": 70
+   "n": 42,
+   "hits": 29,
+   "accuracy": 69
   },
   "sports": {
-   "n": 19,
-   "hits": 10,
-   "accuracy": 53
+   "n": 23,
+   "hits": 12,
+   "accuracy": 52
   },
   "nonSports": {
-   "n": 18,
-   "hits": 16,
+   "n": 19,
+   "hits": 17,
    "accuracy": 89
   },
   "excludingDegenerate": {
-   "n": 28,
-   "hits": 17,
+   "n": 33,
+   "hits": 20,
    "accuracy": 61
   },
   "nonSportsExcludingDegenerate": {
-   "n": 10,
-   "hits": 8,
-   "accuracy": 80
+   "n": 11,
+   "hits": 9,
+   "accuracy": 82
   }
  },
  "calibration": [
   {
    "band": "0-19%",
-   "n": 11,
-   "happenedRate": 18
+   "n": 12,
+   "happenedRate": 17
   },
   {
    "band": "20-39%",
@@ -59,8 +59,8 @@
   },
   {
    "band": "40-59%",
-   "n": 7,
-   "happenedRate": 57
+   "n": 11,
+   "happenedRate": 55
   },
   {
    "band": "60-79%",
@@ -850,6 +850,111 @@
    "japanCorrect": null,
    "isSports": true,
    "isDegenerate": true
+  },
+  {
+   "id": "776884",
+   "slug": "spacex-starship-flight-test-14",
+   "titleJa": "経済・市場予測: Will SpaceX Starship Flight Test 14 launch by August 31?",
+   "category": "economy",
+   "endDate": "2027-07-01T03:59:00+00:00",
+   "subject": "August 31",
+   "world": {
+    "prob": 1,
+    "at": "2026-08-24T00:00:17.000Z",
+    "points": 197,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "893334",
+   "slug": "wta-tagger-starodu-2026-08-23",
+   "titleJa": "テニス公式戦: Lilli Tagger vs Yulia Starodubtseva 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-31T01:30:00+00:00",
+   "subject": "Tagger",
+   "world": {
+    "prob": 50,
+    "at": "2026-08-23T18:00:13.000Z",
+    "points": 9,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "893332",
+   "slug": "wta-ruzic-bartunk-2026-08-23",
+   "titleJa": "テニス公式戦: Antonia Ruzic vs Nikola Bartunkova 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-31T01:00:00+00:00",
+   "subject": "Over",
+   "world": {
+    "prob": 59,
+    "at": "2026-08-23T18:00:11.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "865232",
+   "slug": "mlb-atl-mil-2026-08-23",
+   "titleJa": "MLB公式戦: Atlanta Braves vs. Milwaukee Brewers 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-30T23:10:00+00:00",
+   "subject": "Atlanta Braves",
+   "world": {
+    "prob": 46,
+    "at": "2026-08-23T00:00:18.000Z",
+    "points": 51,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "893317",
+   "slug": "wta-joint-putints-2026-08-23",
+   "titleJa": "テニス公式戦: Maya Joint vs Yulia Putintseva 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-08-30T22:30:00+00:00",
+   "subject": "Over",
+   "world": {
+    "prob": 47,
+    "at": "2026-08-23T15:00:24.000Z",
+    "points": 6,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
   }
  ]
 }

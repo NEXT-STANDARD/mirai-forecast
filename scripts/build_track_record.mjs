@@ -154,6 +154,25 @@ async function main() {
     r.isSports = SPORTS_RE.test(r.titleJa);
     r.isDegenerate = r.world.prob === 0 || r.world.prob === 100;
   }
+
+  // ----------------------------------------------------------------------------
+  // 追記型マージ：一度採点した記録は、DB から銘柄が消えても・再アクティブ化されても消さない。
+  // 実際に 2026-08-25、DB の手動整理で決着9件が行ごと削除され、採点済み5件が
+  // トラックレコードから静かに消えた（42→37件）。「削除も選別もしない」は
+  // 表示の方針ではなくデータ生成の仕組みとして保証する。
+  // 全面再採点が必要なとき（採点ロジック自体の修正時）だけ --rebuild で解除する。
+  // ----------------------------------------------------------------------------
+  if (fs.existsSync(OUT) && !process.argv.includes('--rebuild')) {
+    try {
+      const prev = JSON.parse(fs.readFileSync(OUT, 'utf-8'));
+      const newIds = new Set(records.map(r => String(r.id)));
+      const carried = (prev.records || []).filter(r => !newIds.has(String(r.id)));
+      if (carried.length > 0) {
+        records.push(...carried);
+        console.log(`  ♻️ 過去記録の引き継ぎ   : ${carried.length}件（今回の走査に現れなかった採点済み記録を保持）`);
+      }
+    } catch {}
+  }
   const rate = (arr) => arr.length
     ? { n: arr.length, hits: arr.filter(x => x.worldCorrect).length,
         accuracy: Math.round((arr.filter(x => x.worldCorrect).length / arr.length) * 100) }
