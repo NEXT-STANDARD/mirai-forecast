@@ -10,12 +10,33 @@ interface EmbedWidgetPageProps {
   slugOrId: string;
 }
 
+/** 埋め込みの表示オプション。外部から来る値なので許可リストで倒す（既定＝従来表示） */
+function parseEmbedOptions(): { theme: 'dark' | 'light'; layout: 'card' | 'banner' } {
+  if (typeof window === 'undefined') return { theme: 'dark', layout: 'card' };
+  const params = new URLSearchParams(window.location.search);
+  return {
+    theme: params.get('theme') === 'light' ? 'light' : 'dark',
+    layout: params.get('layout') === 'banner' ? 'banner' : 'card',
+  };
+}
+
 export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) => {
   const [item, setItem] = useState<MarketItem | null>(null);
   const [userVote, setUserVote] = useState<'YES' | 'NO' | null>(null);
   // N-56: 記録できた票だけを反映した集計。null なら item の値をそのまま使う。
   const [localTally, setLocalTally] = useState<{ yes: number; total: number } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // theme=light / layout=banner（メディア埋め込み用）。iframe の src が変われば文書ごと再読込される
+  const { theme, layout } = parseEmbedOptions();
+  const optionClasses = `${theme === 'light' ? ' embed-theme-light' : ''}${layout === 'banner' ? ' embed-layout-banner' : ''}`;
+
+  // ライトテーマは iframe 文書全体を白にする（ウィジェットの外周に暗色が見えないように）
+  useEffect(() => {
+    if (theme === 'light') {
+      document.documentElement.style.background = '#ffffff';
+      document.body.style.background = '#ffffff';
+    }
+  }, [theme]);
 
   useEffect(() => {
     let isMounted = true;
@@ -60,7 +81,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
 
   if (isLoading && !item) {
     return (
-      <div className="embed-loading-container">
+      <div className={`embed-loading-container${optionClasses}`}>
         <span className="live-dot-cyan"></span>
         <span>未来レーダー リアルタイム世論データを読み込み中...</span>
       </div>
@@ -69,7 +90,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
 
   if (!item) {
     return (
-      <div className="embed-error-container">
+      <div className={`embed-error-container${optionClasses}`}>
         <p>指定された観測銘柄が見つかりませんでした。</p>
         <a href="https://mirairadar.com" target="_blank" rel="noopener noreferrer" className="embed-brand-link">
           未来レーダー トップへ ➔
@@ -105,7 +126,7 @@ export const EmbedWidgetPage: React.FC<EmbedWidgetPageProps> = ({ slugOrId }) =>
   };
 
   return (
-    <div className="mirairadar-embed-widget">
+    <div className={`mirairadar-embed-widget${optionClasses}`}>
       {/* ウィジェットヘッダー */}
       <div className="embed-header">
         <a 

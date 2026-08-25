@@ -9182,6 +9182,127 @@ body::after {
   color: #7dd3fc;
 }
 
+/* ============================================================
+   埋め込みウィジェット表示オプション（メディア向け / Phase 3-C）
+   ?theme=light  … 白背景メディア用ライトテーマ
+   ?layout=banner … 記事段落間に挟む横長バナー（推奨 100%×160px）
+   既定（パラメータなし）は従来どおりダーク・カード型で、外部に
+   配布済みの埋め込みの見た目は一切変えない。
+   ============================================================ */
+.embed-theme-light {
+  background: #ffffff;
+  border-color: rgba(15, 23, 42, 0.14);
+  color: #0f172a;
+  box-shadow: none;
+}
+.embed-theme-light .embed-brand-badge { color: #0f172a; }
+.embed-theme-light .embed-brand-badge .brand-sub { color: #64748b; }
+.embed-theme-light .embed-gap-tag {
+  background: rgba(180, 83, 9, 0.08);
+  border-color: rgba(180, 83, 9, 0.35);
+  color: #b45309;
+}
+.embed-theme-light .embed-market-title { color: #0f172a; }
+.embed-theme-light .embed-market-title:hover { color: #0369a1; }
+.embed-theme-light .embed-metrics-grid {
+  background: #f8fafc;
+  border-color: rgba(15, 23, 42, 0.08);
+}
+.embed-theme-light .metric-header { color: #64748b; }
+.embed-theme-light .embed-metric-col.world .metric-val { color: #0e7490; }
+.embed-theme-light .embed-metric-col.japan .metric-val { color: #047857; }
+.embed-theme-light .embed-subject-note { color: #64748b; }
+.embed-theme-light .embed-bar-track { background: rgba(15, 23, 42, 0.1); }
+.embed-theme-light .embed-metric-col.world .embed-bar-fill { background-color: #0891b2; }
+.embed-theme-light .embed-metric-col.japan .embed-bar-fill { background-color: #059669; }
+.embed-theme-light .embed-vs-center { color: #94a3b8; }
+.embed-theme-light .embed-vote-btn.yes {
+  background: rgba(5, 150, 105, 0.08);
+  color: #047857;
+  border-color: rgba(5, 150, 105, 0.4);
+}
+.embed-theme-light .embed-vote-btn.yes:hover,
+.embed-theme-light .embed-vote-btn.yes.active {
+  background: #059669;
+  color: #ffffff;
+  box-shadow: none;
+}
+.embed-theme-light .embed-vote-btn.no {
+  background: rgba(190, 18, 60, 0.06);
+  color: #be123c;
+  border-color: rgba(190, 18, 60, 0.35);
+}
+.embed-theme-light .embed-vote-btn.no:hover,
+.embed-theme-light .embed-vote-btn.no.active {
+  background: #e11d48;
+  color: #ffffff;
+  box-shadow: none;
+}
+.embed-theme-light .embed-cta-link { color: #0369a1; }
+.embed-theme-light .embed-cta-link:hover { color: #075985; }
+.embed-loading-container.embed-theme-light,
+.embed-error-container.embed-theme-light { background: #ffffff; color: #334155; }
+
+/* バナー型：縦の余白を圧縮し、各行を1行に固定して低い枠に収める。
+   375px幅の実測でヘッダー（ブランド帯とタグ）が2行に折れて47pxを食っていたため、
+   バナーでは brand-sub を隠し、折り返しを禁止する */
+.embed-layout-banner { padding: 0.45rem 0.85rem; }
+.embed-layout-banner .embed-header { margin-bottom: 0.15rem; flex-wrap: nowrap; }
+.embed-layout-banner .embed-brand-badge { white-space: nowrap; }
+.embed-layout-banner .embed-brand-badge .brand-sub { display: none; }
+.embed-layout-banner .embed-gap-tag { white-space: nowrap; font-size: 0.75rem; }
+.embed-layout-banner .embed-market-title { font-size: 0.8rem; margin-bottom: 0.25rem; }
+.embed-layout-banner .embed-market-title > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.embed-layout-banner .embed-metrics-grid {
+  padding: 0.3rem 0.6rem;
+  margin-bottom: 0.3rem;
+  gap: 0.5rem;
+}
+.embed-layout-banner .embed-metric-col { gap: 0.1rem; min-width: 0; }
+.embed-layout-banner .metric-header { white-space: nowrap; overflow: hidden; }
+.embed-layout-banner .metric-header span:last-child { overflow: hidden; text-overflow: ellipsis; }
+.embed-layout-banner .metric-val { font-size: 0.9rem; }
+.embed-layout-banner .embed-vote-btn { padding: 0.22rem 0.55rem; }
+.embed-layout-banner .embed-subject-note { display: none; }
+
+/* 埋め込みモーダルのテーマ・レイアウト切り替え */
+.embed-options-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+}
+.embed-opt-group {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.2rem;
+}
+.embed-opt-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.45rem 0.8rem;
+  min-height: 44px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.embed-opt-btn:hover { color: #e2e8f0; }
+.embed-opt-btn.active {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.45);
+  color: #7dd3fc;
+}
+
 /* 🔌 埋め込みモーダル */
 .embed-modal-content {
   background: #0b1220;
