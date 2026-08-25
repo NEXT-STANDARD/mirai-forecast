@@ -455,6 +455,52 @@ async function checkDbAndPhase0() {
         : embedFails.slice(0, 5).join("; ") + (embedFails.length > 5 ? ` ほか${embedFails.length - 5}件` : ""));
   }
 
+  // ============================================================================
+  // 39. Worker デプロイ設定と MCP スナップショットの整合 (P0-6 / D)
+  // ----------------------------------------------------------------------------
+  // wrangler.jsonc が無いと CI の自動セットアップが SPA フォールバック設定を
+  // 毎ビルド再生成し、ソフト404 と /api/mcp 不動作が再発する（2026-08-25 に確定した根因）。
+  // あわせて /api/mcp の実データ源（mcp_snapshot.json）が掲載銘柄と一致し、
+  // n<3 の日本世論に確率が入っていない（捏造ガード）ことも検査する。
+  // ============================================================================
+  {
+    const dFails = [];
+    const wranglerPath = path.join(ROOT, "wrangler.jsonc");
+    if (!fs.existsSync(wranglerPath)) {
+      dFails.push("wrangler.jsonc がありません（CI の自動セットアップが SPA フォールバックを再生成します）");
+    } else {
+      const wr = fs.readFileSync(wranglerPath, "utf-8");
+      if (!/"not_found_handling"\s*:\s*"404-page"/.test(wr)) {
+        dFails.push('wrangler.jsonc の not_found_handling が "404-page" ではありません（ソフト404が再発します）');
+      }
+      if (!/"main"\s*:\s*"worker\/index\.ts"/.test(wr)) {
+        dFails.push("wrangler.jsonc に main (worker/index.ts) がありません（/api/mcp が動きません）");
+      }
+    }
+    const snapPath = path.join(ROOT, "dist/data/mcp_snapshot.json");
+    if (!fs.existsSync(snapPath)) {
+      dFails.push("dist/data/mcp_snapshot.json がありません");
+    } else {
+      try {
+        const snap = JSON.parse(fs.readFileSync(snapPath, "utf-8"));
+        const listedCount = activeEvents.filter(e => e.is_listed !== false).length;
+        if (!Array.isArray(snap.events) || snap.events.length !== listedCount) {
+          dFails.push(`スナップショット件数 ${snap.events?.length} が掲載銘柄数 ${listedCount} と一致しません`);
+        }
+        const fabricated = (snap.events || []).filter(e => e.japan && e.japan.probYes !== null && e.japan.n < (snap.minVotesForJapan || 3));
+        if (fabricated.length > 0) {
+          dFails.push(`n<3 なのに日本世論の確率が入っている銘柄が ${fabricated.length}件（捏造ガード違反: ${fabricated[0].slug}）`);
+        }
+      } catch (e) {
+        dFails.push(`mcp_snapshot.json のパースエラー: ${e.message}`);
+      }
+    }
+    report("Workerデプロイ設定と MCP スナップショットの整合 (P0-6 / D)", dFails.length === 0,
+      dFails.length === 0
+        ? `wrangler.jsonc (404-page / worker main) と mcp_snapshot（掲載銘柄と一致・n<3の確率なし）を確認`
+        : dFails.join("; "));
+  }
+
   // ==============================================================================
   // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
   // ==============================================================================

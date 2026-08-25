@@ -1,0 +1,24 @@
+// 未来レーダー (mirairadar.com) — Workers + Static Assets のデプロイ設定
+//
+// ⚠️ このファイルは意図的にコミットしている。無い場合、CI の wrangler 自動セットアップが
+// 毎ビルド `not_found_handling: "single-page-application"` を生成し、
+// ソフト404（未知パスが index.html を 200 で返す）と /api/mcp の不動作を再発させる。
+// 経緯は worker/index.ts の冒頭コメントと docs/AUDIT-HANDOFF.md を参照（P0-6）。
+//
+// - not_found_handling: "404-page" … アセット不一致は dist/404.html を 404 ステータスで返す
+//   （全ルートは prerender 済み: 銘柄・決着アーカイブ・埋め込みシェル・静的ページ・ガイド）
+// - main: worker/index.ts … /api/mcp（WebMCP・実データ）を担当
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mirai-forecast",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-08-20",
+  "observability": {
+    "enabled": true
+  },
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "404-page"
+  }
+}

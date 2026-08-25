@@ -41,3 +41,7 @@ docs/*.html
 
 # N-58: ビルド内でオッズを共有するための一時ファイル
 .build-cache/
+
+# wrangler のローカル状態と、過去の wrangler 実行の残骸
+.wrangler/
+_worker.bundle

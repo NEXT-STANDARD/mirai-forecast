@@ -233,6 +233,10 @@ async function prerenderAll() {
   // ==============================================================================
   console.log(`📦 有効銘柄 ${events.length}件 のプリレンダーHTMLを生成中...`);
   let marketCount = 0;
+  // Phase 2-D: /api/mcp が返す実データのスナップショット（掲載銘柄のみ）。
+  // ここで組み立てるのは、ページに描いたのと同じ数字を同じガードで出すため。
+  // n<3 の日本世論は確率を出さない（サイト全体と同じ基準）。
+  const mcpSnapshotEvents = [];
 
   for (const event of events) {
     const slug = event.slug || event.id;
@@ -401,6 +405,24 @@ async function prerenderAll() {
         .slice(0, 5)
         .map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]);
 
+      if (event.is_listed !== false) {
+        mcpSnapshotEvents.push({
+          id: String(event.id),
+          slug,
+          titleJa,
+          category: event.category || 'other',
+          endDate: event.end_date || null,
+          world: isPolymarketObserved
+            ? { hasOdds: true, probYes: worldProb, subject: probSubjectLabel }
+            : { hasOdds: false, probYes: null, subject: null },
+          japan: hasConsensus
+            ? { n, probYes: japanProb }
+            : { n, probYes: null, note: '集計中（3票未満は確率を出さない）' },
+          gapPct: isPolymarketObserved && hasConsensus ? gap : null,
+          url: `${SITE_URL}/market/${slug}`,
+        });
+      }
+
       // Phase 2-A: 観測対象外の説明はランタイムのバナーだけでなく静的シェルにも置く。
       // JS を実行しない読者・クローラーにも状態が伝わり、noindex の理由が本文で読める
       const delistedNote = event.is_listed === false
@@ -420,6 +442,19 @@ async function prerenderAll() {
   }
 
   console.log(`✅ 有効銘柄 ${marketCount}件 のプリレンダーHTMLを出力完了 (.html 形式単独 / 307根絶)！`);
+
+  // Phase 2-D: MCP スナップショットの書き出し（Worker が env.ASSETS 経由で読む）
+  {
+    const dataDir = path.join(DIST_DIR, 'data');
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(path.join(dataDir, 'mcp_snapshot.json'), JSON.stringify({
+      generatedAt: new Date().toISOString(),
+      minVotesForJapan: 3,
+      site: SITE_URL,
+      events: mcpSnapshotEvents,
+    }, null, 2), 'utf-8');
+    console.log(`🤖 MCPスナップショット ${mcpSnapshotEvents.length}件（掲載銘柄のみ・実データ）を出力しました`);
+  }
 
   // ==============================================================================
   // A-2. 決着済み・非アクティブ銘柄の自己参照Canonical＆確定アーカイブHTML生成 (N-37: ソフト404完全根絶)
