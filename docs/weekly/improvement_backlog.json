@@ -17,8 +17,8 @@
    "message": "src/services/polymarketService.ts に isDomesticEvent と同じ国内判定式のコピーが残存。scripts 側は resolvePolymarketOdds.mjs に一元化済みで、TS側だけルールが漂流するリスクがある",
    "firstSeen": "2026-08-25",
    "lastSeen": "2026-08-25",
-   "status": "open",
-   "resolution": null
+   "status": "in-progress",
+   "resolution": "PR: https://github.com/NEXT-STANDARD/mirai-forecast/pull/1（マージ後に closed へ）"
   },
   {
    "id": "HB-3",

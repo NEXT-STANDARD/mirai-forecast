@@ -1477,6 +1477,43 @@ async function checkDbAndPhase0() {
     );
   }
 
+  // ============================================================================
+  // 40. 国内判定の mjs / ts 定義一致 (HB-2)
+  // ----------------------------------------------------------------------------
+  // isDomesticEvent は node スクリプト（.mjs）とブラウザ（.ts）の2実行系にあり、
+  // 物理的な単一ソースにできない。定義（固定ID集合と接頭辞集合）を両ファイルから
+  // 導出して照合し、片側だけ変えた漂流を検出する。
+  // ============================================================================
+  {
+    const domFails = [];
+    const extract = (file) => {
+      const src = fs.readFileSync(path.join(ROOT, file), "utf-8");
+      const idsBlock = src.match(/DOMESTIC_FIXED_IDS\s*=\s*new Set\(\[([\s\S]*?)\]\)/);
+      const ids = idsBlock ? [...idsBlock[1].matchAll(/'([^']+)'/g)].map(m => m[1]).sort() : null;
+      const fnBlock = src.match(/isDomesticEvent\s*=?\s*\([\s\S]*?\{([\s\S]*?)\}/);
+      const prefixes = fnBlock ? [...fnBlock[1].matchAll(/startsWith\('([^']+)'\)/g)].map(m => m[1]).sort() : null;
+      return { ids, prefixes };
+    };
+    const mjs = extract("scripts/resolvePolymarketOdds.mjs");
+    const ts = extract("src/utils/polymarketOddsResolver.ts");
+    for (const [name, side] of [["mjs", mjs], ["ts", ts]]) {
+      if (!side.ids || side.ids.length === 0) domFails.push(`${name} 側の DOMESTIC_FIXED_IDS を導出できません`);
+      if (!side.prefixes || side.prefixes.length === 0) domFails.push(`${name} 側の接頭辞を導出できません`);
+    }
+    if (domFails.length === 0) {
+      if (JSON.stringify(mjs.ids) !== JSON.stringify(ts.ids)) {
+        domFails.push(`固定IDが不一致: mjs=[${mjs.ids}] ts=[${ts.ids}]`);
+      }
+      if (JSON.stringify(mjs.prefixes) !== JSON.stringify(ts.prefixes)) {
+        domFails.push(`接頭辞が不一致: mjs=[${mjs.prefixes}] ts=[${ts.prefixes}]`);
+      }
+    }
+    report("国内判定の mjs/ts 定義一致 (HB-2)", domFails.length === 0,
+      domFails.length === 0
+        ? `固定ID ${mjs.ids.length}件・接頭辞 ${mjs.prefixes.length}種が両実行系で一致`
+        : domFails.join("; "));
+  }
+
   console.log("\n====================================================");
   console.log(`検証結果サマリー: 合格 ${passCount}件 ｜ 不合格 ${failCount}件`);
   console.log("====================================================\n");

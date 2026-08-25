@@ -24,6 +24,20 @@ export interface ResolvedPolymarketOdds {
   outcomeSubject: string | null;
 }
 
+// 国内銘柄（Polymarket に対応市場がなく、世界オッズを持たない）の判定。
+// scripts 側は resolvePolymarketOdds.mjs に一元化済み（HB-2）。TS と mjs の2実行系が
+// あるため物理的な単一ソースにはできず、定義の一致は検査エンジン（mjs/ts 整合検査）が守る。
+// ここを変えるときは scripts/resolvePolymarketOdds.mjs も同時に変えること。
+export const DOMESTIC_FIXED_IDS = new Set([
+  'japan-lower-house-dissolution-2026',
+  'sam-altman-world-ai-summit-tokyo',
+  'boj-rate-hike-september-2026',
+]);
+export const isDomesticEvent = (id: unknown): boolean => {
+  const s = String(id);
+  return s.startsWith('council-') || s.startsWith('official-') || s.startsWith('proposal-') || DOMESTIC_FIXED_IDS.has(s);
+};
+
 // N-50: outcomes[0] が "Yes" でなければ、その確率は YES のものではない。
 const outcomeSubjectOf = (m: any): string | null => {
   if (!m) return null;
