@@ -206,9 +206,14 @@ async function syncPolymarket() {
             if (res.ok) {
               const directEv = await res.json();
               // N-36: 決着済み/終了銘柄は即座にDBで非アクティブ化
+              // HB-3: 完了ログは実際に書いた分岐の中でだけ出す（dry-run でログが嘘をつかないように）
               if (directEv.closed === true || directEv.active === false) {
-                console.log(`🔒 決着済み銘柄を非アクティブ化: ${row.id} (${row.title_ja})`);
-                if (!DRY_RUN) await supabase.from('events').update({ is_active: false }).eq('id', row.id);
+                if (DRY_RUN) {
+                  console.log(`🧪 [dry-run] 決着済み銘柄の非アクティブ化を省略: ${row.id} (${row.title_ja})`);
+                } else {
+                  console.log(`🔒 決着済み銘柄を非アクティブ化: ${row.id} (${row.title_ja})`);
+                  await supabase.from('events').update({ is_active: false }).eq('id', row.id);
+                }
                 continue;
               }
               if (!polyMap.has(String(directEv.id)) && !polyMap.has(row.slug)) {
@@ -237,13 +242,17 @@ async function syncPolymarket() {
     });
 
     // market_odds.json および marketOddsMaster.ts を出力
+    // HB-3: 完了ログは実際に書いた分岐の中でだけ出す。dry-run は「何を書くか」を数えて報告する（作法11）
     const oddsJsonPath = path.join(ROOT, 'public', 'data', 'market_odds.json');
-    if (!DRY_RUN) fs.writeFileSync(oddsJsonPath, JSON.stringify(marketOddsStore, null, 2), 'utf-8');
-    console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
-
     const oddsTsPath = path.join(ROOT, 'src', 'data', 'marketOddsMaster.ts');
     const oddsTsContent = `// Polymarket リアルタイムオッズマスター (自動生成)\nexport const MARKET_ODDS_MASTER: Record<string, { probYes: number | null; hasWorldOdds?: boolean; isClosed?: boolean; volume24h: number; totalVolume: number; probChange24h?: number; clobTokenId?: string; isMultiChoice?: boolean; leaderName?: string | null; marketQuestion?: string | null; matchedLabel?: string | null; matchedMarketId?: string | null; outcomeSubject?: string | null }> = ${JSON.stringify(marketOddsStore, null, 2)};\n`;
-    if (!DRY_RUN) fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
+    if (DRY_RUN) {
+      console.log(`🧪 [dry-run] 市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) の書き込みを省略しました（書く予定: ${oddsJsonPath} ／ ${oddsTsPath}）`);
+    } else {
+      fs.writeFileSync(oddsJsonPath, JSON.stringify(marketOddsStore, null, 2), 'utf-8');
+      console.log(`✅ ${oddsJsonPath} に市場オッズ辞書 (${Object.keys(marketOddsStore).length}エントリ) を保存完了`);
+      fs.writeFileSync(oddsTsPath, oddsTsContent, 'utf-8');
+    }
 
 
 // N-64 の選定ルール本体は curation_rules.mjs に一元化した（絞り込みスクリプトと共有）
@@ -489,8 +498,13 @@ async function syncPolymarket() {
     });
 
     // public/data/ai_insights.json に保存
-    if (!DRY_RUN) fs.writeFileSync(INSIGHTS_JSON_PATH, JSON.stringify(insightsJsonStore, null, 2));
-    console.log(`✅ ${INSIGHTS_JSON_PATH} に深層カタリスト分析を保存完了`);
+    // HB-3: dry-run では Gemini を呼んでいないため insightsJsonStore は空。件数ごと正直に報告する
+    if (DRY_RUN) {
+      console.log(`🧪 [dry-run] 深層カタリスト分析 (${Object.keys(insightsJsonStore).length}件) の書き込みを省略しました（書く予定: ${INSIGHTS_JSON_PATH}）`);
+    } else {
+      fs.writeFileSync(INSIGHTS_JSON_PATH, JSON.stringify(insightsJsonStore, null, 2));
+      console.log(`✅ ${INSIGHTS_JSON_PATH} に深層カタリスト分析を保存完了`);
+    }
 
     // src/data/aiInsightsMaster.ts にTypeScriptマスターとして出力
     const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
@@ -510,8 +524,12 @@ export interface AiInsightData {
 
 export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringify(insightsJsonStore, null, 2)};
 `;
-    if (!DRY_RUN) fs.writeFileSync(tsPath, tsContent);
-    console.log(`✅ ${tsPath} にTypeScriptマスターとして出力完了`);
+    if (DRY_RUN) {
+      console.log(`🧪 [dry-run] ${tsPath} への出力を省略しました`);
+    } else {
+      fs.writeFileSync(tsPath, tsContent);
+      console.log(`✅ ${tsPath} にTypeScriptマスターとして出力完了`);
+    }
 
     // 翻訳辞書 ＆ ルールベース翻訳フォールバック
     // 訂正済みタイトル：保持ガードを越えて必ず適用される（誤訳の自己修復）
@@ -848,7 +866,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       for (const r of existingRows) {
         if (r.title_ja && r.title_ja.includes('  ')) {
           const cleaned = r.title_ja.replace(/\s{2,}/g, ' ').trim();
-          if (!DRY_RUN) await supabase.from('events').update({ title_ja: cleaned, question_ja: cleaned }).eq('id', r.id);
+          // HB-3: dry-run で黙って飛ばすと「書く予定の修復」が数えられない（作法11）
+          if (DRY_RUN) console.log(`🧪 [dry-run] title_ja の二重空白修復を省略: ${r.id}`);
+          else await supabase.from('events').update({ title_ja: cleaned, question_ja: cleaned }).eq('id', r.id);
         }
       }
     }
@@ -893,11 +913,14 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
           refreshRecords.push({ id: row.id, question_en: nextQuestionEn, end_date: nextEndDate, updated_at: new Date().toISOString() });
         }
         if (refreshRecords.length > 0) {
-          const { error: rErr } = DRY_RUN
-            ? { error: null }
-            : await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
-          if (rErr) console.error('派生フィールドの更新に失敗:', rErr.message);
-          else console.log(`🔄 上位25件外の有効銘柄 ${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
+          // HB-3: 「更新」ログは実際に upsert した分岐の中でだけ出す
+          if (DRY_RUN) {
+            console.log(`🧪 [dry-run] 上位25件外の派生フィールド更新 ${refreshRecords.length}件 を省略しました`);
+          } else {
+            const { error: rErr } = await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
+            if (rErr) console.error('派生フィールドの更新に失敗:', rErr.message);
+            else console.log(`🔄 上位25件外の有効銘柄 ${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
+          }
         } else {
           console.log('🔄 上位25件外の有効銘柄：更新が必要な派生フィールドはありませんでした');
         }
@@ -906,16 +929,22 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
 
       // 期限切れ銘柄を自動的に非アクティブ化
-      if (!DRY_RUN) await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
-      console.log(`\n🎉 【深層個別カタリスト分析 完了！】 厳選 ${selectedRecords.length}件 を同期完了！`);
-      console.log('✅ 個別分析サンプル:');
-      selectedRecords.slice(0, 3).forEach((r, i) => {
-        const ins = insightsJsonStore[r.id];
-        console.log(`\n[${i + 1}] ${r.title_ja}`);
-        console.log(`  💡 サマリー: ${ins?.summaryJa}`);
-        console.log(`  🔍 要因: ${ins?.whyMovedJa}`);
-        console.log(`  📅 カタリスト: ${ins?.keyCatalysts?.join(' ｜ ')}`);
-      });
+      // HB-3: dry-run に「同期完了！」を言わせない。サンプル表示も Gemini を呼んでいない
+      // dry-run では insightsJsonStore が空で undefined を印字するため、実行した分岐に閉じ込める
+      if (DRY_RUN) {
+        console.log(`\n🧪 [dry-run] 同期は実行していません（本実行なら 厳選 ${selectedRecords.length}件 を upsert し、期限切れ銘柄を非アクティブ化します）`);
+      } else {
+        await supabase.from('events').update({ is_active: false }).lt('end_date', new Date().toISOString()).eq('is_active', true);
+        console.log(`\n🎉 【深層個別カタリスト分析 完了！】 厳選 ${selectedRecords.length}件 を同期完了！`);
+        console.log('✅ 個別分析サンプル:');
+        selectedRecords.slice(0, 3).forEach((r, i) => {
+          const ins = insightsJsonStore[r.id];
+          console.log(`\n[${i + 1}] ${r.title_ja}`);
+          console.log(`  💡 サマリー: ${ins?.summaryJa}`);
+          console.log(`  🔍 要因: ${ins?.whyMovedJa}`);
+          console.log(`  📅 カタリスト: ${ins?.keyCatalysts?.join(' ｜ ')}`);
+        });
+      }
     }
   } catch (err) {
     console.error('Sync Error:', err);
