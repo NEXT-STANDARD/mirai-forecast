@@ -1,0 +1,66 @@
+name: MiraiRadar Weekly Observatory (週次定点観測)
+
+# Phase 2-E: 週1回、次の3つをまとめて行う
+#   1. 掲載銘柄のリバランス（同期で漂流した掲載数を20に戻す / select_listed_events --apply）
+#   2. 的中トラックレコードの再生成（build_track_record）
+#   3. 週次観測ドラフトの生成（build_weekly_observation → docs/weekly/）
+# 生成物をコミット＆プッシュすると、Cloudflare Workers Builds が本番を再ビルドする。
+
+on:
+  schedule:
+    # 日曜 21:10 UTC = 月曜 06:10 JST（毎時 :00/:30 の同期cronとの同時実行を避ける）
+    - cron: '10 21 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  weekly-observatory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Keep previous track record for weekly diff
+        run: cp public/data/track_record.json /tmp/track_record_prev.json
+
+      - name: Rebalance listed markets to 20 (Phase 2-A rules)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/select_listed_events.mjs --apply
+
+      - name: Rebuild track record (all resolved, unfiltered)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/build_track_record.mjs
+
+      - name: Build weekly observation draft
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/build_weekly_observation.mjs --prev /tmp/track_record_prev.json
+
+      - name: Commit and push results
+        run: |
+          git config user.name "mirai-observatory[bot]"
+          git config user.email "observatory@mirairadar.com"
+          git add public/data/track_record.json docs/weekly/
+          if git diff --cached --quiet; then
+            echo "変更なし。コミットしません。"
+          else
+            git commit -m "chore(weekly): 定点観測 $(date -u +%Y-%m-%d) — リバランス・トラックレコード更新・観測ドラフト"
+            git push
+          fi

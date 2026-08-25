@@ -2,16 +2,17 @@
 
 /**
  * ==============================================================================
- * 既存銘柄の絞り込み選定（Phase 2-A: 73→20銘柄）
+ * 掲載銘柄の選定（Phase 2-A: 絞り込み ／ Phase 2-E: 週次リバランス）
  * ==============================================================================
  * DB の有効銘柄に N-64 の選定ルール（curation_rules.mjs）を当て、
- * 「サイトに出す20件（国内8・グローバル12）」の提案と、
- * ユーザーが DDL 実行後に流す UPDATE SQL を生成する。
+ * 「サイトに出す20件（国内8・グローバル12）」を機械選定する。
  *
- * このスクリプトは DB に一切書かない。書くのは次の2ファイルだけ：
- *   - docs/shiborikomi-teian-<日付>.md   （提案レポート）
- *   - scripts/patch_is_listed.sql        （ユーザーが実行する SQL）
- * --dry-run ではファイルも書かず、標準出力に提案だけを出す。
+ * モード:
+ *   （引数なし）  提案モード。DB に書かず、提案MDとSQLを書き出す（Phase 2-A の一回目で使用）
+ *   --dry-run    ファイルも書かず、標準出力に提案だけを出す
+ *   --apply      週次リバランス（Phase 2-E）。service_role で is_listed を直接更新する。
+ *                同期が足す新銘柄で掲載数が20から漂流するのを、週1回ここで戻す。
+ *                安全弁: 変更が12件を超える場合は異常とみなし中止（--force で解除）
  */
 
 import fs from 'fs';
@@ -28,15 +29,34 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
-const TODAY = '2026-08-25';
+const APPLY = process.argv.includes('--apply');
+const FORCE = process.argv.includes('--force');
+const MAX_APPLY_CHANGES = 12;   // 週次の自然な入れ替えは数件。これを超えたらデータ異常を疑って止まる
+const TODAY = new Date().toISOString().slice(0, 10);
 
+// CI（GitHub Actions）には .env が無く、環境変数で渡される
 const env = {};
-const envStr = fs.readFileSync(path.join(ROOT, '.env'), 'utf-8');
-envStr.split('\n').forEach((l) => {
-  const [k, ...v] = l.split('=');
-  if (k && !k.startsWith('#')) env[k.trim()] = v.join('=').trim();
-});
-const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY);
+if (fs.existsSync(path.join(ROOT, '.env'))) {
+  const envStr = fs.readFileSync(path.join(ROOT, '.env'), 'utf-8');
+  envStr.split('\n').forEach((l) => {
+    const [k, ...v] = l.split('=');
+    if (k && !k.startsWith('#')) env[k.trim()] = v.join('=').trim();
+  });
+}
+const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+const anonKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
+
+// --apply は service_role 必須。anon で走ると「成功したのに0件」になるため先に落とす（sync と同じガード）
+const keyRole = (key) => {
+  try { return JSON.parse(Buffer.from(String(key).split('.')[1], 'base64').toString()).role; } catch { return null; }
+};
+const supabaseKey = APPLY ? serviceKey : (anonKey || serviceKey);
+if (APPLY && keyRole(supabaseKey) !== 'service_role') {
+  console.error('❌ --apply には SUPABASE_SERVICE_ROLE_KEY が必要です（現在のロール: ' + keyRole(supabaseKey) + '）');
+  process.exit(1);
+}
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ------------------------------------------------------------------------------
 // 国内銘柄の重複クラスタリング
@@ -70,7 +90,7 @@ function clusterDomestic(events) {
 async function main() {
   const { data: events, error } = await supabase
     .from('events')
-    .select('id, slug, title_ja, title_en, question_en, category, end_date')
+    .select('*')
     .eq('is_active', true);
   if (error) { console.error('events 取得エラー:', error.message); process.exit(1); }
 
@@ -201,6 +221,47 @@ async function main() {
   for (const d of drops) console.log(`  [${d.kind}] n=${d.n} ${d.title.slice(0, 36)} — ${d.why}`);
 
   if (DRY_RUN) { console.log('\n🧪 [dry-run] ファイルは書きません（書く予定: 提案MD 1本・SQL 1本）'); return; }
+
+  // ----------------------------------------------------------------------------
+  // --apply: 週次リバランス（Phase 2-E）。現在の is_listed と選定結果の差分だけを更新する
+  // ----------------------------------------------------------------------------
+  if (APPLY) {
+    const currentListed = new Map(events.map(e => [String(e.id), e.is_listed !== false]));
+    const keepIds = new Set(keeps.map(k => k.id));
+    const toList = keeps.filter(k => currentListed.get(k.id) === false);
+    const toDelist = drops.filter(d => currentListed.get(d.id) === true);
+    const changes = toList.length + toDelist.length;
+
+    console.log(`\n■ リバランス差分: 掲載へ ${toList.length}件 ／ 観測対象外へ ${toDelist.length}件`);
+    for (const c of toList) console.log(`  + 掲載: ${c.title.slice(0, 40)}`);
+    for (const c of toDelist) console.log(`  - 対象外: ${c.title.slice(0, 40)} — ${c.why}`);
+
+    if (changes === 0) { console.log('変更なし。DB には書きません。'); return; }
+    if (changes > MAX_APPLY_CHANGES && !FORCE) {
+      console.error(`❌ 変更が ${changes}件 と多すぎます（上限 ${MAX_APPLY_CHANGES}件）。データ異常の疑いがあるため中止します。意図的なら --force を付けてください。`);
+      process.exit(1);
+    }
+
+    if (toList.length > 0) {
+      const { error } = await supabase.from('events').update({ is_listed: true }).in('id', toList.map(c => c.id));
+      if (error) { console.error('❌ 掲載更新エラー:', error.message); process.exit(1); }
+    }
+    if (toDelist.length > 0) {
+      const { error } = await supabase.from('events').update({ is_listed: false }).in('id', toDelist.map(c => c.id));
+      if (error) { console.error('❌ 対象外更新エラー:', error.message); process.exit(1); }
+    }
+
+    // 検算：適用後の掲載数が意図（keeps 件数）と一致すること
+    const { data: after, error: vErr2 } = await supabase
+      .from('events').select('id').eq('is_active', true).eq('is_listed', true);
+    if (vErr2) { console.error('❌ 検算クエリエラー:', vErr2.message); process.exit(1); }
+    if (!after || after.length !== keeps.length) {
+      console.error(`❌ 検算不一致: 適用後の掲載 ${after?.length}件 ≠ 選定 ${keeps.length}件`);
+      process.exit(1);
+    }
+    console.log(`✅ リバランス適用完了。掲載 ${after.length}件（国内 ${keepDomestic.length} ／ グローバル ${keepGlobal.length}）`);
+    return;
+  }
 
   const mdPath = path.join(ROOT, 'docs', `shiborikomi-teian-${TODAY}.md`);
   const md = [

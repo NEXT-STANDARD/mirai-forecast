@@ -495,9 +495,20 @@ async function checkDbAndPhase0() {
         dFails.push(`mcp_snapshot.json のパースエラー: ${e.message}`);
       }
     }
+    // Phase 2-E: トラックレコードの鮮度。週次ワークフロー（weekly-observatory）が
+    // 止まると静かに古びるため、9日（週次+猶予2日）を超えたら検知する
+    try {
+      const tr = JSON.parse(fs.readFileSync(path.join(ROOT, "public/data/track_record.json"), "utf-8"));
+      const ageDays = (Date.now() - new Date(tr.generatedAt).getTime()) / 86400000;
+      if (!(ageDays < 9)) {
+        dFails.push(`track_record.json が ${Math.floor(ageDays)}日前のまま更新されていません（週次ワークフローの停止を疑う）`);
+      }
+    } catch (e) {
+      dFails.push(`track_record.json を読めません: ${e.message}`);
+    }
     report("Workerデプロイ設定と MCP スナップショットの整合 (P0-6 / D)", dFails.length === 0,
       dFails.length === 0
-        ? `wrangler.jsonc (404-page / worker main) と mcp_snapshot（掲載銘柄と一致・n<3の確率なし）を確認`
+        ? `wrangler.jsonc (404-page / worker main)・mcp_snapshot（掲載銘柄と一致・n<3の確率なし）・track_record鮮度(9日以内)を確認`
         : dFails.join("; "));
   }
 
