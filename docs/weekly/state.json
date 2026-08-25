@@ -1,0 +1,114 @@
+{
+ "weeks": [
+  {
+   "date": "2026-08-25",
+   "totalVotes": 51,
+   "listed": 20,
+   "n3Listed": 6,
+   "trackRecords": 42,
+   "orphanRecords": 5,
+   "auditPass": 39,
+   "auditFail": 0,
+   "auditItems": 39,
+   "findings": [],
+   "tallies": {
+    "1": {
+     "yes": 1,
+     "total": 1
+    },
+    "30829": {
+     "yes": 0,
+     "total": 1
+    },
+    "31552": {
+     "yes": 0,
+     "total": 2
+    },
+    "45915": {
+     "yes": 2,
+     "total": 4
+    },
+    "89502": {
+     "yes": 2,
+     "total": 3
+    },
+    "139236": {
+     "yes": 0,
+     "total": 1
+    },
+    "411239": {
+     "yes": 1,
+     "total": 1
+    },
+    "481717": {
+     "yes": 1,
+     "total": 3
+    },
+    "659671": {
+     "yes": 3,
+     "total": 4
+    },
+    "660108": {
+     "yes": 3,
+     "total": 6
+    },
+    "660109": {
+     "yes": 0,
+     "total": 2
+    },
+    "712295": {
+     "yes": 1,
+     "total": 1
+    },
+    "746379": {
+     "yes": 1,
+     "total": 1
+    },
+    "780132": {
+     "yes": 1,
+     "total": 3
+    },
+    "780133": {
+     "yes": 0,
+     "total": 2
+    },
+    "851800": {
+     "yes": 1,
+     "total": 1
+    },
+    "862998": {
+     "yes": 2,
+     "total": 2
+    },
+    "885916": {
+     "yes": 0,
+     "total": 1
+    },
+    "proposal-1787044134976": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787044205330": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787048085663": {
+     "yes": 2,
+     "total": 3
+    },
+    "official-1787044213329": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787048081444": {
+     "yes": 5,
+     "total": 5
+    },
+    "official-1787046123636": {
+     "yes": 1,
+     "total": 1
+    }
+   }
+  }
+ ]
+}

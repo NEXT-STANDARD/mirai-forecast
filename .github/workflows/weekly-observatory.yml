@@ -53,14 +53,38 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: node scripts/build_weekly_observation.mjs --prev /tmp/track_record_prev.json
 
+      # Loop 2: 自己検証をCIでも回し、結果を自己診断の入力にする。
+      # 検査のFAILでワークフロー全体を止めず（|| true）、診断が「不合格あり」を起票する
+      - name: Install Japanese fonts (for OGP build inside audit)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk fonts-ipafont-gothic
+
+      - name: Run self-check audit (non-blocking)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          printf 'VITE_SUPABASE_URL=%s\nVITE_SUPABASE_ANON_KEY=%s\n' "$VITE_SUPABASE_URL" "$VITE_SUPABASE_ANON_KEY" > .env
+          node scripts/audit_self_check.mjs | tee /tmp/audit.log || true
+          rm -f .env
+
+      - name: Self diagnosis (Loop 2)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/build_self_diagnosis.mjs --audit-log /tmp/audit.log --prev-track /tmp/track_record_prev.json
+
       - name: Commit and push results
         run: |
           git config user.name "mirai-observatory[bot]"
           git config user.email "observatory@mirairadar.com"
+          git checkout -- public/sitemap.xml public/ogp/ src/data/ 2>/dev/null || true
           git add public/data/track_record.json docs/weekly/
           if git diff --cached --quiet; then
             echo "変更なし。コミットしません。"
           else
-            git commit -m "chore(weekly): 定点観測 $(date -u +%Y-%m-%d) — リバランス・トラックレコード更新・観測ドラフト"
+            git commit -m "chore(weekly): 定点観測 $(date -u +%Y-%m-%d) — リバランス・記録更新・観測と自己診断"
             git push
           fi
