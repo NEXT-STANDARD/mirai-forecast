@@ -1,10 +1,12 @@
 import fs from "fs";
 import path from "path";
 import { execSync } from "child_process";
+import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 import { isDomesticEvent } from "./resolvePolymarketOdds.mjs";
 
-const ROOT = "/Users/aikirishimaphoenix/AI-Company/projects/mirai-forecast";
+// CI（GitHub Actions）でも動くよう、実行環境の絶対パスを持たない（初回CI実行で ENOENT を踏んだ）
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const COMPONENTS_DIR = path.join(ROOT, "src/components");
 
 console.log("====================================================");
