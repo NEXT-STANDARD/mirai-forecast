@@ -83,8 +83,17 @@ Loop 3（PRゲート付き実装エージェント）。週次は毎週月曜 06
 パラメータと探索履歴は `docs/weekly/curation_params.json`。初回CI実行で探索枠が本番適用され
 （ETH週次バケット in／XRP out）、検算が探索枠の二重計上バグを実際に止めた。
 
-次: **Loop 3** — 自己診断の起票を入力に、定期セッションが週1件実装
-（破壊テスト＋39項目＋PRゲート）。
+**Loop 3 も運用開始済み（2026-08-25 夜・実証1周完了）**：
+- **改善バックログ** `docs/weekly/improvement_backlog.json` — Loop 2 の検知（critical/warn）を
+  解決まで残る永続キューへ upsert。検知停止で自動クローズ・再発でリオープン。
+  HB-*（人間・エージェント起票）は自動クローズしない
+- **PR 検査ゲート** `.github/workflows/pr-audit.yml` — main への PR に全項目検査を CI 実行
+- **手順書** `.claude/commands/loop3.md`（/loop3）— 週1件・着手前列挙・破壊テスト2通り・
+  全項目PASS・**PR経由（main直pushしない）**・バックログ更新の規律
+- **実証1周目 = PR #1（HB-2）**：TS側の国内判定重複を集約＋検査40項目め
+  「mjs/ts 定義一致」を追加。破壊テスト2通り検知確認・ローカル40/40・**CIゲート40/40 green**。
+  HB-1（テスト基盤）は同 severity だが複数セッション級のため規律どおり見送り記録。
+  **マージはユーザー**（https://github.com/NEXT-STANDARD/mirai-forecast/pull/1）
 
 ### ✅ E: 週次の定点観測（2026-08-25 実装・運用開始）
 
