@@ -424,6 +424,37 @@ async function checkDbAndPhase0() {
       ? `掲載 ${listedSeen}件は noindex なし ／ 観測対象外 ${unlistedSeen}件は noindex あり、で全件一致`
       : listingFails.join("; "));
 
+  // ============================================================================
+  // 38. 埋め込みシェルの網羅 (P0-6 / D の前提)
+  // ----------------------------------------------------------------------------
+  // /embed/<slug> は外部配布面。SPA フォールバックを切った瞬間に配布済みの
+  // 埋め込みが 404 にならないよう、全銘柄（有効＋決着アーカイブ）の静的シェルが
+  // dist/embed/ に存在し、noindex と銘柄ページへの canonical を持つことを検査する。
+  // 母集団は DB から導出（固定リストを持たない）。
+  // ============================================================================
+  {
+    const embedFails = [];
+    const embedTargets = [...activeEvents, ...closedEvents];
+    for (const ev of embedTargets) {
+      const slug = ev.slug || ev.id;
+      const f = path.join(ROOT, "dist/embed", `${slug}.html`);
+      if (!fs.existsSync(f)) { embedFails.push(`埋め込みシェル [${slug}] が欠落`); continue; }
+      const html = fs.readFileSync(f, "utf-8");
+      if (!html.includes('<meta name="robots" content="noindex" />')) {
+        embedFails.push(`埋め込みシェル [${slug}] に noindex がありません`);
+      }
+      if (!html.includes(`<link rel="canonical" href="https://mirairadar.com/market/${slug}" />`)) {
+        embedFails.push(`埋め込みシェル [${slug}] の canonical が銘柄ページを指していません`);
+      }
+    }
+    if (embedTargets.length === 0) embedFails.push("母集団が0件です（DB取得に失敗している疑い）");
+    report(`埋め込みシェルの網羅 (P0-6 前提 / 有効${activeEvents.length}＋決着${closedEvents.length}件)`,
+      embedFails.length === 0,
+      embedFails.length === 0
+        ? `全${embedTargets.length}件の /embed/ シェルが存在し、noindex＋銘柄ページへの canonical を確認`
+        : embedFails.slice(0, 5).join("; ") + (embedFails.length > 5 ? ` ほか${embedFails.length - 5}件` : ""));
+  }
+
   // ==============================================================================
   // 13. 銘柄別 OGP 画像 100% 網羅性 & PNG 整合性検査 (P0-5)
   // ==============================================================================

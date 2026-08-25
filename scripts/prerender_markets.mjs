@@ -495,6 +495,50 @@ async function prerenderAll() {
   }
 
   // ==============================================================================
+  // A-3. 埋め込みシェルのプリレンダー（P0-6 / D の前提）
+  // ------------------------------------------------------------------------------
+  // /embed/<slug> は外部サイトの iframe から参照される配布面だが、静的ファイルが無く
+  // SPA フォールバックだけで生きていた。フォールバックを切る（本番404の解消と
+  // Functions 有効化）と配布済みの埋め込みが全滅するため、全銘柄
+  // （有効＋決着アーカイブ）のシェルを静的に出力する。
+  // iframe 専用面なので noindex、canonical は銘柄ページへ向ける。
+  // アプリは location.pathname の /embed/ を見て EmbedWidgetPage を起動する
+  // （拡張子付き直アクセスは Pages が /embed/<slug> へ正規化してから配信する）。
+  // ==============================================================================
+  {
+    const embedDir = path.join(DIST_DIR, 'embed');
+    if (!fs.existsSync(embedDir)) fs.mkdirSync(embedDir, { recursive: true });
+    const embedTargets = [...events, ...(closedEvents || [])];
+    for (const event of embedTargets) {
+      const slug = event.slug || event.id;
+      const titleJa = event.title_ja || event.title_en || String(slug);
+      const pageTitle = `${titleJa} ｜ 未来レーダー 埋め込みウィジェット`;
+      const embedLead = `「${titleJa}」の埋め込みウィジェットです。世界の予測市場（Polymarket）のリアルマネー確率と日本の読者投票をリアルタイムで並べて表示します。単体ページではなく、記事やブログへの埋め込み（iframe）でご利用ください。`;
+
+      let html = baseHtml;
+      html = html.replace(/<title>.*?<\/title>/i, `<title>${escapeHtml(pageTitle)}</title>`);
+      html = html.replace(/<meta name="description" content=".*?" \/>/i, `<meta name="description" content="${escapeHtml(embedLead)}" />`);
+      html = html.replace(/<link rel="canonical" href=".*?" \/>/i, `<link rel="canonical" href="${SITE_URL}/market/${slug}" />`);
+      if (html.includes('<meta name="robots"')) {
+        html = html.replace(/<meta name="robots" content=".*?" \/>/i, `<meta name="robots" content="noindex" />`);
+      } else {
+        html = html.replace('</head>', '  <meta name="robots" content="noindex" />\n</head>');
+      }
+
+      html = injectStaticBody(html, staticBody({
+        h1: titleJa,
+        lead: embedLead,
+        currentPath: `/embed/${slug}`,
+        links: [[`/market/${slug}`, `${titleJa}（銘柄ページ・詳細分析）`]],
+        linksHeading: 'この銘柄のページ',
+      }), `埋め込みシェル ${slug}`);
+
+      fs.writeFileSync(path.join(embedDir, `${slug}.html`), html, 'utf-8');
+    }
+    console.log(`🔌 埋め込みシェル ${embedTargets.length}件 を出力しました（/embed/* の静的化・フォールバック非依存）`);
+  }
+
+  // ==============================================================================
   // B. 静的ページの自己参照 Canonical ＆ 固有 description プリレンダー (P1-1)
   // ==============================================================================
   let trackRecordFacts = [];
