@@ -27,8 +27,8 @@
    "message": "sync_polymarket_cron.mjs の dry-run が「保存完了」ログを無条件に出す（実際は書いていない）。作法11『何を書くかを数える』に照らすとログが嘘をつく形",
    "firstSeen": "2026-08-25",
    "lastSeen": "2026-08-25",
-   "status": "open",
-   "resolution": null
+   "status": "in-progress",
+   "resolution": "PR #3（https://github.com/NEXT-STANDARD/mirai-forecast/pull/3）。嘘の完了ログ6箇所を実分岐に閉じ込め、dry-run は件数つきで省略を報告。変更前後の dry-run 実測比較で検証（嘘5本→0本・選定一覧一致・ファイル無変更）。マージ後に closed へ"
   }
  ]
 }
