@@ -1,29 +1,29 @@
 {
- "generatedAt": "2026-08-24T23:30:10.614Z",
+ "generatedAt": "2026-08-25T02:02:13.449Z",
  "method": {
   "forecastPoint": "決着の24時間前の市場価格",
   "minVotesForJapan": 3,
   "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
  },
  "summary": {
-  "worldScored": 41,
-  "worldHits": 28,
-  "worldAccuracy": 68,
+  "worldScored": 42,
+  "worldHits": 29,
+  "worldAccuracy": 69,
   "japanScored": 0,
   "japanHits": 0,
   "japanAccuracy": null,
   "skipped": {
    "api": 0,
-   "unresolved": 6,
+   "unresolved": 5,
    "noHistory": 0,
    "noMarket": 0
   }
  },
  "breakdown": {
   "all": {
-   "n": 41,
-   "hits": 28,
-   "accuracy": 68
+   "n": 42,
+   "hits": 29,
+   "accuracy": 69
   },
   "sports": {
    "n": 23,
@@ -31,26 +31,26 @@
    "accuracy": 52
   },
   "nonSports": {
-   "n": 18,
-   "hits": 16,
+   "n": 19,
+   "hits": 17,
    "accuracy": 89
   },
   "excludingDegenerate": {
-   "n": 32,
-   "hits": 19,
-   "accuracy": 59
+   "n": 33,
+   "hits": 20,
+   "accuracy": 61
   },
   "nonSportsExcludingDegenerate": {
-   "n": 10,
-   "hits": 8,
-   "accuracy": 80
+   "n": 11,
+   "hits": 9,
+   "accuracy": 82
   }
  },
  "calibration": [
   {
    "band": "0-19%",
-   "n": 11,
-   "happenedRate": 18
+   "n": 12,
+   "happenedRate": 17
   },
   {
    "band": "20-39%",
@@ -74,6 +74,27 @@
   }
  ],
  "records": [
+  {
+   "id": "776884",
+   "slug": "spacex-starship-flight-test-14",
+   "titleJa": "経済・市場予測: Will SpaceX Starship Flight Test 14 launch by August 31?",
+   "category": "economy",
+   "endDate": "2027-07-01T03:59:00+00:00",
+   "subject": "August 31",
+   "world": {
+    "prob": 1,
+    "at": "2026-08-24T00:00:17.000Z",
+    "points": 197,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
   {
    "id": "893334",
    "slug": "wta-tagger-starodu-2026-08-23",
@@ -166,9 +187,9 @@
    "endDate": "2026-08-25T04:00:00+00:00",
    "subject": "↑ 84,000",
    "world": {
-    "prob": 3,
-    "at": "2026-08-24T15:00:18.000Z",
-    "points": 7,
+    "prob": 1,
+    "at": "2026-08-24T18:00:17.000Z",
+    "points": 8,
     "usedFallback": true
    },
    "japan": null,
@@ -399,7 +420,7 @@
    "world": {
     "prob": 35,
     "at": "2026-08-23T03:00:15.000Z",
-    "points": 241,
+    "points": 240,
     "usedFallback": false
    },
    "japan": null,
@@ -860,8 +881,8 @@
    "subject": "August 22",
    "world": {
     "prob": 100,
-    "at": "2026-08-23T21:00:57.000Z",
-    "points": 51,
+    "at": "2026-08-24T00:00:19.000Z",
+    "points": 52,
     "usedFallback": false
    },
    "japan": null,
@@ -882,7 +903,7 @@
    "world": {
     "prob": 1,
     "at": "2026-08-20T03:00:15.000Z",
-    "points": 218,
+    "points": 217,
     "usedFallback": false
    },
    "japan": null,
@@ -903,7 +924,7 @@
    "world": {
     "prob": 100,
     "at": "2026-07-26T18:00:26.000Z",
-    "points": 24,
+    "points": 23,
     "usedFallback": false
    },
    "japan": null,
