@@ -185,6 +185,7 @@ async function main() {
     date: TODAY,
     totalVotes,
     listed: listed.length,
+    listedIds: listed.map(e => String(e.id)),   // Loop 1: 翌週「掲載中に集めた票」を計算する母集団
     n3Listed,
     trackRecords: track.records.length,
     orphanRecords,
@@ -207,6 +208,41 @@ async function main() {
 
   const fmt = (v, pv) => pv === null || pv === undefined ? `${v}` : `${pv} → ${v}`;
   const md = [];
+
+  // Loop 1（掲載チューニング）の今週の結果を可視化する。
+  // チューナーはワークフロー先頭で走り params に記録済み。描画はここで一元化する
+  const paramsPath = path.join(ROOT, 'docs', 'weekly', 'curation_params.json');
+  if (fs.existsSync(paramsPath)) {
+    try {
+      const cp = JSON.parse(fs.readFileSync(paramsPath, 'utf-8'));
+      const lt = cp.lastTuning;
+      if (lt && lt.date === TODAY) {
+        md.push('');
+        md.push('## 掲載チューニング（Loop 1）');
+        md.push('');
+        if (lt.skipped) {
+          md.push(`調整見送り：${lt.skipped}`);
+        } else if ((lt.changes || []).length === 0) {
+          md.push(`増分票 ${lt.totalGained}票。票シェアと枠シェアの乖離が小さく、重みの変更なし。`);
+        } else {
+          md.push(`増分票 ${lt.totalGained}票。重みの変更 ${lt.changes.length}件：`);
+          md.push('');
+          for (const c of lt.changes) md.push(`- **${c.cat}**: ${c.from} → ${c.to}（${c.why}）`);
+        }
+        if (lt.exploration) {
+          const x = lt.exploration;
+          md.push('');
+          md.push(`前週の探索枠：「${x.title}」— 増分${x.gained}票（通常枠の中央値${x.medianOfRegulars}票・**${x.verdict}**）`);
+        }
+        if (cp.exploration?.id) {
+          md.push(`今週の探索枠：\`${cp.exploration.id}\`（${cp.exploration.since} 開始・翌週評価）`);
+        }
+        md.push('');
+        md.push(`現在の重み: ${Object.entries(cp.categoryWeights).map(([k, v]) => `${k}=${v}`).join(' / ')}`);
+      }
+    } catch {}
+  }
+
   md.push('');
   md.push('## 自己診断（Loop 2）');
   md.push('');
@@ -233,10 +269,11 @@ async function main() {
 
   const weeklyPath = path.join(ROOT, 'docs', 'weekly', `${TODAY}.md`);
   if (fs.existsSync(weeklyPath)) {
-    // 同日再実行に備え、既存の自己診断セクションを置き換える
+    // 同日再実行に備え、既存の Loop 1・Loop 2 セクションを置き換える（先に現れた方から切る）
     let body = fs.readFileSync(weeklyPath, 'utf-8');
-    const idx = body.indexOf('\n## 自己診断（Loop 2）');
-    if (idx >= 0) body = body.slice(0, idx);
+    const cutPoints = ['\n## 掲載チューニング（Loop 1）', '\n## 自己診断（Loop 2）']
+      .map(m => body.indexOf(m)).filter(i => i >= 0);
+    if (cutPoints.length > 0) body = body.slice(0, Math.min(...cutPoints));
     fs.writeFileSync(weeklyPath, body + md.join('\n'), 'utf-8');
   } else {
     fs.writeFileSync(weeklyPath, `# 週次定点観測 ${TODAY}\n` + md.join('\n'), 'utf-8');

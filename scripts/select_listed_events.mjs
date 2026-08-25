@@ -25,6 +25,7 @@ import {
   GLOBAL_QUOTA, DOMESTIC_QUOTA, SPORTS_QUOTA, SUBJECT_QUOTA,
   subjectWords, curationReject, isSportsCandidate,
 } from './curation_rules.mjs';
+import { loadParams, PARAMS_PATH } from './tune_curation_params.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -88,6 +89,15 @@ function clusterDomestic(events) {
 }
 
 async function main() {
+  // Loop 1: チューニング済みパラメータ。総枠は固定し、配分と重みだけを外から動かす
+  const params = loadParams();
+  const TOTAL_QUOTA = DOMESTIC_QUOTA + GLOBAL_QUOTA;
+  const domesticQuota = params.domesticQuota ?? DOMESTIC_QUOTA;
+  const globalQuota = TOTAL_QUOTA - domesticQuota;
+  const domesticCategoryCap = params.domesticCategoryCap ?? 2;
+  const W = (cat) => params.categoryWeights?.[cat] ?? 1;
+  const EXPLORATION_SLOTS = (APPLY || DRY_RUN) ? 1 : 0;   // 提案モード（Phase 2-A の一回目）は従来どおり
+
   const { data: events, error } = await supabase
     .from('events')
     .select('*')
@@ -156,18 +166,53 @@ async function main() {
     });
   }
 
-  // 票数優先（読者が実際に反応した銘柄）、同数なら24h出来高。そこに枠制約を重ねる。
-  candidates.sort((a, b) => b.n - a.n || b.volume24h - a.volume24h);
+  // 票数優先（読者が実際に反応した銘柄）、同点は24h出来高。カテゴリ重み（Loop 1 で学習）を乗じ、
+  // そこに枠制約を重ねる。重みは [0.5, 2.0] に閉じているので、票の支配は崩れない
+  const scoreOf = (c) => (c.n * 1000 + c.volume24h / 1000) * W(c.e.category);
+  candidates.sort((a, b) => scoreOf(b) - scoreOf(a));
+  const regularGlobalQuota = globalQuota - EXPLORATION_SLOTS;
   let sportsTaken = 0;
   const wordSeen = new Map();
   for (const c of candidates) {
-    if (keepGlobal.length >= GLOBAL_QUOTA) { dropGlobal.push({ e: c.e, why: `グローバル枠 ${GLOBAL_QUOTA}件の枠外（票数・出来高順）` }); continue; }
+    if (keepGlobal.length >= regularGlobalQuota) { dropGlobal.push({ e: c.e, why: `グローバル枠 ${regularGlobalQuota}件の枠外（票数・出来高・重み順）` }); continue; }
     if (c.isSports && sportsTaken >= SPORTS_QUOTA) { dropGlobal.push({ e: c.e, why: `スポーツ枠 ${SPORTS_QUOTA}件の枠外` }); continue; }
     const hit = c.words.find(w => (wordSeen.get(w) || 0) >= SUBJECT_QUOTA);
     if (hit) { dropGlobal.push({ e: c.e, why: `同一主体の上限 ${SUBJECT_QUOTA}件超（${hit}）` }); continue; }
     c.words.forEach(w => wordSeen.set(w, (wordSeen.get(w) || 0) + 1));
     if (c.isSports) sportsTaken++;
     keepGlobal.push(c);
+  }
+
+  // ----------------------------------------------------------------------------
+  // 探索枠（Loop 1）: 枠の1つを「順位どおりなら載らない適格銘柄」に割り当てる。
+  // 安全ルール（curationReject・残存48h・スポーツ上限）は探索でも守る。
+  // 主体上限だけは免除する——多様性を試すのが目的だから。
+  // 週替わりの選択は日付シードの擬似乱数（同じ日に何度走っても同じ銘柄）。
+  // 成績は翌週チューナーが評価し、explorationHistory に記録される。
+  // ----------------------------------------------------------------------------
+  let explorationPick = null;
+  if (EXPLORATION_SLOTS > 0) {
+    const keptIds = new Set(keepGlobal.map(c => String(c.e.id)));
+    const pool = candidates.filter(c =>
+      !keptIds.has(String(c.e.id)) && !(c.isSports && sportsTaken >= SPORTS_QUOTA));
+    // 通常選定で「落選」扱いになった銘柄を昇格させるので、落選リストから取り除く
+    // （keep + drop = 母集団全数 の検算を守る）
+    const promote = (c, isExploration) => {
+      const id = String(c.e.id);
+      const di = dropGlobal.findIndex(d => String(d.e.id) === id);
+      if (di >= 0) dropGlobal.splice(di, 1);
+      if (c.isSports) sportsTaken++;
+      keepGlobal.push(isExploration ? { ...c, isExploration: true } : c);
+    };
+    if (pool.length > 0) {
+      const seed = [...TODAY].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 0);
+      explorationPick = pool[seed % pool.length];
+      promote(explorationPick, true);
+    } else {
+      // 探索枠が立てられない週は枠を通常選定に返す
+      const next = candidates.find(c => !keptIds.has(String(c.e.id)));
+      if (next) promote(next, false);
+    }
   }
 
   // ----------------------------------------------------------------------------
@@ -181,18 +226,19 @@ async function main() {
     reps.push(sorted[0]);
     for (const dup of sorted.slice(1)) dropDomestic.push({ e: dup, why: `重複（代表: ${sorted[0].title_ja.slice(0, 22)}…）` });
   }
-  // カテゴリ上限2件で多様性を確保しつつ票数順に8件。
-  // 同数（ほぼ全部 n=0）のタイは「締切が近い＝早く白黒がつく」順、次に短い題名を機械的に採る。
+  // カテゴリ上限（params の手動ノブ）で多様性を確保しつつ票数順に採る。
+  // 同数のタイはカテゴリ重み（Loop 1）→「締切が近い＝早く白黒がつく」→ 短い題名の順。
   reps.sort((a, b) =>
     n(b) - n(a) ||
+    W(b.category) - W(a.category) ||
     String(a.end_date).localeCompare(String(b.end_date)) ||
     (a.title_ja || '').length - (b.title_ja || '').length);
   const keepDomestic = [];
   const catCount = new Map();
   for (const r of reps) {
-    if (keepDomestic.length >= DOMESTIC_QUOTA) { dropDomestic.push({ e: r, why: `国内枠 ${DOMESTIC_QUOTA}件の枠外（票数順）` }); continue; }
+    if (keepDomestic.length >= domesticQuota) { dropDomestic.push({ e: r, why: `国内枠 ${domesticQuota}件の枠外（票数順）` }); continue; }
     const cat = r.category || 'other';
-    if ((catCount.get(cat) || 0) >= 2) { dropDomestic.push({ e: r, why: `カテゴリ ${cat} の上限2件超` }); continue; }
+    if ((catCount.get(cat) || 0) >= domesticCategoryCap) { dropDomestic.push({ e: r, why: `カテゴリ ${cat} の上限${domesticCategoryCap}件超` }); continue; }
     catCount.set(cat, (catCount.get(cat) || 0) + 1);
     keepDomestic.push(r);
   }
@@ -202,7 +248,7 @@ async function main() {
   // ----------------------------------------------------------------------------
   const keeps = [
     ...keepDomestic.map(e => ({ id: String(e.id), title: e.title_ja, kind: '国内', n: n(e), end: String(e.end_date).slice(0, 10) })),
-    ...keepGlobal.map(c => ({ id: String(c.e.id), title: c.e.title_ja, kind: 'グローバル', n: c.n, end: String(c.e.end_date).slice(0, 10) })),
+    ...keepGlobal.map(c => ({ id: String(c.e.id), title: c.e.title_ja, kind: c.isExploration ? '🧪探索' : 'グローバル', n: c.n, end: String(c.e.end_date).slice(0, 10) })),
   ];
   const drops = [
     ...dropDomestic.map(d => ({ id: String(d.e.id), title: d.e.title_ja, kind: '国内', n: n(d.e), why: d.why })),
@@ -258,6 +304,16 @@ async function main() {
     if (!after || after.length !== keeps.length) {
       console.error(`❌ 検算不一致: 適用後の掲載 ${after?.length}件 ≠ 選定 ${keeps.length}件`);
       process.exit(1);
+    }
+    // 探索枠の選択を記録する（翌週、チューナーがこの銘柄の成績を評価する）
+    if (explorationPick) {
+      params.exploration = {
+        id: String(explorationPick.e.id),
+        since: TODAY,
+        baselineVotes: explorationPick.n,
+      };
+      fs.writeFileSync(PARAMS_PATH, JSON.stringify(params, null, 1), 'utf-8');
+      console.log(`🧪 探索枠: ${(explorationPick.e.title_ja || '').slice(0, 40)}（翌週に成績評価）`);
     }
     console.log(`✅ リバランス適用完了。掲載 ${after.length}件（国内 ${keepDomestic.length} ／ グローバル ${keepGlobal.length}）`);
     return;

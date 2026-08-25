@@ -1,0 +1,24 @@
+{
+ "updatedAt": "2026-08-25",
+ "domesticQuota": 8,
+ "domesticCategoryCap": 2,
+ "categoryWeights": {
+  "economy": 1,
+  "politics": 1,
+  "tech": 1,
+  "sports": 1,
+  "entertainment": 1
+ },
+ "exploration": {
+  "id": null,
+  "since": null,
+  "baselineVotes": 0
+ },
+ "explorationHistory": [],
+ "lastTuning": {
+  "date": "2026-08-25",
+  "skipped": "前週のスナップショットが無い（初回）",
+  "changes": [],
+  "exploration": null
+ }
+}

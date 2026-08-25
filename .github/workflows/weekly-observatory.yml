@@ -33,6 +33,14 @@ jobs:
       - name: Keep previous track record for weekly diff
         run: cp public/data/track_record.json /tmp/track_record_prev.json
 
+      # Loop 1: 前週の実測（票速度）からカテゴリ重みを調整し、探索枠の成績を評価する。
+      # リバランスより先に走ることで、今週の選定に調整後の重みが効く
+      - name: Tune curation params (Loop 1)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: node scripts/tune_curation_params.mjs
+
       - name: Rebalance listed markets to 20 (Phase 2-A rules)
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
