@@ -322,14 +322,22 @@ async function prerenderAll() {
       );
     }
 
+    // GSC「データセット」要件: description は 50〜5000 文字、license は必須。
+    // license は既公表の利用条件（商用・非商用とも無料、事前許諾不要）と整合する CC BY 4.0。
+    const jsonLdDescription = isPolymarketObserved
+      ? `「${titleJa}」に関する予測データセット。Polymarket（世界最大級の予測市場）のリアルマネー確率と、未来レーダーが収集した日本の無料世論投票（YES/NO形式）の結果を毎日比較・記録しています。`
+      : `「${titleJa}」に関する意識調査データセット。未来レーダーが収集した日本の無料世論投票（YES/NO形式）の回答結果を毎日集計・記録しています。世界の予測市場には未上場の日本国内テーマです。`;
+
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "Dataset",
       "name": titleJa,
-      "description": isPolymarketObserved ? "Polymarketのリアルマネー確率と日本の無料世論投票の比較データ" : "日本の世論投票データ",
+      "description": jsonLdDescription,
       "url": canonicalUrl,
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "isAccessibleForFree": true,
       "dateModified": event.updated_at || new Date().toISOString(),
-      "creator": { "@type": "Organization", "name": "未来レーダー" },
+      "creator": { "@type": "Organization", "name": "未来レーダー", "url": SITE_URL },
       "variableMeasured": variableMeasured
     };
 

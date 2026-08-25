@@ -365,6 +365,14 @@ async function checkDbAndPhase0() {
           if (parsed["@type"] !== "Dataset" || parsed.url !== `https://mirairadar.com/market/${slug}`) {
             prerenderFails.push(`銘柄 [${slug}] の JSON-LD Dataset スキーマが不正です`);
           }
+          // GSC「データセット」検査と同じ基準: description は 50〜5000 文字、license は必須
+          const descLen = typeof parsed.description === "string" ? parsed.description.length : 0;
+          if (descLen < 50 || descLen > 5000) {
+            prerenderFails.push(`銘柄 [${slug}] の JSON-LD description が ${descLen} 文字 (GSC要件: 50〜5000)`);
+          }
+          if (typeof parsed.license !== "string" || !parsed.license.startsWith("https://")) {
+            prerenderFails.push(`銘柄 [${slug}] の JSON-LD に license がありません`);
+          }
         } catch (e) {
           prerenderFails.push(`銘柄 [${slug}] の JSON-LD パースエラー: ${e.message}`);
         }
