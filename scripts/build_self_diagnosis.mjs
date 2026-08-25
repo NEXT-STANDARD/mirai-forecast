@@ -179,6 +179,43 @@ async function main() {
   }
 
   // ---------------------------------------------------------------------------
+  // 改善バックログ（Loop 3 の入力）
+  // ---------------------------------------------------------------------------
+  // 週ごとに消える「今週の検知」を、解決されるまで残る永続キューに昇格させる。
+  //   - SD-*（機械起票）: critical/warn を open として upsert。検知が止まったら自動クローズ、
+  //     再発したら再オープン（クローズ履歴は resolution に残る）
+  //   - HB-*（人間・エージェント起票）: 検知器が無いので自動クローズしない。
+  //     実装エージェント（Loop 3）が着手時に status を更新する
+  const BACKLOG_PATH = path.join(ROOT, 'docs', 'weekly', 'improvement_backlog.json');
+  const backlog = fs.existsSync(BACKLOG_PATH)
+    ? JSON.parse(fs.readFileSync(BACKLOG_PATH, 'utf-8'))
+    : { items: [] };
+  const firing = new Map(findings.filter(f => f.severity !== 'info').map(f => [f.id, f]));
+  for (const [id, f] of firing) {
+    const item = backlog.items.find(i => i.id === id);
+    if (!item) {
+      backlog.items.push({ id, kind: 'SD', severity: f.severity, message: f.message,
+        firstSeen: TODAY, lastSeen: TODAY, status: 'open', resolution: null });
+    } else {
+      item.lastSeen = TODAY;
+      item.message = f.message;
+      item.severity = f.severity;
+      if (item.status === 'closed') {
+        item.status = 'open';
+        item.resolution = `再発（${TODAY}）。過去: ${item.resolution ?? ''}`.trim();
+      }
+    }
+  }
+  for (const item of backlog.items) {
+    if (item.kind === 'SD' && item.status === 'open' && !firing.has(item.id)) {
+      item.status = 'closed';
+      item.resolution = `検知解消（${TODAY}）`;
+    }
+  }
+  fs.writeFileSync(BACKLOG_PATH, JSON.stringify(backlog, null, 1), 'utf-8');
+  const openItems = backlog.items.filter(i => i.status === 'open');
+
+  // ---------------------------------------------------------------------------
   // 状態の永続化（同日再実行は上書き）
   // ---------------------------------------------------------------------------
   const snapshot = {
@@ -264,6 +301,18 @@ async function main() {
     md.push('### 今週の改善候補（自動起票）');
     md.push('');
     for (const f of findings) md.push(`- ${sev[f.severity]} **[${f.id}]** ${f.message}`);
+  }
+  md.push('');
+  md.push('### 改善バックログ（Loop 3 の入力）');
+  md.push('');
+  if (openItems.length === 0) {
+    md.push('open の項目なし。');
+  } else {
+    md.push(`open ${openItems.length}件（着手は \`/loop3\`。週1件・破壊テスト・PR経由）：`);
+    md.push('');
+    for (const i of openItems) {
+      md.push(`- ${sev[i.severity] ?? '🟡'} **[${i.id}]** ${i.message}（初出 ${i.firstSeen}）`);
+    }
   }
   md.push('');
 

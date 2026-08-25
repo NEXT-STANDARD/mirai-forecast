@@ -1,0 +1,41 @@
+name: MiraiRadar PR Audit (Loop 3 gate)
+
+# Loop 3: 改善エージェント（人間・AIどちらでも）が出す PR に対して、
+# 自己検証エンジン全項目を機械ゲートとして走らせる。
+# ローカル環境の有無に依存せず、PR の実装がどこで書かれても同じ検査が効く。
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Japanese fonts (for OGP build inside audit)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk fonts-ipafont-gothic
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full self-check audit
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: |
+          printf 'VITE_SUPABASE_URL=%s\nVITE_SUPABASE_ANON_KEY=%s\n' "$VITE_SUPABASE_URL" "$VITE_SUPABASE_ANON_KEY" > .env
+          node scripts/audit_self_check.mjs
+          rm -f .env

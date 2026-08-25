@@ -1,0 +1,34 @@
+{
+ "items": [
+  {
+   "id": "HB-1",
+   "kind": "HB",
+   "severity": "warn",
+   "message": "アプリ表示ロジックの自動回帰検査が無い（テスト基盤未整備）。監査期からの持ち越し。自己検証はビルド成果物と構文を見るが、コンポーネントの振る舞いは人手の実測に依存している",
+   "firstSeen": "2026-08-25",
+   "lastSeen": "2026-08-25",
+   "status": "open",
+   "resolution": null
+  },
+  {
+   "id": "HB-2",
+   "kind": "HB",
+   "severity": "warn",
+   "message": "src/services/polymarketService.ts に isDomesticEvent と同じ国内判定式のコピーが残存。scripts 側は resolvePolymarketOdds.mjs に一元化済みで、TS側だけルールが漂流するリスクがある",
+   "firstSeen": "2026-08-25",
+   "lastSeen": "2026-08-25",
+   "status": "open",
+   "resolution": null
+  },
+  {
+   "id": "HB-3",
+   "kind": "HB",
+   "severity": "info",
+   "message": "sync_polymarket_cron.mjs の dry-run が「保存完了」ログを無条件に出す（実際は書いていない）。作法11『何を書くかを数える』に照らすとログが嘘をつく形",
+   "firstSeen": "2026-08-25",
+   "lastSeen": "2026-08-25",
+   "status": "open",
+   "resolution": null
+  }
+ ]
+}
