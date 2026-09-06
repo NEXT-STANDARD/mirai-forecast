@@ -1,24 +1,54 @@
 {
- "updatedAt": "2026-08-25",
+ "updatedAt": "2026-09-06",
  "domesticQuota": 8,
  "domesticCategoryCap": 2,
  "categoryWeights": {
   "economy": 1,
   "politics": 1,
-  "tech": 1,
-  "sports": 1,
+  "tech": 0.9,
+  "sports": 0.9,
   "entertainment": 1
  },
  "exploration": {
-  "id": "899525",
-  "since": "2026-08-25",
+  "id": "830255",
+  "since": "2026-09-06",
   "baselineVotes": 0
  },
- "explorationHistory": [],
+ "explorationHistory": [
+  {
+   "id": "899525",
+   "title": "イーサリアムは8月24〜30日に3,100ドルに到達するか？",
+   "since": "2026-08-25",
+   "gained": 1,
+   "medianOfRegulars": 0,
+   "verdict": "win"
+  }
+ ],
  "lastTuning": {
-  "date": "2026-08-25",
-  "skipped": "前週のスナップショットが無い（初回）",
-  "changes": [],
-  "exploration": null
+  "date": "2026-09-06",
+  "skipped": null,
+  "changes": [
+   {
+    "cat": "tech",
+    "from": 1,
+    "to": 0.9,
+    "why": "票シェア 0% vs 枠シェア 10%"
+   },
+   {
+    "cat": "sports",
+    "from": 1,
+    "to": 0.9,
+    "why": "票シェア 0% vs 枠シェア 5%"
+   }
+  ],
+  "totalGained": 13,
+  "exploration": {
+   "id": "899525",
+   "title": "イーサリアムは8月24〜30日に3,100ドルに到達するか？",
+   "since": "2026-08-25",
+   "gained": 1,
+   "medianOfRegulars": 0,
+   "verdict": "win"
+  }
  }
 }
