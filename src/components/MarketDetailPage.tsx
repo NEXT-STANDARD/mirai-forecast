@@ -427,28 +427,41 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           </div>
 
           {/* 💡 Gemini 3.8 Flash 深層カタリスト日程分析 */}
-          <div className="market-ai-analysis-card">
-            <div className="analysis-card-header">
+          <div className="detail-section-card catalyst-card">
+            <div className="section-card-header">
               <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-cyan-400" />
-                <h3 className="text-base font-bold text-slate-100">AI知性カタリスト分析</h3>
+                <Sparkles size={16} className="text-cyan-400" />
+                <h3 className="section-card-title">AI知性カタリスト分析</h3>
               </div>
-              <span className="ai-model-badge">Gemini 3.8 Flash リアルタイム分析</span>
+              <span className="badge-ai-model">Gemini 3.8 Flash リアルタイム分析</span>
             </div>
 
-            <div className="analysis-card-body">
-              <div className="analysis-summary-box">
-                <h4 className="analysis-box-title">💡 市場コンセンサス・心理サマリー</h4>
-                <p className="analysis-text">{item.aiInsight?.summaryJa || '世界最大の予測市場におけるスマートマネーのリアルタイム織り込み状況を観測中。'}</p>
-              </div>
+            <div className="catalyst-content-body">
+              {/* サマリー ＆ 主要因（2カラムグリッド） */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="catalyst-summary-box">
+                  <h4 className="catalyst-summary-title flex items-center gap-1.5 text-cyan-300">
+                    <span>💡</span>
+                    <span>市場コンセンサス・心理サマリー</span>
+                  </h4>
+                  <p className="catalyst-summary-text">
+                    {item.aiInsight?.summaryJa || '世界最大の予測市場におけるスマートマネーのリアルタイム織り込み状況を観測中。'}
+                  </p>
+                </div>
 
-              <div className="analysis-reason-box">
-                <h4 className="analysis-box-title">🔍 なぜこの確率・世論になっているのか（主要因）</h4>
-                <p className="analysis-text">{item.aiInsight?.whyMovedJa || '直近の報道やマクロ指標、関係者発言を受けた価格形成要因を分析。'}</p>
+                <div className="catalyst-why-box">
+                  <h4 className="catalyst-why-title flex items-center gap-1.5 text-amber-300">
+                    <span>🔍</span>
+                    <span>なぜこの確率・世論になっているのか（主要因）</span>
+                  </h4>
+                  <p className="catalyst-why-text">
+                    {item.aiInsight?.whyMovedJa || '直近の報道やマクロ指標、関係者発言を受けた価格形成要因を分析。'}
+                  </p>
+                </div>
               </div>
 
               {/* ⚔️ Gemini 3.8 知的ディベート対比（YES論拠 vs NO論拠） */}
-              <div className="ai-debate-section mt-4 pt-4 border-t border-slate-800/80">
+              <div className="ai-debate-section mt-3 pt-4 border-t border-slate-800/80">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 min-w-0 flex-wrap">
                     <span className="text-base flex-shrink-0">⚔️</span>
@@ -488,7 +501,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                 </div>
 
                 {/* ⚖️ 争点・対立軸の総括 */}
-                <div className="debate-summary-box">
+                <div className="debate-summary-box mt-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 mb-1">
                     <span>⚖️</span>
                     <span>最大の争点・勝負の分かれ目</span>
@@ -499,13 +512,14 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                 </div>
               </div>
 
+              {/* 🕒 次回注目カタリスト日程（確率変動トリガー） */}
               {item.aiInsight?.keyCatalysts && item.aiInsight.keyCatalysts.length > 0 && (
-                <div className="catalyst-timeline-block">
-                  <h4 className="catalyst-timeline-title">
-                    <Clock size={14} className="text-amber-400" />
-                    <span>次回注目カタリスト日程（確率変動トリガー）</span>
+                <div className="catalyst-timeline-block mt-5 pt-4 border-t border-slate-800/80">
+                  <h4 className="catalyst-timeline-title mb-2.5">
+                    <Clock size={15} className="text-amber-400 shrink-0" />
+                    <span className="text-xs font-bold text-slate-200">次回注目カタリスト日程（確率変動トリガー）</span>
                   </h4>
-                  <div className="catalyst-pills-list">
+                  <div className="catalyst-pills-list space-y-2">
                     {item.aiInsight.keyCatalysts.map((cat, idx) => (
                       <div key={idx} className="catalyst-timeline-item">
                         <div className="catalyst-dot"></div>
