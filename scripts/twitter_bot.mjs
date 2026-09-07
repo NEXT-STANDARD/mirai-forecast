@@ -108,7 +108,7 @@ function savePostedEvent(eventId) {
 async function translateSingleWithGemini(rawQuestion) {
   if (!geminiApiKey) return rawQuestion;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiApiKey}`;
   const prompt = `あなたは金融・オルタナティブデータメディア「未来レーダー」の主任翻訳クォンツです。
 以下のPolymarketの市場テーマを、日本の一般読者・投資家が直感的に理解できる自然で洗練された日本語の問い（タイトル）に翻訳してください。
 
@@ -344,7 +344,7 @@ async function runTwitterSpreadAlertBot() {
     const gap = topCandidate.gap;
     const volume24h = topCandidate.volume24h;
 
-    // Gemini 3.7 Flash でタイトルを自然な日本語に翻訳
+    // Gemini 3.8 Flash でタイトルを自然な日本語に翻訳
     const titleJa = await translateSingleWithGemini(topCandidate.rawQuestion);
     console.log(`[X速報開始] 乖離テーマ: ${titleJa}`);
     console.log(`- 世界マネー: YES ${worldProb}% ｜ 日本世論: YES ${japanProb}% ｜ 乖離: ⚡ ${gap}%`);

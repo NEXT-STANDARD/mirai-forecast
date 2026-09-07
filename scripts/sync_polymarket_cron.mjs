@@ -1,5 +1,5 @@
 /**
- * 未来レーダー (MiraiRadar.com) - Polymarket ➔ Gemini 3.7 Flash 【深層個別カタリスト分析】 ➔ Supabase & JSON 自動同期
+ * 未来レーダー (MiraiRadar.com) - Polymarket ➔ Gemini 3.8 Flash 【深層個別カタリスト分析】 ➔ Supabase & JSON 自動同期
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -136,7 +136,7 @@ ${JSON.stringify(items.map(i => ({
 ]`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiApiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -168,7 +168,7 @@ import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
 import { SPORTS_QUOTA, SUBJECT_QUOTA, GLOBAL_QUOTA, subjectWords, curationReject, isSportsCandidate } from './curation_rules.mjs';
 
 async function syncPolymarket() {
-  console.log(`[${new Date().toISOString()}] Polymarket ➔ 【Gemini 3.7 Flash リアルタイム深層カタリスト分析】同期開始...`);
+  console.log(`[${new Date().toISOString()}] Polymarket ➔ 【Gemini 3.8 Flash リアルタイム深層カタリスト分析】同期開始...`);
 
   try {
     // 1. Polymarket API から複数ページ (最大500件) を取得して全市場オッズを網羅
@@ -439,8 +439,8 @@ async function syncPolymarket() {
     console.log(`⚽ スポーツ枠: ${sportsTaken}/${SPORTS_QUOTA}件を採用${sportsDropped.length ? `（枠外で除外 ${sportsDropped.length}件）` : ''}`);
     console.log(`🎯 主体上限(${SUBJECT_QUOTA}件/主体): 採用${topCandidates.length}件${subjectDropped.length ? `（同一主体の重複で除外 ${subjectDropped.length}件）` : ''}`);
 
-    // Gemini 3.7 Flash でタイトルと個別深層カタリストを一括生成
-    console.log(`🤖 ${topCandidates.length}件の市場データについて Gemini 3.7 Flash がリアルタイム情勢分析を生成中...`);
+    // Gemini 3.8 Flash でタイトルと個別深層カタリストを一括生成
+    console.log(`🤖 ${topCandidates.length}件の市場データについて Gemini 3.8 Flash がリアルタイム情勢分析を生成中...`);
     const insights = DRY_RUN ? [] : await generateInsightsWithGemini(topCandidates);
     if (DRY_RUN) console.log('🧪 [dry-run] Gemini 呼び出しを省略しました');
     const insightMap = new Map();
@@ -509,8 +509,8 @@ async function syncPolymarket() {
     // src/data/aiInsightsMaster.ts にTypeScriptマスターとして出力
     const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
     const tsContent = `/**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
- * 自動生成ファイル (sync_polymarket_cron.mjs により更新)
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.8 Flash 深層カタリスト分析マスター
+ * 生成日時: ${new Date().toISOString()} (sync_polymarket_cron.mjs により更新)
  */
 
 export interface AiInsightData {

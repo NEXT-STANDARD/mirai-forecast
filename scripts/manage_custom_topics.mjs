@@ -5,7 +5,7 @@
  *   1. 審査待ち提案の一覧表示:
  *      node scripts/manage_custom_topics.mjs list
  * 
- *   2. 提案の承認＆本番公開 (Gemini 3.7 Flash カタリスト自動生成):
+ *   2. 提案の承認＆本番公開 (Gemini 3.8 Flash カタリスト自動生成):
  *      node scripts/manage_custom_topics.mjs approve <proposal_id>
  * 
  *   3. 運営公式オリジナル銘柄の即時投下:
@@ -117,7 +117,7 @@ JSON形式のみで出力してください:
 }`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${geminiApiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${geminiApiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -153,8 +153,8 @@ async function approveProposal(proposalId) {
     return;
   }
 
-  // Gemini 3.7 Flash でカタリスト分析を生成
-  console.log(`🤖 Gemini 3.7 Flash が「${record.title_ja}」の深層カタリスト分析を生成中...`);
+  // Gemini 3.8 Flash でカタリスト分析を生成
+  console.log(`🤖 Gemini 3.8 Flash が「${record.title_ja}」の深層カタリスト分析を生成中...`);
   const insight = await generateDeepInsightForCustom(record.title_ja, record.category_label);
 
   // Supabase で is_active: true に更新
@@ -221,7 +221,7 @@ async function approveProposal(proposalId) {
 
   const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
   const tsContent = `/**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.8 Flash 深層カタリスト分析マスター
  * 自動生成ファイル (sync_polymarket_cron.mjs / manage_custom_topics.mjs により更新)
  */
 
@@ -301,7 +301,7 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
   const id = `official-${Date.now()}`;
   const slug = `official-${Date.now()}`;
 
-  console.log(`🤖 Gemini 3.7 Flash が深層カタリスト分析を生成中...`);
+  console.log(`🤖 Gemini 3.8 Flash が深層カタリスト分析を生成中...`);
   const insight = await generateDeepInsightForCustom(titleJa, categoryLabels[category] || '📊 注目トピック');
 
   const newRecord = {
@@ -375,7 +375,7 @@ async function addOfficialCustomTopic(titleJa, category, reason) {
 
   const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
   const tsContent = `/**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.8 Flash 深層カタリスト分析マスター
  */
 
 export interface AiInsightData {

@@ -136,7 +136,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             <div className="modal-ai-section">
               <div className="ai-section-title">
                 <Sparkles size={16} className="sparkle-icon" />
-                <span>AIによる変動要因＆背景分析（Gemini 2.5）</span>
+                <span>AIによる変動要因＆背景分析（Gemini 3.8 Flash）</span>
               </div>
               <p className="ai-summary">{item.aiInsight.summaryJa}</p>
 

@@ -426,14 +426,14 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             />
           </div>
 
-          {/* 💡 Gemini 3.7 Flash 深層カタリスト日程分析 */}
+          {/* 💡 Gemini 3.8 Flash 深層カタリスト日程分析 */}
           <div className="market-ai-analysis-card">
             <div className="analysis-card-header">
               <div className="flex items-center gap-2">
                 <Sparkles size={18} className="text-cyan-400" />
                 <h3 className="text-base font-bold text-slate-100">AI知性カタリスト分析</h3>
               </div>
-              <span className="ai-model-badge">Gemini 3.7 Flash リアルタイム分析</span>
+              <span className="ai-model-badge">Gemini 3.8 Flash リアルタイム分析</span>
             </div>
 
             <div className="analysis-card-body">
@@ -447,7 +447,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                 <p className="analysis-text">{item.aiInsight?.whyMovedJa || '直近の報道やマクロ指標、関係者発言を受けた価格形成要因を分析。'}</p>
               </div>
 
-              {/* ⚔️ Gemini 3.7 知的ディベート対比（YES論拠 vs NO論拠） */}
+              {/* ⚔️ Gemini 3.8 知的ディベート対比（YES論拠 vs NO論拠） */}
               <div className="ai-debate-section mt-4 pt-4 border-t border-slate-800/80">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 min-w-0 flex-wrap">

@@ -1334,7 +1334,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   disabled={!newTitle.trim() || isDeploying}
                 >
                   <PlusCircle size={16} />
-                  <span>{isDeploying ? 'Gemini 3.7 Flash 分析 ＆ 本番投下中...' : '公式銘柄を本番に即時投下する (DEPLOY NOW)'}</span>
+                  <span>{isDeploying ? 'Gemini 3.8 Flash 分析 ＆ 本番投下中...' : '公式銘柄を本番に即時投下する (DEPLOY NOW)'}</span>
                 </button>
               </form>
             </div>
@@ -1714,7 +1714,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
               <div className="ai-auto-badge-box">
                 <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5" />
                 <span className="text-xs text-amber-300 leading-relaxed">
-                  <strong>Gemini 3.7 Flash 連携:</strong> 承認後、本銘柄専用の深層カタリスト日程分析が自動生成され、リアルタイムにサイト上で閲覧可能になります。
+                  <strong>Gemini 3.8 Flash 連携:</strong> 承認後、本銘柄専用の深層カタリスト日程分析が自動生成され、リアルタイムにサイト上で閲覧可能になります。
                 </span>
               </div>
             </div>

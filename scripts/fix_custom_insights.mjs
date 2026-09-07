@@ -83,7 +83,7 @@ async function fix() {
 
   const tsPath = path.join(process.cwd(), 'src', 'data', 'aiInsightsMaster.ts');
   const tsContent = `/**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.7 Flash 深層カタリスト分析マスター
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.8 Flash 深層カタリスト分析マスター
  */
 
 export interface AiInsightData {

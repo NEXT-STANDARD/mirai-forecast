@@ -1,9 +1,9 @@
 /**
- * 未来レーダー (MiraiRadar.com) - Gemini 3.6 Flash 変動要因＆カタリスト分析エンジン
+ * 未来レーダー (MiraiRadar.com) - Gemini 3.8 Flash 変動要因＆カタリスト分析エンジン
  */
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
-const MODEL_NAME = 'gemini-3.7-flash';
+const MODEL_NAME = 'gemini-3.8-flash';
 
 export interface AiInsightResult {
   summaryJa: string;
@@ -54,7 +54,7 @@ export async function generateAiInsightForEvent(
       whyMovedJa: parsed.whyMovedJa,
     };
   } catch (err) {
-    console.error('Gemini 3.6 Flash generation error:', err);
+    console.error('Gemini 3.8 Flash generation error:', err);
     return null;
   }
 }

@@ -32,7 +32,7 @@ ${JSON.stringify(sampleEnglishTitles, null, 2)}
 ]`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ ${JSON.stringify(sampleEnglishTitles, null, 2)}
 
     const data = await res.json();
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    console.log('\n🎉 Gemini 3.7 Flash による日本語タイトル自動翻訳結果:');
+    console.log('\n🎉 Gemini 3.8 Flash による日本語タイトル自動翻訳結果:');
     console.log(JSON.parse(resultText));
   } catch (err) {
     console.error('エラー:', err);

@@ -7,7 +7,7 @@
  * ==============================================================================
  * 
  * 5体の専門AIエージェント（地政学、国内政治、バイラル世論、AIテック、判定アーキテクト）が
- * Google Gemini 3.7 Flash を活用して最新時事から「賛否両論・高熱量」なトピックを自律起案し、
+ * Google Gemini 3.8 Flash を活用して最新時事から「賛否両論・高熱量」なトピックを自律起案し、
  * Supabase の「審査待ち提案パイプライン（is_active: false）」へ自動投入します。
  * 
  * 運営責任者（霧島様）は管理画面 (http://localhost:5173/admin) でワンクリック承認できます。
@@ -80,7 +80,7 @@ const COUNCIL_MEMBERS = [
 ];
 
 // ==============================================================================
-// 🤖 Gemini 3.7 Flash による動的AI評議会セッション
+// 🤖 Gemini 3.8 Flash による動的AI評議会セッション
 // ==============================================================================
 async function generateCouncilTopicsWithGemini(existingTitles = []) {
   if (!geminiApiKey) {
@@ -129,7 +129,7 @@ ${existingTitles.slice(0, 30).map(t => `・${t}`).join('\n')}
   }
 ]`;
 
-  const models = ['gemini-3.7-flash', 'gemini-3.6-flash'];
+  const models = ['gemini-3.8-flash', 'gemini-3.7-flash'];
   for (const model of models) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiApiKey}`;
@@ -238,7 +238,7 @@ async function runTopicCouncil() {
   const { data: existingEvents } = await supabase.from('events').select('title_ja');
   const existingTitles = (existingEvents || []).map(e => e.title_ja);
 
-  // 2. Gemini 3.7 Flash またはフォールバックプールから候補取得
+  // 2. Gemini 3.8 Flash またはフォールバックプールから候補取得
   let candidates = await generateCouncilTopicsWithGemini(existingTitles);
   if (!candidates || candidates.length === 0) {
     candidates = FALLBACK_CANDIDATES;

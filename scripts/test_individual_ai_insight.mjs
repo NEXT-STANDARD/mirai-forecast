@@ -16,7 +16,7 @@ const testTopics = [
 ];
 
 async function generateDeepInsights() {
-  console.log('Gemini 3.7 Flash による銘柄個別・深層カタリスト分析を生成中...\n');
+  console.log('Gemini 3.8 Flash による銘柄個別・深層カタリスト分析を生成中...\n');
 
   const prompt = `あなたは世界トップクラスのマクロ経済・国際情勢ヘッジファンドのチーフストラテジスト（日本語）です。
 以下の各予測市場トピックについて、金融・経済のプロの視点から、具体的で切れ味のある個別分析を作成してください。
@@ -40,7 +40,7 @@ ${JSON.stringify(testTopics, null, 2)}
 ]`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

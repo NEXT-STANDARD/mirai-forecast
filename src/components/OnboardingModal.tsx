@@ -72,7 +72,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </div>
                 <div className="feature-pill">
                   <Sparkles size={13} className="text-amber-400" />
-                  <span>Gemini 3.7 Flash カタリスト分析</span>
+                  <span>Gemini 3.8 Flash カタリスト分析</span>
                 </div>
               </div>
             </div>

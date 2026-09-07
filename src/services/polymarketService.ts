@@ -102,7 +102,7 @@ function resolveAiInsight(id: string, slug?: string, titleJa?: string, category?
 import { resolvePolymarketOdds, truncateLeader, isDomesticEvent } from '../utils/polymarketOddsResolver';
 
 /**
- * Supabaseから「Gemini 3.7 Flash 日本語化済み銘柄」を優先取得し、
+ * Supabaseから「Gemini 3.8 Flash 日本語化済み銘柄」を優先取得し、
  * AI_INSIGHTS_MASTER から「深層カタリスト分析」を即時適用する堅牢アーキテクチャ
  */
 export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
