@@ -113,6 +113,120 @@ export async function sendAdminNotification(payload: ProposalNotificationPayload
   return { success: false, message: 'メールAPI未設定のため、データベース記録のみ完了しました。' };
 }
 
+export interface CreatorApprovalPayload {
+  creatorEmail: string;
+  creatorName: string;
+  marketTitle: string;
+  marketSlug: string;
+  categoryLabel?: string;
+}
+
+/**
+ * 審査通過・本番上場完了をクリエイターへ自動通知する
+ */
+export async function sendCreatorApprovalNotification(payload: CreatorApprovalPayload): Promise<{ success: boolean; message: string }> {
+  if (!payload.creatorEmail || !payload.creatorEmail.includes('@')) {
+    return { success: false, message: '有効なメールアドレスがありません。' };
+  }
+
+  const subject = `【未来レーダー】公認クリエイター審査通過および予測銘柄上場のお知らせ`;
+  const marketUrl = `https://mirairadar.com/market/${payload.marketSlug}`;
+  const shareText = `未来レーダー（@MiraiRadar）にて、私が提案した独自予測銘柄が上場されました！ぜひあなたの見解を投票してください。\n\n「${payload.marketTitle}」`;
+  const shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(marketUrl)}`;
+
+  const resendApiKey = import.meta.env.VITE_RESEND_API_KEY;
+
+  const htmlContent = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #1e293b; border-radius: 12px; background-color: #0b1320; color: #f8fafc; line-height: 1.6;">
+      <div style="border-bottom: 2px solid #f59e0b; padding-bottom: 16px; margin-bottom: 24px;">
+        <span style="display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: bold; background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); margin-bottom: 8px;">
+          🌟 公認インテリジェンス・クリエイター認定
+        </span>
+        <h2 style="color: #ffffff; margin: 0; font-size: 20px;">審査通過 ＆ 独自銘柄の上場完了</h2>
+      </div>
+
+      <p style="font-size: 15px; margin-bottom: 20px;">
+        <strong>${escapeHtml(payload.creatorName)} 様</strong>
+      </p>
+
+      <p style="font-size: 14px; color: #cbd5e1; margin-bottom: 20px;">
+        未来レーダー（総務省届出電気通信事業者 Ａ－０８－２４２３７）へのご申請ありがとうございます。<br/>
+        厳正な上場審査の結果、ご提案いただいたテーマが3大上場基準（客観的オラクル・事実判定の中立性・公共性）を満たしていると確認され、<strong>未来レーダー本番マーケット一覧へ正式に上場・公開されました。</strong>
+      </p>
+
+      <div style="background-color: #1e293b; padding: 20px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 24px;">
+        <span style="font-size: 12px; color: #38bdf8; font-weight: bold;">上場銘柄情報</span>
+        <h3 style="font-size: 16px; color: #ffffff; margin: 8px 0 12px 0;">${escapeHtml(payload.marketTitle)}</h3>
+        <p style="font-size: 13px; color: #94a3b8; margin: 0 0 16px 0;">カテゴリー: ${escapeHtml(payload.categoryLabel || '公認クリエイター銘柄')}</p>
+        
+        <a href="${marketUrl}" style="display: inline-block; background-color: #0891b2; color: #ffffff; text-decoration: none; padding: 10px 20px; font-size: 14px; font-weight: bold; border-radius: 6px;">
+          👉 上場された銘柄ページを開く
+        </a>
+      </div>
+
+      <div style="background-color: #0f172a; padding: 16px; border-radius: 8px; border: 1px solid #1e293b; margin-bottom: 24px;">
+        <h4 style="font-size: 14px; color: #fbbf24; margin: 0 0 8px 0;">📣 フォロワー・読者の皆様へ投票を呼びかけましょう</h4>
+        <p style="font-size: 13px; color: #94a3b8; margin: 0 0 12px 0;">
+          銘柄ページには、あなたのお名前と専門領域、公式プロフィールへのリンクが掲載されています。Xやnote、YouTube等でシェアして集合知を集めましょう！
+        </p>
+        <a href="${shareUrl}" target="_blank" style="display: inline-block; background-color: #000000; color: #ffffff; border: 1px solid #334155; text-decoration: none; padding: 8px 16px; font-size: 13px; font-weight: bold; border-radius: 6px;">
+          𝕏 (Twitter) でシェアして投票を募る
+        </a>
+      </div>
+
+      <div style="border-top: 1px solid #334155; padding-top: 20px; font-size: 12px; color: #94a3b8; text-align: center;">
+        <p style="margin: 0 0 4px 0;">未来レーダー運営事務局（ＤＥＬＩＣＩＯＵＳ株式会社）</p>
+        <p style="margin: 0;">公式サイト: <a href="https://mirairadar.com" style="color: #38bdf8;">https://mirairadar.com</a></p>
+      </div>
+    </div>
+  `;
+
+  // 1. Worker API (/api/notify) 経由
+  try {
+    const workerRes = await fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: payload.creatorEmail,
+        subject,
+        html: htmlContent,
+      }),
+    });
+    if (workerRes.ok) {
+      return { success: true, message: 'クリエイターへ上場通知メールを送信しました。' };
+    }
+  } catch {
+    // Worker がないローカル環境等ではフォールバックへ
+  }
+
+  // 2. Resend API 直接呼び出し
+  if (resendApiKey) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: '未来レーダー <notifications@mail.mirairadar.com>',
+          to: payload.creatorEmail,
+          subject,
+          html: htmlContent,
+        }),
+      });
+      if (res.ok) {
+        return { success: true, message: 'クリエイターへ上場通知メールを送信しました。' };
+      }
+    } catch (e) {
+      console.warn('Resend approval notification failed:', e);
+    }
+  }
+
+  console.info(`[Creator Approval Simulated] ${payload.creatorEmail} 宛て上場通知:\n`, payload);
+  return { success: false, message: 'メール送信はスキップされました（開発ログ記録）。' };
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')

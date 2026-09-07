@@ -14,7 +14,8 @@ import {
   Share2,
   Code2,
   Download,
-  Award
+  Award,
+  ExternalLink
 } from 'lucide-react';
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
@@ -244,37 +245,82 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
       <div className="market-detail-header-card">
         {(() => {
           const creatorMatch = item.question?.match(/【(ユーザー提案|公認クリエイター申請|独自銘柄提案|クリエイター提案)】(.*)/);
+          if (!creatorMatch) {
+            return (
+              <div className="detail-title-block">
+                <h1 className="detail-main-title">{item.titleJa}</h1>
+                <p className="detail-sub-question">{item.question}</p>
+              </div>
+            );
+          }
+
+          const typeName = creatorMatch[1];
+          const rawText = creatorMatch[2] || '';
+          const nameMatch = rawText.match(/申請者:\s*([^\s｜|]+)/) || rawText.match(/提案者:\s*([^\s｜|]+)/);
+          const expertiseMatch = rawText.match(/専門領域:\s*([^\s｜|]+)/);
+          const profileMatch = rawText.match(/実績URL:\s*([^\s｜|]+)/);
+
+          const authorName = nameMatch ? nameMatch[1].trim() : 'コミュニティ観測者';
+          const expertise = expertiseMatch ? expertiseMatch[1].trim() : '';
+          const profileUrl = profileMatch ? profileMatch[1].trim() : '';
+          const isCreator = typeName === '公認クリエイター申請' || typeName === 'クリエイター提案';
+
           return (
             <>
               <div className="detail-title-block">
                 <h1 className="detail-main-title">{item.titleJa}</h1>
-                <p className="detail-sub-question">{creatorMatch ? item.titleJa : item.question}</p>
+                <p className="detail-sub-question">{item.titleJa}</p>
               </div>
 
-              {creatorMatch && (
-                <div className="my-3 p-3.5 rounded-xl bg-gradient-to-r from-cyan-950/60 via-[#07172b] to-cyan-950/60 border border-cyan-500/40 flex items-center justify-between flex-wrap gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0">
-                      <Award size={16} />
+              <div className="my-3 p-4 rounded-xl bg-gradient-to-r from-[#0a182d] via-[#0e223f] to-[#0a182d] border border-cyan-500/40 shadow-lg flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
+                    isCreator 
+                      ? 'bg-amber-500/20 border border-amber-400/50 text-amber-400' 
+                      : 'bg-cyan-500/20 border border-cyan-400/40 text-cyan-300'
+                  }`}>
+                    <Award size={20} />
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                        isCreator
+                          ? 'bg-amber-500/10 border-amber-400/40 text-amber-300'
+                          : 'bg-cyan-950 border-cyan-400/30 text-cyan-300'
+                      }`}>
+                        {isCreator ? '🌟 公認インテリジェンス・クリエイター' : '💡 コミュニティ提案銘柄'}
+                      </span>
+                      {expertise && (
+                        <span className="text-[11px] font-mono text-cyan-300/80 bg-cyan-950/60 px-2 py-0.5 rounded">
+                          領域: {expertise}
+                        </span>
+                      )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
-                        <span>💡 発案クリエイター / コミュニティ提案銘柄</span>
-                      </div>
-                      <p className="text-xs text-slate-300 font-mono mt-0.5">
-                        {creatorMatch[2]}
-                      </p>
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <span className="text-sm font-bold text-white tracking-wide">発案者: {authorName}</span>
+                      {profileUrl && (
+                        <a
+                          href={profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-cyan-400 hover:text-cyan-200 underline font-medium ml-1"
+                        >
+                          <span>公式プロフィール</span>
+                          <ExternalLink size={11} />
+                        </a>
+                      )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => onOpenShare(item)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
-                  >
-                    <Share2 size={12} />
-                    <span>この問いを拡散して世論を集める</span>
-                  </button>
                 </div>
-              )}
+
+                <button
+                  onClick={() => onOpenShare(item)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-sky-600 hover:from-cyan-500 hover:to-sky-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                >
+                  <Share2 size={13} />
+                  <span>この問いを拡散して世論を集める</span>
+                </button>
+              </div>
             </>
           );
         })()}

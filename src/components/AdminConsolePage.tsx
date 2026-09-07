@@ -18,10 +18,12 @@ import {
   X,
   AlertTriangle,
   Edit3,
-  BookOpen
+  BookOpen,
+  Award
 } from 'lucide-react';
 import { supabase, getAdminClient, hasAdminKey, hasInvalidAdminKey } from '../services/supabaseClient';
 import { InfographicStudioModal } from './InfographicStudioModal';
+import { sendCreatorApprovalNotification } from '../services/notificationService';
 import type { MarketItem, CategoryType } from '../types';
 
 interface AdminConsolePageProps {
@@ -131,6 +133,22 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       case 'archive': return '📦 決着済みアーカイブ';
     }
   };
+
+  const [sendApprovalEmail, setSendApprovalEmail] = useState(true);
+
+  const extractCreatorMeta = (questionEn: string) => {
+    const emailMatch = questionEn.match(/メール:\s*([^\s｜|]+)/);
+    const nameMatch = questionEn.match(/申請者:\s*([^\s｜|]+)/);
+    const expertiseMatch = questionEn.match(/専門領域:\s*([^\s｜|]+)/);
+    const profileMatch = questionEn.match(/実績URL:\s*([^\s｜|]+)/);
+    return {
+      email: emailMatch ? emailMatch[1].trim() : '',
+      name: nameMatch ? nameMatch[1].trim() : '',
+      expertise: expertiseMatch ? expertiseMatch[1].trim() : '',
+      profileUrl: profileMatch ? profileMatch[1].trim() : '',
+    };
+  };
+
   const [kindFilter, setKindFilter] = useState<'all' | ProposalKind>('all');
   const visibleProposals = proposals.filter(p => kindFilter === 'all' || kindOf(p) === kindFilter);
 
@@ -285,6 +303,21 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       setProposals(prev => prev.filter(p => p.id !== item.id));
       onRefreshMarkets();
       setApprovingProposal(null);
+
+      // クリエイター申請でメール送信が有効な場合、クリエイター宛てに上場完了通知を送信
+      if (kindOf(item) === 'creator' && sendApprovalEmail) {
+        const meta = extractCreatorMeta(item.question_en || '');
+        if (meta.email) {
+          sendCreatorApprovalNotification({
+            creatorEmail: meta.email,
+            creatorName: meta.name || 'クリエイター',
+            marketTitle: item.title_ja,
+            marketSlug: item.slug || item.id,
+            categoryLabel: item.category_label,
+          }).catch(err => console.warn('Approval email send error:', err));
+        }
+      }
+
       showToast('success', `🎉 「${item.title_ja}」を承認し、本番マーケットに即時公開いたしました！`);
     } catch (err: any) {
       showToast('error', `エラー: ${err.message}`);
@@ -364,6 +397,21 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
       setProposals(prev => prev.filter(p => p.id !== item.id));
       onRefreshMarkets();
       setEditingProposal(null);
+
+      // クリエイター申請でメール送信が有効な場合、クリエイター宛てに上場完了通知を送信
+      if (kindOf(item) === 'creator' && sendApprovalEmail) {
+        const meta = extractCreatorMeta(item.question_en || '');
+        if (meta.email) {
+          sendCreatorApprovalNotification({
+            creatorEmail: meta.email,
+            creatorName: meta.name || 'クリエイター',
+            marketTitle: editTitle.trim(),
+            marketSlug: item.slug || item.id,
+            categoryLabel: categoryLabels[editCategory] || item.category_label,
+          }).catch(err => console.warn('Approval email send error:', err));
+        }
+      }
+
       showToast('success', `🎉 「${editTitle.trim()}」を微修正＆承認し、本番マーケットに即時公開いたしました！`);
     } catch (err: any) {
       showToast('error', `エラー: ${err.message}`);
@@ -1521,6 +1569,34 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                 </div>
               </div>
 
+              {kindOf(approvingProposal) === 'creator' && (() => {
+                const meta = extractCreatorMeta(approvingProposal.question_en || '');
+                return (
+                  <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/40 space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold">
+                      <Award size={15} />
+                      <span>🌟 公認クリエイター認定＆上場通知</span>
+                    </div>
+                    <div className="text-slate-300">
+                      申請者: <strong>{meta.name || '未記載'}</strong> ｜ 専門: <strong>{meta.expertise || '未記載'}</strong>
+                    </div>
+                    {meta.email ? (
+                      <label className="flex items-center gap-2 pt-1 text-cyan-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={sendApprovalEmail}
+                          onChange={(e) => setSendApprovalEmail(e.target.checked)}
+                          className="rounded text-cyan-500 focus:ring-cyan-400"
+                        />
+                        <span>✉️ 承認完了時にクリエイター（<strong>{meta.email}</strong>）へ上場通知メールを自動送信する</span>
+                      </label>
+                    ) : (
+                      <p className="text-slate-500 text-[11px]">※ 連絡先メールアドレスが記載されていないためメール送信は行われません</p>
+                    )}
+                  </div>
+                );
+              })()}
+
               <div className="ai-auto-badge-box">
                 <Sparkles size={14} className="text-amber-400 shrink-0 mt-0.5" />
                 <span className="text-xs text-amber-300 leading-relaxed">
@@ -1661,6 +1737,31 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   <span>🏛️ 公職選挙法ブラックアウト（公示期間中のため投票を一時停止にする）</span>
                 </label>
               </div>
+
+              {kindOf(editingProposal) === 'creator' && (() => {
+                const meta = extractCreatorMeta(editingProposal.question_en || '');
+                return (
+                  <div className="p-3 rounded-lg bg-amber-950/30 border border-amber-500/40 space-y-2 text-xs">
+                    <div className="flex items-center gap-2 text-amber-300 font-bold">
+                      <Award size={15} />
+                      <span>🌟 公認クリエイター認定＆上場通知</span>
+                    </div>
+                    {meta.email ? (
+                      <label className="flex items-center gap-2 text-cyan-300 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={sendApprovalEmail}
+                          onChange={(e) => setSendApprovalEmail(e.target.checked)}
+                          className="rounded text-cyan-500 focus:ring-cyan-400"
+                        />
+                        <span>✉️ 承認完了時にクリエイター（<strong>{meta.email}</strong>）へ上場通知メールを自動送信する</span>
+                      </label>
+                    ) : (
+                      <p className="text-slate-500 text-[11px]">※ 連絡先メールアドレスが記載されていないためメール送信は行われません</p>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="confirm-modal-footer">
