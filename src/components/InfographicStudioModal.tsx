@@ -84,11 +84,12 @@ export const InfographicStudioModal: React.FC<InfographicStudioModalProps> = ({
   };
 
   return (
-    <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="infographic-studio-title">
+    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="infographic-studio-title">
       <div 
         ref={modalRef}
-        className="modal-content animate-scale-in"
+        className="modal-content p-4 sm:p-6"
         style={{ maxWidth: '980px', width: '95%', maxHeight: '92vh', overflowY: 'auto' }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* モーダルヘッダー */}
         <div className="flex items-center justify-between pb-4 border-b border-cyan-900/50 mb-6">
