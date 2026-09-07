@@ -2,36 +2,31 @@ import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, 
   Bot, 
-  Sparkles, 
   Copy, 
   Check, 
   Terminal, 
-  ShieldCheck, 
   Scale, 
-  Code2,
-  Zap
+  MessageSquareQuote,
+  Lightbulb
 } from 'lucide-react';
 import { applySeoMetadata } from '../utils/seoHelper';
 
 interface AiConnectorPageProps {
   onBack: () => void;
+  onOpenDevelopers?: () => void;
 }
 
-export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
-  const [copiedTab, setCopiedTab] = useState<string | null>(null);
+export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack, onOpenDevelopers }) => {
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   useEffect(() => {
     applySeoMetadata({
-      title: 'WebMCP AI連携ガイド (Claude / Cursor / ChatGPT) ｜ 未来レーダー',
-      description: '未来レーダーのWebMCPオープンAPI連携ガイド。Claude DesktopやCursor、自律型AIエージェントからリアルタイムに世界のオッズと世論スプレッドを取得。',
-      // canonical は「そのページ自身のURL」。APIエンドポイントを指すと自ら索引から降りる
-      // （/ai-connector と /developers が1コンポーネントなので実パスから決める）
-      canonicalUrl: `https://mirairadar.com${typeof window !== 'undefined' && window.location.pathname === '/developers' ? '/developers' : '/ai-connector'}`,
+      title: '生成AI連携・実戦プロンプト集 (Claude / Cursor / ChatGPT) ｜ 未来レーダー',
+      description: 'Claude DesktopやCursor、ChatGPT等の生成AIに未来レーダーの予測市場データを接続し、世界オッズと日本世論の乖離を深掘り分析するプロンプト集。',
+      canonicalUrl: 'https://mirairadar.com/ai-connector',
       ogType: 'article'
     });
   }, []);
-
-  const mcpEndpointUrl = 'https://mirairadar.com/api/mcp';
 
   const claudeConfigJson = `{
   "mcpServers": {
@@ -45,12 +40,31 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
   }
 }`;
 
-  const samplePrompt = `未来レーダーのMCPツールを使って、現在「世界マネー（Polymarket）とお茶の間の日本世論」で最も意見が割れている注目テーマTOP3を教えてください。それぞれのYES論拠とNO論拠も簡潔に対比してレポートしてください。`;
+  const samplePrompts = [
+    {
+      id: 'p1',
+      title: '📊 世論ギャップTOP3 乖離要因レポート',
+      tag: 'マーケット分析',
+      prompt: `未来レーダーのMCPツールを使って、現在「世界マネー（Polymarket）とお茶の間の日本世論」で最も意見が割れている注目テーマTOP3を抽出してください。それぞれのテーマについて、世界のYES確率と日本のYES支持率、および最大の対立争点を対比したブリーフィングレポートを作成してください。`
+    },
+    {
+      id: 'p2',
+      title: '⚖️ 特定銘柄の強気派(YES) vs 懐疑派(NO) 知的ディベート要約',
+      tag: '深掘りリサーチ',
+      prompt: `未来レーダーの get_market_detail ツールを使って、日銀の政策金利またはAI規制に関する最新銘柄のデータを取得してください。YES派の主要論拠（強気要因）とNO派の主要論拠（リスク・懐疑要因）、および今後の確率急変トリガーとなる次回注目カタリスト日程を分かりやすく整理してください。`
+    },
+    {
+      id: 'p3',
+      title: '🔍 キーワード指定による関連未来予測の横断サーベイ',
+      tag: 'テーマ検索',
+      prompt: `未来レーダーの search_radar_topics ツールを使って「AI」または「日銀」に関連する掲載銘柄をすべて検索してください。各銘柄の締め切り日程、世界オッズ、日本世論のサンプル数（n）を一覧表にまとめ、投資家やビジネスリーダーが留意すべき示唆を解説してください。`
+    }
+  ];
 
-  const copyToClipboard = (text: string, id: string) => {
+  const copyToClipboard = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedTab(id);
-    setTimeout(() => setCopiedTab(null), 2000);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2000);
   };
 
   return (
@@ -69,7 +83,16 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
           <span>トップ・マーケット一覧へ戻る</span>
         </a>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
+          {onOpenDevelopers && (
+            <button
+              onClick={onOpenDevelopers}
+              className="flex items-center gap-1.5 text-xs font-mono text-cyan-300 hover:text-cyan-100 bg-cyan-950/40 hover:bg-cyan-900/60 px-3.5 py-2 rounded-lg border border-cyan-800/50 transition cursor-pointer"
+            >
+              <Terminal size={13} />
+              <span>開発者向けREST API仕様（/developers）↗</span>
+            </button>
+          )}
           <span className="badge-mcp-status font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             WebMCP 1.0 LIVE
@@ -81,185 +104,96 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack }) => {
       <div className="connector-hero-card">
         <div className="flex items-center gap-2 text-amber-400 font-mono text-xs font-bold mb-2">
           <Bot size={16} />
-          <span>OPEN KNOWLEDGE PROTOCOL // WebMCP</span>
+          <span>AI AGENT PROMPT & CONNECTION HUB</span>
         </div>
         <h1 className="connector-hero-title">
-          あなたの生成AIに「世界のスマートマネー × 日本の世論」を接続する
+          Claude や ChatGPT に「世界の集合知 × 日本の世論」を接続する
         </h1>
         <p className="connector-hero-subtitle">
-          未来レーダーは、Claude Desktop、Cursor、ChatGPT、自律型AIエージェントからリアルタイムに世界の確率と世論スプレッドを取得できる、オープンなWebMCPデータハブです。
+          未来レーダーのWebMCPデータ基盤を使えば、自律型AIに「現在世界のお金がどこに賭けられ、日本の生活者がどう直感しているか」をリアルタイムに読み込ませ、客観的な分析レポートを作成させることができます。
         </p>
 
         {/* 核心理念 ＆ 免責カード */}
         <div className="connector-philosophy-box">
           <div className="flex items-center gap-2 text-xs font-extrabold text-amber-300 mb-1.5">
             <Scale size={14} />
-            <span>未来レーダーの核心理念：予測の公開と世論誘導の完全排除</span>
+            <span>未来レーダーの核心理念：予測の客観的提示と世論誘導の完全排除</span>
           </div>
           <p className="philosophy-text">
-            未来レーダーは、様々な情報や世界の予測市場（Polymarket）から未来の確率を観測し、それを透明性高く公開することを目的としています。
-            <strong>本サービスは世論を誘導する意図は一切なく、あくまで「世界の集合知とお茶の間の世論の間にギャップが存在するかもしれない」という客観的なオルタナティブデータを提示するものです。</strong>
-            AIに対しても、常に中立・公平な統計データとして提供されます。
+            未来レーダーは、世界の予測市場（Polymarket）の確率と日本の無料オピニオンを対比・公開する中立メディアです。AI利用においても、特定の結論を誘導するのではなく、対立する論拠と確率スプレッドを客観的に観察するための分析基盤として設計されています。
           </p>
         </div>
       </div>
 
-      {/* 30秒クイックスタートガイド */}
-      <div className="connector-content-grid">
-        {/* 左ペイン: 各種AIへの接続手順 */}
-        <div className="connector-left-pane">
-          <h2 className="connector-section-title flex items-center gap-2">
-            <Zap size={18} className="text-amber-400" />
-            <span>接続方法（かんたんURL入力 ＆ 開発者JSON）</span>
-          </h2>
-
-          {/* 🌟 1. 【超かんたん・推奨】URLを入力するだけ（ノーコード） */}
-          <div className="setup-card featured-setup-card">
-            <div className="setup-card-header">
-              <div className="flex items-center gap-2">
-                <span className="setup-badge-recommended">★ 最も簡単（URL入力のみ）</span>
-                <h3 className="setup-title">Claude Desktop / Cursor 設定</h3>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(mcpEndpointUrl, 'url-only')}
-                className="btn-copy-config primary"
-              >
-                {copiedTab === 'url-only' ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copiedTab === 'url-only' ? 'URLコピー完了！' : 'MCP URLをコピー'}</span>
-              </button>
-            </div>
-            <p className="setup-desc">
-              Claude DesktopアプリやCursorの<strong>「設定 (Settings) ➔ コネクタ / MCP (Model Context Protocol)」</strong>を開き、以下のURLを登録するだけで接続が完了します。
-            </p>
-            <div className="url-copy-box">
-              <span className="font-mono text-cyan-400 font-bold text-xs">{mcpEndpointUrl}</span>
-            </div>
-            <div className="setup-steps-list">
-              <div className="step-item">
-                <span className="step-num">1</span>
-                <span>サーバー名に <code>mirairadar</code> と入力</span>
-              </div>
-              <div className="step-item">
-                <span className="step-num">2</span>
-                <span>URLに上の <code>{mcpEndpointUrl}</code> を貼り付け</span>
-              </div>
-              <div className="step-item">
-                <span className="step-num">3</span>
-                <span>保存をクリックして接続完了！🎉</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 🛠️ 2. 【開発者向け】JSON設定ファイルを直接編集する方法 */}
+      {/* 2カラムレイアウト: 左=セットアップ / 右=コピペ実戦プロンプト集 */}
+      <div className="connector-grid-layout">
+        {/* 左ペイン: クイック設定 */}
+        <div className="connector-left-pane space-y-6">
           <div className="setup-card">
             <div className="setup-card-header">
               <div className="flex items-center gap-2">
-                <Terminal size={14} className="text-slate-400" />
-                <h3 className="setup-title">開発者向け：JSON設定ファイルで追加</h3>
+                <Terminal size={16} className="text-cyan-400" />
+                <h2 className="setup-title text-sm">Claude Desktop / Cursor 接続設定</h2>
               </div>
               <button 
-                onClick={() => copyToClipboard(claudeConfigJson, 'claude')}
-                className="btn-copy-config"
+                onClick={() => copyToClipboard(claudeConfigJson, 'config')}
+                className="btn-copy-config cursor-pointer"
               >
-                {copiedTab === 'claude' ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copiedTab === 'claude' ? 'コピー完了！' : 'JSON設定をコピー'}</span>
+                {copiedKey === 'config' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+                <span>{copiedKey === 'config' ? 'コピー完了！' : '設定JSONをコピー'}</span>
               </button>
             </div>
-            <p className="setup-desc">
-              <code>claude_desktop_config.json</code> の <code>mcpServers</code> に直接追記したい場合はこちらをご使用ください。
+            <p className="setup-desc text-xs">
+              <code>claude_desktop_config.json</code> の <code>mcpServers</code> に追加するだけで、即座にツールが認識されます。
             </p>
-            <pre className="code-block font-mono">{claudeConfigJson}</pre>
+            <pre className="code-block font-mono text-xs">{claudeConfigJson}</pre>
           </div>
 
-          {/* コピペ用プロンプト集 */}
-          <div className="setup-card prompt-card">
-            <div className="setup-card-header">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-amber-400" />
-                <h3 className="setup-title">AIに話しかけるプロンプト例</h3>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(samplePrompt, 'prompt')}
-                className="btn-copy-config"
-              >
-                {copiedTab === 'prompt' ? <Check size={13} /> : <Copy size={13} />}
-                <span>{copiedTab === 'prompt' ? 'コピー完了！' : 'プロンプトをコピー'}</span>
-              </button>
+          <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+            <div className="flex items-center gap-2 text-amber-400 text-xs font-bold font-mono">
+              <Lightbulb size={16} />
+              <span>AIエージェント活用のコツ</span>
             </div>
-            <div className="prompt-content-box">
-              <p className="prompt-text">“{samplePrompt}”</p>
-            </div>
+            <ul className="text-xs text-slate-300 space-y-2 list-disc pl-4 leading-relaxed">
+              <li><strong>「世界オッズ」と「日本世論」のズレに注目</strong>：AIに「乖離の理由」を考察させると、グローバル投資家と国内生活者の視点の違いが浮き彫りになります。</li>
+              <li><strong>カタリスト日程のタイムライン化</strong>：重要発表日程（日銀会合や決算日など）をもとに、AIに未来予測カレンダーを作成させることができます。</li>
+            </ul>
           </div>
         </div>
 
-        {/* 右ペイン: 公開されているMCPツール一覧 ＆ レートリミット仕様 */}
-        <div className="connector-right-pane">
-          <h2 className="connector-section-title flex items-center gap-2">
-            <Code2 size={18} className="text-emerald-400" />
-            <span>提供されるWebMCPツール一覧</span>
-          </h2>
-
-          <div className="tools-list-container">
-            {/* Tool 1 */}
-            <div className="mcp-tool-item">
-              <div className="tool-header">
-                <span className="tool-name font-mono">get_top_spread_discrepancies</span>
-                <span className="tool-badge">GET</span>
-              </div>
-              <p className="tool-desc">
-                世界のスマートマネー（Polymarket）と日本世論の乖離ギャップが大きい注目銘柄TOPランキングを取得します。
-              </p>
-              <div className="tool-args font-mono">引数: limit (number, オプション)</div>
-            </div>
-
-            {/* Tool 2 */}
-            <div className="mcp-tool-item">
-              <div className="tool-header">
-                <span className="tool-name font-mono">get_market_detail</span>
-                <span className="tool-badge">GET</span>
-              </div>
-              <p className="tool-desc">
-                特定銘柄のリアルタイム世界オッズ、日本世論支持率、AIカタリスト日程、強気派(YES)vs慎重派(NO)のディベート論拠をすべて取得します。
-              </p>
-              <div className="tool-args font-mono">引数: slug (string, 必須)</div>
-            </div>
-
-            {/* Tool 3 */}
-            <div className="mcp-tool-item">
-              <div className="tool-header">
-                <span className="tool-name font-mono">search_radar_topics</span>
-                <span className="tool-badge">GET</span>
-              </div>
-              <p className="tool-desc">
-                大谷翔平、日銀、AI、暗号資産などのキーワードで観測テーマを横断検索します。
-              </p>
-              <div className="tool-args font-mono">引数: query (string, 必須)</div>
-            </div>
+        {/* 右ペイン: コピペですぐ使える 実戦プロンプト集 */}
+        <div className="connector-right-pane space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="connector-section-title flex items-center gap-2 text-base font-bold text-white mb-0">
+              <MessageSquareQuote size={18} className="text-amber-400" />
+              <span>今すぐ使える実戦プロンプト集</span>
+            </h2>
+            <span className="text-xs text-slate-400 font-mono">全3パターン</span>
           </div>
 
-          {/* 🛡️ レートリミット ＆ エッジキャッシュ仕様 */}
-          <div className="security-notice-card">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 mb-1.5">
-              <ShieldCheck size={14} />
-              <span>レートリミット ＆ エッジキャッシュ仕様</span>
-            </div>
-            <div className="rate-limit-specs-list">
-              <div className="spec-row">
-                <span className="spec-label">認証方式:</span>
-                <span className="spec-val">完全オープン（API Key不要）</span>
+          <div className="space-y-4">
+            {samplePrompts.map((sp) => (
+              <div key={sp.id} className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-lg">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                      {sp.tag}
+                    </span>
+                    <h3 className="text-sm font-bold text-white">{sp.title}</h3>
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(sp.prompt, sp.id)}
+                    className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    {copiedKey === sp.id ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                    <span>{copiedKey === sp.id ? 'コピー完了！' : 'プロンプトをコピー'}</span>
+                  </button>
+                </div>
+                <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-slate-200 leading-relaxed font-sans">
+                  “{sp.prompt}”
+                </div>
               </div>
-              <div className="spec-row">
-                <span className="spec-label">リクエスト制限:</span>
-                <span className="spec-val">100 req / 分 (IP単位)</span>
-              </div>
-              <div className="spec-row">
-                <span className="spec-label">エッジキャッシュ:</span>
-                <span className="spec-val">Cloudflare CDN 300秒 自動更新</span>
-              </div>
-            </div>
-            <p className="text-slate-400 text-[11px] leading-relaxed mt-2 mb-0">
-              Cloudflareのグローバルエッジでキャッシュ処理されるため、PolymarketやSupabaseへの負荷を抑え、AIエージェントからの超高速な応答（&lt;50ms）を実現しています。
-            </p>
+            ))}
           </div>
         </div>
       </div>

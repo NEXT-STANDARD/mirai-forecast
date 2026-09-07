@@ -19,6 +19,7 @@ import { InfographicStudioModal } from './components/InfographicStudioModal';
 const LetterToMikePage = lazy(() => import('./components/LetterToMikePage').then(m => ({ default: m.LetterToMikePage })));
 const AdminConsolePage = lazy(() => import('./components/AdminConsolePage').then(m => ({ default: m.AdminConsolePage })));
 const AiConnectorPage = lazy(() => import('./components/AiConnectorPage').then(m => ({ default: m.AiConnectorPage })));
+const DevelopersPage = lazy(() => import('./components/DevelopersPage').then(m => ({ default: m.DevelopersPage })));
 const ForecastHubPage = lazy(() => import('./components/ForecastHubPage').then(m => ({ default: m.ForecastHubPage })));
 const MarketDetailPage = lazy(() => import('./components/MarketDetailPage').then(m => ({ default: m.MarketDetailPage })));
 const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m => ({ default: m.EmbedWidgetPage })));
@@ -138,7 +139,12 @@ export function App() {
   const [isAiConnectorOpen, setIsAiConnectorOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
     const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
-    return cleanPath === '/ai-connector' || cleanPath === '/developers';
+    return cleanPath === '/ai-connector';
+  });
+  const [isDevelopersOpen, setIsDevelopersOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/developers';
   });
   const [isAdminOpen, setIsAdminOpen] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -363,6 +369,7 @@ export function App() {
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsForecastHubOpen(false);
+    setIsDevelopersOpen(false);
     setIsAiConnectorOpen(true);
     window.history.pushState({}, '', '/ai-connector');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -370,6 +377,27 @@ export function App() {
 
   const handleCloseAiConnector = () => {
     setIsAiConnectorOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
+  const handleOpenDevelopers = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsDevelopersOpen(true);
+    window.history.pushState({}, '', '/developers');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseDevelopers = () => {
+    setIsDevelopersOpen(false);
     window.history.pushState({}, '', '/');
   };
 
@@ -383,6 +411,7 @@ export function App() {
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
+    setIsDevelopersOpen(false);
     setIsForecastHubOpen(false);
     setSelectedCategory('trending');
     setActiveTopicId(null);
@@ -486,14 +515,27 @@ export function App() {
         setIsForecastHubOpen(false);
         setDetailMarketId(null);
         setGuideSlug(null);
-      } else if (path === '/ai-connector' || path === '/developers') {
+      } else if (path === '/ai-connector') {
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
         setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
+        setIsDevelopersOpen(false);
         setIsAiConnectorOpen(true);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+        setGuideSlug(null);
+      } else if (path === '/developers') {
+        setIsAboutPageOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsDevelopersOpen(true);
         setIsForecastHubOpen(false);
         setDetailMarketId(null);
         setGuideSlug(null);
@@ -805,7 +847,19 @@ export function App() {
       ) : isAiConnectorOpen ? (
         <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING CONNECTOR...</div>}>
           <main className="container main-content">
-            <AiConnectorPage onBack={handleCloseAiConnector} />
+            <AiConnectorPage 
+              onBack={handleCloseAiConnector} 
+              onOpenDevelopers={handleOpenDevelopers}
+            />
+          </main>
+        </Suspense>
+      ) : isDevelopersOpen ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING DEVELOPERS API...</div>}>
+          <main className="container main-content">
+            <DevelopersPage 
+              onBack={handleCloseDevelopers} 
+              onOpenAiConnector={handleOpenAiConnector}
+            />
           </main>
         </Suspense>
       ) : isEmbedGuideOpen ? (

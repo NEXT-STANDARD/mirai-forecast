@@ -76,7 +76,8 @@ const SITE_NAV = [
   ['/guide/polymarket-japan', 'Polymarketとは（解説記事）'],
   ['/about', '未来レーダーについて'],
   ['/track-record', '的中トラックレコード（全決着の予測 vs 結果）'],
-  ['/ai-connector', 'AI連携（WebMCP）'],
+  ['/ai-connector', 'AI連携（WebMCP・プロンプト集）'],
+  ['/developers', '開発者向けオープンAPI仕様'],
   ['/embed-guide', 'メディア向けウィジェット設置ガイド'],
   ['/creators', '公認クリエイター制度・独自銘柄申請'],
 ];
@@ -614,15 +615,29 @@ async function prerenderAll() {
     },
     {
       dir: 'ai-connector',
-      title: 'AI連携・WebMCP設定 ｜ 未来レーダー',
-      description: 'Claude、ChatGPT、Cursor等の自律型AIエージェントから未来レーダーの予測市場データ・世論スプレッドを直接取得できるWebMCP API設定手順。',
-      canonical: `${SITE_URL}/ai-connector`
+      h1: '生成AI連携・実戦プロンプト集 (Claude / Cursor / ChatGPT)',
+      title: '生成AI連携・実戦プロンプト集 ｜ 未来レーダー',
+      description: 'ClaudeやChatGPTに未来レーダーの予測市場データを接続し、世界オッズと日本世論の乖離を深掘り分析するプロンプト集。設定手順と実戦活用法。',
+      canonical: `${SITE_URL}/ai-connector`,
+      facts: [
+        ['プロトコル規格', 'WebMCP (Model Context Protocol 1.0)'],
+        ['対応AI環境', 'Claude Desktop / Cursor / ChatGPT / 自律型エージェント'],
+        ['認証方式', '完全オープン（API Key不要・無料）'],
+        ['提供ツール', '世論スプレッド乖離取得 / 銘柄詳細・ディベート論拠 / キーワード横断検索']
+      ]
     },
     {
       dir: 'developers',
-      title: '開発者・APIドキュメント ｜ 未来レーダー',
-      description: '開発者・データアナリスト向けオープンAPI（WebMCP）ドキュメント。リアルタイムなPolymarketオッズと日本世論データを無料で取得・連携可能。',
-      canonical: `${SITE_URL}/developers`
+      h1: '開発者向けオープンAPI ＆ WebMCP仕様書',
+      title: '開発者向けオープンAPI ＆ WebMCP仕様書 ｜ 未来レーダー',
+      description: '未来レーダーの予測市場データREST/JSON APIドキュメント。Polymarket世界オッズと日本世論スプレッドのオープン取得仕様、TypeScript型定義、コード例。',
+      canonical: `${SITE_URL}/developers`,
+      facts: [
+        ['RESTエンドポイント', 'https://mirairadar.com/data/mcp_snapshot.json (GET)'],
+        ['WebMCPエンドポイント', 'https://mirairadar.com/api/mcp (POST/GET JSON-RPC 2.0)'],
+        ['エッジキャッシュ', 'Cloudflare CDN 300秒 自動同期・超低遅延配信'],
+        ['データ品質保証', '日本世論3票未満は集計中表記・既定値50%の捏造完全排除']
+      ]
     },
     {
       dir: 'letter-to-mike',

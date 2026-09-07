@@ -911,7 +911,8 @@ async function checkDbAndPhase0() {
   {
     const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan", "/track-record", "/embed-guide", "/creators"];
     // 複数ルートを1コンポーネントが担当する場合、canonical は実パスから決めなければならない
-    const MULTI_ROUTE_COMPONENTS = ["ForecastHubPage.tsx", "AiConnectorPage.tsx"];
+    // （AiConnectorPage と DevelopersPage は分離されたため、ForecastHubPage のみ複数ルート担当）
+    const MULTI_ROUTE_COMPONENTS = ["ForecastHubPage.tsx"];
     const compDir = path.join(ROOT, "src/components");
     for (const file of fs.readdirSync(compDir).filter(f => f.endsWith(".tsx"))) {
       const src = fs.readFileSync(path.join(compDir, file), "utf-8");
