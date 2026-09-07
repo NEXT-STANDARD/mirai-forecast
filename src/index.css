@@ -5351,7 +5351,8 @@ h1, h2, h3, h4, h5, h6 {
    Home Top Featured Hero Section (Cinematic Oracle)
    ======================================================== */
 .featured-hero-section {
-  margin-bottom: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 3rem;
   width: 100%;
 }
 
@@ -5359,7 +5360,7 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.85rem;
+  margin-bottom: 1.15rem;
   padding: 0 0.25rem;
 }
 
@@ -5516,6 +5517,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 @media (max-width: 768px) {
+  .featured-hero-section {
+    margin-top: 1.75rem;
+    margin-bottom: 2rem;
+  }
   .featured-hero-card {
     aspect-ratio: 16 / 10;
     min-height: 240px;
@@ -6651,9 +6656,11 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   background: #090e1a;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0 0.6rem;
+  border-radius: 8px;
+  padding: 0 0.75rem;
   width: 220px;
+  height: 40px;
+  box-sizing: border-box;
 }
 
 .market-search-box:focus-within {
@@ -6670,9 +6677,10 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
   border: none;
   color: #f8fafc;
-  font-size: 0.75rem;
-  padding: 0.4rem 0.4rem;
+  font-size: 0.8rem;
+  padding: 0 0.4rem;
   width: 100%;
+  height: 100%;
   outline: none;
 }
 
@@ -6691,21 +6699,22 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.4rem;
   background: #090e1a;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
-  padding: 0.45rem 0.75rem;
-  min-height: 44px;
+  border-radius: 8px;
+  padding: 0 0.75rem;
+  height: 40px;
+  box-sizing: border-box;
 }
 
 .sort-select {
   background: transparent;
   border: none;
   color: #cbd5e1;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 700;
   outline: none;
   cursor: pointer;
-  min-height: 38px;
-  padding: 0.25rem 0.5rem;
+  height: 100%;
+  padding: 0;
 }
 
 .sort-select option {
