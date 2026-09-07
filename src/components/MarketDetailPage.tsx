@@ -252,6 +252,55 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
         </div>
       </div>
 
+      {/* 🎬 シネマティック・メインビジュアル（アイキャッチ） */}
+      <div className="market-hero-visual-banner" role="img" aria-label={`${item.titleJa || item.title}の情景アイキャッチ`}>
+        <img
+          src={`/images/heroes/${item.slug || item.id}.png`}
+          alt={`${item.titleJa || item.title}の情景アイキャッチ`}
+          loading="lazy"
+          onError={(e) => {
+            const parent = (e.currentTarget as HTMLElement).closest('.market-hero-visual-banner');
+            if (parent) (parent as HTMLElement).style.display = 'none';
+          }}
+          className="market-hero-visual-image"
+        />
+        <div className="market-hero-overlay">
+          <div className="market-hero-tags">
+            <span className="hero-badge-category font-mono">
+              {item.category ? item.category.toUpperCase() : 'POLITICS'}
+            </span>
+            <span className="hero-badge-ai font-mono">
+              <Sparkles size={12} className="text-amber-400" />
+              <span>AI SCENIC INTEL</span>
+            </span>
+          </div>
+          <div className="market-hero-headline">
+            <div className="market-hero-odds-strip">
+              {item.hasWorldOdds && (
+                <div className="hero-odd-pill world">
+                  <span className="pill-label">{positiveLabel(item)}:</span>
+                  <span className="pill-val">{item.worldProbYes}%</span>
+                  <span className="pill-sub">/ {negativeLabel(item)} {100 - item.worldProbYes}%</span>
+                </div>
+              )}
+              {item.japanVotes.total > 0 && (
+                <div className="hero-odd-pill japan">
+                  <span className="pill-label">🇯🇵 世論:</span>
+                  <span className="pill-val">{item.japanVotes.percentYes}%</span>
+                  <span className="pill-sub">(n={item.japanVotes.total})</span>
+                </div>
+              )}
+              {item.hasWorldOdds && hasConsensus && (
+                <div className="hero-odd-pill spread">
+                  <span className="pill-label">⚡ 乖離:</span>
+                  <span className="pill-val">{gap}% (n={item.japanVotes.total})</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* タイトルヘッダー */}
       <div className="market-detail-header-card">
         {(() => {

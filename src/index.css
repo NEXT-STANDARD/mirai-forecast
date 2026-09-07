@@ -5198,6 +5198,155 @@ h1, h2, h3, h4, h5, h6 {
   white-space: nowrap;
 }
 
+/* ========================================================
+   Market Detail Cinematic Hero Visual Banner
+   ======================================================== */
+.market-hero-visual-banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.9), 0 0 30px rgba(56, 189, 248, 0.15);
+  background: #020617;
+  margin-bottom: 1.25rem;
+}
+
+.market-hero-visual-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.market-hero-visual-banner:hover .market-hero-visual-image {
+  transform: scale(1.02);
+}
+
+.market-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(2, 6, 23, 0.4) 0%,
+    rgba(2, 6, 23, 0.1) 40%,
+    rgba(2, 6, 23, 0.85) 85%,
+    rgba(2, 6, 23, 0.98) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  pointer-events: none;
+}
+
+.market-hero-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hero-badge-category {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.hero-badge-ai {
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-full);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fde68a;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.market-hero-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.market-hero-odds-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  pointer-events: auto;
+}
+
+.hero-odd-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(2, 6, 23, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-family: var(--font-mono);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+.hero-odd-pill.world {
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+.hero-odd-pill.world .pill-label { color: #38bdf8; font-size: 0.72rem; font-weight: 700; }
+.hero-odd-pill.world .pill-val { color: #f8fafc; font-size: 0.95rem; font-weight: 900; }
+.hero-odd-pill.world .pill-sub { color: #94a3b8; font-size: 0.72rem; }
+
+.hero-odd-pill.japan {
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+.hero-odd-pill.japan .pill-label { color: #34d399; font-size: 0.72rem; font-weight: 700; }
+.hero-odd-pill.japan .pill-val { color: #f8fafc; font-size: 0.95rem; font-weight: 900; }
+.hero-odd-pill.japan .pill-sub { color: #94a3b8; font-size: 0.72rem; }
+
+.hero-odd-pill.spread {
+  border-color: rgba(251, 191, 36, 0.6);
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.hero-odd-pill.spread .pill-label { color: #fbbf24; font-size: 0.72rem; font-weight: 700; }
+.hero-odd-pill.spread .pill-val { color: #fde68a; font-size: 0.95rem; font-weight: 900; }
+
+@media (max-width: 640px) {
+  .market-hero-visual-banner {
+    aspect-ratio: 16 / 10;
+    max-height: 240px;
+    margin-bottom: 0.85rem;
+  }
+  .market-hero-overlay {
+    padding: 0.85rem 1rem;
+  }
+  .hero-odd-pill {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+  }
+  .hero-odd-pill .pill-val {
+    font-size: 0.82rem;
+  }
+}
+
 .market-detail-header-card {
   background: linear-gradient(135deg, #091024 0%, #040711 100%);
   border: 1px solid rgba(56, 189, 248, 0.25);
