@@ -5,12 +5,14 @@ interface ComplianceBannerProps {
   onOpenTerms?: () => void;
   onOpenPrivacy?: () => void;
   onOpenAbout?: () => void;
+  onOpenEmbedGuide?: () => void;
 }
 
 export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
   onOpenTerms,
   onOpenPrivacy,
   onOpenAbout,
+  onOpenEmbedGuide,
 }) => {
   return (
     <footer id="compliance-footer" className="compliance-footer">
@@ -76,7 +78,22 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
                 未来レーダーについて
               </a>
             )}
-            {onOpenAbout && (onOpenTerms || onOpenPrivacy) && (
+            {onOpenEmbedGuide && (
+              <>
+                <span className="footer-link-divider">｜</span>
+                <a
+                  href="/embed-guide"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onOpenEmbedGuide();
+                  }}
+                  className="footer-link-btn text-cyan-400/90 hover:text-cyan-300 font-semibold"
+                >
+                  メディア向けウィジェット
+                </a>
+              </>
+            )}
+            {(onOpenAbout || onOpenEmbedGuide) && (onOpenTerms || onOpenPrivacy) && (
               <span className="footer-link-divider">｜</span>
             )}
             {onOpenTerms && (

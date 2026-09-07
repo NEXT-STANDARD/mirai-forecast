@@ -25,6 +25,7 @@ const EmbedWidgetPage = lazy(() => import('./components/EmbedWidgetPage').then(m
 const GuideDetailPage = lazy(() => import('./components/GuideDetailPage').then(m => ({ default: m.GuideDetailPage })));
 const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 const TrackRecordPage = lazy(() => import('./components/TrackRecordPage').then(m => ({ default: m.TrackRecordPage })));
+const EmbedGuidePage = lazy(() => import('./components/EmbedGuidePage').then(m => ({ default: m.EmbedGuidePage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -108,6 +109,13 @@ export function App() {
     return cleanPath === '/track-record';
   });
 
+  // 🔌 メディア・ブログ向け 埋め込み配給ガイド (/embed-guide, /widgets) - 末尾スラッシュ完全耐性
+  const [isEmbedGuideOpen, setIsEmbedGuideOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/embed-guide' || cleanPath === '/widgets';
+  });
+
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
     if (!isLocalhost && typeof window !== 'undefined' && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin') {
@@ -163,6 +171,7 @@ export function App() {
     setIsForecastHubOpen(false);
     setIsAboutPageOpen(true);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     window.history.pushState({}, '', '/about');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -170,6 +179,7 @@ export function App() {
   const handleCloseAbout = () => {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     window.history.pushState({}, '', '/');
   };
 
@@ -182,6 +192,7 @@ export function App() {
     setIsForecastHubOpen(false);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(true);
+    setIsEmbedGuideOpen(false);
     window.history.pushState({}, '', '/track-record');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -191,9 +202,29 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenEmbedGuide = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(true);
+    window.history.pushState({}, '', '/embed-guide');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseEmbedGuide = () => {
+    setIsEmbedGuideOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenMarketDetail = (market: MarketItem) => {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
     setIsAdminOpen(false);
@@ -213,6 +244,7 @@ export function App() {
     setDetailMarketId(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -232,6 +264,7 @@ export function App() {
     setGuideSlug(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -250,6 +283,7 @@ export function App() {
     setGuideSlug(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -268,6 +302,7 @@ export function App() {
     setGuideSlug(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -286,6 +321,7 @@ export function App() {
     setGuideSlug(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsForecastHubOpen(false);
@@ -304,6 +340,7 @@ export function App() {
     setGuideSlug(null);
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
@@ -321,7 +358,8 @@ export function App() {
       const path = rawPath.replace(/\/+$/, '') || '/';
       if (path === '/' || path === '') {
         setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -330,7 +368,8 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/about') {
         setIsAboutPageOpen(true);
-    setIsTrackRecordOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -340,6 +379,17 @@ export function App() {
       } else if (path === '/track-record') {
         setIsTrackRecordOpen(true);
         setIsAboutPageOpen(false);
+        setIsEmbedGuideOpen(false);
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+        setGuideSlug(null);
+      } else if (path === '/embed-guide' || path === '/widgets') {
+        setIsEmbedGuideOpen(true);
+        setIsAboutPageOpen(false);
+        setIsTrackRecordOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -349,7 +399,8 @@ export function App() {
       } else if (path === '/admin') {
         if (isLocalhost) {
           setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+          setIsTrackRecordOpen(false);
+          setIsEmbedGuideOpen(false);
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -359,7 +410,8 @@ export function App() {
         } else {
           window.history.replaceState({}, '', '/');
           setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+          setIsTrackRecordOpen(false);
+          setIsEmbedGuideOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -369,7 +421,8 @@ export function App() {
         }
       } else if (path === '/letter-to-mike') {
         setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
         setIsAiConnectorOpen(false);
@@ -378,7 +431,8 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/ai-connector' || path === '/developers') {
         setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
@@ -387,7 +441,8 @@ export function App() {
         setGuideSlug(null);
       } else if (path === '/forecast' || path === '/profile' || path === '/rankings') {
         setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -400,7 +455,8 @@ export function App() {
           setGuideSlug(decodeURIComponent(guideMatch[1]));
           setDetailMarketId(null);
           setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+          setIsTrackRecordOpen(false);
+          setIsEmbedGuideOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -413,7 +469,8 @@ export function App() {
           setDetailMarketId(decodeURIComponent(match[1]));
           setGuideSlug(null);
           setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+          setIsTrackRecordOpen(false);
+          setIsEmbedGuideOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -422,7 +479,8 @@ export function App() {
           setDetailMarketId(null);
           setGuideSlug(null);
           setIsAboutPageOpen(false);
-    setIsTrackRecordOpen(false);
+          setIsTrackRecordOpen(false);
+          setIsEmbedGuideOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -688,6 +746,16 @@ export function App() {
             <AiConnectorPage onBack={handleCloseAiConnector} />
           </main>
         </Suspense>
+      ) : isEmbedGuideOpen ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING EMBED GUIDE...</div>}>
+          <main className="container main-content">
+            <EmbedGuidePage
+              onBack={handleCloseEmbedGuide}
+              events={events}
+              onSelectEvent={handleOpenMarketDetail}
+            />
+          </main>
+        </Suspense>
       ) : isForecastHubOpen ? (
         <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING HUB...</div>}>
           <main className="container main-content">
@@ -802,6 +870,7 @@ export function App() {
       <EmbedModal
         item={selectedEmbedEvent}
         onClose={() => setSelectedEmbedEvent(null)}
+        onOpenEmbedGuide={handleOpenEmbedGuide}
       />
 
       {/* 📊 金融オルタナティブデータ取得ハブ (CSV / WebMCP / JSON) */}
@@ -835,6 +904,7 @@ export function App() {
 
       <ComplianceBanner
         onOpenAbout={handleOpenAbout}
+        onOpenEmbedGuide={handleOpenEmbedGuide}
         onOpenTerms={() => {
           setTermsTab('terms');
           setIsTermsOpen(true);

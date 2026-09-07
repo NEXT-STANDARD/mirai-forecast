@@ -6,6 +6,7 @@ import { useFocusTrap } from '../utils/useFocusTrap';
 interface EmbedModalProps {
   item: MarketItem | null;
   onClose: () => void;
+  onOpenEmbedGuide?: () => void;
 }
 
 type EmbedTheme = 'dark' | 'light';
@@ -17,7 +18,7 @@ type EmbedLayout = 'card' | 'banner';
 const LAYOUT_HEIGHT: Record<EmbedLayout, number> = { card: 270, banner: 160 };
 const LAYOUT_MAX_WIDTH: Record<EmbedLayout, number> = { card: 600, banner: 720 };
 
-export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
+export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose, onOpenEmbedGuide }) => {
   const [copied, setCopied] = useState(false);
   const [theme, setTheme] = useState<EmbedTheme>('dark');
   const [layout, setLayout] = useState<EmbedLayout>('card');
@@ -168,6 +169,22 @@ export const EmbedModal: React.FC<EmbedModalProps> = ({ item, onClose }) => {
               <span className="check-icon">※</span>
               <span>note・Zenn など iframe 埋め込み非対応のサービスでは、スクリーンショット＋銘柄ページへのリンクをご利用ください</span>
             </div>
+            {onOpenEmbedGuide && (
+              <div className="pt-2 text-center">
+                <a
+                  href="/embed-guide"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onClose();
+                    onOpenEmbedGuide();
+                  }}
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-400 hover:text-cyan-300 hover:underline cursor-pointer"
+                >
+                  <Sparkles size={12} className="text-amber-400" />
+                  <span>WordPressやCMS別の詳しい導入ガイド（/embed-guide）はこちら ➔</span>
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

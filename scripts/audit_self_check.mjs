@@ -409,7 +409,7 @@ async function checkDbAndPhase0() {
     }
 
     // 静的ページの自己参照 Canonical 検査 (P0-3)
-    const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike", "track-record"];
+    const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide"];
     for (const p of staticPages) {
       const pDirectFile = path.join(ROOT, `dist/${p}.html`);
       const pDirFile = path.join(ROOT, `dist/${p}/index.html`);
@@ -427,7 +427,7 @@ async function checkDbAndPhase0() {
     }
   }
   report("プリレンダー HTML 網羅性 & .html 単独配信 (307根絶) & Canonical & OGP & JSON-LD (P0-2/3/4)", prerenderFails.length === 0,
-    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html 単独出力) ＆ 静的5ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
+    prerenderFails.length === 0 ? `有効銘柄 全${activeEvents.length}件 (.html 単独出力) ＆ 静的ページの完全プリレンダーを検証完了` : prerenderFails.join("; "));
 
   report("掲載/観測対象外と noindex の一致 (Phase 2-A)", listingFails.length === 0,
     listingFails.length === 0
@@ -590,7 +590,8 @@ async function checkDbAndPhase0() {
     { name: "的中記録 (/track-record)", file: path.join(ROOT, "dist/track-record.html") },
     { name: "AI連携 (/ai-connector)", file: path.join(ROOT, "dist/ai-connector.html") },
     { name: "開発者 (/developers)", file: path.join(ROOT, "dist/developers.html") },
-    { name: "Mikeへの手紙 (/letter-to-mike)", file: path.join(ROOT, "dist/letter-to-mike.html") }
+    { name: "Mikeへの手紙 (/letter-to-mike)", file: path.join(ROOT, "dist/letter-to-mike.html") },
+    { name: "埋め込みガイド (/embed-guide)", file: path.join(ROOT, "dist/embed-guide.html") }
   ];
 
   const seenDescriptions = new Map();
@@ -616,7 +617,7 @@ async function checkDbAndPhase0() {
     }
   }
   report("静的ページの Description 個別化 ＆ 120字以内検査 (P1-1)", descFails.length === 0,
-    descFails.length === 0 ? `静的全7ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
+    descFails.length === 0 ? `静的全${staticHtmlPages.length}ページの meta description が完全固有 ＆ 120文字以内であることを検証完了` : descFails.join("; "));
 
   // ==============================================================================
   // 17. ガイド記事 /guide/polymarket-japan 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク整合性 (P1-2, P1-3)
@@ -907,7 +908,7 @@ async function checkDbAndPhase0() {
   // 静的HTMLだけを見る検査では検出できないので、ソース側で2点を強制する。
   let canonFails = [];
   {
-    const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan", "/track-record"];
+    const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan", "/track-record", "/embed-guide"];
     // 複数ルートを1コンポーネントが担当する場合、canonical は実パスから決めなければならない
     const MULTI_ROUTE_COMPONENTS = ["ForecastHubPage.tsx", "AiConnectorPage.tsx"];
     const compDir = path.join(ROOT, "src/components");
@@ -936,7 +937,7 @@ async function checkDbAndPhase0() {
   // プリレンダーし忘れると、生きているページが404を返してしまう。両方を検査する。
   let notFoundFails = [];
   {
-    const APP_ROUTES = ["forecast", "rankings", "profile", "ai-connector", "developers", "letter-to-mike", "track-record"];
+    const APP_ROUTES = ["forecast", "rankings", "profile", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide"];
     if (!fs.existsSync(path.join(ROOT, "dist/404.html"))) {
       notFoundFails.push("dist/404.html が存在しません（未知のURLがトップの複製を200で返すソフト404になります）");
     } else {

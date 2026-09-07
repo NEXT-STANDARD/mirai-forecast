@@ -4,13 +4,18 @@
   "framing": "yes",
   "subject": null
  },
- "putin-out-before-2027": {
-  "prob": 7,
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
+  "prob": 2,
   "framing": "yes",
   "subject": null
  },
  "how-many-fed-rate-cuts-in-2026": {
   "prob": 93,
+  "framing": "yes",
+  "subject": null
+ },
+ "putin-out-before-2027": {
+  "prob": 7,
   "framing": "yes",
   "subject": null
  },
@@ -20,7 +25,7 @@
   "subject": null
  },
  "what-price-will-ethereum-hit-before-2027": {
-  "prob": 50,
+  "prob": 51,
   "framing": "yes",
   "subject": null
  },
@@ -41,11 +46,6 @@
  },
  "fed-rate-hike-in-2026": {
   "prob": 71,
-  "framing": "yes",
-  "subject": null
- },
- "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
-  "prob": 2,
   "framing": "yes",
   "subject": null
  },
@@ -74,11 +74,6 @@
   "framing": "yes",
   "subject": null
  },
- "next-french-presidential-election": {
-  "prob": 36,
-  "framing": "yes",
-  "subject": null
- },
  "epl-2027-champion-20260701200428749": {
   "prob": 53,
   "framing": "subject",
@@ -86,6 +81,11 @@
  },
  "presidential-election-winner-2028": {
   "prob": 25,
+  "framing": "yes",
+  "subject": null
+ },
+ "next-french-presidential-election": {
+  "prob": 36,
   "framing": "yes",
   "subject": null
  },
@@ -130,7 +130,7 @@
   "subject": null
  },
  "will-china-invade-taiwan-by-december-31-2027": {
-  "prob": 12,
+  "prob": 11,
   "framing": "yes",
   "subject": null
  },
@@ -234,16 +234,6 @@
   "framing": "domestic",
   "subject": null
  },
- "official-1787044209435": {
-  "prob": null,
-  "framing": "domestic",
-  "subject": null
- },
- "openai-gpt5-release-2026": {
-  "prob": null,
-  "framing": "none",
-  "subject": null
- },
  "sam-altman-world-ai-summit-tokyo": {
   "prob": null,
   "framing": "none",
@@ -252,6 +242,16 @@
  "spacex-starship-orbital-landing": {
   "prob": null,
   "framing": "none",
+  "subject": null
+ },
+ "openai-gpt5-release-2026": {
+  "prob": null,
+  "framing": "none",
+  "subject": null
+ },
+ "official-1787044209435": {
+  "prob": null,
+  "framing": "domestic",
   "subject": null
  },
  "pro-football-2027-champion-20260729185915366": {

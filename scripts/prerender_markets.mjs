@@ -77,6 +77,7 @@ const SITE_NAV = [
   ['/about', '未来レーダーについて'],
   ['/track-record', '的中トラックレコード（全決着の予測 vs 結果）'],
   ['/ai-connector', 'AI連携（WebMCP）'],
+  ['/embed-guide', 'メディア向けウィジェット設置ガイド'],
 ];
 
 function navHtml(currentPath) {
@@ -625,6 +626,19 @@ async function prerenderAll() {
       title: 'Mikeへの手紙 ｜ 未来レーダー',
       description: 'Polymarket日本市場責任者 Mike Eidlin 氏への公開書簡。日本における予測市場の健全な発展と、未来レーダーが目指す世論インテリジェンスの理念。',
       canonical: `${SITE_URL}/letter-to-mike`
+    },
+    {
+      dir: 'embed-guide',
+      h1: 'メディア・ブログ向け 埋め込みウィジェット無償配給ガイド',
+      title: 'メディア・ブログ向け 埋め込みウィジェット無償配給ガイド ｜ 未来レーダー',
+      description: 'メディア・ブログ向け無料リアルタイム世論ウィジェット。1行のHTMLでPolymarket世界確率と日本世論のインタラクティブチャートを設置可能。',
+      canonical: `${SITE_URL}/embed-guide`,
+      facts: [
+        ['配給費用', '完全無料・商用メディア利用可'],
+        ['対応形式', 'HTML iframe / WordPress / Note / 各種CMS'],
+        ['リアルタイム更新', 'Polymarket世界確率 ＆ 日本世論スプレッドを自動同期'],
+        ['利用規約', '改変禁止・引用元（未来レーダー）リンク維持']
+      ]
     },
     {
       // Phase 2 / B: 的中トラックレコード。実数は track_record.json から静的本文に載せる
