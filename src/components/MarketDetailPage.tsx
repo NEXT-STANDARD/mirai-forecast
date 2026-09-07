@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { positiveLabel, negativeLabel, subjectNote, framingOf, positiveSideName, negativeSideName } from '../utils/probabilityLabel';
 import { 
   ArrowLeft, 
@@ -57,6 +57,18 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
   // ページは残して noindex + 告知バナーだけを出す。
   const isDelisted = item.isListed === false;
 
+  // 銘柄ID/Slugの変更時（初回表示または別銘柄への切り替え時）のみ上部にスクロールする
+  // 30秒ごとの自動ポーリング更新（データ最新化）で勝手にトップへ巻き戻されるUX阻害を完全防止
+  const prevMarketKeyRef = useRef<string | null>(null);
+  const currentMarketKey = item.slug || item.id;
+
+  useEffect(() => {
+    if (prevMarketKeyRef.current !== currentMarketKey) {
+      prevMarketKeyRef.current = currentMarketKey;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [currentMarketKey]);
+
   // 🌐 SEO: カノニカル正規化URL・メタタグ・JSON-LD構造化データの動的最適化
   useEffect(() => {
     const slug = item.slug || item.id;
@@ -102,8 +114,6 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
         }
       }
     });
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 
     return () => {
       // トップページ復帰時のカノニカルリセット

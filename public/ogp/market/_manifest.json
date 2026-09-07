@@ -1,9 +1,4 @@
 {
- "putin-out-before-2027": {
-  "prob": 7,
-  "framing": "yes",
-  "subject": null
- },
  "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
   "prob": 26,
   "framing": "yes",
@@ -11,6 +6,11 @@
  },
  "how-many-fed-rate-cuts-in-2026": {
   "prob": 93,
+  "framing": "yes",
+  "subject": null
+ },
+ "putin-out-before-2027": {
+  "prob": 7,
   "framing": "yes",
   "subject": null
  },
