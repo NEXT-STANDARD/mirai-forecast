@@ -6,6 +6,7 @@ interface ComplianceBannerProps {
   onOpenPrivacy?: () => void;
   onOpenAbout?: () => void;
   onOpenEmbedGuide?: () => void;
+  onOpenCreators?: () => void;
 }
 
 export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
@@ -13,6 +14,7 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
   onOpenPrivacy,
   onOpenAbout,
   onOpenEmbedGuide,
+  onOpenCreators,
 }) => {
   return (
     <footer id="compliance-footer" className="compliance-footer">
@@ -93,7 +95,22 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
                 </a>
               </>
             )}
-            {(onOpenAbout || onOpenEmbedGuide) && (onOpenTerms || onOpenPrivacy) && (
+            {onOpenCreators && (
+              <>
+                <span className="footer-link-divider">｜</span>
+                <a
+                  href="/creators"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onOpenCreators();
+                  }}
+                  className="footer-link-btn text-amber-400/90 hover:text-amber-300 font-semibold"
+                >
+                  公認クリエイター制度
+                </a>
+              </>
+            )}
+            {(onOpenAbout || onOpenEmbedGuide || onOpenCreators) && (onOpenTerms || onOpenPrivacy) && (
               <span className="footer-link-divider">｜</span>
             )}
             {onOpenTerms && (

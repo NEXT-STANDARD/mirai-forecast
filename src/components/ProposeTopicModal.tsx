@@ -3,15 +3,18 @@ import { Lightbulb, AlertTriangle, ShieldCheck, Send, X, CheckCircle2 } from 'lu
 import { supabase } from '../services/supabaseClient';
 import type { CategoryType } from '../types';
 import { useFocusTrap } from '../utils/useFocusTrap';
+import { Award } from 'lucide-react';
 
 interface ProposeTopicModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenCreators?: () => void;
 }
 
-export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, onClose }) => {
+export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, onClose, onOpenCreators }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CategoryType>('economy');
+  const [oracleUrl, setOracleUrl] = useState('');
   const [reason, setReason] = useState('');
   const [contributor, setContributor] = useState('');
 
@@ -26,6 +29,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
 
   const handleReset = React.useCallback(() => {
     setTitle('');
+    setOracleUrl('');
     setReason('');
     setContributor('');
     setAgreeElectionLaw(false);
@@ -78,7 +82,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
       title_ja: formattedTitle,
       title_en: formattedTitle,
       question_ja: formattedTitle,
-      question_en: `【ユーザー提案】提案者: ${contributor.trim() || '匿名'} ｜ 背景: ${reason.trim()}`,
+      question_en: `【ユーザー提案】提案者: ${contributor.trim() || '匿名'}${oracleUrl.trim() ? ` ｜ 判定オラクル: ${oracleUrl.trim()}` : ''} ｜ 背景: ${reason.trim()}`,
       category,
       category_label: categoryLabels[category] || '💡 ユーザー提案',
       icon_url: '',
@@ -141,6 +145,25 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
                 あなたが世論や世界の集合知で観測したい「未確定の未来の出来事」を提案してください。審査承認後にサイトに掲載されます。
               </p>
 
+              {onOpenCreators && (
+                <div className="p-3 mb-3 rounded-lg bg-cyan-950/60 border border-cyan-500/40 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs text-cyan-300">
+                    <Award size={15} className="text-amber-400 shrink-0" />
+                    <span>専門家・アナリスト向け<strong>「公認クリエイター制度」</strong>はこちら</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleReset();
+                      onOpenCreators();
+                    }}
+                    className="text-xs text-cyan-400 hover:text-cyan-200 font-bold underline cursor-pointer shrink-0"
+                  >
+                    詳細・申請 ➔
+                  </button>
+                </div>
+              )}
+
             {/* 質問タイトル */}
             <div className="form-group">
               <label className="form-label">
@@ -183,6 +206,22 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 客観的オラクルURL */}
+            <div className="form-group">
+              <label className="form-label">
+                <span>判定オラクルURL（公式発表・主催者リリースのURL）</span>
+                <span className="optional-tag">推奨</span>
+              </label>
+              <input
+                type="url"
+                className="form-input"
+                placeholder="例: https://www.mlb.com/stats (公式記録URL)"
+                value={oracleUrl}
+                onChange={(e) => setOracleUrl(e.target.value)}
+              />
+              <span className="form-hint">※結果を客観的に判定できる公式発表URL（3大上場基準）</span>
             </div>
 
             {/* 提案理由・背景 */}

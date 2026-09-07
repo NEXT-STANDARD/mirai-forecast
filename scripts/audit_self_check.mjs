@@ -409,7 +409,7 @@ async function checkDbAndPhase0() {
     }
 
     // 静的ページの自己参照 Canonical 検査 (P0-3)
-    const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide"];
+    const staticPages = ["forecast", "rankings", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide", "creators"];
     for (const p of staticPages) {
       const pDirectFile = path.join(ROOT, `dist/${p}.html`);
       const pDirFile = path.join(ROOT, `dist/${p}/index.html`);
@@ -591,7 +591,8 @@ async function checkDbAndPhase0() {
     { name: "AI連携 (/ai-connector)", file: path.join(ROOT, "dist/ai-connector.html") },
     { name: "開発者 (/developers)", file: path.join(ROOT, "dist/developers.html") },
     { name: "Mikeへの手紙 (/letter-to-mike)", file: path.join(ROOT, "dist/letter-to-mike.html") },
-    { name: "埋め込みガイド (/embed-guide)", file: path.join(ROOT, "dist/embed-guide.html") }
+    { name: "埋め込みガイド (/embed-guide)", file: path.join(ROOT, "dist/embed-guide.html") },
+    { name: "クリエイター (/creators)", file: path.join(ROOT, "dist/creators.html") }
   ];
 
   const seenDescriptions = new Map();
@@ -908,7 +909,7 @@ async function checkDbAndPhase0() {
   // 静的HTMLだけを見る検査では検出できないので、ソース側で2点を強制する。
   let canonFails = [];
   {
-    const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan", "/track-record", "/embed-guide"];
+    const PAGE_ROUTES = ["/", "/forecast", "/profile", "/rankings", "/ai-connector", "/developers", "/letter-to-mike", "/guide/polymarket-japan", "/track-record", "/embed-guide", "/creators"];
     // 複数ルートを1コンポーネントが担当する場合、canonical は実パスから決めなければならない
     const MULTI_ROUTE_COMPONENTS = ["ForecastHubPage.tsx", "AiConnectorPage.tsx"];
     const compDir = path.join(ROOT, "src/components");
@@ -937,7 +938,7 @@ async function checkDbAndPhase0() {
   // プリレンダーし忘れると、生きているページが404を返してしまう。両方を検査する。
   let notFoundFails = [];
   {
-    const APP_ROUTES = ["forecast", "rankings", "profile", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide"];
+    const APP_ROUTES = ["forecast", "rankings", "profile", "ai-connector", "developers", "letter-to-mike", "track-record", "embed-guide", "creators"];
     if (!fs.existsSync(path.join(ROOT, "dist/404.html"))) {
       notFoundFails.push("dist/404.html が存在しません（未知のURLがトップの複製を200で返すソフト404になります）");
     } else {

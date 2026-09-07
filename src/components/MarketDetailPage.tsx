@@ -13,7 +13,8 @@ import {
   Flame,
   Share2,
   Code2,
-  Download
+  Download,
+  Award
 } from 'lucide-react';
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
@@ -241,10 +242,42 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
 
       {/* タイトルヘッダー */}
       <div className="market-detail-header-card">
-        <div className="detail-title-block">
-          <h1 className="detail-main-title">{item.titleJa}</h1>
-          <p className="detail-sub-question">{item.question}</p>
-        </div>
+        {(() => {
+          const creatorMatch = item.question?.match(/【(ユーザー提案|公認クリエイター申請|独自銘柄提案|クリエイター提案)】(.*)/);
+          return (
+            <>
+              <div className="detail-title-block">
+                <h1 className="detail-main-title">{item.titleJa}</h1>
+                <p className="detail-sub-question">{creatorMatch ? item.titleJa : item.question}</p>
+              </div>
+
+              {creatorMatch && (
+                <div className="my-3 p-3.5 rounded-xl bg-gradient-to-r from-cyan-950/60 via-[#07172b] to-cyan-950/60 border border-cyan-500/40 flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0">
+                      <Award size={16} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300">
+                        <span>💡 発案クリエイター / コミュニティ提案銘柄</span>
+                      </div>
+                      <p className="text-xs text-slate-300 font-mono mt-0.5">
+                        {creatorMatch[2]}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onOpenShare(item)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                  >
+                    <Share2 size={12} />
+                    <span>この問いを拡散して世論を集める</span>
+                  </button>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         <div className="detail-header-stats-row">
           <div className="header-stat-box">

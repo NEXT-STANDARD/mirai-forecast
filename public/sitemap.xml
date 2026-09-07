@@ -64,13 +64,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-december-31</loc>
+    <loc>https://mirairadar.com/creators</loc>
     <lastmod>2026-09-07</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440</loc>
+    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-december-31</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
@@ -89,6 +89,12 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/fed-decision-in-september-762</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>

@@ -77,7 +77,8 @@ async function buildSitemap() {
     { path: '/ai-connector', priority: '0.8', changefreq: 'weekly' },
     { path: '/developers', priority: '0.8', changefreq: 'weekly' },
     { path: '/letter-to-mike', priority: '0.8', changefreq: 'weekly' },
-    { path: '/embed-guide', priority: '0.8', changefreq: 'weekly' }
+    { path: '/embed-guide', priority: '0.8', changefreq: 'weekly' },
+    { path: '/creators', priority: '0.8', changefreq: 'weekly' }
     // '/api/mcp' は API エンドポイントでページではない。canonical も '/' を指すため
     // sitemap に載せると「重複・正規URLではない」として計上される（第12回 N-46）
   ];

@@ -4,11 +4,6 @@
   "framing": "yes",
   "subject": null
  },
- "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
-  "prob": 2,
-  "framing": "yes",
-  "subject": null
- },
  "how-many-fed-rate-cuts-in-2026": {
   "prob": 93,
   "framing": "yes",
@@ -21,6 +16,11 @@
  },
  "fed-decision-in-september-762": {
   "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
+  "prob": 2,
   "framing": "yes",
   "subject": null
  },
@@ -100,7 +100,7 @@
   "subject": null
  },
  "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
-  "prob": 70,
+  "prob": 69,
   "framing": "yes",
   "subject": null
  },

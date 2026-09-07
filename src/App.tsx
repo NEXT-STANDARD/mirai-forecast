@@ -26,6 +26,7 @@ const GuideDetailPage = lazy(() => import('./components/GuideDetailPage').then(m
 const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 const TrackRecordPage = lazy(() => import('./components/TrackRecordPage').then(m => ({ default: m.TrackRecordPage })));
 const EmbedGuidePage = lazy(() => import('./components/EmbedGuidePage').then(m => ({ default: m.EmbedGuidePage })));
+const CreatorsPage = lazy(() => import('./components/CreatorsPage').then(m => ({ default: m.CreatorsPage })));
 import { INITIAL_EVENTS } from './data/initialEvents';
 import { fetchLivePolymarketMarkets, syncVotesFromSupabase } from './services/polymarketService';
 import { submitVoteToSupabase } from './services/supabaseClient';
@@ -116,6 +117,13 @@ export function App() {
     return cleanPath === '/embed-guide' || cleanPath === '/widgets';
   });
 
+  // 🎓 公認クリエイター制度 ＆ 独自銘柄申請 (/creators, /creator-program) - 末尾スラッシュ完全耐性
+  const [isCreatorsOpen, setIsCreatorsOpen] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const cleanPath = window.location.pathname.replace(/\/+$/, '') || '/';
+    return cleanPath === '/creators' || cleanPath === '/creator-program';
+  });
+
   // 本番環境で /admin にアクセスされた場合は即座にトップページへ自動リダイレクト
   useEffect(() => {
     if (!isLocalhost && typeof window !== 'undefined' && (window.location.pathname.replace(/\/+$/, '') || '/') === '/admin') {
@@ -172,6 +180,7 @@ export function App() {
     setIsAboutPageOpen(true);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     window.history.pushState({}, '', '/about');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -180,6 +189,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     window.history.pushState({}, '', '/');
   };
 
@@ -193,6 +203,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(true);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     window.history.pushState({}, '', '/track-record');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -212,6 +223,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(true);
+    setIsCreatorsOpen(false);
     window.history.pushState({}, '', '/embed-guide');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -221,10 +233,31 @@ export function App() {
     window.history.pushState({}, '', '/');
   };
 
+  const handleOpenCreators = () => {
+    setDetailMarketId(null);
+    setGuideSlug(null);
+    setIsAdminOpen(false);
+    setIsLetterPageOpen(false);
+    setIsAiConnectorOpen(false);
+    setIsForecastHubOpen(false);
+    setIsAboutPageOpen(false);
+    setIsTrackRecordOpen(false);
+    setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(true);
+    window.history.pushState({}, '', '/creators');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleCloseCreators = () => {
+    setIsCreatorsOpen(false);
+    window.history.pushState({}, '', '/');
+  };
+
   const handleOpenMarketDetail = (market: MarketItem) => {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
     setIsAdminOpen(false);
@@ -245,6 +278,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -265,6 +299,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -284,6 +319,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
@@ -303,6 +339,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsLetterPageOpen(false);
     setIsAiConnectorOpen(false);
     setIsForecastHubOpen(false);
@@ -322,6 +359,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsAdminOpen(false);
     setIsLetterPageOpen(false);
     setIsForecastHubOpen(false);
@@ -341,6 +379,7 @@ export function App() {
     setIsAboutPageOpen(false);
     setIsTrackRecordOpen(false);
     setIsEmbedGuideOpen(false);
+    setIsCreatorsOpen(false);
     setIsLetterPageOpen(false);
     setIsAdminOpen(false);
     setIsAiConnectorOpen(false);
@@ -360,6 +399,7 @@ export function App() {
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -370,6 +410,7 @@ export function App() {
         setIsAboutPageOpen(true);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -380,6 +421,7 @@ export function App() {
         setIsTrackRecordOpen(true);
         setIsAboutPageOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -390,6 +432,18 @@ export function App() {
         setIsEmbedGuideOpen(true);
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
+        setIsCreatorsOpen(false);
+        setIsAdminOpen(false);
+        setIsLetterPageOpen(false);
+        setIsAiConnectorOpen(false);
+        setIsForecastHubOpen(false);
+        setDetailMarketId(null);
+        setGuideSlug(null);
+      } else if (path === '/creators' || path === '/creator-program') {
+        setIsCreatorsOpen(true);
+        setIsAboutPageOpen(false);
+        setIsTrackRecordOpen(false);
+        setIsEmbedGuideOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -401,6 +455,7 @@ export function App() {
           setIsAboutPageOpen(false);
           setIsTrackRecordOpen(false);
           setIsEmbedGuideOpen(false);
+          setIsCreatorsOpen(false);
           setIsAdminOpen(true);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -412,6 +467,7 @@ export function App() {
           setIsAboutPageOpen(false);
           setIsTrackRecordOpen(false);
           setIsEmbedGuideOpen(false);
+          setIsCreatorsOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -423,6 +479,7 @@ export function App() {
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(true);
         setIsAiConnectorOpen(false);
@@ -433,6 +490,7 @@ export function App() {
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(true);
@@ -443,6 +501,7 @@ export function App() {
         setIsAboutPageOpen(false);
         setIsTrackRecordOpen(false);
         setIsEmbedGuideOpen(false);
+        setIsCreatorsOpen(false);
         setIsAdminOpen(false);
         setIsLetterPageOpen(false);
         setIsAiConnectorOpen(false);
@@ -457,6 +516,7 @@ export function App() {
           setIsAboutPageOpen(false);
           setIsTrackRecordOpen(false);
           setIsEmbedGuideOpen(false);
+          setIsCreatorsOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -471,6 +531,7 @@ export function App() {
           setIsAboutPageOpen(false);
           setIsTrackRecordOpen(false);
           setIsEmbedGuideOpen(false);
+          setIsCreatorsOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -481,6 +542,7 @@ export function App() {
           setIsAboutPageOpen(false);
           setIsTrackRecordOpen(false);
           setIsEmbedGuideOpen(false);
+          setIsCreatorsOpen(false);
           setIsAdminOpen(false);
           setIsLetterPageOpen(false);
           setIsAiConnectorOpen(false);
@@ -756,6 +818,15 @@ export function App() {
             />
           </main>
         </Suspense>
+      ) : isCreatorsOpen ? (
+        <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING CREATORS PROGRAM...</div>}>
+          <main className="container main-content">
+            <CreatorsPage
+              onBack={handleCloseCreators}
+              onOpenPropose={() => setIsProposeModalOpen(true)}
+            />
+          </main>
+        </Suspense>
       ) : isForecastHubOpen ? (
         <Suspense fallback={<div className="container main-content py-16 text-center text-cyan-400 font-mono text-xs">⚡ LOADING HUB...</div>}>
           <main className="container main-content">
@@ -845,6 +916,7 @@ export function App() {
       <ProposeTopicModal
         isOpen={isProposeModalOpen}
         onClose={() => setIsProposeModalOpen(false)}
+        onOpenCreators={handleOpenCreators}
       />
 
       {/* 詳細分析モーダル */}
@@ -905,6 +977,7 @@ export function App() {
       <ComplianceBanner
         onOpenAbout={handleOpenAbout}
         onOpenEmbedGuide={handleOpenEmbedGuide}
+        onOpenCreators={handleOpenCreators}
         onOpenTerms={() => {
           setTermsTab('terms');
           setIsTermsOpen(true);
