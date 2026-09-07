@@ -4,6 +4,7 @@ import { supabase } from '../services/supabaseClient';
 import type { CategoryType } from '../types';
 import { useFocusTrap } from '../utils/useFocusTrap';
 import { Award } from 'lucide-react';
+import { sendAdminNotification } from '../services/notificationService';
 
 interface ProposeTopicModalProps {
   isOpen: boolean;
@@ -96,6 +97,18 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
         const { error } = await supabase.from('events').insert(newRecord);
         if (error) throw error;
       }
+
+      // 管理者へ即時メール通知（バックグラウンド非同期）
+      sendAdminNotification({
+        type: 'user_proposal',
+        applicantName: contributor.trim() || '匿名',
+        title: formattedTitle,
+        oracleUrl: oracleUrl.trim(),
+        reason: reason.trim(),
+        category: categoryLabels[category] || category,
+        id: newRecord.id,
+      }).catch((err) => console.warn('Notification dispatch warning:', err));
+
       setIsSuccess(true);
     } catch (err: any) {
       console.error('Failed to submit proposal:', err);

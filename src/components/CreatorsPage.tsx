@@ -16,24 +16,24 @@ import {
   FileCheck2,
   Percent,
   Check,
-  Share2
+  Share2,
+  Mail,
 } from 'lucide-react';
+import { sendAdminNotification } from '../services/notificationService';
 
 interface CreatorsPageProps {
   onBack: () => void;
   onOpenPropose?: () => void;
 }
 
-type ApplicationType = 'market_proposal' | 'creator_application';
-
-export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
-  const [appType, setAppType] = useState<ApplicationType>('creator_application');
+export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropose }) => {
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<CategoryType>('economy');
   const [endDate, setEndDate] = useState('2026-12-31');
   const [oracleUrl, setOracleUrl] = useState('');
   const [reason, setReason] = useState('');
   const [contributor, setContributor] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
   const [profileUrl, setProfileUrl] = useState('');
   const [expertise, setExpertise] = useState('');
 
@@ -57,10 +57,13 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
   }, []);
 
   const isFormValid =
+    contributor.trim().length >= 2 &&
+    contactEmail.trim().includes('@') &&
+    profileUrl.trim().length >= 5 &&
+    expertise.trim().length >= 2 &&
     title.trim().length >= 8 &&
     oracleUrl.trim().length >= 10 &&
     reason.trim().length >= 10 &&
-    (appType === 'market_proposal' || (contributor.trim().length >= 2 && profileUrl.trim().length >= 5)) &&
     agreeOracle &&
     agreeNeutrality &&
     agreeNoDefamation;
@@ -89,20 +92,16 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
       entertainment: '🎬 エンタメ・カルチャー',
     };
 
-    const typePrefix = appType === 'creator_application' ? '【公認クリエイター申請】' : '【独自銘柄提案】';
-    const creatorMeta = appType === 'creator_application'
-      ? ` ｜ 専門領域: ${expertise.trim() || '未記載'} ｜ 実績URL: ${profileUrl.trim()}`
-      : '';
-
+    const newRecordId = `creator-app-${Date.now()}`;
     const newRecord = {
-      id: `creator-prop-${Date.now()}`,
+      id: newRecordId,
       slug: `creator-topic-${Date.now()}`,
       title_ja: formattedTitle,
       title_en: formattedTitle,
       question_ja: formattedTitle,
-      question_en: `${typePrefix}申請者: ${contributor.trim() || '匿名'} ｜ 判定オラクル: ${oracleUrl.trim()} ｜ 背景: ${reason.trim()}${creatorMeta}`,
+      question_en: `【公認クリエイター申請】申請者: ${contributor.trim()} ｜ メール: ${contactEmail.trim()} ｜ 専門領域: ${expertise.trim()} ｜ 実績URL: ${profileUrl.trim()} ｜ 判定オラクル: ${oracleUrl.trim()} ｜ 背景: ${reason.trim()}`,
       category,
-      category_label: categoryLabels[category] || '💡 クリエイター提案',
+      category_label: categoryLabels[category] || '🌟 公認クリエイター申請',
       icon_url: '',
       end_date: endDate || '2026-12-31',
       is_active: false, // 運営審査キューに格納
@@ -114,6 +113,21 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
         const { error } = await supabase.from('events').insert(newRecord);
         if (error) throw error;
       }
+
+      // 管理者へ即時メール通知を送信（バックグラウンド非同期）
+      sendAdminNotification({
+        type: 'creator_application',
+        applicantName: contributor.trim(),
+        contactEmail: contactEmail.trim(),
+        profileUrl: profileUrl.trim(),
+        expertise: expertise.trim(),
+        title: formattedTitle,
+        oracleUrl: oracleUrl.trim(),
+        reason: reason.trim(),
+        category: categoryLabels[category] || category,
+        id: newRecordId,
+      }).catch((err) => console.warn('Notification dispatch warning:', err));
+
       setIsSuccess(true);
     } catch (err: any) {
       console.error('Failed to submit creator proposal:', err);
@@ -128,6 +142,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
     setOracleUrl('');
     setReason('');
     setContributor('');
+    setContactEmail('');
     setProfileUrl('');
     setExpertise('');
     setAgreeOracle(false);
@@ -238,23 +253,35 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
           </div>
 
           {/* 一般観測者 */}
-          <div className="p-6 rounded-xl bg-[#0b1320] border border-cyan-900/60 shadow-xl space-y-3 relative overflow-hidden">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-400/30 text-cyan-300 text-xs font-bold font-mono">
-              <Compass size={13} className="text-cyan-400" />
-              <span>一般観測者（登録不要）</span>
-            </div>
-            <h3 className="text-sm font-bold text-white">全一般ユーザー・読者</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              「この未来の行方を占いたい」という問いをどなたでも提案可能。運営審査を通過した問いが本番市場へ上場されます。
-            </p>
-            <div className="pt-2 border-t border-slate-800 space-y-1.5 text-xs font-mono text-slate-300">
-              <div className="flex items-center gap-2 text-cyan-300 font-semibold">
-                <Check size={13} />
-                <span>完全無料・登録不要</span>
+          <div className="p-6 rounded-xl bg-[#0b1320] border border-cyan-900/60 shadow-xl space-y-3 relative overflow-hidden flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-950 border border-cyan-400/30 text-cyan-300 text-xs font-bold font-mono">
+                <Compass size={13} className="text-cyan-400" />
+                <span>一般観測者（登録不要）</span>
               </div>
-              <div className="text-slate-400">・採用時に発案者クレジット表記</div>
-              <div className="text-slate-400">・SNSで自分の問いを拡散動員</div>
+              <h3 className="text-sm font-bold text-white">全一般ユーザー・読者</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                「この未来の行方を占いたい」という問いをどなたでも提案可能。運営審査を通過した問いが本番市場へ上場されます。
+              </p>
+              <div className="pt-2 border-t border-slate-800 space-y-1.5 text-xs font-mono text-slate-300">
+                <div className="flex items-center gap-2 text-cyan-300 font-semibold">
+                  <Check size={13} />
+                  <span>完全無料・登録不要</span>
+                </div>
+                <div className="text-slate-400">・採用時に発案者クレジット表記</div>
+                <div className="text-slate-400">・SNSで自分の問いを拡散動員</div>
+              </div>
             </div>
+            {onOpenPropose && (
+              <button
+                type="button"
+                onClick={onOpenPropose}
+                className="w-full mt-3 py-2 px-3 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-700/60 text-cyan-300 hover:text-white text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles size={13} />
+                <span>単発の問いを提案する</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -304,16 +331,46 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
         </div>
       </div>
 
-      {/* 申請・提案フォーム */}
+      {/* 一般向け問い提案の誘導バナー */}
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-cyan-950/50 to-slate-900/80 border border-cyan-800/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-cyan-300 font-bold text-sm">
+            <Compass size={16} className="text-cyan-400" />
+            <span>「未来の問い」を単発で提案したい方へ</span>
+          </div>
+          <p className="text-xs text-slate-400 leading-relaxed max-w-2xl">
+            特定領域の専門家登録ではなく、「この出来事の世論を可視化してほしい」という単発のテーマ提案は、登録不要でどなたでも即座に投稿いただけます。
+          </p>
+        </div>
+        {onOpenPropose && (
+          <button
+            type="button"
+            onClick={onOpenPropose}
+            className="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition shadow-lg shadow-cyan-950/50 cursor-pointer"
+          >
+            <Sparkles size={14} />
+            <span>問いを提案する</span>
+          </button>
+        )}
+      </div>
+
+      {/* 公認クリエイター参加申請フォーム */}
       <div className="p-6 sm:p-10 rounded-2xl bg-[#0b1320] border border-cyan-900/60 shadow-2xl space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-4 border-b border-cyan-900/50 pb-4">
           <div className="flex items-center gap-2.5 text-cyan-400">
-            <Sparkles size={20} className="text-amber-400" />
-            <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-              独自銘柄の提案 ＆ クリエイター参加申請
-            </h2>
+            <Award size={22} className="text-amber-400" />
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                公認インテリジェンス・クリエイター参加申請
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                専門領域（AI、経済、国際政治、防衛、スポーツ等）に知見を持つアナリスト・専門家向け審査申請
+              </p>
+            </div>
           </div>
-          <span className="text-xs font-mono text-slate-400">審査制・完全無料</span>
+          <span className="text-xs font-mono px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300">
+            審査制・完全無料
+          </span>
         </div>
 
         {isSuccess ? (
@@ -321,70 +378,86 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
             <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto">
               <CheckCircle2 size={28} />
             </div>
-            <h3 className="text-lg font-bold text-white">申請を受け付けました！</h3>
+            <h3 className="text-lg font-bold text-white">公認クリエイター申請を受け付けました！</h3>
             <p className="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
-              ご提案ありがとうございます。運営チームおよびAIオラクル検証エンジンが3大上場基準に基づき審査を行います。
-              承認された銘柄は本番マーケット一覧へ公開されます。
+              ご申請ありがとうございます。運営チームが実績URLおよび組成提案銘柄の3大上場基準を審査いたします。<br />
+              審査結果および承認時のご案内は、ご登録いただいたメールアドレス（<strong className="text-cyan-300">{contactEmail}</strong>）宛にご連絡いたします。
             </p>
             <button
               type="button"
               onClick={resetForm}
               className="px-5 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition cursor-pointer"
             >
-              続けて別の提案を送信する
+              続けて別の申請を送信する
             </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* 申請種別の選択 */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-200">
-                ① 申請の種類を選択してください:
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setAppType('creator_application')}
-                  className={`p-4 rounded-xl text-left border transition cursor-pointer ${
-                    appType === 'creator_application'
-                      ? 'bg-cyan-950/80 border-cyan-400 text-white shadow-lg'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 font-bold text-sm text-cyan-300 mb-1">
-                    <Award size={16} className="text-amber-400" />
-                    <span>公認・認定クリエイター申請</span>
-                  </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    専門領域での実績を持ち、継続的に独自予測銘柄を組成したいリサーチャー・専門家向け。
-                  </p>
-                </button>
+            {/* 申請者情報 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200">
+                  ① 申請者のお名前または活動名（必須）:
+                </label>
+                <input
+                  type="text"
+                  value={contributor}
+                  onChange={(e) => setContributor(e.target.value)}
+                  placeholder="例: 山田 太郎 / @yamada_analyst"
+                  className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => setAppType('market_proposal')}
-                  className={`p-4 rounded-xl text-left border transition cursor-pointer ${
-                    appType === 'market_proposal'
-                      ? 'bg-cyan-950/80 border-cyan-400 text-white shadow-lg'
-                      : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:bg-slate-900'
-                  }`}
-                >
-                  <div className="flex items-center gap-2 font-bold text-sm text-cyan-300 mb-1">
-                    <Compass size={16} className="text-cyan-400" />
-                    <span>独自銘柄の提案（一般観測者）</span>
-                  </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    「この出来事の世論を可視化してほしい」という単発のテーマ提案。登録不要でどなたでも提案可能です。
-                  </p>
-                </button>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-cyan-300 flex items-center gap-1">
+                    <Mail size={13} />
+                    <span>② 連絡先メールアドレス（必須 / 審査結果通知用）:</span>
+                  </label>
+                </div>
+                <input
+                  type="email"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
+                  placeholder="例: creator@example.com"
+                  className="w-full bg-slate-950 border border-cyan-700 rounded-lg px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
               </div>
             </div>
 
-            {/* 予測の問い */}
-            <div className="space-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200">
+                  ③ 実績・プロフィールURL（必須 / X、note、執筆記事等）:
+                </label>
+                <input
+                  type="url"
+                  value={profileUrl}
+                  onChange={(e) => setProfileUrl(e.target.value)}
+                  placeholder="例: https://x.com/username またはメディア記事一覧URL"
+                  className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-200">
+                  ④ 主な専門領域・リサーチ分野（必須）:
+                </label>
+                <input
+                  type="text"
+                  value={expertise}
+                  onChange={(e) => setExpertise(e.target.value)}
+                  placeholder="例: マクロ経済・金利政策 / 生成AIスタートアップ / 国際地政学"
+                  className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3.5 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
+                />
+              </div>
+            </div>
+
+            {/* 組成したい独自銘柄の問い */}
+            <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-200">
-                  ② 予測したい「未来の問い」（必須 / 末尾は「〜か？」形式）:
+                  ⑤ 組成したい初回独自銘柄の問い（必須 / 末尾は「〜か？」形式）:
                 </label>
                 <span className="text-[10px] text-slate-400 font-mono">8文字以上</span>
               </div>
@@ -401,7 +474,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-200">
-                  ③ カテゴリー:
+                  ⑥ カテゴリー:
                 </label>
                 <select
                   value={category}
@@ -418,7 +491,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-200">
-                  ④ 決着予定期日（判定を行う期日）:
+                  ⑦ 決着予定期日（判定を行う期日）:
                 </label>
                 <input
                   type="date"
@@ -433,7 +506,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-amber-300">
-                  ⑤ 判定オラクルURL（公式発表・公的機関のURL必須）:
+                  ⑧ 判定オラクルURL（公式発表・公的機関のURL必須）:
                 </label>
                 <span className="text-[10px] text-amber-400/80 font-mono">3大上場基準・必須</span>
               </div>
@@ -453,7 +526,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-200">
-                  ⑥ 提案理由・背景の解説（必須）:
+                  ⑨ 提案理由・背景の解説（必須）:
                 </label>
                 <span className="text-[10px] text-slate-400 font-mono">10文字以上</span>
               </div>
@@ -461,70 +534,10 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="なぜこのテーマを今占うべきか、世論や市場の見解がどう分かれているかを簡潔に記載してください。"
+                placeholder="なぜこのテーマを今占うべきか、世論や市場の見解がどう分かれているかを専門家の視点から簡潔に記載してください。"
                 className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg p-3 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition resize-none"
               />
             </div>
-
-            {/* 申請者情報 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  ⑦ 申請者のお名前・Xアカウント名:
-                  {appType === 'creator_application' && <span className="text-amber-400 ml-1">（必須）</span>}
-                </label>
-                <input
-                  type="text"
-                  value={contributor}
-                  onChange={(e) => setContributor(e.target.value)}
-                  placeholder="例: 山田 太郎 / @yamada_analyst"
-                  className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
-                />
-              </div>
-
-              {appType === 'creator_application' ? (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-200">
-                    ⑧ 実績・プロフィールURL（必須）:
-                  </label>
-                  <input
-                    type="url"
-                    value={profileUrl}
-                    onChange={(e) => setProfileUrl(e.target.value)}
-                    placeholder="例: XプロフィールURL、所属機関、執筆記事一覧URL"
-                    className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-200">
-                    ⑧ 連絡先・SNS（任意）:
-                  </label>
-                  <input
-                    type="text"
-                    value={profileUrl}
-                    onChange={(e) => setProfileUrl(e.target.value)}
-                    placeholder="例: メールアドレスまたは連絡用Xアカウント"
-                    className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
-                  />
-                </div>
-              )}
-            </div>
-
-            {appType === 'creator_application' && (
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-200">
-                  ⑨ 主なリサーチ・専門領域:
-                </label>
-                <input
-                  type="text"
-                  value={expertise}
-                  onChange={(e) => setExpertise(e.target.value)}
-                  placeholder="例: マクロ経済・金利政策 / 生成AIスタートアップ / 国際地政学"
-                  className="w-full bg-slate-950 border border-cyan-800/80 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition"
-                />
-              </div>
-            )}
 
             {/* 3大上場基準 同意チェックボックス */}
             <div className="p-4 rounded-xl bg-slate-950/90 border border-cyan-900/80 space-y-3">
@@ -587,7 +600,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
             >
               <Send size={16} />
               <span>
-                {isSubmitting ? '審査キューへ送信中...' : appType === 'creator_application' ? '公認クリエイター審査へ申請する' : '独自銘柄の提案を送信する'}
+                {isSubmitting ? '審査キューへ送信中...' : '公認クリエイター審査へ申請する'}
               </span>
             </button>
           </form>

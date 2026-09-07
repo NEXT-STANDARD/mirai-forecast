@@ -10629,8 +10629,10 @@ body::after {
 .kind-badge {
   padding: 0.15rem 0.45rem; font-size: 0.68rem; font-weight: 700; border-radius: 4px; white-space: nowrap;
 }
+.kind-badge.creator { color: #f59e0b; background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(245, 158, 11, 0.45); }
 .kind-badge.user { color: #6ee7b7; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); }
 .kind-badge.archive { color: #fcd34d; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.32); }
+.proposal-admin-card.is-creator-card { border-color: rgba(245, 158, 11, 0.45); background: linear-gradient(180deg, rgba(30, 27, 75, 0.3) 0%, rgba(15, 23, 42, 0.6) 100%); }
 @media (pointer: coarse) { .kind-chip { min-height: 44px; } }
 
 /* 一括操作は破壊的なので、未選択のときに押せそうに見えないようにする */

@@ -18,9 +18,12 @@
  */
 
 import { handleMcp, type WorkerEnv } from './mcp';
+import { handleNotify, type NotifyEnv } from './notify';
+
+type CombinedEnv = WorkerEnv & NotifyEnv;
 
 export default {
-  async fetch(request: Request, env: WorkerEnv): Promise<Response> {
+  async fetch(request: Request, env: CombinedEnv): Promise<Response> {
     const url = new URL(request.url);
     const pathname = url.pathname.replace(/\/+$/, '') || '/';
 
@@ -28,9 +31,13 @@ export default {
       return handleMcp(request, env);
     }
 
+    if (pathname === '/api/notify') {
+      return handleNotify(request, env);
+    }
+
     if (pathname.startsWith('/api/')) {
       return new Response(
-        JSON.stringify({ error: 'Not found', hint: '利用可能なAPIは /api/mcp です（WebMCP / JSON-RPC 2.0）。' }),
+        JSON.stringify({ error: 'Not found', hint: '利用可能なAPIは /api/mcp, /api/notify です。' }),
         { status: 404, headers: { 'Content-Type': 'application/json; charset=utf-8' } }
       );
     }

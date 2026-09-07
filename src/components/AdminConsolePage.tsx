@@ -111,13 +111,26 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   const [editIsBlackout, setEditIsBlackout] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // ── 提案の種別（キューにはユーザー提案と Polymarket 由来が混在する） ──────
-  // is_active=false は「審査待ち」だけでなく「決着してアーカイブされた銘柄」も意味する。
-  // 両者を同じ画面で一括削除すると、決着アーカイブのページごと消えてしまうので分ける。
-  type ProposalKind = 'user' | 'archive';
-  const kindOf = (item: ProposalItem): ProposalKind =>
-    /^(proposal-|council-|official-)/.test(String(item.id)) ? 'user' : 'archive';
-  const kindLabel = (k: ProposalKind) => (k === 'user' ? 'ユーザー提案' : 'Polymarket由来・決着済み');
+  // ── 提案の種別（公認クリエイター申請・ユーザー提案・Polymarket決着済みアーカイブ） ──────
+  type ProposalKind = 'creator' | 'user' | 'archive';
+  const kindOf = (item: ProposalItem): ProposalKind => {
+    const id = String(item.id || '');
+    const qEn = String(item.question_en || '');
+    if (/^(creator-app-|creator-prop-|creator-)/.test(id) || qEn.includes('【公認クリエイター申請】')) {
+      return 'creator';
+    }
+    if (/^(prop-|proposal-|user-|council-|official-)/.test(id) || qEn.includes('【ユーザー提案】') || qEn.includes('【独自銘柄提案】')) {
+      return 'user';
+    }
+    return 'archive';
+  };
+  const kindLabel = (k: ProposalKind) => {
+    switch (k) {
+      case 'creator': return '🌟 公認クリエイター申請';
+      case 'user': return '💡 ユーザー提案';
+      case 'archive': return '📦 決着済みアーカイブ';
+    }
+  };
   const [kindFilter, setKindFilter] = useState<'all' | ProposalKind>('all');
   const visibleProposals = proposals.filter(p => kindFilter === 'all' || kindOf(p) === kindFilter);
 
@@ -1004,7 +1017,12 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                   </label>
 
                   <div className="bulk-kind-filter">
-                    {([['all', 'すべて'], ['user', 'ユーザー提案'], ['archive', 'Polymarket由来・決着済み']] as const).map(([k, label]) => {
+                    {([
+                      ['all', 'すべて'],
+                      ['creator', '🌟 公認クリエイター申請'],
+                      ['user', '💡 ユーザー提案'],
+                      ['archive', 'Polymarket由来・決着済み']
+                    ] as const).map(([k, label]) => {
                       const count = k === 'all' ? proposals.length : proposals.filter(p => kindOf(p) === k).length;
                       return (
                         <button
@@ -1038,7 +1056,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                       disabled={selectedIds.size === 0 || bulkProgress !== null}
                     >
                       <XCircle size={14} />
-                      <span>選択した{selectedIds.size || ''}件を却下・削除</span>
+                      <span>選択した{selectedIds.size || ''}件を却下</span>
                     </button>
                     {selectedIds.size > 0 && (
                       <button className="btn-action-sm" onClick={clearSelection} disabled={bulkProgress !== null}>
@@ -1056,7 +1074,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
 
               <div className="proposals-grid">
                 {visibleProposals.map((item) => (
-                  <div key={item.id} className={`proposal-admin-card ${selectedIds.has(item.id) ? 'is-selected' : ''}`}>
+                  <div key={item.id} className={`proposal-admin-card ${selectedIds.has(item.id) ? 'is-selected' : ''} ${kindOf(item) === 'creator' ? 'is-creator-card' : ''}`}>
                     <div className="card-top-row">
                       <label className="proposal-select-label">
                         <input
@@ -1075,9 +1093,18 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
                     <h3 className="proposal-title-admin">{item.title_ja}</h3>
 
                     <div className="proposal-meta-box">
-                      <p className="meta-line">
-                        <strong>提案情報:</strong> {item.question_en}
-                      </p>
+                      {kindOf(item) === 'creator' ? (
+                        <div className="creator-meta-admin space-y-1">
+                          <div className="text-amber-400 font-bold text-xs">🌟 公認インテリジェンス・クリエイター申請</div>
+                          <p className="meta-line text-slate-300 break-words whitespace-pre-wrap">
+                            {item.question_en}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="meta-line">
+                          <strong>提案情報:</strong> {item.question_en}
+                        </p>
+                      )}
                     </div>
 
                     <div className="card-btn-row">
