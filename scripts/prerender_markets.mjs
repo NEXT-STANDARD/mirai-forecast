@@ -106,9 +106,11 @@ function staticBody({ h1, lead, currentPath, facts = [], links = [], linksHeadin
     + '#root ul{margin:.5rem 0;padding-left:1.25rem}#root li{margin:.35rem 0;list-style:disc}'
     + '#root dt{font-weight:700;margin-top:.5rem}#root dd{margin:0 0 .25rem}'
     + '#root a{color:#7dd3fc;text-decoration:underline}</style>';
+  const footerNoteHtml = '<footer style="margin-top:2rem;padding-top:1rem;border-top:1px solid #1e293b;font-size:0.8rem;color:#94a3b8;"><p>© 2026 未来レーダー (MiraiRadar.com) ｜ 運営：ＤＥＬＩＣＩＯＵＳ株式会社（届出電気通信事業者：Ａ－０８－２４２３７）</p></footer>';
   return '<div id="root">' + shellStyle
     + `<h1>${escapeHtml(h1)}</h1><p>${escapeHtml(lead)}</p>`
     + factsHtml + linksHtml + navHtml(currentPath)
+    + footerNoteHtml
     + '</div>';
 }
 
@@ -668,6 +670,13 @@ async function prerenderAll() {
       title: '未来レーダーについて ｜ 世界の集合知 × 日本の世論インテリジェンス・メディア',
       description: '世界の集合知（Polymarket）と日本の世論を対比し未来を可視化する非胴元型インテリジェンス・メディア。気象台モデル、3大上場基準、WebMCP連携を宣言。',
       canonical: `${SITE_URL}/about`,
+      facts: [
+        ['運営会社', 'ＤＥＬＩＣＩＯＵＳ株式会社'],
+        ['代表者', '代表取締役　大山　圭太'],
+        ['電気通信事業届出', '届出番号 Ａ－０８－２４２３７（総務省 関東総合通信局）'],
+        ['本社所在地', '東京都中央区銀座１丁目１５番４号ヒューリック銀座一丁目昭和通りビル７階'],
+        ['開発・分析統括', '霧島フェニックス（Phoenix Kirishima）']
+      ],
       jsonLd: {
         "@context": "https://schema.org",
         "@type": "AboutPage",
@@ -679,6 +688,10 @@ async function prerenderAll() {
           "name": "未来レーダー",
           "url": SITE_URL,
           "logo": `${SITE_URL}/ogp-main.png`,
+          "parentOrganization": {
+            "@type": "Organization",
+            "name": "ＤＥＬＩＣＩＯＵＳ株式会社"
+          },
           "founder": {
             "@type": "Person",
             "name": "霧島フェニックス",
