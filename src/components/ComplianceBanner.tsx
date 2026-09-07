@@ -93,7 +93,7 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
           </div>
 
           <div className="footer-bottom-copy">
-            © 2026 未来レーダー (MiraiRadar.com). 世界の集合知 × 日本の世論調査プラットフォーム.
+            © 2026 未来レーダー (MiraiRadar.com) ｜ 運営：ＤＥＬＩＣＩＯＵＳ株式会社（届出電気通信事業者：Ａ－０８－２４２３７）
           </div>
         </div>
       </div>

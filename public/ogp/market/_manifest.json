@@ -1,46 +1,16 @@
 {
  "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
-  "prob": 33,
+  "prob": 26,
+  "framing": "yes",
+  "subject": null
+ },
+ "putin-out-before-2027": {
+  "prob": 7,
   "framing": "yes",
   "subject": null
  },
  "how-many-fed-rate-cuts-in-2026": {
-  "prob": 87,
-  "framing": "yes",
-  "subject": null
- },
- "strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320": {
-  "prob": 0,
-  "framing": "yes",
-  "subject": null
- },
- "elon-musk-of-tweets-august-21-august-28-2026": {
-  "prob": 0,
-  "framing": "yes",
-  "subject": null
- },
- "what-price-will-ethereum-hit-in-august-2026": {
-  "prob": 5,
-  "framing": "yes",
-  "subject": null
- },
- "what-price-will-ethereum-hit-august-24-30-2026": {
-  "prob": 2,
-  "framing": "yes",
-  "subject": null
- },
- "elon-musk-of-tweets-august-18-august-25": {
-  "prob": 0,
-  "framing": "yes",
-  "subject": null
- },
- "what-price-will-bitcoin-hit-before-2027": {
-  "prob": 28,
-  "framing": "yes",
-  "subject": null
- },
- "what-price-will-bitcoin-hit-in-august-2026": {
-  "prob": 1,
+  "prob": 93,
   "framing": "yes",
   "subject": null
  },
@@ -49,19 +19,54 @@
   "framing": "yes",
   "subject": null
  },
- "bitcoin-above-on-august-25-2026": {
-  "prob": 100,
+ "what-price-will-ethereum-hit-before-2027": {
+  "prob": 50,
   "framing": "yes",
   "subject": null
  },
- "what-price-will-wti-hit-in-august-2026": {
+ "what-price-will-bitcoin-hit-before-2027": {
+  "prob": 22,
+  "framing": "yes",
+  "subject": null
+ },
+ "fed-decision-in-october-20260617190323537": {
+  "prob": 1,
+  "framing": "subject",
+  "subject": "50+ bps decrease"
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-15-20260810150912478": {
   "prob": 0,
   "framing": "yes",
   "subject": null
  },
- "what-price-will-ethereum-hit-before-2027": {
-  "prob": 56,
+ "fed-rate-hike-in-2026": {
+  "prob": 71,
   "framing": "yes",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
+  "prob": 2,
+  "framing": "yes",
+  "subject": null
+ },
+ "council-politics-1787695711877": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-politics-1787695711677": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-economy-1787695711777": {
+  "prob": null,
+  "framing": "domestic",
+  "subject": null
+ },
+ "council-tech-1787695711977": {
+  "prob": null,
+  "framing": "domestic",
   "subject": null
  },
  "democratic-presidential-nominee-2028": {
@@ -69,28 +74,18 @@
   "framing": "yes",
   "subject": null
  },
- "which-company-has-best-ai-model-end-of-august-20260717015626546": {
-  "prob": 99,
+ "next-french-presidential-election": {
+  "prob": 36,
   "framing": "yes",
   "subject": null
  },
  "epl-2027-champion-20260701200428749": {
-  "prob": 52,
+  "prob": 53,
   "framing": "subject",
   "subject": "Arsenal"
  },
  "presidential-election-winner-2028": {
-  "prob": 23,
-  "framing": "yes",
-  "subject": null
- },
- "next-french-presidential-election": {
-  "prob": 32,
-  "framing": "yes",
-  "subject": null
- },
- "uefa-champions-league-2027-champion-20260701202025549": {
-  "prob": 14,
+  "prob": 25,
   "framing": "yes",
   "subject": null
  },
@@ -99,18 +94,18 @@
   "framing": "yes",
   "subject": null
  },
+ "uefa-champions-league-2027-champion-20260701202025549": {
+  "prob": 14,
+  "framing": "yes",
+  "subject": null
+ },
  "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
-  "prob": 72,
+  "prob": 70,
   "framing": "yes",
   "subject": null
  },
  "republican-presidential-nominee-2028": {
   "prob": 2,
-  "framing": "yes",
-  "subject": null
- },
- "strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440": {
-  "prob": 6,
   "framing": "yes",
   "subject": null
  },
@@ -140,7 +135,7 @@
   "subject": null
  },
  "ballon-dor-winner-2026": {
-  "prob": 7,
+  "prob": 8,
   "framing": "yes",
   "subject": null
  },
@@ -154,18 +149,8 @@
   "framing": "yes",
   "subject": null
  },
- "what-price-will-xrp-hit-in-august-2026": {
-  "prob": 1,
-  "framing": "yes",
-  "subject": null
- },
- "fed-rate-hike-in-2026": {
-  "prob": 56,
-  "framing": "yes",
-  "subject": null
- },
  "who-will-be-the-next-prime-minister-of-israel-after-the-next-election": {
-  "prob": 27,
+  "prob": 30,
   "framing": "yes",
   "subject": null
  },
@@ -254,11 +239,6 @@
   "framing": "domestic",
   "subject": null
  },
- "spacex-starship-orbital-landing": {
-  "prob": null,
-  "framing": "none",
-  "subject": null
- },
  "openai-gpt5-release-2026": {
   "prob": null,
   "framing": "none",
@@ -269,13 +249,13 @@
   "framing": "none",
   "subject": null
  },
- "putin-out-before-2027": {
-  "prob": 8,
-  "framing": "yes",
+ "spacex-starship-orbital-landing": {
+  "prob": null,
+  "framing": "none",
   "subject": null
  },
  "pro-football-2027-champion-20260729185915366": {
-  "prob": 14,
+  "prob": 17,
   "framing": "leader",
   "subject": "Los Angeles Rams"
  },

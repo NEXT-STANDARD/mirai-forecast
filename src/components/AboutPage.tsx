@@ -195,12 +195,30 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
                   <td className="py-3.5 px-4 text-white font-semibold">未来レーダー（Mirai Radar）</td>
                 </tr>
                 <tr className="border-b border-cyan-900/40">
-                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">サービスURL</th>
-                  <td className="py-3.5 px-4 text-cyan-400 font-mono">https://mirairadar.com</td>
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">運営会社</th>
+                  <td className="py-3.5 px-4 text-white font-semibold">ＤＥＬＩＣＩＯＵＳ株式会社</td>
                 </tr>
                 <tr className="border-b border-cyan-900/40">
-                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">運営責任者</th>
-                  <td className="py-3.5 px-4 text-white font-medium">霧島フェニックス（Phoenix Kirishima）</td>
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">代表者</th>
+                  <td className="py-3.5 px-4 text-white font-medium">代表取締役　大山　圭太</td>
+                </tr>
+                <tr className="border-b border-cyan-900/40">
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">開発・分析統括</th>
+                  <td className="py-3.5 px-4 text-slate-300">霧島フェニックス（Phoenix Kirishima）</td>
+                </tr>
+                <tr className="border-b border-cyan-900/40">
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">本社所在地</th>
+                  <td className="py-3.5 px-4 text-slate-300">〒104-0061 東京都中央区銀座１丁目１５番４号ヒューリック銀座一丁目昭和通りビル７階</td>
+                </tr>
+                <tr className="border-b border-cyan-900/40">
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">電気通信事業届出</th>
+                  <td className="py-3.5 px-4 text-emerald-400 font-mono font-semibold">
+                    届出番号 Ａ－０８－２４２３７（総務省 関東総合通信局）
+                  </td>
+                </tr>
+                <tr className="border-b border-cyan-900/40">
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">サービスURL</th>
+                  <td className="py-3.5 px-4 text-cyan-400 font-mono">https://mirairadar.com</td>
                 </tr>
                 <tr className="border-b border-cyan-900/40">
                   <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">運営形態</th>
@@ -208,7 +226,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
                 </tr>
                 <tr>
                   <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">準拠法令</th>
-                  <td className="py-3.5 px-4 text-slate-300">日本国刑法第185条（賭博の禁止）完全準拠・金銭取引および換金要素なし</td>
+                  <td className="py-3.5 px-4 text-slate-300">電気通信事業法、日本国刑法第185条（賭博の禁止）完全準拠・金銭取引および換金要素なし</td>
                 </tr>
               </tbody>
             </table>

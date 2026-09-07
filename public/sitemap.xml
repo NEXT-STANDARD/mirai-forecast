@@ -5,115 +5,115 @@
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
   <url>
     <loc>https://mirairadar.com/</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>always</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/forecast</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>always</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/rankings</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>always</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/about</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/track-record</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/guide/polymarket-japan</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/ai-connector</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/developers</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/letter-to-mike</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-december-31</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/putin-out-before-2027</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://mirairadar.com/market/how-many-fed-rate-cuts-in-2026</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-august-31-20260702154212320</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/elon-musk-of-tweets-august-21-august-28-2026</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/what-price-will-ethereum-hit-in-august-2026</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-before-2027</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-in-august-2026</loc>
-    <lastmod>2026-08-25</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/market/fed-decision-in-september-762</loc>
-    <lastmod>2026-08-25</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/what-price-will-wti-hit-in-august-2026</loc>
-    <lastmod>2026-08-24</lastmod>
+    <lastmod>2026-09-07</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/market/what-price-will-ethereum-hit-before-2027</loc>
-    <lastmod>2026-08-24</lastmod>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/what-price-will-bitcoin-hit-before-2027</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/fed-decision-in-october-20260617190323537</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-september-15-20260810150912478</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/fed-rate-hike-in-2026</loc>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://mirairadar.com/market/strait-of-hormuz-traffic-returns-to-normal-by-september-30-20260702154339440</loc>
-    <lastmod>2026-08-24</lastmod>
+    <lastmod>2026-09-05</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -124,8 +124,14 @@
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://mirairadar.com/market/what-price-will-xrp-hit-in-august-2026</loc>
+    <loc>https://mirairadar.com/market/will-china-invade-taiwan-by-december-31-2027</loc>
     <lastmod>2026-08-23</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mirairadar.com/market/where-will-the-next-next-round-of-us-iran-peace-talks-beptptpt-20260623023740663</loc>
+    <lastmod>2026-08-22</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
   </url>
@@ -143,12 +149,6 @@
   </url>
   <url>
     <loc>https://mirairadar.com/market/official-1787048081444</loc>
-    <lastmod>2026-08-18</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://mirairadar.com/market/putin-out-before-2027</loc>
     <lastmod>2026-08-18</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.85</priority>
