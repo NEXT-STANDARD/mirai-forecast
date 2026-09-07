@@ -12,6 +12,7 @@ import {
   Medal,
   Flame
 } from 'lucide-react';
+import heroesManifest from '../../public/images/heroes/_manifest.json';
 
 interface SpreadRankingSectionProps {
   events: MarketItem[];
@@ -125,6 +126,22 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
               tabIndex={0}
               aria-label={`${rankNumber}位 ${event.titleJa}の詳細を見る`}
             >
+              {/* アイキャッチ画像（生成済みの場合のみ表示） */}
+              {heroesManifest && (heroesManifest as Record<string, unknown>)[event.slug || event.id] ? (
+                <div className="spread-card-thumb-wrap">
+                  <img 
+                    src={`/images/heroes/${event.slug || event.id}.png`}
+                    alt=""
+                    loading="lazy"
+                    className="spread-card-thumb-img"
+                    onError={(e) => {
+                      const parent = (e.target as HTMLElement).parentElement;
+                      if (parent) parent.style.display = 'none';
+                    }}
+                  />
+                </div>
+              ) : null}
+
               {/* カード上部：順位バッジ ＆ 乖離ギャップ値 */}
               <div className="spread-card-header">
                 <div className="flex items-center gap-1.5 min-w-0">

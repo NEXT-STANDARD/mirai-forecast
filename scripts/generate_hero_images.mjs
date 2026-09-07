@@ -2,15 +2,21 @@
 /**
  * scripts/generate_hero_images.mjs
  * 
- * 銘柄個別ページ用シネマティック・ヒーローアイキャッチ画像を事前バッチ生成する。
+ * 銘柄個別ページ＆トップページFeatured用シネマティック・ヒーローアイキャッチ画像を事前バッチ生成する。
  * - Gemini 3.8 Flash: 銘柄情報からシネマティック・ドラマ構図の英語プロンプトを自動生成
  * - FAL API (GPT Image 2): 16:9 高精細フォトリアル画像を生成
  * - 出力先: public/images/heroes/{slug}.png
+ * 
+ * 使用法:
+ *   node scripts/generate_hero_images.mjs <slug>          # 単一銘柄を生成
+ *   node scripts/generate_hero_images.mjs --top <N>       # スプレッド乖離（Gap）上位N件を生成
+ *   node scripts/generate_hero_images.mjs --list          # 乖離順の生成状況一覧を表示
  */
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createClient } from '@supabase/supabase-js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,6 +41,8 @@ function loadEnv() {
 const env = loadEnv();
 const FAL_KEY = process.env.FAL_KEY || env.FAL_KEY;
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || env.GEMINI_API_KEY;
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
 
 if (!FAL_KEY) {
   console.error('❌ FAL_KEY が見つかりません。');
@@ -71,7 +79,7 @@ async function generatePromptWithGemini(titleJa, question, category) {
   }
 
   const systemInstruction = `You are a master visual director and prompt engineer for high-end cinematic photo generation (using GPT Image 2).
-Given a prediction market topic (title and background context), compose an evocative, dramatic, cinematic prompt describing a realistic, photorealistic wide scene (16:9) capturing the essence and high stakes of the topic.
+Given a prediction market topic (title and background context), compose an evocative, dramatic, cinematic prompt describing a realistic, photorealistic wide scene (16:9) capturing the essence, conflict, and high stakes of the topic.
 Guidelines:
 1. Purely describe visual scenes, environments, atmospheric lighting, mood, color palette, and cinematic depth.
 2. Photographic, documentary style, 35mm film photography, cinematic lighting, 8k resolution.
@@ -94,7 +102,7 @@ Write a vivid, dramatic, cinematic 16:9 prompt for this scene (no text in image)
         ],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 300,
+          maxOutputTokens: 1500,
         }
       })
     });
@@ -108,7 +116,6 @@ Write a vivid, dramatic, cinematic 16:9 prompt for this scene (no text in image)
     const candidate = data?.candidates?.[0];
     const parts = candidate?.content?.parts || [];
     
-    // text パートを探す（thought ではないテキスト）
     let promptText = '';
     for (const part of parts) {
       if (part.text && !part.thought) {
@@ -190,7 +197,7 @@ export async function generateHeroForMarket(market, force = false, explicitPromp
     console.log('   🤖 Gemini 3.8 Flash でシネマティックプロンプトを構築中...');
     prompt = await generatePromptWithGemini(market.titleJa || market.title, market.question, market.category);
   }
-  console.log(`   📝 プロンプト全文:\n   "${prompt}"\n`);
+  console.log(`   📝 プロンプト:\n   "${prompt.slice(0, 100)}..."\n`);
 
   console.log('   🚀 FAL (GPT Image 2) にリクエスト送信中 (16:9)...');
   const startTime = Date.now();
@@ -210,17 +217,95 @@ export async function generateHeroForMarket(market, force = false, explicitPromp
   return { slug, status: 'generated', path: destPath, prompt };
 }
 
-async function main() {
-  const args = process.argv.slice(2);
-  const targetSlug = args[0];
+/**
+ * 乖離（スプレッドGap）の大きい順に掲載銘柄を取得
+ */
+async function getTopSpreadMarkets() {
+  const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const oddsPath = path.join(PROJECT_ROOT, 'public', 'data', 'market_odds.json');
-  let marketsData = {};
-  if (fs.existsSync(oddsPath)) {
-    marketsData = JSON.parse(fs.readFileSync(oddsPath, 'utf-8'));
+  const { data: voteLogs } = await supabase.from('japan_vote_logs').select('event_id, choice');
+  const voteCounts = {};
+  if (voteLogs) {
+    voteLogs.forEach(v => {
+      if (!voteCounts[v.event_id]) voteCounts[v.event_id] = { yes: 0, no: 0 };
+      if (v.choice === 'YES') voteCounts[v.event_id].yes += 1;
+      if (v.choice === 'NO') voteCounts[v.event_id].no += 1;
+    });
   }
 
+  const { data: dbEvents } = await supabase.from('events').select('id, slug, title_ja, title_en, question_en, category, is_listed').eq('is_active', true);
+  const oddsPath = path.join(PROJECT_ROOT, 'public', 'data', 'market_odds.json');
+  const odds = fs.existsSync(oddsPath) ? JSON.parse(fs.readFileSync(oddsPath, 'utf-8')) : {};
+
+  const list = (dbEvents || []).filter(d => d.is_listed !== false).map(d => {
+    const slug = d.slug || d.id;
+    const o = odds[slug] || odds[d.id] || {};
+    const worldYes = o.probYes ?? null;
+    const dbVotes = voteCounts[d.id] || voteCounts[slug] || { yes: 0, no: 0 };
+    const total = dbVotes.yes + dbVotes.no;
+    const japanYes = total > 0 ? Math.round((dbVotes.yes / total) * 100) : 50;
+    const gap = total >= 3 && worldYes != null ? Math.abs(worldYes - japanYes) : 0;
+    const destPath = path.join(HEROES_DIR, `${slug}.png`);
+    const hasImage = fs.existsSync(destPath);
+
+    return {
+      slug,
+      id: d.id,
+      titleJa: d.title_ja || d.title_en,
+      title: d.title_ja || d.title_en,
+      question: d.question_en || d.title_ja,
+      category: d.category || 'politics',
+      worldYes,
+      japanYes,
+      gap,
+      total,
+      hasImage,
+    };
+  });
+
+  list.sort((a, b) => b.gap - a.gap || b.total - a.total);
+  return list;
+}
+
+async function main() {
+  const args = process.argv.slice(2);
+
+  if (args.includes('--list')) {
+    const list = await getTopSpreadMarkets();
+    console.log('\n=== 乖離（スプレッドGap）順 掲載銘柄一覧 ===');
+    list.forEach((m, i) => {
+      console.log(`${(i + 1).toString().padStart(2)}. [Gap: ${m.gap}%] (${m.hasImage ? '✅生成済' : '❌未生成'}) ${m.titleJa}`);
+      console.log(`    slug: ${m.slug}`);
+    });
+    return;
+  }
+
+  if (args.includes('--top')) {
+    const topIndex = args.indexOf('--top');
+    const count = parseInt(args[topIndex + 1], 10) || 3;
+    const list = await getTopSpreadMarkets();
+    const targets = list.filter(m => !m.hasImage).slice(0, count);
+
+    console.log(`\n🚀 スプレッド上位の未生成銘柄を最大 ${count} 件生成します (対象: ${targets.length}件)...`);
+    for (const market of targets) {
+      try {
+        await generateHeroForMarket(market, false);
+      } catch (err) {
+        console.error(`❌ 生成失敗 (${market.slug}):`, err.message);
+      }
+    }
+    console.log('\n✨ バッチ生成処理が完了しました！');
+    return;
+  }
+
+  const targetSlug = args[0];
   if (targetSlug) {
+    const oddsPath = path.join(PROJECT_ROOT, 'public', 'data', 'market_odds.json');
+    let marketsData = {};
+    if (fs.existsSync(oddsPath)) {
+      marketsData = JSON.parse(fs.readFileSync(oddsPath, 'utf-8'));
+    }
+
     const raw = marketsData[targetSlug] || {};
     const market = {
       slug: targetSlug,
@@ -230,22 +315,18 @@ async function main() {
       category: raw.category || 'geopolitics',
     };
 
-    let customPrompt = null;
-    if (targetSlug.includes('strait-of-hormuz') && targetSlug.includes('december-31')) {
-      market.titleJa = 'ホルムズ海峡の通航量は12月31日までに正常化するか？';
-      market.question = '中東の重要シーレーンであるホルムズ海峡における商業タンカーの航行量が正常化するかどうか。';
-      customPrompt = 'Cinematic wide shot of the narrow Strait of Hormuz at tense twilight. A massive oil supertanker navigates the dark ocean waters between rugged arid desert mountains, flanked by naval escort warships cutting sharp white wakes. Atmospheric coastal haze, dramatic sunset glow reflecting on water, geopolitical suspense, hyper-realistic, documentary photography, 8k resolution, anamorphic lens, no text, no words.';
-    }
-
     try {
-      await generateHeroForMarket(market, true, customPrompt);
+      await generateHeroForMarket(market, true);
       console.log('\n✨ 指定銘柄の生成が完了しました！');
     } catch (err) {
       console.error('❌ 生成エラー:', err);
       process.exit(1);
     }
   } else {
-    console.log('使用法: node scripts/generate_hero_images.mjs <slug>');
+    console.log('使用法:');
+    console.log('  node scripts/generate_hero_images.mjs <slug>     # 単一生成');
+    console.log('  node scripts/generate_hero_images.mjs --top <N>  # 乖離上位N件を生成');
+    console.log('  node scripts/generate_hero_images.mjs --list     # 一覧確認');
   }
 }
 

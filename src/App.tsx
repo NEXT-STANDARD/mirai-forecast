@@ -7,6 +7,7 @@ import { OgpPreviewModal } from './components/OgpPreviewModal';
 import { ComplianceBanner } from './components/ComplianceBanner';
 import { ProposeTopicModal } from './components/ProposeTopicModal';
 import { SpreadRankingSection } from './components/SpreadRankingSection';
+import { FeaturedHeroSection } from './components/FeaturedHeroSection';
 import { AllMarketsGrid } from './components/AllMarketsGrid';
 import { OnboardingModal } from './components/OnboardingModal';
 import { EmbedModal } from './components/EmbedModal';
@@ -930,6 +931,13 @@ export function App() {
               activeEventId={activeTopicId}
               onOpenPropose={() => setIsProposeModalOpen(true)}
               onOpenDetail={handleOpenMarketDetail}
+            />
+
+            {/* 🎬 注目のシネマティック・オラクル（Featured Hero Cards） */}
+            <FeaturedHeroSection
+              events={listedEvents}
+              userVotes={userVotes}
+              onSelectEvent={handleOpenMarketDetail}
             />
 
             {/* ⚡ 注目の世論スプレッド乖離ランキング（キラー第1弾） */}
