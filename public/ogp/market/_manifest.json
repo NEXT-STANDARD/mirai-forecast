@@ -4,13 +4,13 @@
   "framing": "yes",
   "subject": null
  },
- "how-many-fed-rate-cuts-in-2026": {
-  "prob": 93,
+ "putin-out-before-2027": {
+  "prob": 7,
   "framing": "yes",
   "subject": null
  },
- "putin-out-before-2027": {
-  "prob": 7,
+ "how-many-fed-rate-cuts-in-2026": {
+  "prob": 93,
   "framing": "yes",
   "subject": null
  },
@@ -100,7 +100,7 @@
   "subject": null
  },
  "which-party-will-gain-most-seats-in-russian-parliamentary-election": {
-  "prob": 69,
+  "prob": 70,
   "framing": "yes",
   "subject": null
  },
@@ -130,7 +130,7 @@
   "subject": null
  },
  "will-china-invade-taiwan-by-december-31-2027": {
-  "prob": 11,
+  "prob": 12,
   "framing": "yes",
   "subject": null
  },

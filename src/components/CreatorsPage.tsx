@@ -15,7 +15,8 @@ import {
   Compass,
   FileCheck2,
   Percent,
-  Check
+  Check,
+  Share2
 } from 'lucide-react';
 
 interface CreatorsPageProps {
@@ -136,20 +137,41 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
     setErrorMsg('');
   };
 
+  const handleShare = () => {
+    const text = '未来レーダー（MiraiRadar）｜ 公認インテリジェンス・クリエイター制度＆独自銘柄エコシステム';
+    const url = 'https://mirairadar.com/creators';
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+  };
+
   return (
-    <div className="py-8 max-w-4xl mx-auto space-y-12 animate-fade-in text-slate-200">
-      {/* 上部戻るボタン */}
-      <button
-        onClick={onBack}
-        className="inline-flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer group"
-      >
-        <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-        <span>トップ・マーケット一覧へ戻る</span>
-      </button>
+    <div className="w-full animate-fade-in text-slate-200 py-2 space-y-10">
+      {/* ナビゲーションバー */}
+      <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-cyan-900/40">
+        <a 
+          href="/"
+          onClick={(e) => {
+            e.preventDefault();
+            onBack();
+          }}
+          className="flex items-center gap-2 text-xs font-mono text-cyan-400 hover:text-cyan-200 bg-cyan-950/40 hover:bg-cyan-900/60 px-3.5 py-2 rounded-lg border border-cyan-800/50 transition no-underline cursor-pointer"
+        >
+          <ArrowLeft size={14} />
+          <span>トップ・マーケット一覧へ戻る</span>
+        </a>
+
+        <button
+          onClick={handleShare}
+          className="flex items-center gap-1.5 text-xs font-mono font-bold text-white bg-[#1d9bf0] hover:bg-[#1a8cd8] px-3.5 py-2 rounded-lg transition shadow-md cursor-pointer"
+          title="Xでシェア"
+        >
+          <Share2 size={13} />
+          <span>Xで共有</span>
+        </button>
+      </div>
 
       {/* ヒーローセクション */}
       <div className="relative rounded-2xl bg-gradient-to-br from-slate-900 via-[#071328] to-[#040814] border border-cyan-500/30 p-8 sm:p-12 shadow-2xl overflow-hidden">
-        <div className="absolute -right-16 -bottom-16 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-16 -bottom-16 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-mono">
             <Award size={14} className="text-amber-400" />
@@ -161,7 +183,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack }) => {
               あなたの「問い」が、日本の未来世論を動かす。
             </span>
           </h1>
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-4xl">
             専門分野のリサーチャー、ジャーナリスト、業界アナリストに「独自の予測銘柄」を組成いただき、
             集合知と生活者世論の乖離を可視化する日本初の公共インテリジェンス・エコシステムです。
           </p>
