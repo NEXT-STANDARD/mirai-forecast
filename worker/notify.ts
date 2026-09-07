@@ -49,7 +49,7 @@ export async function handleNotify(request: Request, env: NotifyEnv): Promise<Re
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        from: '未来レーダー通知 <onboarding@resend.dev>',
+        from: '未来レーダー <notifications@mail.mirairadar.com>',
         to: targetEmail,
         subject: body.subject || '【未来レーダー】新規の申請が届きました',
         html: body.html || '<p>新しい申請が届きました。</p>',

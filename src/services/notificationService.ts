@@ -94,7 +94,7 @@ export async function sendAdminNotification(payload: ProposalNotificationPayload
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: '未来レーダー通知 <onboarding@resend.dev>',
+          from: '未来レーダー <notifications@mail.mirairadar.com>',
           to: adminEmail,
           subject,
           html: htmlContent,
