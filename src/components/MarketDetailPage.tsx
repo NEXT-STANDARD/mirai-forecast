@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { MainTradingChart } from './MainTradingChart';
 import { OrderBookConsensus } from './OrderBookConsensus';
+import { NativeSponsorCard } from './NativeSponsorCard';
 import type { MarketItem } from '../types';
 import { applySeoMetadata } from '../utils/seoHelper';
 
@@ -516,6 +517,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               )}
             </div>
           </div>
+
+          {/* 💎 Phase 3: コンテクスト連動型 ネイティブ・スポンサーシップ */}
+          <NativeSponsorCard item={item} variant="detail" />
 
           {/* 📜 判定基準・公式ルール (Polymarket Resolution Rules) */}
           <div className="detail-section-card rules-card">

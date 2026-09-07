@@ -227,6 +227,106 @@ export async function sendCreatorApprovalNotification(payload: CreatorApprovalPa
   return { success: false, message: 'メール送信はスキップされました（開発ログ記録）。' };
 }
 
+export interface SponsorInquiryPayload {
+  companyName: string;
+  contactName: string;
+  email: string;
+  targetMarketTitle?: string;
+  targetCategory?: string;
+  budgetMonthly?: string;
+  message: string;
+}
+
+/**
+ * スポンサー・タイアップ出稿の問い合わせを管理者に即時通知
+ */
+export async function sendSponsorInquiryNotification(payload: SponsorInquiryPayload): Promise<{ success: boolean; message: string }> {
+  const subject = `【未来レーダー】新規スポンサーシップ・タイアップのお問い合わせ（${payload.companyName}様）`;
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || 'keita@next-standard.com';
+  const resendApiKey = import.meta.env.VITE_RESEND_API_KEY;
+
+  const htmlContent = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #1e293b; border-radius: 8px; background-color: #0b1320; color: #f8fafc;">
+      <div style="border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 20px;">
+        <h2 style="color: #34d399; margin: 0; font-size: 20px;">未来レーダー スポンサー出稿・タイアップ問い合わせ</h2>
+        <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0 0;">銘柄コンテクスト連動型ネイティブ広告への出稿希望が届きました</p>
+      </div>
+
+      <div style="background-color: #1e293b; padding: 16px; border-radius: 6px; margin-bottom: 20px;">
+        <span style="display: inline-block; padding: 4px 10px; border-radius: 9999px; font-size: 12px; font-weight: bold; background-color: #059669; color: #ffffff; margin-bottom: 10px;">
+          💎 ネイティブ・スポンサーシップ出稿希望
+        </span>
+        <h3 style="font-size: 18px; color: #ffffff; margin: 4px 0;">${escapeHtml(payload.companyName)}</h3>
+        <p style="font-size: 13px; color: #94a3b8; margin: 4px 0;">ご担当者様: <strong>${escapeHtml(payload.contactName)}</strong></p>
+      </div>
+
+      <div style="margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
+        <p style="margin: 6px 0;"><strong>✉️ 返信先メール:</strong> <a href="mailto:${escapeHtml(payload.email)}" style="color: #38bdf8;">${escapeHtml(payload.email)}</a></p>
+        ${payload.targetMarketTitle ? `<p style="margin: 6px 0;"><strong>🎯 対象希望銘柄:</strong> ${escapeHtml(payload.targetMarketTitle)}</p>` : ''}
+        ${payload.targetCategory ? `<p style="margin: 6px 0;"><strong>🏷️ 希望カテゴリー:</strong> ${escapeHtml(payload.targetCategory)}</p>` : ''}
+        ${payload.budgetMonthly ? `<p style="margin: 6px 0;"><strong>💰 ご予算感（月額等）:</strong> ${escapeHtml(payload.budgetMonthly)}</p>` : ''}
+        <div style="margin-top: 14px; padding: 12px; background-color: #0f172a; border-radius: 6px; border-left: 3px solid #10b981;">
+          <strong>💬 ご相談・要望内容:</strong><br/>
+          <span style="color: #cbd5e1; white-space: pre-wrap;">${escapeHtml(payload.message)}</span>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #334155; padding-top: 20px; text-align: center;">
+        <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">
+          返信用メールアドレス（${escapeHtml(payload.email)}）へ直接ご返信いただくか、管理画面にてスポンサー枠を割り当ててください。
+        </p>
+        <a href="mailto:${escapeHtml(payload.email)}?subject=${encodeURIComponent(`Re: 未来レーダー スポンサーシップについて（${payload.companyName}様）`)}" style="display: inline-block; background-color: #059669; color: #ffffff; text-decoration: none; padding: 10px 24px; font-size: 14px; font-weight: bold; border-radius: 6px;">
+          担当者へメール返信する
+        </a>
+      </div>
+    </div>
+  `;
+
+  // 1. Worker API
+  try {
+    const workerRes = await fetch('/api/notify-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: adminEmail,
+        subject,
+        html: htmlContent,
+      }),
+    });
+    if (workerRes.ok) {
+      return { success: true, message: 'スポンサー出稿のお問い合わせを送信しました。運営よりご連絡いたします。' };
+    }
+  } catch {}
+
+  // 2. Resend API 直送
+  if (resendApiKey) {
+    try {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${resendApiKey}`,
+        },
+        body: JSON.stringify({
+          from: '未来レーダー <notifications@mail.mirairadar.com>',
+          to: adminEmail,
+          reply_to: payload.email,
+          subject,
+          html: htmlContent,
+        }),
+      });
+      if (res.ok) {
+        return { success: true, message: 'スポンサー出稿のお問い合わせを送信しました。運営よりご連絡いたします。' };
+      }
+    } catch (e) {
+      console.warn('Resend sponsor inquiry notification failed:', e);
+    }
+  }
+
+  console.info(`[Sponsor Inquiry Simulated] ${adminEmail} 宛て問い合わせ:\n`, payload);
+  return { success: true, message: 'スポンサー出稿のお問い合わせを受け付けました（シミュレーション）。' };
+}
+
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')

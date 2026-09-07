@@ -3,6 +3,7 @@ import { negativeLabel } from '../utils/probabilityLabel';
 import type { MarketItem } from '../types';
 import { ShieldCheck, Share2, CheckCircle2, ArrowRight, Lock, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { NativeSponsorCard } from './NativeSponsorCard';
 
 interface OrderBookConsensusProps {
   event: MarketItem;
@@ -242,6 +243,11 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
               <span>この世論スプレッド（{gap}%）をXでシェア</span>
               <ArrowRight size={13} />
             </button>
+
+            {/* スポンサーシップ連携枠 */}
+            <div className="mt-3">
+              <NativeSponsorCard item={event} variant="compact" />
+            </div>
           </div>
         ) : (
           <div className="pre-vote-hint">

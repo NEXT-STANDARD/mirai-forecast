@@ -73,6 +73,23 @@ export interface MarketItem {
     createdAt: string;
     likes: number;
   }>;
+
+  // Phase 3: ネイティブ・スポンサーシップ（Contextual Sponsorship）
+  sponsor?: MarketSponsor;
+}
+
+export interface MarketSponsor {
+  id: string;
+  name: string; // スポンサー企業名・プロジェクト名（例: 「未来テック研究所」）
+  tagline: string; // キャッチコピー（例: 「AI時代の次世代アナリティクスを体験」）
+  description?: string; // 説明文
+  logoUrl?: string; // ロゴ画像URL
+  actionUrl: string; // リンク先URL（公式HP、ホワイトペーパー等）
+  actionText?: string; // CTAボタン文言（例: 「詳細を見る ↗」）
+  badgeText?: string; // バッジ表示（例: 「Official Partner」）
+  isCreatorReferred?: boolean; // クリエイター紹介・持込案件フラグ（還元率適用用）
+  impressionCount?: number;
+  clickCount?: number;
 }
 
 export interface StreakData {

@@ -19,7 +19,8 @@ import {
   AlertTriangle,
   Edit3,
   BookOpen,
-  Award
+  Award,
+  DollarSign
 } from 'lucide-react';
 import { supabase, getAdminClient, hasAdminKey, hasInvalidAdminKey } from '../services/supabaseClient';
 import { InfographicStudioModal } from './InfographicStudioModal';
@@ -71,7 +72,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
   const [pinCode, setPinCode] = useState('');
   const [pinError, setPinError] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<'proposals' | 'deploy' | 'metrics' | 'analytics' | 'logs' | 'kpi' | 'manual'>('kpi');
+  const [activeTab, setActiveTab] = useState<'proposals' | 'deploy' | 'metrics' | 'analytics' | 'logs' | 'kpi' | 'manual' | 'monetization'>('kpi');
   const [proposals, setProposals] = useState<ProposalItem[]>([]);
   const [isLoadingProposals, setIsLoadingProposals] = useState(false);
   const [processingId, setProcessingId] = useState<string | null>(null);
@@ -637,6 +638,14 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
         >
           <Activity size={14} />
           <span>GA4 / GSC 検索トレンド監視</span>
+        </button>
+
+        <button
+          className={`mission-tab ${activeTab === 'monetization' ? 'active' : ''}`}
+          onClick={() => setActiveTab('monetization')}
+        >
+          <DollarSign size={14} className="text-emerald-400" />
+          <span>💎 スポンサー＆収益還元管理</span>
         </button>
       </div>
 
@@ -1466,6 +1475,111 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
               <p className="intel-desc">
                 Google Cloud サービスアカウント（<code>mirai-analytics-bot</code>）と連携し、毎日の検索クエリ急上昇トピック、離脱率の高い銘柄、投票エンゲージメントの推移を日次レポート（<code>reports/daily_*.md</code>）として自動集約しています。
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================
+            TAB 6: スポンサー＆収益還元管理 (Monetization & Revenue Share)
+           ======================================================== */}
+        {activeTab === 'monetization' && (
+          <div className="tab-pane-monetization animate-fade-in space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="analytics-card-stat border-emerald-500/30">
+                <span className="stat-label-sub">TOTAL SPONSOR REVENUE</span>
+                <span className="stat-value-sub text-emerald-400">¥120,000</span>
+                <p className="stat-note-sub">当月確定スポンサーシップ総額</p>
+              </div>
+
+              <div className="analytics-card-stat border-amber-500/30">
+                <span className="stat-label-sub">CREATOR REVENUE SHARE (50%)</span>
+                <span className="stat-value-sub text-amber-400">¥60,000</span>
+                <p className="stat-note-sub">公認クリエイターへの還元予定額</p>
+              </div>
+
+              <div className="analytics-card-stat border-cyan-500/30">
+                <span className="stat-label-sub">ACTIVE SPONSOR CONTRACTS</span>
+                <span className="stat-value-sub text-cyan-400">2社（3枠）</span>
+                <p className="stat-note-sub">現在掲載中のネイティブタイアップ</p>
+              </div>
+
+              <div className="analytics-card-stat border-blue-500/30">
+                <span className="stat-label-sub">WEBMCP / DATA INQUIRIES</span>
+                <span className="stat-value-sub text-blue-400">5件</span>
+                <p className="stat-note-sub">法人向けオルタナティブデータ引き合い</p>
+              </div>
+            </div>
+
+            {/* スポンサーシップ方針とレベニューシェアルール */}
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <DollarSign size={18} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">持続可能な高潔性マネタイズ・ポリシー</h3>
+                  <p className="text-xs text-slate-400">信頼できるネイティブPRとクリエイター経済圏の共創</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                未来レーダーは、不快なアドネットワーク（怪しいバナー広告等）を永久に排除し、各銘柄の知的好奇心を満たす「関連リサーチ機関」「先端テック企業」「カンファレンス」等とのネイティブ・スポンサーシップのみを採用します。公認クリエイターが発案した銘柄にスポンサーがついた場合、<strong>広告売上の50%がクリエイターに自動還元</strong>されます。
+              </p>
+            </div>
+
+            {/* 銘柄別 スポンサー枠アサイン状況テーブル */}
+            <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+              <h4 className="text-sm font-bold text-white flex items-center justify-between">
+                <span>銘柄別 スポンサー枠＆レベニューシェア状況</span>
+                <span className="text-xs text-slate-400 font-normal">掲載銘柄数: {events.length}件</span>
+              </h4>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-slate-400 font-mono">
+                      <th className="py-2.5 px-3">銘柄名</th>
+                      <th className="py-2.5 px-3">カテゴリー</th>
+                      <th className="py-2.5 px-3">発案者種別</th>
+                      <th className="py-2.5 px-3">スポンサー状況</th>
+                      <th className="py-2.5 px-3 text-right">還元予定額</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60">
+                    {events.slice(0, 10).map((ev) => {
+                      const isCreatorOrigin = ev.originType === 'domestic_poll';
+                      return (
+                        <tr key={ev.id} className="hover:bg-slate-800/40 transition">
+                          <td className="py-2.5 px-3 font-semibold text-slate-200 max-w-xs truncate">
+                            {ev.titleJa}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300">
+                              {ev.categoryLabel}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            {isCreatorOrigin ? (
+                              <span className="text-amber-400 font-bold flex items-center gap-1">
+                                <Award size={12} /> 公認クリエイター
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">公式観測銘柄</span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-950 text-cyan-400 border border-cyan-500/30">
+                              出稿募集中（受付可）
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-mono text-emerald-400">
+                            {isCreatorOrigin ? '¥0 (成約時50%)' : '—'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
