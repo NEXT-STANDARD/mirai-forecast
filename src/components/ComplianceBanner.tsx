@@ -7,6 +7,8 @@ interface ComplianceBannerProps {
   onOpenAbout?: () => void;
   onOpenEmbedGuide?: () => void;
   onOpenCreators?: () => void;
+  onOpenAiConnector?: () => void;
+  onOpenDevelopers?: () => void;
 }
 
 export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
@@ -15,6 +17,8 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
   onOpenAbout,
   onOpenEmbedGuide,
   onOpenCreators,
+  onOpenAiConnector,
+  onOpenDevelopers,
 }) => {
   return (
     <footer id="compliance-footer" className="compliance-footer">
@@ -75,11 +79,44 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
                   e.preventDefault();
                   onOpenAbout();
                 }}
-                className="footer-link-btn text-cyan-400/90 hover:text-cyan-300 font-semibold"
+                className="footer-link-btn font-semibold text-cyan-400/90 hover:text-cyan-300"
               >
                 未来レーダーについて
               </a>
             )}
+
+            {onOpenAiConnector && (
+              <>
+                <span className="footer-link-divider">｜</span>
+                <a
+                  href="/ai-connector"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onOpenAiConnector();
+                  }}
+                  className="footer-link-btn text-cyan-300/90 hover:text-cyan-200"
+                >
+                  AI連携・WebMCP
+                </a>
+              </>
+            )}
+
+            {onOpenDevelopers && (
+              <>
+                <span className="footer-link-divider">｜</span>
+                <a
+                  href="/developers"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onOpenDevelopers();
+                  }}
+                  className="footer-link-btn text-cyan-300/90 hover:text-cyan-200"
+                >
+                  開発者向けAPI
+                </a>
+              </>
+            )}
+
             {onOpenEmbedGuide && (
               <>
                 <span className="footer-link-divider">｜</span>
@@ -89,12 +126,13 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
                     e.preventDefault();
                     onOpenEmbedGuide();
                   }}
-                  className="footer-link-btn text-cyan-400/90 hover:text-cyan-300 font-semibold"
+                  className="footer-link-btn text-slate-300 hover:text-slate-100"
                 >
-                  メディア向けウィジェット
+                  ウィジェット埋め込み
                 </a>
               </>
             )}
+
             {onOpenCreators && (
               <>
                 <span className="footer-link-divider">｜</span>
@@ -106,23 +144,27 @@ export const ComplianceBanner: React.FC<ComplianceBannerProps> = ({
                   }}
                   className="footer-link-btn text-amber-400/90 hover:text-amber-300 font-semibold"
                 >
-                  公認クリエイター制度
+                  公認クリエイター
                 </a>
               </>
             )}
-            {(onOpenAbout || onOpenEmbedGuide || onOpenCreators) && (onOpenTerms || onOpenPrivacy) && (
-              <span className="footer-link-divider">｜</span>
-            )}
+
             {onOpenTerms && (
-              <button onClick={onOpenTerms} className="footer-link-btn">
-                利用規約
-              </button>
+              <>
+                <span className="footer-link-divider">｜</span>
+                <button onClick={onOpenTerms} className="footer-link-btn">
+                  利用規約
+                </button>
+              </>
             )}
-            <span className="footer-link-divider">｜</span>
+
             {onOpenPrivacy && (
-              <button onClick={onOpenPrivacy} className="footer-link-btn">
-                プライバシーポリシー
-              </button>
+              <>
+                <span className="footer-link-divider">｜</span>
+                <button onClick={onOpenPrivacy} className="footer-link-btn">
+                  プライバシーポリシー
+                </button>
+              </>
             )}
           </div>
 

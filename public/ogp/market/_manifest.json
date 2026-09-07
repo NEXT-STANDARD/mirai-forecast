@@ -1,11 +1,6 @@
 {
- "strait-of-hormuz-traffic-returns-to-normal-by-september-15-20260810150912478": {
-  "prob": 0,
-  "framing": "yes",
-  "subject": null
- },
- "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
-  "prob": 26,
+ "how-many-fed-rate-cuts-in-2026": {
+  "prob": 93,
   "framing": "yes",
   "subject": null
  },
@@ -14,13 +9,18 @@
   "framing": "yes",
   "subject": null
  },
- "how-many-fed-rate-cuts-in-2026": {
-  "prob": 93,
+ "strait-of-hormuz-traffic-returns-to-normal-by-september-15-20260810150912478": {
+  "prob": 0,
   "framing": "yes",
   "subject": null
  },
  "fed-decision-in-september-762": {
   "prob": 0,
+  "framing": "yes",
+  "subject": null
+ },
+ "strait-of-hormuz-traffic-returns-to-normal-by-december-31": {
+  "prob": 26,
   "framing": "yes",
   "subject": null
  },
@@ -190,7 +190,7 @@
   "subject": null
  },
  "fed-decision-in-october-20260617190323537": {
-  "prob": 1,
+  "prob": 0,
   "framing": "subject",
   "subject": "50+ bps decrease"
  },
@@ -225,7 +225,7 @@
   "subject": null
  },
  "next-french-presidential-election": {
-  "prob": 37,
+  "prob": 38,
   "framing": "yes",
   "subject": null
  },

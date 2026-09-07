@@ -6452,15 +6452,19 @@ h1, h2, h3, h4, h5, h6 {
    Compliance Footer Banner Dedicated Styles
    ======================================================== */
 .compliance-footer {
-  margin-top: 3rem;
+  margin-top: 3.5rem;
   background: #030712;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2.5rem 0 2rem 0;
+  padding: 3rem 0 2.5rem 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   .compliance-footer {
-    padding: 2rem 0 calc(4.5rem + env(safe-area-inset-bottom, 0px)) 0;
+    margin-top: 2rem;
+    /* モバイル最下部固定投票バー（約75px）＋セーフエリア分を完全にクリアするパディング */
+    padding: 2rem 0 calc(7.5rem + env(safe-area-inset-bottom, 0px)) 0;
   }
 }
 
@@ -6468,6 +6472,14 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .compliance-container {
+    padding: 0 1rem;
+    gap: 1.5rem;
+  }
 }
 
 .compliance-header {
@@ -6507,6 +6519,20 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.5;
 }
 
+@media (max-width: 768px) {
+  .compliance-header {
+    gap: 0.75rem;
+  }
+  .compliance-title {
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+  .compliance-subtitle {
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+}
+
 .compliance-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -6516,7 +6542,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 860px) {
   .compliance-grid {
     grid-template-columns: 1fr;
-    gap: 0.85rem;
+    gap: 0.75rem;
   }
 }
 
@@ -6532,34 +6558,52 @@ h1, h2, h3, h4, h5, h6 {
 
 .compliance-card-title {
   display: flex;
-  align-items: center;
-  gap: 0.45rem;
+  align-items: flex-start;
+  gap: 0.5rem;
   font-size: 0.78rem;
   font-weight: 800;
+  line-height: 1.4;
+}
+
+.compliance-card-title svg {
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .compliance-card-text {
-  font-size: 0.84rem;
+  font-size: 0.82rem;
   color: #cbd5e1;
   line-height: 1.55;
   margin: 0;
 }
 
+@media (max-width: 768px) {
+  .compliance-card {
+    padding: 0.85rem 1rem;
+  }
+  .compliance-card-text {
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+}
+
+/* フッター最下部エリア */
 .footer-bottom-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  padding-top: 1.25rem;
-  margin-top: 1.25rem;
+  padding-top: 1.5rem;
+  margin-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .footer-links-group {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .footer-link-btn {
@@ -6569,10 +6613,12 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.2rem 0;
+  padding: 0.25rem 0;
   text-decoration: underline;
   text-underline-offset: 3px;
   transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
 }
 
 .footer-link-btn:hover {
@@ -6586,9 +6632,60 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .footer-bottom-copy {
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   color: #8a96a8;
   font-family: var(--font-mono);
+}
+
+/* モバイルでのフッターリンク＆コピーライト最適化 */
+@media (max-width: 768px) {
+  .footer-bottom-row {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1.25rem;
+    padding-top: 1.25rem;
+  }
+
+  .footer-links-group {
+    justify-content: center;
+    gap: 0.5rem 0.6rem;
+    width: 100%;
+  }
+
+  /* モバイルではディバイダーを非表示にし、モダンなピルタグ/チップとして整然と並べる */
+  .footer-link-divider {
+    display: none;
+  }
+
+  .footer-link-btn {
+    text-decoration: none;
+    font-size: 0.72rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    color: #94a3b8;
+    min-height: 34px;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
+
+  .footer-link-btn:active {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+  }
+
+  .footer-bottom-copy {
+    font-size: 0.68rem;
+    line-height: 1.6;
+    color: #64748b;
+    word-break: break-all;
+    max-width: 340px;
+    margin: 0 auto;
+    text-align: center;
+  }
 }
 
 /* ========================================================

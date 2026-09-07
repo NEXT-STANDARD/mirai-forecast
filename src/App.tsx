@@ -1038,6 +1038,8 @@ export function App() {
 
       <ComplianceBanner
         onOpenAbout={handleOpenAbout}
+        onOpenAiConnector={handleOpenAiConnector}
+        onOpenDevelopers={handleOpenDevelopers}
         onOpenEmbedGuide={handleOpenEmbedGuide}
         onOpenCreators={handleOpenCreators}
         onOpenTerms={() => {
