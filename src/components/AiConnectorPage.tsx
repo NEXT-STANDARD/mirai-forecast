@@ -125,76 +125,73 @@ export const AiConnectorPage: React.FC<AiConnectorPageProps> = ({ onBack, onOpen
         </div>
       </div>
 
-      {/* 2カラムレイアウト: 左=セットアップ / 右=コピペ実戦プロンプト集 */}
-      <div className="connector-grid-layout">
-        {/* 左ペイン: クイック設定 */}
-        <div className="connector-left-pane space-y-6">
-          <div className="setup-card">
-            <div className="setup-card-header">
-              <div className="flex items-center gap-2">
-                <Terminal size={16} className="text-cyan-400" />
-                <h2 className="setup-title text-sm">Claude Desktop / Cursor 接続設定</h2>
-              </div>
-              <button 
-                onClick={() => copyToClipboard(claudeConfigJson, 'config')}
-                className="btn-copy-config cursor-pointer"
-              >
-                {copiedKey === 'config' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
-                <span>{copiedKey === 'config' ? 'コピー完了！' : '設定JSONをコピー'}</span>
-              </button>
+      {/* 接続設定セクション */}
+      <div className="space-y-4 mb-10">
+        <div className="setup-card">
+          <div className="setup-card-header">
+            <div className="flex items-center gap-2">
+              <Terminal size={16} className="text-cyan-400" />
+              <h2 className="setup-title text-sm">Claude Desktop / Cursor 接続設定</h2>
             </div>
-            <p className="setup-desc text-xs">
-              <code>claude_desktop_config.json</code> の <code>mcpServers</code> に追加するだけで、即座にツールが認識されます。
-            </p>
-            <pre className="code-block font-mono text-xs">{claudeConfigJson}</pre>
+            <button 
+              onClick={() => copyToClipboard(claudeConfigJson, 'config')}
+              className="btn-copy-config cursor-pointer"
+            >
+              {copiedKey === 'config' ? <Check size={13} className="text-emerald-400" /> : <Copy size={13} />}
+              <span>{copiedKey === 'config' ? 'コピー完了！' : '設定JSONをコピー'}</span>
+            </button>
           </div>
-
-          <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
-            <div className="flex items-center gap-2 text-amber-400 text-xs font-bold font-mono">
-              <Lightbulb size={16} />
-              <span>AIエージェント活用のコツ</span>
-            </div>
-            <ul className="text-xs text-slate-300 space-y-2 list-disc pl-4 leading-relaxed">
-              <li><strong>「世界オッズ」と「日本世論」のズレに注目</strong>：AIに「乖離の理由」を考察させると、グローバル投資家と国内生活者の視点の違いが浮き彫りになります。</li>
-              <li><strong>カタリスト日程のタイムライン化</strong>：重要発表日程（日銀会合や決算日など）をもとに、AIに未来予測カレンダーを作成させることができます。</li>
-            </ul>
-          </div>
+          <p className="setup-desc text-xs">
+            <code>claude_desktop_config.json</code> の <code>mcpServers</code> に追加するだけで、即座にツールが認識されます。
+          </p>
+          <pre className="code-block font-mono text-xs">{claudeConfigJson}</pre>
         </div>
 
-        {/* 右ペイン: コピペですぐ使える 実戦プロンプト集 */}
-        <div className="connector-right-pane space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="connector-section-title flex items-center gap-2 text-base font-bold text-white mb-0">
-              <MessageSquareQuote size={18} className="text-amber-400" />
-              <span>今すぐ使える実戦プロンプト集</span>
-            </h2>
-            <span className="text-xs text-slate-400 font-mono">全3パターン</span>
+        <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div className="flex items-center gap-2 text-amber-400 text-xs font-bold font-mono">
+            <Lightbulb size={16} />
+            <span>AIエージェント活用のコツ</span>
           </div>
+          <ul className="text-xs text-slate-300 space-y-2 list-disc pl-4 leading-relaxed">
+            <li><strong>「世界オッズ」と「日本世論」のズレに注目</strong>：AIに「乖離の理由」を考察させると、グローバル投資家と国内生活者の視点の違いが浮き彫りになります。</li>
+            <li><strong>カタリスト日程のタイムライン化</strong>：重要発表日程（日銀会合や決算日など）をもとに、AIに未来予測カレンダーを作成させることができます。</li>
+          </ul>
+        </div>
+      </div>
 
-          <div className="space-y-4">
-            {samplePrompts.map((sp) => (
-              <div key={sp.id} className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-lg">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                      {sp.tag}
-                    </span>
-                    <h3 className="text-sm font-bold text-white">{sp.title}</h3>
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(sp.prompt, sp.id)}
-                    className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
-                  >
-                    {copiedKey === sp.id ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
-                    <span>{copiedKey === sp.id ? 'コピー完了！' : 'プロンプトをコピー'}</span>
-                  </button>
+      {/* 今すぐ使える実戦プロンプト集セクション */}
+      <div className="space-y-4 mb-12">
+        <div className="flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-base font-bold text-white m-0">
+            <MessageSquareQuote size={18} className="text-amber-400" />
+            <span>今すぐ使える実戦プロンプト集</span>
+          </h2>
+          <span className="text-xs text-slate-400 font-mono">全3パターン</span>
+        </div>
+
+        <div className="space-y-4">
+          {samplePrompts.map((sp) => (
+            <div key={sp.id} className="p-5 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3 shadow-lg">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                    {sp.tag}
+                  </span>
+                  <h3 className="text-sm font-bold text-white">{sp.title}</h3>
                 </div>
-                <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-slate-200 leading-relaxed font-sans">
-                  “{sp.prompt}”
-                </div>
+                <button
+                  onClick={() => copyToClipboard(sp.prompt, sp.id)}
+                  className="px-3 py-1.5 rounded-lg bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 hover:text-white font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  {copiedKey === sp.id ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  <span>{copiedKey === sp.id ? 'コピー完了！' : 'プロンプトをコピー'}</span>
+                </button>
               </div>
-            ))}
-          </div>
+              <div className="p-3.5 rounded-lg bg-slate-950 border border-slate-800/80 text-xs text-slate-200 leading-relaxed font-sans">
+                “{sp.prompt}”
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
