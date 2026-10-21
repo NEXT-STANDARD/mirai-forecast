@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-09-06",
+ "updatedAt": "2026-10-21",
  "domesticQuota": 8,
  "domesticCategoryCap": 2,
  "categoryWeights": {
@@ -22,33 +22,28 @@
    "gained": 1,
    "medianOfRegulars": 0,
    "verdict": "win"
+  },
+  {
+   "id": "830255",
+   "title": "ホルムズ海峡の通航量は9月15日までに正常化するか？",
+   "since": "2026-09-06",
+   "gained": 0,
+   "medianOfRegulars": 0,
+   "verdict": "even"
   }
  ],
  "lastTuning": {
-  "date": "2026-09-06",
-  "skipped": null,
-  "changes": [
-   {
-    "cat": "tech",
-    "from": 1,
-    "to": 0.9,
-    "why": "票シェア 0% vs 枠シェア 10%"
-   },
-   {
-    "cat": "sports",
-    "from": 1,
-    "to": 0.9,
-    "why": "票シェア 0% vs 枠シェア 5%"
-   }
-  ],
-  "totalGained": 13,
+  "date": "2026-10-21",
+  "skipped": "週の増分票 2票 < 最低 10票（ノイズに適合しない）",
+  "changes": [],
+  "totalGained": 2,
   "exploration": {
-   "id": "899525",
-   "title": "イーサリアムは8月24〜30日に3,100ドルに到達するか？",
-   "since": "2026-08-25",
-   "gained": 1,
+   "id": "830255",
+   "title": "ホルムズ海峡の通航量は9月15日までに正常化するか？",
+   "since": "2026-09-06",
+   "gained": 0,
    "medianOfRegulars": 0,
-   "verdict": "win"
+   "verdict": "even"
   }
  }
 }

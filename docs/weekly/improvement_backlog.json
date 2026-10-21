@@ -29,6 +29,46 @@
    "lastSeen": "2026-08-25",
    "status": "closed",
    "resolution": "PR #3 マージ済み（2026-08-25 13:30 UTC）。嘘の完了ログ6箇所を実分岐に閉じ込め、dry-run は件数つきで省略を報告。変更前後の dry-run 実測比較で検証（嘘5本→0本・選定一覧一致・ファイル無変更）"
+  },
+  {
+   "id": "SD-LISTED",
+   "kind": "SD",
+   "severity": "critical",
+   "message": "掲載数が 17件（期待 20件）。リバランスの失敗か DB 異常",
+   "firstSeen": "2026-10-21",
+   "lastSeen": "2026-10-21",
+   "status": "open",
+   "resolution": null
+  },
+  {
+   "id": "SD-ORPHAN-SPIKE",
+   "kind": "SD",
+   "severity": "warn",
+   "message": "DB に存在しない採点済み記録が 5→6件に増加。今週、DB の銘柄行が削除された（記録自体は追記型で保持済み）",
+   "firstSeen": "2026-10-21",
+   "lastSeen": "2026-10-21",
+   "status": "open",
+   "resolution": null
+  },
+  {
+   "id": "SD-AUDIT-FAIL",
+   "kind": "SD",
+   "severity": "critical",
+   "message": "自己検証で不合格 2件（合格 38件）。ログを確認して起票する",
+   "firstSeen": "2026-10-21",
+   "lastSeen": "2026-10-21",
+   "status": "open",
+   "resolution": null
+  },
+  {
+   "id": "SD-PROD-SITEMAP-DRIFT",
+   "kind": "SD",
+   "severity": "warn",
+   "message": "本番 sitemap の銘柄 49件 ≠ DB 掲載 17件。デプロイの停滞か（30分以内の変更なら一過性）",
+   "firstSeen": "2026-10-21",
+   "lastSeen": "2026-10-21",
+   "status": "open",
+   "resolution": null
   }
  ]
 }

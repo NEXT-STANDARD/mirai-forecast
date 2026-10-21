@@ -301,6 +301,181 @@
      "total": 1
     }
    }
+  },
+  {
+   "date": "2026-10-21",
+   "totalVotes": 68,
+   "listed": 17,
+   "listedIds": [
+    "281145",
+    "official-1787044213329",
+    "official-1787044205330",
+    "official-1787046123636",
+    "48802",
+    "official-1787048081444",
+    "official-1787048085663",
+    "89502",
+    "council-1787522817651",
+    "council-1787393726291",
+    "606422",
+    "455875",
+    "council-1788300853339",
+    "770450",
+    "51456",
+    "31195",
+    "89519"
+   ],
+   "n3Listed": 3,
+   "trackRecords": 241,
+   "orphanRecords": 6,
+   "auditPass": 38,
+   "auditFail": 2,
+   "auditItems": 40,
+   "findings": [
+    "SD-LISTED",
+    "SD-ORPHAN-SPIKE",
+    "SD-AUDIT-FAIL",
+    "SD-PROD-SITEMAP-DRIFT",
+    "SD-N3-DROP"
+   ],
+   "tallies": {
+    "1": {
+     "yes": 1,
+     "total": 1
+    },
+    "30829": {
+     "yes": 0,
+     "total": 1
+    },
+    "31195": {
+     "yes": 2,
+     "total": 2
+    },
+    "31552": {
+     "yes": 0,
+     "total": 2
+    },
+    "45915": {
+     "yes": 2,
+     "total": 4
+    },
+    "51456": {
+     "yes": 2,
+     "total": 2
+    },
+    "89502": {
+     "yes": 2,
+     "total": 3
+    },
+    "89519": {
+     "yes": 1,
+     "total": 1
+    },
+    "139236": {
+     "yes": 0,
+     "total": 1
+    },
+    "411239": {
+     "yes": 1,
+     "total": 1
+    },
+    "455875": {
+     "yes": 0,
+     "total": 2
+    },
+    "481717": {
+     "yes": 1,
+     "total": 3
+    },
+    "659671": {
+     "yes": 3,
+     "total": 4
+    },
+    "660108": {
+     "yes": 3,
+     "total": 6
+    },
+    "660109": {
+     "yes": 0,
+     "total": 2
+    },
+    "712295": {
+     "yes": 1,
+     "total": 1
+    },
+    "746379": {
+     "yes": 2,
+     "total": 3
+    },
+    "780132": {
+     "yes": 1,
+     "total": 3
+    },
+    "780133": {
+     "yes": 1,
+     "total": 3
+    },
+    "851800": {
+     "yes": 1,
+     "total": 1
+    },
+    "862998": {
+     "yes": 2,
+     "total": 2
+    },
+    "868899": {
+     "yes": 1,
+     "total": 2
+    },
+    "876115": {
+     "yes": 1,
+     "total": 1
+    },
+    "876119": {
+     "yes": 0,
+     "total": 1
+    },
+    "885916": {
+     "yes": 0,
+     "total": 1
+    },
+    "899525": {
+     "yes": 1,
+     "total": 1
+    },
+    "proposal-1787044134976": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787044205330": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787048085663": {
+     "yes": 2,
+     "total": 3
+    },
+    "official-1787044213329": {
+     "yes": 1,
+     "total": 1
+    },
+    "official-1787048081444": {
+     "yes": 5,
+     "total": 5
+    },
+    "official-1787046123636": {
+     "yes": 1,
+     "total": 1
+    },
+    "council-1787522817651": {
+     "yes": 1,
+     "total": 1
+    },
+    "council-1787393726291": {
+     "yes": 0,
+     "total": 1
+    }
+   }
   }
  ]
 }
