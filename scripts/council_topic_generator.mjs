@@ -313,6 +313,7 @@ async function runTopicCouncil() {
       icon_url: '',
       end_date: validatedEndDate,
       is_active: false, // ⭐️ 審査待ち（管理画面で霧島様が承認するまで非公開）
+      is_listed: false, // 承認されても即掲載はしない。掲載枠は週次リバランスが選ぶ（既定値 true だと承認＝掲載になり枠が漂流する）
       updated_at: new Date().toISOString()
     });
   }

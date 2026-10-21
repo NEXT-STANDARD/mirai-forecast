@@ -88,6 +88,18 @@ function clusterDomestic(events) {
   return clusters;
 }
 
+
+// 前回のリバランスが選んだ掲載 ID（docs/weekly/state.json の最新週）。無ければ null
+function lastCuratedListing() {
+  try {
+    const statePath = path.join(ROOT, 'docs', 'weekly', 'state.json');
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+    const last = state.weeks?.at(-1);
+    if (!last || !Array.isArray(last.listedIds)) return null;
+    return new Set(last.listedIds.map(String));
+  } catch { return null; }
+}
+
 async function main() {
   // Loop 1: チューニング済みパラメータ。総枠は固定し、配分と重みだけを外から動かす
   const params = loadParams();
@@ -278,13 +290,24 @@ async function main() {
     const toDelist = drops.filter(d => currentListed.get(d.id) === true);
     const changes = toList.length + toDelist.length;
 
-    console.log(`\n■ リバランス差分: 掲載へ ${toList.length}件 ／ 観測対象外へ ${toDelist.length}件`);
+    // 安全弁の母集団は「前回のリバランスが選んだ掲載」からの漂流に限る。
+    // 承認直後の新規銘柄は is_listed の既定値 true で掲載に紛れ込むが、まだ一度も
+    // 選定を通っていない流入であり、データ異常ではない（2026-09-07 の一括承認30件で
+    // 6週連続停止した教訓）。異常として止めたいのは、前回選んだものが大量に消える／
+    // 大量に入れ替わる事態のほう。前回の記録が無ければ従来どおり全件を数える
+    const curated = lastCuratedListing();
+    const toDelistCurated = curated ? toDelist.filter(d => curated.has(d.id)) : toDelist;
+    const toDelistInflow = curated ? toDelist.filter(d => !curated.has(d.id)) : [];
+    const guardedChanges = toList.length + toDelistCurated.length;
+
+    console.log(`\n■ リバランス差分: 掲載へ ${toList.length}件 ／ 観測対象外へ ${toDelist.length}件`
+      + (curated ? `（うち前回選定からの漂流 ${toDelistCurated.length}件・未選定の流入 ${toDelistInflow.length}件）` : '（前回選定の記録なし）'));
     for (const c of toList) console.log(`  + 掲載: ${c.title.slice(0, 40)}`);
     for (const c of toDelist) console.log(`  - 対象外: ${c.title.slice(0, 40)} — ${c.why}`);
 
     if (changes === 0) { console.log('変更なし。DB には書きません。'); return; }
-    if (changes > MAX_APPLY_CHANGES && !FORCE) {
-      console.error(`❌ 変更が ${changes}件 と多すぎます（上限 ${MAX_APPLY_CHANGES}件）。データ異常の疑いがあるため中止します。意図的なら --force を付けてください。`);
+    if (guardedChanges > MAX_APPLY_CHANGES && !FORCE) {
+      console.error(`❌ 前回選定からの変更が ${guardedChanges}件 と多すぎます（上限 ${MAX_APPLY_CHANGES}件・全変更は ${changes}件）。データ異常の疑いがあるため中止します。意図的なら --force を付けてください。`);
       process.exit(1);
     }
 
