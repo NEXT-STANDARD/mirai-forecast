@@ -26,11 +26,11 @@ export const POLYMARKET_JAPAN_GUIDE: GuideArticle = {
   subtitle: '2026年現在の利用制限、賭博罪に関する法規制の整理、そして日本語でリアルマネー確率を活用する代替手段',
   description: '世界最大の予測市場Polymarketは日本から使えるのか？2026年現在の利用制限、賭博規制の整理、日本語でリアルマネー確率を閲覧・比較する代替手段を分かりやすく解説。',
   publishedAt: '2026-08-23',
-  updatedAt: '2026-08-23',
+  updatedAt: '2026-10-22',
   author: '未来レーダー編集部 政策・予測市場リサーチチーム',
   readTimeMin: 6,
   relatedMarketSlugs: [
-    'fed-decision-in-september-762',
+    'how-many-fed-rate-cuts-in-2026',
     'boj-rate-hike-september-2026',
     'openai-gpt5-release-2026'
   ],
