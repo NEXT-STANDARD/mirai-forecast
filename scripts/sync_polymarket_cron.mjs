@@ -257,6 +257,14 @@ async function syncPolymarket() {
 
 // N-64 の選定ルール本体は curation_rules.mjs に一元化した（絞り込みスクリプトと共有）
 
+    // 翻訳ルールと TITLE_OVERRIDES が読む英語の問い（選定外の更新でも同じ形で作る）
+    function rawQuestionOf(ev, market) {
+      const q = market?.question || ev.title;
+      return (market?.groupItemTitle && !q.includes(market.groupItemTitle))
+        ? `${ev.title}: ${market.groupItemTitle}?`
+        : q;
+    }
+
     const candidateList = [];
     const curationRejects = [];
 
@@ -387,10 +395,7 @@ async function syncPolymarket() {
       const volume24h = ev.volume24hr || 0;
       const jScore = calculateJRelevance(titleLower, volume24h);
 
-      let rawQuestion = market.question || ev.title;
-      if (market.groupItemTitle && !rawQuestion.includes(market.groupItemTitle)) {
-        rawQuestion = `${ev.title}: ${market.groupItemTitle}?`;
-      }
+      const rawQuestion = rawQuestionOf(ev, market);
 
       const eventId = String(ev.id || ev.slug);
 
@@ -533,7 +538,17 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
     // 翻訳辞書 ＆ ルールベース翻訳フォールバック
     // 訂正済みタイトル：保持ガードを越えて必ず適用される（誤訳の自己修復）
-    // 値は文字列、または rawQuestion を受け取って文字列を返す関数
+    // 値は文字列、rawQuestion を受け取って文字列を返す関数、
+    // またはカテゴリも直すときの { title: 文字列か関数, category }
+    // （保持ガードはカテゴリも凍結するので、題名だけ直しても誤ったカテゴリが残る）
+    // 選定外の有効銘柄にも、下の「上位25件外の派生フィールド更新」で適用される
+    const fedDecisionTitle = (meeting) => (raw) => {
+      const m = /:\s*(?:(\d+)(\+?)\s*bps\s*(decrease|increase)|(No change))/i.exec(raw || '');
+      if (!m) return `米FRB ${meeting}会合の政策金利決定`;
+      if (m[4]) return `米FRBは${meeting}の会合で政策金利を据え置くか？`;
+      const pct = Number(m[1]) / 100;
+      return `米FRBは${meeting}の会合で${pct}%${m[2] ? '以上の' : 'の'}${/decrease/i.test(m[3]) ? '利下げ' : '利上げ'}を決定するか？`;
+    };
     const TITLE_OVERRIDES = {
       // 英語は "…?: ↑ $150?" と特定の水準を問うのに、日本語が「到達水準予測」と
       // 一般化されており、その水準の確率が答えにならなくなっていた (N-38)
@@ -543,7 +558,30 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
           ? `2026年8月にWTI原油は${lvl[2]}ドル${lvl[1] === '↑' ? '以上に到達' : '以下に下落'}するか？`
           : '2026年8月 WTI原油先物価格の到達水準予測';
       },
+      // テニス判定の Sion が Decision・recession に当たり「テニス公式戦／sports」で凍結されていた (AR-6)
+      '606422': { title: fedDecisionTitle('2026年10月'), category: 'economy' },
+      '770450': { title: fedDecisionTitle('2026年12月'), category: 'economy' },
+      '770451': { title: fedDecisionTitle('2027年1月'), category: 'economy' },
+      '48802': { title: '米国は2026年末までに景気後退（リセッション）入りするか？', category: 'economy' },
+      // 「↓ 60,000」は dip to（下落）の問いなのに「到達するか」と訳され、向きが消えていた (AR-21)
+      '89502': (raw) => {
+        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
+        if (!lvl) return 'ビットコイン 2026年の到達価格予測';
+        return lvl[1] === '↓'
+          ? `ビットコインは2026年中に${lvl[2]}ドルまで下落するか？`
+          : `ビットコインは2026年中に${lvl[2]}ドルに到達するか？`;
+      },
     };
+    // 訂正があれば { titleJa, category }（category は指定が無ければ null）を返す
+    function resolveOverride(id, raw) {
+      const o = TITLE_OVERRIDES[String(id)];
+      if (!o) return null;
+      const title = (typeof o === 'object') ? o.title : o;
+      return {
+        titleJa: typeof title === 'function' ? title(raw) : title,
+        category: (typeof o === 'object' && o.category) || null,
+      };
+    }
 
     const DIRECT_MAP = {
       '1': { titleJa: '米大統領選 2028：JDヴァンスが勝利するか？', category: 'politics' },
@@ -598,7 +636,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
 
       // 3. テニス判定 (N-28: Prague, Cancun, Sion, Monterrey Open, ITF, ATP, WTA等)
-      if (/Cincinnati Open|ITF M25|US Open|Wimbledon|Roland Garros|Prague|Cancun|Sion|Monterrey|Challenger|ATP|WTA|Grand Slam/i.test(t) || /Sebastian Baez|Lloyd Harris|Lorenzo Giustino|Benjamin Hassan|Norbert Gombos|Radu Mihai Papoe|Maya Joint|Jessica Hinojosa|Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t)) {
+      // 語境界が無いと Sion が Decision・recession・Commission に当たり、
+      // Fed・景気後退の銘柄が「テニス公式戦」になっていた（AR-6、N-29 の Inter と同じ型）
+      if (/\b(?:Cincinnati Open|ITF M25|US Open|Wimbledon|Roland Garros|Prague|Cancun|Sion|Monterrey|Challenger|ATP|WTA|Grand Slam)\b/i.test(t) || /Sebastian Baez|Lloyd Harris|Lorenzo Giustino|Benjamin Hassan|Norbert Gombos|Radu Mihai Papoe|Maya Joint|Jessica Hinojosa|Jannik Sinner|Carlos Alcaraz|Novak Djokovic/i.test(t)) {
         let clean = t.replace(/^(?:Prague\s*\d*:|Cancun:|Sion:|Monterrey Open.*?:|Cincinnati Open:|ITF M25.*?:\s*)/i, '').replace(' - More Markets', '').replace(' - Exact Score', '').trim();
         if (/^Will\s+/i.test(clean)) {
           return { titleJa: `テニス公式戦: ${clean.replace(/^Will\s+/i, '').replace(/\s+win\s+the\s+/i, 'は').replace(/\?/g, '').trim()}で優勝するか？`, category: 'sports' };
@@ -790,6 +830,20 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     const { data: existingRows } = await supabase.from('events').select('id, title_ja, category').range(0, 9999);
     const existingMap = new Map((existingRows || []).map(r => [r.id, r]));
 
+    const catLabels = {
+      economy: '📊 経済・金利・暗号資産',
+      tech: '⚡ AI・テック',
+      politics: '🌐 国際・社会',
+      sports: '⚾ スポーツ',
+      entertainment: '🎬 エンタメ',
+    };
+    // TITLE_OVERRIDES が DB の値を変えるときだけ、何をどう変えるかを残す（dry-run で確認できるように）
+    function logOverride(id, existing, nextTitle, nextCat) {
+      if (existing?.title_ja === nextTitle && existing?.category === nextCat) return;
+      const tag = DRY_RUN ? '🧪 [dry-run] 訂正予定' : '✏️ 訂正';
+      console.log(`${tag}: ${id} 「${existing?.title_ja ?? '(新規)'}」→「${nextTitle}」 [${existing?.category ?? '-'} → ${nextCat}]`);
+    }
+
     const selectedRecords = topCandidates.map(c => {
       const insight = insightMap.get(c.id);
       let titleJa = insight?.titleJa;
@@ -813,9 +867,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       // 一度書かれた誤訳も永久に凍結してしまう（第6回・第11回の指摘）。
       // リポジトリ上の明示的な訂正（TITLE_OVERRIDES）だけは保持より優先させ、
       // DBを手作業で直さなくても是正が届くようにする。
-      const override = TITLE_OVERRIDES[String(c.id)];
+      const override = resolveOverride(c.id, c.rawQuestion);
       if (override) {
-        titleJa = typeof override === 'function' ? override(c.rawQuestion) : override;
+        titleJa = override.titleJa;
       } else if (existingIsClean) {
         titleJa = existing.title_ja;
       } else if (!titleJa || !hasJp || englishFuncCount >= 3) {
@@ -824,14 +878,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
       titleJa = (titleJa || '').replace(/\s{2,}/g, ' ').trim();
 
-      const finalCat = (existingIsClean && existing?.category) ? existing.category : (fb.category || c.cat || 'economy');
-      const catLabels = {
-        economy: '📊 経済・金利・暗号資産',
-        tech: '⚡ AI・テック',
-        politics: '🌐 国際・社会',
-        sports: '⚾ スポーツ',
-        entertainment: '🎬 エンタメ',
-      };
+      const finalCat = override?.category
+        || ((existingIsClean && existing?.category) ? existing.category : (fb.category || c.cat || 'economy'));
+      if (override) logOverride(c.id, existing, titleJa, finalCat);
 
       // 締切はイベント単位の値を優先する。markets[0].endDate は多肢イベントでは
       // 先頭候補の清算日で、イベント自体の締切（試合日・投票日）とずれる（第12回 N-42）
@@ -893,17 +942,33 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       // （第12回 N-45：上位25件しか upsert しないため、有効75件中46件が6時間以上
       //   更新されず、コード側の是正が永久に届かない状態になっていた）
       // title_ja は保持ガードの領域なので触らない。締切・サブタイトル・カテゴリのみ。
+      // 例外は TITLE_OVERRIDES で、選定外でも題名とカテゴリを直す（AR-6：誤分類4件のうち3件が選定外）
       // --------------------------------------------------------------
       try {
         const selectedIds = new Set(selectedRecords.map(r => String(r.id)));
         const eventById = new Map(allEvents.map(e => [String(e.id), e]));
         const { data: staleRows } = await supabase
-          .from('events').select('id, slug, question_en, end_date, category').eq('is_active', true).range(0, 9999);
+          .from('events').select('id, slug, title_ja, question_en, end_date, category').eq('is_active', true).range(0, 9999);
         const refreshRecords = [];
+        const overrideRecords = [];
         for (const row of (staleRows || [])) {
           if (selectedIds.has(String(row.id))) continue;      // 今回 upsert 済み
           const ev = eventById.get(String(row.id));
           if (!ev) continue;                                   // 今回の取得範囲外なら触らない
+          const ov = resolveOverride(row.id, rawQuestionOf(ev, (ev.markets || [])[0]));
+          if (ov) {
+            const nextTitle = (ov.titleJa || '').replace(/\s{2,}/g, ' ').trim();
+            const nextCat = ov.category || row.category;
+            if (nextTitle && (nextTitle !== row.title_ja || nextCat !== row.category)) {
+              logOverride(row.id, row, nextTitle, nextCat);
+              // 列の組が違う行を1回の upsert に混ぜると、無い列が NULL で上書きされるので別に送る
+              overrideRecords.push({
+                id: row.id, title_ja: nextTitle, question_ja: nextTitle,
+                category: nextCat, category_label: catLabels[nextCat] || null,
+                updated_at: new Date().toISOString(),
+              });
+            }
+          }
           const m0 = (ev.markets || [])[0];
           const isMulti = (ev.markets || []).length > 1;
           const nextQuestionEn = isMulti && ev.title ? ev.title : (m0?.question || ev.title || row.question_en);
@@ -923,6 +988,19 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
           }
         } else {
           console.log('🔄 上位25件外の有効銘柄：更新が必要な派生フィールドはありませんでした');
+        }
+        if (overrideRecords.length > 0) {
+          if (DRY_RUN) {
+            console.log(`🧪 [dry-run] 上位25件外の題名・カテゴリ訂正 ${overrideRecords.length}件 を省略しました`);
+          } else {
+            let applied = 0;
+            for (const { id, ...fields } of overrideRecords) {
+              const { error: oErr } = await supabase.from('events').update(fields).eq('id', id);
+              if (oErr) console.error(`題名・カテゴリの訂正に失敗 (${id}):`, oErr.message);
+              else applied++;
+            }
+            console.log(`✏️ 上位25件外の有効銘柄 ${applied}/${overrideRecords.length}件 の題名・カテゴリを TITLE_OVERRIDES で訂正`);
+          }
         }
       } catch (e) {
         console.error('派生フィールド更新でエラー:', e.message);
