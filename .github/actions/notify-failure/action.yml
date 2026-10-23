@@ -1,0 +1,60 @@
+name: Notify workflow failure
+description: >
+  AR-7: 失敗した run を GitHub の issue で人に届ける。GITHUB_TOKEN だけを使い、秘密情報を増やさない。
+  ワークフローごとに開いた issue を1件に保ち、続く失敗はコメントで追記する（30分ごとの cron で洪水にしない）。
+  PUBLIC リポジトリなので、本文にはログを貼らない（run の URL と失敗したステップ名だけ）。
+
+inputs:
+  mention:
+    description: 通知を確実に届ける相手（watch 設定に依存しないようメンションする）
+    required: false
+    default: NEXT-STANDARD
+  quiet-hours:
+    description: 開いた issue がこの時間内に更新されていれば、コメントを足さない
+    required: false
+    default: '6'
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+        GH_REPO: ${{ github.repository }}
+        WORKFLOW: ${{ github.workflow }}
+        EVENT: ${{ github.event_name }}
+        REF: ${{ github.ref_name }}
+        RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        RUN_ID: ${{ github.run_id }}
+        MENTION: ${{ inputs.mention }}
+        QUIET_HOURS: ${{ inputs.quiet-hours }}
+      run: |
+        set -euo pipefail
+        LABEL="ci-failure"
+        TITLE="[CI失敗] ${WORKFLOW}"
+        NOW="$(date -u +%Y-%m-%dT%H:%MZ)"
+        # 失敗したステップ名を API から拾う（要 permissions: actions: read）。取れなくても起票は止めない
+        STEPS="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs" \
+          --jq '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(" / ")' 2>/dev/null || true)"
+        STEPS="${STEPS:-（run のページで確認）}"
+        BODY="$(printf '@%s %s が失敗しました。\n\n- 日時: %s\n- 起動: %s（%s）\n- 失敗したステップ: %s\n- run: %s\n\n直ったらこの issue を閉じてください。開いている間、同じワークフローの失敗はここに追記されます。' \
+          "$MENTION" "$WORKFLOW" "$NOW" "$EVENT" "$REF" "$STEPS" "$RUN_URL")"
+
+        gh label create "$LABEL" --color d73a4a --description "CI の失敗通知（自動起票）" --force >/dev/null
+
+        EXISTING="$(gh issue list --state open --label "$LABEL" --limit 100 --json number,title,updatedAt \
+          | jq -c --arg t "$TITLE" 'map(select(.title == $t)) | first // empty')"
+
+        if [ -z "$EXISTING" ]; then
+          gh issue create --title "$TITLE" --label "$LABEL" --body "$BODY"
+          exit 0
+        fi
+
+        NUMBER="$(jq -r .number <<<"$EXISTING")"
+        UPDATED="$(jq -r .updatedAt <<<"$EXISTING")"
+        AGE_H=$(( ( $(date -u +%s) - $(date -u -d "$UPDATED" +%s) ) / 3600 ))
+        if [ "$AGE_H" -lt "$QUIET_HOURS" ]; then
+          echo "#${NUMBER} は ${AGE_H} 時間前に更新済み。追記しません: ${RUN_URL}"
+        else
+          gh issue comment "$NUMBER" --body "$BODY"
+        fi

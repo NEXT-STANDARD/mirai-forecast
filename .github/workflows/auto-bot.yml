@@ -5,6 +5,16 @@ on:
     # 30分ごとに実行
     - cron: '*/30 * * * *'
   workflow_dispatch:
+    inputs:
+      inject_failure:
+        description: '同期の書き込み先を到達できないアドレスに差し替えて失敗させる（終了コードと通知の確認用。DB にも X にも届かない）'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  issues: write   # AR-7: 失敗の通知を issue で起票する
+  actions: read   # 通知に失敗したステップ名を載せる
 
 jobs:
   sync-and-tweet:
@@ -26,9 +36,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # AR-7: 同期は致命的な失敗で非0終了する。そのとき後続の再ビルドは走らない（失敗した同期で本番を作り直さない）
       - name: Run Polymarket Sync to Supabase
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_URL: ${{ inputs.inject_failure && 'http://127.0.0.1:9' || secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/sync_polymarket_cron.mjs
@@ -43,3 +54,8 @@ jobs:
         run: |
           echo "🚀 Triggering Cloudflare Pages Deploy Hook to prerender newly synced markets..."
           curl -s -X POST "$CF_PAGES_DEPLOY_HOOK"
+
+      # AR-7: 失敗を人に届ける。30分ごとの cron なので、開いた issue への追記は間引く
+      - name: Notify failure
+        if: ${{ failure() }}
+        uses: ./.github/actions/notify-failure

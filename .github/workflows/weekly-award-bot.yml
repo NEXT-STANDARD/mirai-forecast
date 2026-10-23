@@ -6,6 +6,11 @@ on:
     - cron: '0 12 * * 0'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write   # AR-7: 失敗の通知を issue で起票する
+  actions: read   # 通知に失敗したステップ名を載せる
+
 jobs:
   weekly-award-tweet:
     runs-on: ubuntu-latest
@@ -36,3 +41,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/x_weekly_award_bot.mjs
+
+      # AR-7: 失敗を人に届ける
+      - name: Notify failure
+        if: ${{ failure() }}
+        uses: ./.github/actions/notify-failure

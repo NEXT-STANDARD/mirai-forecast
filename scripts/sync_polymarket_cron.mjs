@@ -935,7 +935,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     }
 
     if (error) {
+      // AR-7: 本体の書き込みが失敗したら何も同期できていない。非0で終えて CI を赤にし、通知を起こす
       console.error('Supabase upsert error:', error.message);
+      process.exitCode = 1;
     } else {
       // --------------------------------------------------------------
       // 既存の有効銘柄のうち、上位25件に入らなかったものを派生フィールドだけ更新する
@@ -1025,7 +1027,10 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       }
     }
   } catch (err) {
+    // AR-7: ここに来るのは同期そのものが成り立たなかったとき。握りつぶすと run が success になり、誰にも届かない
+    // process.exit(1) は stdout がパイプのとき末尾のログを落とすことがあるので、exitCode で終了コードだけ決める
     console.error('Sync Error:', err);
+    process.exitCode = 1;
   }
 }
 
