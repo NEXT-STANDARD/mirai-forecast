@@ -34,8 +34,14 @@ runs:
         TITLE="[CI失敗] ${WORKFLOW}"
         NOW="$(date -u +%Y-%m-%dT%H:%MZ)"
         # 失敗したステップ名を API から拾う（要 permissions: actions: read）。取れなくても起票は止めない
-        STEPS="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs" \
-          --jq '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(" / ")' 2>/dev/null || true)"
+        # 直前のステップが落ちた直後は、API にまだ結論が載っていないことがある（実測: 0.03秒後の呼び出しで空）ので数回待つ
+        STEPS=""
+        for _ in 1 2 3 4; do
+          STEPS="$(gh api "repos/${GH_REPO}/actions/runs/${RUN_ID}/jobs" \
+            --jq '[.jobs[].steps[] | select(.conclusion == "failure") | .name] | join(" / ")' || true)"
+          [ -n "$STEPS" ] && break
+          sleep 5
+        done
         STEPS="${STEPS:-（run のページで確認）}"
         BODY="$(printf '@%s %s が失敗しました。\n\n- 日時: %s\n- 起動: %s（%s）\n- 失敗したステップ: %s\n- run: %s\n\n直ったらこの issue を閉じてください。開いている間、同じワークフローの失敗はここに追記されます。' \
           "$MENTION" "$WORKFLOW" "$NOW" "$EVENT" "$REF" "$STEPS" "$RUN_URL")"
