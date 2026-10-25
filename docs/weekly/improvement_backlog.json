@@ -34,9 +34,9 @@
    "id": "SD-LISTED",
    "kind": "SD",
    "severity": "critical",
-   "message": "掲載数が 17件（期待 20件）。リバランスの失敗か DB 異常",
+   "message": "掲載数が 18件（期待 20件）。リバランスの失敗か DB 異常",
    "firstSeen": "2026-10-21",
-   "lastSeen": "2026-10-21",
+   "lastSeen": "2026-10-25",
    "status": "open",
    "resolution": null
   },
@@ -47,8 +47,8 @@
    "message": "DB に存在しない採点済み記録が 5→6件に増加。今週、DB の銘柄行が削除された（記録自体は追記型で保持済み）",
    "firstSeen": "2026-10-21",
    "lastSeen": "2026-10-21",
-   "status": "open",
-   "resolution": null
+   "status": "closed",
+   "resolution": "検知解消（2026-10-25）"
   },
   {
    "id": "SD-AUDIT-FAIL",
@@ -57,8 +57,8 @@
    "message": "自己検証で不合格 2件（合格 38件）。ログを確認して起票する",
    "firstSeen": "2026-10-21",
    "lastSeen": "2026-10-21",
-   "status": "open",
-   "resolution": null
+   "status": "closed",
+   "resolution": "検知解消（2026-10-25）"
   },
   {
    "id": "SD-PROD-SITEMAP-DRIFT",
@@ -67,8 +67,8 @@
    "message": "本番 sitemap の銘柄 49件 ≠ DB 掲載 17件。デプロイの停滞か（30分以内の変更なら一過性）",
    "firstSeen": "2026-10-21",
    "lastSeen": "2026-10-21",
-   "status": "open",
-   "resolution": null
+   "status": "closed",
+   "resolution": "検知解消（2026-10-25）"
   }
  ]
 }

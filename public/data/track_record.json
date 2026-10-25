@@ -1,29 +1,29 @@
 {
- "generatedAt": "2026-10-21T16:33:08.010Z",
+ "generatedAt": "2026-10-25T21:22:04.789Z",
  "method": {
   "forecastPoint": "決着の24時間前の市場価格",
   "minVotesForJapan": 3,
   "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
  },
  "summary": {
-  "worldScored": 241,
-  "worldHits": 217,
-  "worldAccuracy": 90,
+  "worldScored": 258,
+  "worldHits": 234,
+  "worldAccuracy": 91,
   "japanScored": 5,
   "japanHits": 1,
   "japanAccuracy": 20,
   "skipped": {
-   "api": 73,
-   "unresolved": 29,
-   "noHistory": 164,
+   "api": 75,
+   "unresolved": 28,
+   "noHistory": 179,
    "noMarket": 0
   }
  },
  "breakdown": {
   "all": {
-   "n": 241,
-   "hits": 217,
-   "accuracy": 90
+   "n": 258,
+   "hits": 234,
+   "accuracy": 91
   },
   "sports": {
    "n": 25,
@@ -31,25 +31,25 @@
    "accuracy": 56
   },
   "nonSports": {
-   "n": 216,
-   "hits": 203,
+   "n": 233,
+   "hits": 220,
    "accuracy": 94
   },
   "excludingDegenerate": {
-   "n": 92,
-   "hits": 68,
-   "accuracy": 74
+   "n": 96,
+   "hits": 72,
+   "accuracy": 75
   },
   "nonSportsExcludingDegenerate": {
-   "n": 69,
-   "hits": 56,
-   "accuracy": 81
+   "n": 73,
+   "hits": 60,
+   "accuracy": 82
   }
  },
  "calibration": [
   {
    "band": "0-19%",
-   "n": 118,
+   "n": 129,
    "happenedRate": 3
   },
   {
@@ -69,32 +69,11 @@
   },
   {
    "band": "80-100%",
-   "n": 82,
+   "n": 88,
    "happenedRate": 99
   }
  ],
  "records": [
-  {
-   "id": "810896",
-   "slug": "russia-elections-united-russia-wins-every-region",
-   "titleJa": "経済・市場予測: Russia Elections: United Russia Wins Every Region?",
-   "category": "economy",
-   "endDate": "2027-10-01T03:59:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 99,
-    "at": "2026-09-24T09:00:25.000Z",
-    "points": 31,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": true,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
-  },
   {
    "id": "255195",
    "slug": "iran-leadership-change-by",
@@ -105,7 +84,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:16.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -125,34 +104,13 @@
    "subject": "<500B",
    "world": {
     "prob": 1,
-    "at": "2026-10-20T15:00:31.000Z",
-    "points": 235,
+    "at": "2026-10-24T21:00:51.000Z",
+    "points": 228,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
    "happened": false,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
-  },
-  {
-   "id": "179546",
-   "slug": "trump-x-greenland-deal-signed-by-december-31",
-   "titleJa": "経済・市場予測: Trump x Greenland deal signed by September 23?",
-   "category": "economy",
-   "endDate": "2027-01-01T04:59:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 97,
-    "at": "2026-09-22T06:00:17.000Z",
-    "points": 8,
-    "usedFallback": true
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": true,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
@@ -168,7 +126,7 @@
    "world": {
     "prob": 27,
     "at": "2026-09-28T21:00:23.000Z",
-    "points": 66,
+    "points": 32,
     "usedFallback": false
    },
    "japan": null,
@@ -188,8 +146,8 @@
    "subject": "Belarus",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:19.000Z",
-    "points": 238,
+    "at": "2026-10-24T21:00:41.000Z",
+    "points": 231,
     "usedFallback": false
    },
    "japan": null,
@@ -209,8 +167,8 @@
    "subject": "2.25%",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:23.000Z",
-    "points": 237,
+    "at": "2026-10-24T21:00:44.000Z",
+    "points": 230,
     "usedFallback": false
    },
    "japan": null,
@@ -252,7 +210,7 @@
    "world": {
     "prob": 7,
     "at": "2026-10-07T03:00:28.000Z",
-    "points": 132,
+    "points": 98,
     "usedFallback": false
    },
    "japan": null,
@@ -264,16 +222,16 @@
    "isDegenerate": false
   },
   {
-   "id": "215866",
-   "slug": "mlb-2026-american-league-champion",
-   "titleJa": "MLB公式戦: Will Baltimore Orioles win the 2026 American League Championship Series? 勝敗予測",
-   "category": "sports",
-   "endDate": "2026-12-01T04:59:00+00:00",
-   "subject": "Yes",
+   "id": "57643",
+   "slug": "idaho-senate-election-winner",
+   "titleJa": "経済・市場予測: Will the Democrats win the Idaho Senate race in 2026?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Democrat",
    "world": {
     "prob": 0,
-    "at": "2026-09-23T21:00:21.000Z",
-    "points": 26,
+    "at": "2026-10-24T21:00:51.000Z",
+    "points": 228,
     "usedFallback": false
    },
    "japan": null,
@@ -281,8 +239,29 @@
    "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
-   "isSports": true,
+   "isSports": false,
    "isDegenerate": true
+  },
+  {
+   "id": "1171733",
+   "slug": "who-wins-the-senate-pending-hormuz-agreement",
+   "titleJa": "経済・市場予測: Who wins the Senate pending Hormuz Agreement by Oct 23?: Hormuz Agreement; R Senate?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-10-23T03:00:26.000Z",
+    "points": 93,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
   },
   {
    "id": "59204",
@@ -293,8 +272,8 @@
    "subject": "Democrat",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:33.000Z",
-    "points": 235,
+    "at": "2026-10-24T21:00:53.000Z",
+    "points": 228,
     "usedFallback": false
    },
    "japan": null,
@@ -314,8 +293,8 @@
    "subject": "↑ 4,500",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:32.000Z",
-    "points": 159,
+    "at": "2026-10-24T21:00:51.000Z",
+    "points": 186,
     "usedFallback": false
    },
    "japan": null,
@@ -335,8 +314,8 @@
    "subject": "↑ 150,000",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:30.000Z",
-    "points": 159,
+    "at": "2026-10-24T15:00:31.000Z",
+    "points": 185,
     "usedFallback": false
    },
    "japan": null,
@@ -355,9 +334,72 @@
    "endDate": "2026-11-01T03:59:00+00:00",
    "subject": "Yes",
    "world": {
-    "prob": 1,
-    "at": "2026-10-20T15:00:39.000Z",
-    "points": 227,
+    "prob": 0,
+    "at": "2026-10-24T21:00:58.000Z",
+    "points": 220,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "743554",
+   "slug": "ecb-interest-rates-october-2026-20260723225848778",
+   "titleJa": "経済・市場予測: Will the ECB announce a 50+ bps decrease at the October 2026 meeting?",
+   "category": "economy",
+   "endDate": "2026-10-30T03:59:00+00:00",
+   "subject": "50+ bps decrease",
+   "world": {
+    "prob": 0,
+    "at": "2026-10-24T15:00:39.000Z",
+    "points": 215,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1203169",
+   "slug": "elon-musk-of-tweets-october-20-october-27-2026",
+   "titleJa": "経済・市場予測: Elon Musk # tweets October 20 - October 27, 2026?: <20?",
+   "category": "economy",
+   "endDate": "2026-10-27T16:00:00+00:00",
+   "subject": "<20",
+   "world": {
+    "prob": 0,
+    "at": "2026-10-20T00:00:41.000Z",
+    "points": 27,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1235797",
+   "slug": "elon-musk-of-tweets-october-24-october-26-2026",
+   "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from October 24 to October 26, 2026?",
+   "category": "economy",
+   "endDate": "2026-10-26T16:00:00+00:00",
+   "subject": "<40",
+   "world": {
+    "prob": 3,
+    "at": "2026-10-24T09:00:37.000Z",
+    "points": 20,
     "usedFallback": false
    },
    "japan": null,
@@ -369,37 +411,37 @@
    "isDegenerate": false
   },
   {
-   "id": "1044873",
-   "slug": "cnn-politico-or-ms-now-unbanned-from-white-house-by-september-30",
-   "titleJa": "経済・市場予測: CNN, Politico, or MS NOW unbanned from White House by September 30?",
+   "id": "1215665",
+   "slug": "what-price-will-bitcoin-hit-october-19-25-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit October 19-25?: ↑ 96,000?",
    "category": "economy",
-   "endDate": "2026-10-31T23:59:00+00:00",
-   "subject": "Yes",
+   "endDate": "2026-10-26T04:00:00+00:00",
+   "subject": "↑ 96,000",
    "world": {
-    "prob": 79,
-    "at": "2026-09-23T03:00:15.000Z",
-    "points": 21,
+    "prob": 0,
+    "at": "2026-10-24T21:00:41.000Z",
+    "points": 47,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
-   "happened": true,
+   "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
-   "isDegenerate": false
+   "isDegenerate": true
   },
   {
-   "id": "743554",
-   "slug": "ecb-interest-rates-october-2026-20260723225848778",
-   "titleJa": "経済・市場予測: Will the ECB announce a 50+ bps decrease at the October 2026 meeting?",
+   "id": "1215668",
+   "slug": "what-price-will-ethereum-hit-october-19-25-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit October 19-25?: ↑ 3,100?",
    "category": "economy",
-   "endDate": "2026-10-30T03:59:00+00:00",
-   "subject": "50+ bps decrease",
+   "endDate": "2026-10-26T04:00:00+00:00",
+   "subject": "↑ 3,100",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:39.000Z",
-    "points": 225,
+    "at": "2026-10-24T21:00:57.000Z",
+    "points": 47,
     "usedFallback": false
    },
    "japan": null,
@@ -418,9 +460,9 @@
    "endDate": "2026-10-26T03:59:00+00:00",
    "subject": "Flávio Bolsonaro 12%+",
    "world": {
-    "prob": 2,
-    "at": "2026-10-20T15:00:40.000Z",
-    "points": 112,
+    "prob": 1,
+    "at": "2026-10-24T21:00:59.000Z",
+    "points": 137,
     "usedFallback": false
    },
    "japan": null,
@@ -432,12 +474,159 @@
    "isDegenerate": false
   },
   {
+   "id": "1071009",
+   "slug": "bulgaria-presidential-election-first-round-margin-of-victory",
+   "titleJa": "経済・市場予測: Bulgaria Presidential Election First Round: Margin of Victory: Iotova 40%+?",
+   "category": "economy",
+   "endDate": "2026-10-25T23:59:00+00:00",
+   "subject": "Iotova 40%+",
+   "world": {
+    "prob": 2,
+    "at": "2026-10-24T21:00:44.000Z",
+    "points": 230,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1212409",
+   "slug": "bitcoin-above-on-october-25-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $72,000 on October 25?",
+   "category": "economy",
+   "endDate": "2026-10-25T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-24T09:00:37.000Z",
+    "points": 47,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1218521",
+   "slug": "elon-musk-of-tweets-october-22-october-24-2026",
+   "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from October 22 to October 24, 2026?",
+   "category": "economy",
+   "endDate": "2026-10-24T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 4,
+    "at": "2026-10-22T12:00:46.000Z",
+    "points": 27,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1205812",
+   "slug": "bitcoin-above-on-october-24-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $72,000 on October 24?",
+   "category": "economy",
+   "endDate": "2026-10-24T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-23T12:00:29.000Z",
+    "points": 50,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1238682",
+   "slug": "what-price-will-bitcoin-hit-on-october-23-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on October 23?: ↑ 89,000?",
+   "category": "economy",
+   "endDate": "2026-10-24T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-10-23T18:00:42.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1200286",
+   "slug": "bitcoin-above-on-october-23-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $72,000 on October 23?",
+   "category": "economy",
+   "endDate": "2026-10-23T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-22T12:00:34.000Z",
+    "points": 49,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1200283",
+   "slug": "ethereum-above-on-october-23-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,900 on October 23?",
+   "category": "economy",
+   "endDate": "2026-10-23T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-22T09:00:53.000Z",
+    "points": 43,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
    "id": "1180837",
    "slug": "elon-musk-of-tweets-october-16-october-23-2026",
    "titleJa": "経済・市場予測: Elon Musk # tweets October 16 - October 23, 2026?: <20?",
    "category": "economy",
    "endDate": "2026-10-23T16:00:00+00:00",
-   "subject": "<20",
+   "subject": "Yes",
    "world": {
     "prob": 0,
     "at": "2026-10-16T00:00:29.000Z",
@@ -453,16 +642,37 @@
    "isDegenerate": true
   },
   {
+   "id": "1233258",
+   "slug": "what-price-will-bitcoin-hit-on-october-22-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on October 22?: ↑ 90,000?",
+   "category": "economy",
+   "endDate": "2026-10-23T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-10-22T15:00:44.000Z",
+    "points": 7,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
    "id": "1194438",
    "slug": "of-views-of-grand-theft-auto-vi-launch-trailer-on-week-1",
    "titleJa": "経済・市場予測: # of views of Grand Theft Auto VI Launch Trailer on week 1?: <40M?",
    "category": "economy",
    "endDate": "2026-10-23T03:59:00+00:00",
-   "subject": "<40M",
+   "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-20T15:00:21.000Z",
-    "points": 46,
+    "at": "2026-10-21T12:00:24.000Z",
+    "points": 51,
     "usedFallback": false
    },
    "japan": null,
@@ -474,16 +684,79 @@
    "isDegenerate": true
   },
   {
+   "id": "1194785",
+   "slug": "ethereum-above-on-october-22-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,900 on October 22?",
+   "category": "economy",
+   "endDate": "2026-10-22T16:00:00+00:00",
+   "subject": "1,900",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-21T12:00:37.000Z",
+    "points": 48,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1194791",
+   "slug": "bitcoin-above-on-october-22-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $72,000 on October 22?",
+   "category": "economy",
+   "endDate": "2026-10-22T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-21T12:00:20.000Z",
+    "points": 50,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1227597",
+   "slug": "what-price-will-ethereum-hit-on-october-21-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on October 21?: ↑ 2,750?",
+   "category": "economy",
+   "endDate": "2026-10-22T04:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 1,
+    "at": "2026-10-21T12:00:48.000Z",
+    "points": 5,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
    "id": "1227594",
    "slug": "what-price-will-bitcoin-hit-on-october-21-2026",
    "titleJa": "経済・市場予測: What price will Bitcoin hit on October 21?: ↑ 90,000?",
    "category": "economy",
    "endDate": "2026-10-22T04:00:00+00:00",
-   "subject": "↑ 90,000",
+   "subject": "Yes",
    "world": {
     "prob": 0,
     "at": "2026-10-21T12:00:38.000Z",
-    "points": 4,
+    "points": 5,
     "usedFallback": true
    },
    "japan": null,
@@ -500,7 +773,7 @@
    "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from October 19 to October 21, 2026?",
    "category": "economy",
    "endDate": "2026-10-21T16:00:00+00:00",
-   "subject": "<40",
+   "subject": "Yes",
    "world": {
     "prob": 7,
     "at": "2026-10-19T18:00:28.000Z",
@@ -1932,7 +2205,7 @@
    "world": {
     "prob": 55,
     "at": "2026-10-04T03:00:24.000Z",
-    "points": 107,
+    "points": 73,
     "usedFallback": false
    },
    "japan": null,
@@ -1953,7 +2226,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-04T03:00:16.000Z",
-    "points": 108,
+    "points": 74,
     "usedFallback": false
    },
    "japan": null,
@@ -1974,7 +2247,7 @@
    "world": {
     "prob": 5,
     "at": "2026-10-04T00:00:19.000Z",
-    "points": 106,
+    "points": 72,
     "usedFallback": false
    },
    "japan": null,
@@ -2016,7 +2289,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-04T06:00:18.000Z",
-    "points": 109,
+    "points": 75,
     "usedFallback": false
    },
    "japan": {
@@ -2040,7 +2313,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-04T06:00:21.000Z",
-    "points": 108,
+    "points": 74,
     "usedFallback": false
    },
    "japan": null,
@@ -2103,7 +2376,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-01T15:00:21.000Z",
-    "points": 56,
+    "points": 54,
     "usedFallback": false
    },
    "japan": null,
@@ -2124,7 +2397,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-01T15:00:22.000Z",
-    "points": 56,
+    "points": 54,
     "usedFallback": false
    },
    "japan": null,
@@ -2144,9 +2417,9 @@
    "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-09-25T09:00:20.000Z",
-    "points": 34,
-    "usedFallback": false
+    "at": "2026-09-26T06:00:19.000Z",
+    "points": 4,
+    "usedFallback": true
    },
    "japan": null,
    "japanVotes": 0,
@@ -2187,7 +2460,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-30T15:00:24.000Z",
-    "points": 55,
+    "points": 45,
     "usedFallback": false
    },
    "japan": null,
@@ -2208,7 +2481,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-30T15:00:28.000Z",
-    "points": 55,
+    "points": 45,
     "usedFallback": false
    },
    "japan": null,
@@ -2250,7 +2523,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:18.000Z",
-    "points": 76,
+    "points": 42,
     "usedFallback": false
    },
    "japan": null,
@@ -2271,7 +2544,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:22.000Z",
-    "points": 76,
+    "points": 42,
     "usedFallback": false
    },
    "japan": null,
@@ -2292,7 +2565,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:17.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -2313,7 +2586,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:22.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -2334,7 +2607,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-05T12:00:23.000Z",
-    "points": 120,
+    "points": 86,
     "usedFallback": false
    },
    "japan": null,
@@ -2346,27 +2619,6 @@
    "isDegenerate": true
   },
   {
-   "id": "624242",
-   "slug": "where-will-the-next-next-round-of-us-iran-peace-talks-beptptpt-20260623023740663",
-   "titleJa": "米イラン和平交渉：2026年9月30日までに公式協議は開催されないか？",
-   "category": "politics",
-   "endDate": "2026-10-01T03:59:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 84,
-    "at": "2026-09-21T21:00:21.000Z",
-    "points": 10,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": false,
-   "worldCorrect": false,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
-  },
-  {
    "id": "917931",
    "slug": "who-will-trump-meet-with-in-september-20260826",
    "titleJa": "経済・市場予測: Will Trump meet with Kim Jong Un in September 2026?",
@@ -2376,7 +2628,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:24.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -2397,7 +2649,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:25.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -2418,7 +2670,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-30T03:00:23.000Z",
-    "points": 77,
+    "points": 43,
     "usedFallback": false
    },
    "japan": null,
@@ -2460,7 +2712,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-29T15:00:23.000Z",
-    "points": 56,
+    "points": 38,
     "usedFallback": false
    },
    "japan": null,
@@ -2481,7 +2733,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-29T15:00:20.000Z",
-    "points": 56,
+    "points": 38,
     "usedFallback": false
    },
    "japan": null,
@@ -2502,7 +2754,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-28T12:00:22.000Z",
-    "points": 56,
+    "points": 30,
     "usedFallback": false
    },
    "japan": null,
@@ -2523,33 +2775,12 @@
    "world": {
     "prob": 100,
     "at": "2026-09-28T12:00:19.000Z",
-    "points": 56,
+    "points": 30,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
    "happened": true,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": true
-  },
-  {
-   "id": "1046194",
-   "slug": "elon-musk-of-tweets-september-22-september-29-2026",
-   "titleJa": "経済・市場予測: Elon Musk # tweets September 22 - September 29, 2026?: <20?",
-   "category": "economy",
-   "endDate": "2026-09-29T16:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 0,
-    "at": "2026-09-22T06:00:18.000Z",
-    "points": 13,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
@@ -2586,7 +2817,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-27T15:00:18.000Z",
-    "points": 56,
+    "points": 22,
     "usedFallback": false
    },
    "japan": null,
@@ -2607,7 +2838,7 @@
    "world": {
     "prob": 26,
     "at": "2026-09-27T00:00:15.000Z",
-    "points": 27,
+    "points": 17,
     "usedFallback": false
    },
    "japan": null,
@@ -2628,7 +2859,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-27T00:00:22.000Z",
-    "points": 52,
+    "points": 18,
     "usedFallback": false
    },
    "japan": null,
@@ -2649,7 +2880,7 @@
    "world": {
     "prob": 0,
     "at": "2026-09-27T03:00:18.000Z",
-    "points": 52,
+    "points": 18,
     "usedFallback": false
    },
    "japan": null,
@@ -2670,7 +2901,7 @@
    "world": {
     "prob": 100,
     "at": "2026-09-26T15:00:16.000Z",
-    "points": 48,
+    "points": 14,
     "usedFallback": false
    },
    "japan": null,
@@ -2691,7 +2922,7 @@
    "world": {
     "prob": 3,
     "at": "2026-09-26T15:00:17.000Z",
-    "points": 20,
+    "points": 14,
     "usedFallback": false
    },
    "japan": null,
@@ -2711,9 +2942,9 @@
    "subject": "Yes",
    "world": {
     "prob": 100,
-    "at": "2026-09-25T12:00:22.000Z",
-    "points": 40,
-    "usedFallback": false
+    "at": "2026-09-26T09:00:51.000Z",
+    "points": 6,
+    "usedFallback": true
    },
    "japan": null,
    "japanVotes": 0,
@@ -2731,10 +2962,10 @@
    "endDate": "2026-09-26T16:00:00+00:00",
    "subject": "Yes",
    "world": {
-    "prob": 8,
-    "at": "2026-09-25T09:00:19.000Z",
-    "points": 38,
-    "usedFallback": false
+    "prob": 4,
+    "at": "2026-09-26T06:00:19.000Z",
+    "points": 4,
+    "usedFallback": true
    },
    "japan": null,
    "japanVotes": 0,
@@ -2753,13 +2984,160 @@
    "subject": "Yes",
    "world": {
     "prob": 100,
-    "at": "2026-09-25T12:00:21.000Z",
-    "points": 40,
+    "at": "2026-09-26T09:00:49.000Z",
+    "points": 6,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "411239",
+   "slug": "next-prime-minister-of-ethiopia",
+   "titleJa": "アビィ・アハメドは次期エチオピア首相に留任するか？",
+   "category": "politics",
+   "endDate": "2026-06-01T00:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 97,
+    "at": "2026-10-04T21:00:19.000Z",
+    "points": 81,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 1,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "810896",
+   "slug": "russia-elections-united-russia-wins-every-region",
+   "titleJa": "経済・市場予測: Russia Elections: United Russia Wins Every Region?",
+   "category": "economy",
+   "endDate": "2027-10-01T03:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 99,
+    "at": "2026-09-24T09:00:25.000Z",
+    "points": 31,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
    "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "179546",
+   "slug": "trump-x-greenland-deal-signed-by-december-31",
+   "titleJa": "経済・市場予測: Trump x Greenland deal signed by September 23?",
+   "category": "economy",
+   "endDate": "2027-01-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 97,
+    "at": "2026-09-22T06:00:17.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "215866",
+   "slug": "mlb-2026-american-league-champion",
+   "titleJa": "MLB公式戦: Will Baltimore Orioles win the 2026 American League Championship Series? 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-12-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-09-23T21:00:21.000Z",
+    "points": 26,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": true
+  },
+  {
+   "id": "1044873",
+   "slug": "cnn-politico-or-ms-now-unbanned-from-white-house-by-september-30",
+   "titleJa": "経済・市場予測: CNN, Politico, or MS NOW unbanned from White House by September 30?",
+   "category": "economy",
+   "endDate": "2026-10-31T23:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 79,
+    "at": "2026-09-23T03:00:15.000Z",
+    "points": 21,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "624242",
+   "slug": "where-will-the-next-next-round-of-us-iran-peace-talks-beptptpt-20260623023740663",
+   "titleJa": "米イラン和平交渉：2026年9月30日までに公式協議は開催されないか？",
+   "category": "politics",
+   "endDate": "2026-10-01T03:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 84,
+    "at": "2026-09-21T21:00:21.000Z",
+    "points": 10,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1046194",
+   "slug": "elon-musk-of-tweets-september-22-september-29-2026",
+   "titleJa": "経済・市場予測: Elon Musk # tweets September 22 - September 29, 2026?: <20?",
+   "category": "economy",
+   "endDate": "2026-09-29T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-09-22T06:00:18.000Z",
+    "points": 13,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
@@ -2953,27 +3331,6 @@
    "japanCorrect": null,
    "isSports": false,
    "isDegenerate": true
-  },
-  {
-   "id": "411239",
-   "slug": "next-prime-minister-of-ethiopia",
-   "titleJa": "アビィ・アハメドは次期エチオピア首相に留任するか？",
-   "category": "politics",
-   "endDate": "2026-06-01T00:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 97,
-    "at": "2026-10-04T21:00:19.000Z",
-    "points": 115,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 1,
-   "happened": true,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
   },
   {
    "id": "910478",

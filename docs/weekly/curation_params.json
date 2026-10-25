@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-10-21",
+ "updatedAt": "2026-10-25",
  "domesticQuota": 8,
  "domesticCategoryCap": 2,
  "categoryWeights": {
@@ -33,17 +33,10 @@
   }
  ],
  "lastTuning": {
-  "date": "2026-10-21",
-  "skipped": "週の増分票 2票 < 最低 10票（ノイズに適合しない）",
+  "date": "2026-10-25",
+  "skipped": "週の増分票 0票 < 最低 10票（ノイズに適合しない）",
   "changes": [],
-  "totalGained": 2,
-  "exploration": {
-   "id": "830255",
-   "title": "ホルムズ海峡の通航量は9月15日までに正常化するか？",
-   "since": "2026-09-06",
-   "gained": 0,
-   "medianOfRegulars": 0,
-   "verdict": "even"
-  }
+  "totalGained": 0,
+  "exploration": null
  }
 }
