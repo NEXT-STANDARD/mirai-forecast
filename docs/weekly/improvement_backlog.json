@@ -34,9 +34,9 @@
    "id": "SD-LISTED",
    "kind": "SD",
    "severity": "critical",
-   "message": "掲載数が 18件（期待 20件）。リバランスの失敗か DB 異常",
+   "message": "掲載数が 17件（期待 20件）。リバランスの失敗か DB 異常",
    "firstSeen": "2026-10-21",
-   "lastSeen": "2026-10-25",
+   "lastSeen": "2026-11-01",
    "status": "open",
    "resolution": null
   },
@@ -64,11 +64,11 @@
    "id": "SD-PROD-SITEMAP-DRIFT",
    "kind": "SD",
    "severity": "warn",
-   "message": "本番 sitemap の銘柄 49件 ≠ DB 掲載 17件。デプロイの停滞か（30分以内の変更なら一過性）",
+   "message": "本番 sitemap の銘柄 16件 ≠ DB 掲載 17件。デプロイの停滞か（30分以内の変更なら一過性）",
    "firstSeen": "2026-10-21",
-   "lastSeen": "2026-10-21",
-   "status": "closed",
-   "resolution": "検知解消（2026-10-25）"
+   "lastSeen": "2026-11-01",
+   "status": "open",
+   "resolution": "再発（2026-11-01）。過去: 検知解消（2026-10-25）"
   }
  ]
 }
