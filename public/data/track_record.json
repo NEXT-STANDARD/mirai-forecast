@@ -1,29 +1,29 @@
 {
- "generatedAt": "2026-11-01T21:16:24.977Z",
+ "generatedAt": "2026-11-08T21:16:15.566Z",
  "method": {
   "forecastPoint": "決着の24時間前の市場価格",
   "minVotesForJapan": 3,
   "note": "多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）"
  },
  "summary": {
-  "worldScored": 298,
-  "worldHits": 272,
-  "worldAccuracy": 91,
+  "worldScored": 354,
+  "worldHits": 327,
+  "worldAccuracy": 92,
   "japanScored": 5,
   "japanHits": 1,
   "japanAccuracy": 20,
   "skipped": {
-   "api": 85,
-   "unresolved": 32,
-   "noHistory": 209,
+   "api": 92,
+   "unresolved": 18,
+   "noHistory": 237,
    "noMarket": 0
   }
  },
  "breakdown": {
   "all": {
-   "n": 298,
-   "hits": 272,
-   "accuracy": 91
+   "n": 354,
+   "hits": 327,
+   "accuracy": 92
   },
   "sports": {
    "n": 26,
@@ -31,49 +31,70 @@
    "accuracy": 58
   },
   "nonSports": {
-   "n": 272,
-   "hits": 257,
-   "accuracy": 94
+   "n": 328,
+   "hits": 312,
+   "accuracy": 95
   },
   "excludingDegenerate": {
-   "n": 109,
-   "hits": 83,
-   "accuracy": 76
+   "n": 133,
+   "hits": 106,
+   "accuracy": 80
   },
   "nonSportsExcludingDegenerate": {
-   "n": 85,
-   "hits": 70,
-   "accuracy": 82
+   "n": 109,
+   "hits": 93,
+   "accuracy": 85
   }
  },
  "calibration": [
   {
    "band": "0-19%",
-   "n": 151,
-   "happenedRate": 3
+   "n": 177,
+   "happenedRate": 2
   },
   {
    "band": "20-39%",
-   "n": 18,
-   "happenedRate": 50
+   "n": 19,
+   "happenedRate": 47
   },
   {
    "band": "40-59%",
-   "n": 17,
-   "happenedRate": 53
+   "n": 20,
+   "happenedRate": 60
   },
   {
    "band": "60-79%",
-   "n": 8,
-   "happenedRate": 38
+   "n": 14,
+   "happenedRate": 64
   },
   {
    "band": "80-100%",
-   "n": 104,
+   "n": 124,
    "happenedRate": 99
   }
  ],
  "records": [
+  {
+   "id": "119671",
+   "slug": "puffpaw-fdv-above-one-day-after-launch",
+   "titleJa": "経済・市場予測: Puffpaw FDV above $50M one day after launch?",
+   "category": "economy",
+   "endDate": "2027-01-01T05:00:00+00:00",
+   "subject": "$50M",
+   "world": {
+    "prob": 90,
+    "at": "2026-11-07T21:00:54.000Z",
+    "points": 226,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
   {
    "id": "48292",
    "slug": "openai-ipo-closing-market-cap",
@@ -83,8 +104,8 @@
    "subject": "<500B",
    "world": {
     "prob": 1,
-    "at": "2026-10-31T15:00:42.000Z",
-    "points": 230,
+    "at": "2026-11-07T21:00:54.000Z",
+    "points": 226,
     "usedFallback": false
    },
    "japan": null,
@@ -104,8 +125,71 @@
    "subject": "Yes",
    "world": {
     "prob": 2,
-    "at": "2026-10-31T15:00:33.000Z",
-    "points": 232,
+    "at": "2026-11-07T21:00:47.000Z",
+    "points": 228,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "118172",
+   "slug": "will-trump-acquire-greenland-before-2027",
+   "titleJa": "経済・市場予測: Will Trump acquire Greenland before 2027?",
+   "category": "economy",
+   "endDate": "2027-01-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-11-07T21:00:59.000Z",
+    "points": 221,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1312156",
+   "slug": "us-iran-effective-ceasefire-continues-throughptptpt-20261103",
+   "titleJa": "経済・市場予測: US x Iran effective ceasefire continues through November 5, 2026?",
+   "category": "economy",
+   "endDate": "2027-01-01T04:59:00+00:00",
+   "subject": "November 5",
+   "world": {
+    "prob": 99,
+    "at": "2026-11-07T21:00:56.000Z",
+    "points": 35,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57111",
+   "slug": "los-angeles-mayoral-election-117",
+   "titleJa": "経済・市場予測: Will Karen Bass win the 2026 Los Angeles mayoral election?",
+   "category": "economy",
+   "endDate": "2027-01-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-11-04T21:00:42.000Z",
+    "points": 196,
     "usedFallback": false
    },
    "japan": null,
@@ -125,8 +209,8 @@
    "subject": "Belarus",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:25.000Z",
-    "points": 234,
+    "at": "2026-11-07T21:00:38.000Z",
+    "points": 231,
     "usedFallback": false
    },
    "japan": null,
@@ -146,8 +230,8 @@
    "subject": "2.25%",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:30.000Z",
-    "points": 231,
+    "at": "2026-11-07T21:00:43.000Z",
+    "points": 227,
     "usedFallback": false
    },
    "japan": null,
@@ -157,6 +241,27 @@
    "japanCorrect": null,
    "isSports": false,
    "isDegenerate": true
+  },
+  {
+   "id": "30828",
+   "slug": "xi-jinping-out-before-2027",
+   "titleJa": "経済・市場予測: Xi Jinping out before 2027?",
+   "category": "economy",
+   "endDate": "2027-01-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-11-07T21:00:54.000Z",
+    "points": 226,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
   },
   {
    "id": "1183118",
@@ -206,20 +311,20 @@
    "titleJa": "経済・市場予測: Will 1win launch a token by October 31, 2026?",
    "category": "economy",
    "endDate": "2027-01-01T04:59:00+00:00",
-   "subject": "October 31, 2026",
+   "subject": "Yes",
    "world": {
-    "prob": 28,
-    "at": "2026-10-31T15:00:27.000Z",
-    "points": 83,
+    "prob": 100,
+    "at": "2026-11-01T21:00:18.000Z",
+    "points": 91,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
    "happened": true,
-   "worldCorrect": false,
+   "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
-   "isDegenerate": false
+   "isDegenerate": true
   },
   {
    "id": "965173",
@@ -231,7 +336,7 @@
    "world": {
     "prob": 1,
     "at": "2026-10-31T03:00:52.000Z",
-    "points": 202,
+    "points": 149,
     "usedFallback": false
    },
    "japan": null,
@@ -251,9 +356,9 @@
    "subject": "↑ 3,500",
    "world": {
     "prob": 1,
-    "at": "2026-11-01T15:00:44.000Z",
-    "points": 7,
-    "usedFallback": true
+    "at": "2026-11-07T12:00:51.000Z",
+    "points": 55,
+    "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
@@ -264,16 +369,16 @@
    "isDegenerate": false
   },
   {
-   "id": "215871",
-   "slug": "mlb-2026-national-league-champion",
-   "titleJa": "MLB公式戦: Will Atlanta Braves win the 2026 National League Championship Series? 勝敗予測",
-   "category": "sports",
-   "endDate": "2026-12-01T04:59:00+00:00",
-   "subject": "Yes",
+   "id": "1292829",
+   "slug": "what-price-will-bitcoin-hit-in-november-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit in November?: ↑ 100,000?",
+   "category": "economy",
+   "endDate": "2026-12-01T05:00:00+00:00",
+   "subject": "↑ 100,000",
    "world": {
-    "prob": 7,
-    "at": "2026-10-07T03:00:28.000Z",
-    "points": 51,
+    "prob": 1,
+    "at": "2026-11-07T21:00:43.000Z",
+    "points": 60,
     "usedFallback": false
    },
    "japan": null,
@@ -281,8 +386,365 @@
    "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
-   "isSports": true,
+   "isSports": false,
    "isDegenerate": false
+  },
+  {
+   "id": "1321243",
+   "slug": "kai-cenat-finishes-gta-marathon-by-20261105",
+   "titleJa": "経済・市場予測: Kai Cenat finishes GTA marathon by...?: November 7 (11:59 PM ET)?",
+   "category": "economy",
+   "endDate": "2026-11-17T04:59:00+00:00",
+   "subject": "November 7 (11:59 PM ET)",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T03:00:52.000Z",
+    "points": 15,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1305851",
+   "slug": "elon-musk-of-tweets-november-6-november-13-2026",
+   "titleJa": "経済・市場予測: Elon Musk # tweets November 6 - November 13, 2026?: <20?",
+   "category": "economy",
+   "endDate": "2026-11-13T17:00:00+00:00",
+   "subject": "<20",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-06T12:00:52.000Z",
+    "points": 31,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1286709",
+   "slug": "elon-musk-of-tweets-november-3-november-10-2026",
+   "titleJa": "経済・市場予測: Elon Musk # tweets November 3 - November 10, 2026?: <20?",
+   "category": "economy",
+   "endDate": "2026-11-10T17:00:00+00:00",
+   "subject": "<20",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-02T21:00:34.000Z",
+    "points": 28,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1320648",
+   "slug": "elon-musk-of-tweets-november-7-november-9-2026",
+   "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from November 7 to November 9, 2026?",
+   "category": "economy",
+   "endDate": "2026-11-09T17:00:00+00:00",
+   "subject": "<40",
+   "world": {
+    "prob": 2,
+    "at": "2026-11-07T21:00:50.000Z",
+    "points": 24,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1302148",
+   "slug": "ethereum-above-on-november-9-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,800 on November 9?",
+   "category": "economy",
+   "endDate": "2026-11-09T17:00:00+00:00",
+   "subject": "1,800",
+   "world": {
+    "prob": 99,
+    "at": "2026-11-07T21:00:38.000Z",
+    "points": 49,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1330005",
+   "slug": "highest-temperature-in-shanghai-on-november-9-2026",
+   "titleJa": "経済・市場予測: Will the highest temperature in Shanghai be 13°C or below on November 9?",
+   "category": "economy",
+   "endDate": "2026-11-09T12:00:00+00:00",
+   "subject": "13°C or below",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T21:00:45.000Z",
+    "points": 12,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1299077",
+   "slug": "what-price-will-bitcoin-hit-november-2-8-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit November 2-8?: ↑ 92,000?",
+   "category": "economy",
+   "endDate": "2026-11-09T05:00:00+00:00",
+   "subject": "↑ 92,000",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T21:00:47.000Z",
+    "points": 52,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1299081",
+   "slug": "what-price-will-ethereum-hit-november-2-8-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit November 2-8?: ↑ 3,000?",
+   "category": "economy",
+   "endDate": "2026-11-09T05:00:00+00:00",
+   "subject": "↑ 3,000",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T21:00:48.000Z",
+    "points": 52,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1295808",
+   "slug": "bitcoin-above-on-november-8-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $68,000 on November 8?",
+   "category": "economy",
+   "endDate": "2026-11-08T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-07T12:00:35.000Z",
+    "points": 53,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1295800",
+   "slug": "ethereum-above-on-november-8-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,800 on November 8?",
+   "category": "economy",
+   "endDate": "2026-11-08T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-07T12:00:38.000Z",
+    "points": 53,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1329694",
+   "slug": "what-price-will-ethereum-hit-on-november-7-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on November 7?: ↑ 2,550?",
+   "category": "economy",
+   "endDate": "2026-11-08T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T12:00:50.000Z",
+    "points": 4,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1329687",
+   "slug": "what-price-will-bitcoin-hit-on-november-7-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on November 7?: ↑ 83,000?",
+   "category": "economy",
+   "endDate": "2026-11-08T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-07T12:00:50.000Z",
+    "points": 4,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1302191",
+   "slug": "elon-musk-of-tweets-november-5-november-7-2026",
+   "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from November 5 to November 7, 2026?",
+   "category": "economy",
+   "endDate": "2026-11-07T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 4,
+    "at": "2026-11-05T09:00:19.000Z",
+    "points": 29,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1289174",
+   "slug": "bitcoin-above-on-november-7-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $68,000 on November 7?",
+   "category": "economy",
+   "endDate": "2026-11-07T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-06T12:00:30.000Z",
+    "points": 52,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1323373",
+   "slug": "what-price-will-bitcoin-hit-on-november-6-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on November 6?: ↑ 83,000?",
+   "category": "economy",
+   "endDate": "2026-11-07T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-06T18:00:24.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1283785",
+   "slug": "bitcoin-above-on-november-6-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $68,000 on November 6?",
+   "category": "economy",
+   "endDate": "2026-11-06T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-05T15:00:22.000Z",
+    "points": 53,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1283778",
+   "slug": "ethereum-above-on-november-6-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,700 on November 6?",
+   "category": "economy",
+   "endDate": "2026-11-06T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-05T15:00:35.000Z",
+    "points": 52,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
   },
   {
    "id": "1263843",
@@ -290,7 +752,7 @@
    "titleJa": "経済・市場予測: Elon Musk # tweets October 30 - November 6, 2026?: <20?",
    "category": "economy",
    "endDate": "2026-11-06T17:00:00+00:00",
-   "subject": "<20",
+   "subject": "Yes",
    "world": {
     "prob": 0,
     "at": "2026-10-29T21:00:45.000Z",
@@ -306,16 +768,37 @@
    "isDegenerate": true
   },
   {
-   "id": "57643",
-   "slug": "idaho-senate-election-winner",
-   "titleJa": "経済・市場予測: Will the Democrats win the Idaho Senate race in 2026?",
+   "id": "1318001",
+   "slug": "what-price-will-ethereum-hit-on-november-5-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on November 5?: ↑ 2,750?",
    "category": "economy",
-   "endDate": "2026-11-04T04:59:00+00:00",
-   "subject": "Democrat",
+   "endDate": "2026-11-06T05:00:00+00:00",
+   "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:41.000Z",
-    "points": 230,
+    "at": "2026-11-05T15:00:47.000Z",
+    "points": 7,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "807644",
+   "slug": "bank-of-mexico-decision-in-november",
+   "titleJa": "経済・市場予測: Bank of Mexico Decision in November?: 50+ bps decrease?",
+   "category": "economy",
+   "endDate": "2026-11-05T23:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-04T18:00:43.000Z",
+    "points": 206,
     "usedFallback": false
    },
    "japan": null,
@@ -325,6 +808,489 @@
    "japanCorrect": null,
    "isSports": false,
    "isDegenerate": true
+  },
+  {
+   "id": "778706",
+   "slug": "bank-of-england-decision-in-november-20260730150602252",
+   "titleJa": "経済・市場予測: Bank of England decision in November?: 50+ bps decrease?",
+   "category": "economy",
+   "endDate": "2026-11-05T23:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-04T12:00:40.000Z",
+    "points": 197,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1278347",
+   "slug": "ethereum-above-on-november-5-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,900 on November 5?",
+   "category": "economy",
+   "endDate": "2026-11-05T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-04T12:00:35.000Z",
+    "points": 53,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1278355",
+   "slug": "bitcoin-above-on-november-5-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $72,000 on November 5?",
+   "category": "economy",
+   "endDate": "2026-11-05T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-04T12:00:44.000Z",
+    "points": 48,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1311875",
+   "slug": "what-price-will-ethereum-hit-on-november-4-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on November 4?: ↑ 2,600?",
+   "category": "economy",
+   "endDate": "2026-11-05T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 1,
+    "at": "2026-11-04T15:00:42.000Z",
+    "points": 7,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1289205",
+   "slug": "elon-musk-of-tweets-november-2-november-4-2026",
+   "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from November 2 to November 4, 2026?",
+   "category": "economy",
+   "endDate": "2026-11-04T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 2,
+    "at": "2026-11-02T18:00:21.000Z",
+    "points": 23,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1272514",
+   "slug": "bitcoin-above-on-november-4-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $70,000 on November 4?",
+   "category": "economy",
+   "endDate": "2026-11-04T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-03T15:00:42.000Z",
+    "points": 48,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1272506",
+   "slug": "ethereum-above-on-november-4-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,800 on November 4?",
+   "category": "economy",
+   "endDate": "2026-11-04T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-03T15:00:16.000Z",
+    "points": 51,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1305857",
+   "slug": "what-price-will-ethereum-hit-on-november-3-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on November 3?: ↑ 2,600?",
+   "category": "economy",
+   "endDate": "2026-11-04T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-03T18:00:39.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1305850",
+   "slug": "what-price-will-bitcoin-hit-on-november-3-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on November 3?: ↑ 84,000?",
+   "category": "economy",
+   "endDate": "2026-11-04T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-03T18:00:27.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "103166",
+   "slug": "republican-house-seats-after-the-2026-midterm-elections",
+   "titleJa": "経済・市場予測: Republican House seats after the 2026 midterm elections?: Below 190?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-05T03:00:38.000Z",
+    "points": 199,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "57647",
+   "slug": "iowa-senate-election-winner",
+   "titleJa": "経済・市場予測: Iowa Senate Election Winner: Josh Turek (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 52,
+    "at": "2026-11-03T03:00:30.000Z",
+    "points": 192,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57185",
+   "slug": "ohio-governor-winner-2026",
+   "titleJa": "経済・市場予測: Ohio Governor Election Winner: Amy Acton (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 84,
+    "at": "2026-11-03T03:00:32.000Z",
+    "points": 191,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57672",
+   "slug": "texas-senate-election-winner",
+   "titleJa": "経済・市場予測: Texas Senate Election Winner: James Talarico (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 74,
+    "at": "2026-11-03T03:00:31.000Z",
+    "points": 191,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57222",
+   "slug": "texas-governor-winner-2026",
+   "titleJa": "経済・市場予測: Texas Governor Election Winner: Gina Hinojosa (D) ?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 40,
+    "at": "2026-11-03T03:00:32.000Z",
+    "points": 191,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "32224",
+   "slug": "which-party-will-win-the-senate-in-2026",
+   "titleJa": "経済・市場予測: Will the Democratic Party control the Senate after the 2026 Midterm elections?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 77,
+    "at": "2026-11-03T09:00:24.000Z",
+    "points": 193,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57643",
+   "slug": "idaho-senate-election-winner",
+   "titleJa": "経済・市場予測: Will the Democrats win the Idaho Senate race in 2026?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-03T09:00:25.000Z",
+    "points": 192,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "32225",
+   "slug": "which-party-will-win-the-house-in-2026",
+   "titleJa": "経済・市場予測: Will the Democratic Party control the House after the 2026 Midterm elections?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 95,
+    "at": "2026-11-03T09:00:18.000Z",
+    "points": 194,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "32228",
+   "slug": "balance-of-power-2026-midterms",
+   "titleJa": "経済・市場予測: Balance of Power: 2026 Midterms: Democrats Sweep?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 76,
+    "at": "2026-11-03T15:00:29.000Z",
+    "points": 195,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57682",
+   "slug": "ohio-senate-election-winner",
+   "titleJa": "経済・市場予測: Ohio Senate Election Winner: Sherrod Brown (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 73,
+    "at": "2026-11-03T03:00:21.000Z",
+    "points": 193,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57648",
+   "slug": "kansas-senate-election-winner",
+   "titleJa": "経済・市場予測: Kansas Senate Election Winner: Adam Hamilton (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 62,
+    "at": "2026-11-03T03:00:43.000Z",
+    "points": 173,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57658",
+   "slug": "michigan-senate-election-winner",
+   "titleJa": "経済・市場予測: Michigan Senate Election Winner: Abdul El-Sayed (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 81,
+    "at": "2026-11-03T09:00:20.000Z",
+    "points": 194,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "57669",
+   "slug": "south-carolina-senate-election-winner",
+   "titleJa": "経済・市場予測: South Carolina Senate Election Winner: Annie Andrews (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 32,
+    "at": "2026-11-03T03:00:35.000Z",
+    "points": 189,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": false,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "64731",
+   "slug": "billionaire-one-time-wealth-tax-passes-in-california-election-2026",
+   "titleJa": "経済・市場予測: Billionaire one-time wealth tax passes in California election 2026?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 1,
+    "at": "2026-11-07T21:00:41.000Z",
+    "points": 228,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
   },
   {
    "id": "1171733",
@@ -348,16 +1314,58 @@
    "isDegenerate": false
   },
   {
+   "id": "57160",
+   "slug": "florida-governor-winner-2026",
+   "titleJa": "経済・市場予測: Florida Governor Election Winner: David Jolly (D)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 36,
+    "at": "2026-11-03T03:00:35.000Z",
+    "points": 187,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
    "id": "59204",
    "slug": "nebraska-senate-election-winner",
    "titleJa": "経済・市場予測: Will the Democrats win the Nebraska Senate race in 2026?",
    "category": "economy",
    "endDate": "2026-11-04T04:59:00+00:00",
-   "subject": "Democrat",
+   "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:45.000Z",
-    "points": 229,
+    "at": "2026-11-03T09:00:28.000Z",
+    "points": 191,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "191540",
+   "slug": "nc-13-house-election-winner",
+   "titleJa": "経済・市場予測: NC-13 House Election Winner: Brad Knott (R)?",
+   "category": "economy",
+   "endDate": "2026-11-04T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-04T12:00:25.000Z",
+    "points": 203,
     "usedFallback": false
    },
    "japan": null,
@@ -374,12 +1382,117 @@
    "titleJa": "経済・市場予測: Elon Musk # tweets October 27 - November 3, 2026?: <20?",
    "category": "economy",
    "endDate": "2026-11-03T17:00:00+00:00",
-   "subject": "<20",
+   "subject": "Yes",
    "world": {
     "prob": 0,
     "at": "2026-10-27T06:00:26.000Z",
     "points": 28,
     "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1266673",
+   "slug": "bitcoin-above-on-november-3-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $70,000 on November 3?",
+   "category": "economy",
+   "endDate": "2026-11-03T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-02T15:00:41.000Z",
+    "points": 46,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1266666",
+   "slug": "ethereum-above-on-november-3-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,800 on November 3?",
+   "category": "economy",
+   "endDate": "2026-11-03T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-02T15:00:22.000Z",
+    "points": 50,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "106193",
+   "slug": "republican-senate-seats-after-the-2026-midterm-elections-927",
+   "titleJa": "経済・市場予測: Republican Senate seats after the 2026 midterm elections?: ≤47?",
+   "category": "economy",
+   "endDate": "2026-11-03T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 56,
+    "at": "2026-11-03T09:00:24.000Z",
+    "points": 194,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
+   "id": "1299076",
+   "slug": "what-price-will-bitcoin-hit-on-november-2-2026",
+   "titleJa": "経済・市場予測: What price will Bitcoin hit on November 2?: ↑ 86,000?",
+   "category": "economy",
+   "endDate": "2026-11-03T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-02T18:00:44.000Z",
+    "points": 8,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1299082",
+   "slug": "what-price-will-ethereum-hit-on-november-2-2026",
+   "titleJa": "経済・市場予測: What price will Ethereum hit on November 2?: ↑ 2,600?",
+   "category": "economy",
+   "endDate": "2026-11-03T05:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-11-02T18:00:16.000Z",
+    "points": 8,
+    "usedFallback": true
    },
    "japan": null,
    "japanVotes": 0,
@@ -411,16 +1524,58 @@
    "isDegenerate": false
   },
   {
+   "id": "57650",
+   "slug": "maine-senate-election-winner",
+   "titleJa": "経済・市場予測: Maine Senate Election Winner: Troy Jackson (D)?",
+   "category": "economy",
+   "endDate": "2026-11-03T00:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 74,
+    "at": "2026-11-03T09:00:23.000Z",
+    "points": 193,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": false
+  },
+  {
    "id": "1259780",
    "slug": "ethereum-above-on-november-2-2026",
    "titleJa": "経済・市場予測: Will the price of Ethereum be above $1,800 on November 2?",
    "category": "economy",
    "endDate": "2026-11-02T17:00:00+00:00",
-   "subject": "1,800",
+   "subject": "Yes",
    "world": {
     "prob": 100,
-    "at": "2026-10-31T15:00:50.000Z",
-    "points": 41,
+    "at": "2026-11-01T12:00:46.000Z",
+    "points": 46,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1259789",
+   "slug": "bitcoin-above-on-november-2-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $70,000 on November 2?",
+   "category": "economy",
+   "endDate": "2026-11-02T17:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-11-01T12:00:27.000Z",
+    "points": 50,
     "usedFallback": false
    },
    "japan": null,
@@ -437,7 +1592,7 @@
    "titleJa": "経済・市場予測: Will Elon Musk post <40 tweets from October 31 to November 2, 2026?",
    "category": "economy",
    "endDate": "2026-11-02T17:00:00+00:00",
-   "subject": "<40",
+   "subject": "Yes",
    "world": {
     "prob": 3,
     "at": "2026-10-30T09:00:41.000Z",
@@ -458,11 +1613,11 @@
    "titleJa": "経済・市場予測: What price will Ethereum hit October 26-November 1?: ↑ 3,000?",
    "category": "economy",
    "endDate": "2026-11-02T05:00:00+00:00",
-   "subject": "↑ 3,000",
+   "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:41.000Z",
-    "points": 49,
+    "at": "2026-11-01T00:00:50.000Z",
+    "points": 50,
     "usedFallback": false
    },
    "japan": null,
@@ -479,11 +1634,11 @@
    "titleJa": "経済・市場予測: What price will Bitcoin hit October 26-November 1?: ↑ 94,000?",
    "category": "economy",
    "endDate": "2026-11-02T05:00:00+00:00",
-   "subject": "↑ 94,000",
+   "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:49.000Z",
-    "points": 45,
+    "at": "2026-11-01T00:00:59.000Z",
+    "points": 46,
     "usedFallback": false
    },
    "japan": null,
@@ -546,7 +1701,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-31T00:00:59.000Z",
-    "points": 223,
+    "points": 166,
     "usedFallback": false
    },
    "japan": null,
@@ -567,7 +1722,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-31T00:00:58.000Z",
-    "points": 223,
+    "points": 166,
     "usedFallback": false
    },
    "japan": null,
@@ -587,8 +1742,8 @@
    "subject": "Yes",
    "world": {
     "prob": 0,
-    "at": "2026-10-31T15:00:53.000Z",
-    "points": 215,
+    "at": "2026-11-07T00:00:47.000Z",
+    "points": 201,
     "usedFallback": false
    },
    "japan": null,
@@ -672,7 +1827,7 @@
    "world": {
     "prob": 13,
     "at": "2026-10-25T21:00:36.000Z",
-    "points": 175,
+    "points": 120,
     "usedFallback": false
    },
    "japan": null,
@@ -777,7 +1932,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-28T09:00:38.000Z",
-    "points": 191,
+    "points": 136,
     "usedFallback": false
    },
    "japan": null,
@@ -840,7 +1995,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-27T15:00:34.000Z",
-    "points": 200,
+    "points": 143,
     "usedFallback": false
    },
    "japan": null,
@@ -945,7 +2100,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-30T12:00:50.000Z",
-    "points": 222,
+    "points": 165,
     "usedFallback": false
    },
    "japan": null,
@@ -966,7 +2121,7 @@
    "world": {
     "prob": 1,
     "at": "2026-10-30T12:00:44.000Z",
-    "points": 178,
+    "points": 166,
     "usedFallback": false
    },
    "japan": null,
@@ -983,11 +2138,11 @@
    "titleJa": "経済・市場予測: Israel Election: Ra'am # of seats?: <4?",
    "category": "economy",
    "endDate": "2026-10-27T23:59:00+00:00",
-   "subject": "<4",
+   "subject": "Yes",
    "world": {
     "prob": 0,
     "at": "2026-10-30T21:00:22.000Z",
-    "points": 224,
+    "points": 167,
     "usedFallback": false
    },
    "japan": null,
@@ -1218,7 +2373,7 @@
    "world": {
     "prob": 68,
     "at": "2026-10-25T03:00:33.000Z",
-    "points": 139,
+    "points": 114,
     "usedFallback": false
    },
    "japan": null,
@@ -1260,7 +2415,7 @@
    "world": {
     "prob": 2,
     "at": "2026-10-25T03:00:34.000Z",
-    "points": 137,
+    "points": 113,
     "usedFallback": false
    },
    "japan": null,
@@ -1281,7 +2436,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-26T03:00:22.000Z",
-    "points": 190,
+    "points": 133,
     "usedFallback": false
    },
    "japan": null,
@@ -2058,7 +3213,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-09T03:00:29.000Z",
-    "points": 34,
+    "points": 11,
     "usedFallback": false
    },
    "japan": null,
@@ -2142,7 +3297,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-14T15:00:23.000Z",
-    "points": 56,
+    "points": 54,
     "usedFallback": false
    },
    "japan": null,
@@ -2163,7 +3318,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-14T15:00:25.000Z",
-    "points": 56,
+    "points": 54,
     "usedFallback": false
    },
    "japan": null,
@@ -2247,7 +3402,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-13T15:00:23.000Z",
-    "points": 56,
+    "points": 46,
     "usedFallback": false
    },
    "japan": null,
@@ -2268,7 +3423,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-13T15:00:21.000Z",
-    "points": 56,
+    "points": 46,
     "usedFallback": false
    },
    "japan": null,
@@ -2301,27 +3456,6 @@
    "isDegenerate": true
   },
   {
-   "id": "1122453",
-   "slug": "elon-musk-of-tweets-october-6-october-13-2026",
-   "titleJa": "経済・市場予測: Elon Musk # tweets October 6 - October 13, 2026?: <20?",
-   "category": "economy",
-   "endDate": "2026-10-13T16:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 0,
-    "at": "2026-10-07T00:00:22.000Z",
-    "points": 40,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": false,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": true
-  },
-  {
    "id": "1143493",
    "slug": "ethereum-above-on-october-13-2026",
    "titleJa": "経済・市場予測: Will the price of Ethereum be above $2,200 on October 13?",
@@ -2331,7 +3465,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-12T15:00:24.000Z",
-    "points": 56,
+    "points": 38,
     "usedFallback": false
    },
    "japan": null,
@@ -2352,7 +3486,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-12T15:00:25.000Z",
-    "points": 56,
+    "points": 38,
     "usedFallback": false
    },
    "japan": null,
@@ -2394,7 +3528,7 @@
    "world": {
     "prob": 12,
     "at": "2026-10-11T03:00:25.000Z",
-    "points": 28,
+    "points": 26,
     "usedFallback": false
    },
    "japan": null,
@@ -2415,7 +3549,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-11T12:00:43.000Z",
-    "points": 48,
+    "points": 25,
     "usedFallback": false
    },
    "japan": null,
@@ -2436,7 +3570,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-11T12:00:39.000Z",
-    "points": 55,
+    "points": 29,
     "usedFallback": false
    },
    "japan": null,
@@ -2457,7 +3591,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-11T03:00:22.000Z",
-    "points": 57,
+    "points": 26,
     "usedFallback": false
    },
    "japan": null,
@@ -2478,7 +3612,7 @@
    "world": {
     "prob": 0,
     "at": "2026-10-11T03:00:30.000Z",
-    "points": 53,
+    "points": 23,
     "usedFallback": false
    },
    "japan": null,
@@ -2541,7 +3675,7 @@
    "world": {
     "prob": 99,
     "at": "2026-10-10T12:00:36.000Z",
-    "points": 57,
+    "points": 22,
     "usedFallback": false
    },
    "japan": null,
@@ -2562,7 +3696,7 @@
    "world": {
     "prob": 100,
     "at": "2026-10-10T12:00:27.000Z",
-    "points": 57,
+    "points": 22,
     "usedFallback": false
    },
    "japan": null,
@@ -2583,7 +3717,7 @@
    "world": {
     "prob": 25,
     "at": "2026-10-12T06:00:27.000Z",
-    "points": 43,
+    "points": 35,
     "usedFallback": false
    },
    "japan": null,
@@ -2604,12 +3738,117 @@
    "world": {
     "prob": 100,
     "at": "2026-10-09T12:00:43.000Z",
-    "points": 57,
+    "points": 14,
     "usedFallback": false
    },
    "japan": null,
    "japanVotes": 0,
    "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1124990",
+   "slug": "ethereum-above-on-october-10-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $2,200 on October 10?",
+   "category": "economy",
+   "endDate": "2026-10-10T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-09T12:00:29.000Z",
+    "points": 14,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1119675",
+   "slug": "ethereum-above-on-october-9-2026",
+   "titleJa": "経済・市場予測: Will the price of Ethereum be above $2,200 on October 9?",
+   "category": "economy",
+   "endDate": "2026-10-09T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-09T09:00:53.000Z",
+    "points": 5,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "1119679",
+   "slug": "bitcoin-above-on-october-9-2026",
+   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $76,000 on October 9?",
+   "category": "economy",
+   "endDate": "2026-10-09T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 100,
+    "at": "2026-10-09T09:00:31.000Z",
+    "points": 6,
+    "usedFallback": true
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": true,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": false,
+   "isDegenerate": true
+  },
+  {
+   "id": "215871",
+   "slug": "mlb-2026-national-league-champion",
+   "titleJa": "MLB公式戦: Will Atlanta Braves win the 2026 National League Championship Series? 勝敗予測",
+   "category": "sports",
+   "endDate": "2026-12-01T04:59:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 7,
+    "at": "2026-10-07T03:00:28.000Z",
+    "points": 51,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
+   "worldCorrect": true,
+   "japanCorrect": null,
+   "isSports": true,
+   "isDegenerate": false
+  },
+  {
+   "id": "1122453",
+   "slug": "elon-musk-of-tweets-october-6-october-13-2026",
+   "titleJa": "経済・市場予測: Elon Musk # tweets October 6 - October 13, 2026?: <20?",
+   "category": "economy",
+   "endDate": "2026-10-13T16:00:00+00:00",
+   "subject": "Yes",
+   "world": {
+    "prob": 0,
+    "at": "2026-10-07T00:00:22.000Z",
+    "points": 40,
+    "usedFallback": false
+   },
+   "japan": null,
+   "japanVotes": 0,
+   "happened": false,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,
@@ -2637,27 +3876,6 @@
    "isDegenerate": false
   },
   {
-   "id": "1124990",
-   "slug": "ethereum-above-on-october-10-2026",
-   "titleJa": "経済・市場予測: Will the price of Ethereum be above $2,200 on October 10?",
-   "category": "economy",
-   "endDate": "2026-10-10T16:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 100,
-    "at": "2026-10-09T12:00:29.000Z",
-    "points": 57,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": true,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": true
-  },
-  {
    "id": "1101580",
    "slug": "elon-musk-of-tweets-october-2-october-9-2026",
    "titleJa": "経済・市場予測: Elon Musk # tweets October 2 - October 9, 2026?: <20?",
@@ -2673,48 +3891,6 @@
    "japan": null,
    "japanVotes": 0,
    "happened": false,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": true
-  },
-  {
-   "id": "1119675",
-   "slug": "ethereum-above-on-october-9-2026",
-   "titleJa": "経済・市場予測: Will the price of Ethereum be above $2,200 on October 9?",
-   "category": "economy",
-   "endDate": "2026-10-09T16:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 99,
-    "at": "2026-10-08T15:00:45.000Z",
-    "points": 55,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": true,
-   "worldCorrect": true,
-   "japanCorrect": null,
-   "isSports": false,
-   "isDegenerate": false
-  },
-  {
-   "id": "1119679",
-   "slug": "bitcoin-above-on-october-9-2026",
-   "titleJa": "経済・市場予測: Will the price of Bitcoin be above $76,000 on October 9?",
-   "category": "economy",
-   "endDate": "2026-10-09T16:00:00+00:00",
-   "subject": "Yes",
-   "world": {
-    "prob": 100,
-    "at": "2026-10-08T15:00:26.000Z",
-    "points": 57,
-    "usedFallback": false
-   },
-   "japan": null,
-   "japanVotes": 0,
-   "happened": true,
    "worldCorrect": true,
    "japanCorrect": null,
    "isSports": false,

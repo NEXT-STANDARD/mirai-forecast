@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-01",
+ "updatedAt": "2026-11-08",
  "domesticQuota": 8,
  "domesticCategoryCap": 2,
  "categoryWeights": {
@@ -33,7 +33,7 @@
   }
  ],
  "lastTuning": {
-  "date": "2026-11-01",
+  "date": "2026-11-08",
   "skipped": "週の増分票 0票 < 最低 10票（ノイズに適合しない）",
   "changes": [],
   "totalGained": 0,

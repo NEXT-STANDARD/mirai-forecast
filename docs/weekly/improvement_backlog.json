@@ -36,7 +36,7 @@
    "severity": "critical",
    "message": "掲載数が 17件（期待 20件）。リバランスの失敗か DB 異常",
    "firstSeen": "2026-10-21",
-   "lastSeen": "2026-11-01",
+   "lastSeen": "2026-11-08",
    "status": "open",
    "resolution": null
   },
@@ -67,8 +67,8 @@
    "message": "本番 sitemap の銘柄 16件 ≠ DB 掲載 17件。デプロイの停滞か（30分以内の変更なら一過性）",
    "firstSeen": "2026-10-21",
    "lastSeen": "2026-11-01",
-   "status": "open",
-   "resolution": "再発（2026-11-01）。過去: 検知解消（2026-10-25）"
+   "status": "closed",
+   "resolution": "検知解消（2026-11-08）"
   }
  ]
 }
