@@ -36,7 +36,7 @@
    "severity": "critical",
    "message": "掲載数が 17件（期待 20件）。リバランスの失敗か DB 異常",
    "firstSeen": "2026-10-21",
-   "lastSeen": "2026-11-08",
+   "lastSeen": "2026-11-15",
    "status": "open",
    "resolution": null
   },
