@@ -485,8 +485,10 @@ async function prerenderAll() {
       const slug = event.slug || event.id;
       const canonicalUrl = `${SITE_URL}/market/${slug}`;
       const titleJa = event.title_ja || event.title_en || slug;
-      const pageTitle = `【決着・終了】${titleJa} ｜ 未来レーダー`;
-      const description = `【この予測市場は決着・終了しました】${titleJa}。世界の最終予測結果と日本の世論集計アーカイブ。`;
+      // AR-10・AR-16: is_active=false には審査待ちの提案や締切前に外した銘柄も入り、結果を判定した記録も無い。
+      //   「決着・終了」とは書かず、受付を終えたことだけを書く
+      const pageTitle = `【受付終了】${titleJa} ｜ 未来レーダー`;
+      const description = `${titleJa}。この問いは、いまは投票を受け付けていません。結果の判定は記載していません。`;
       const ogImageUrl = `${SITE_URL}/ogp/market/${slug}.png`;
 
       let html = baseHtml;
@@ -523,7 +525,7 @@ async function prerenderAll() {
         "mainEntity": {
           "@type": "Question",
           "name": event.question_ja || event.title_ja || titleJa,
-          "text": `この予測市場は決着・終了しました。`
+          "text": `この問いは、いまは投票を受け付けていません。`
         }
       };
       const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(jsonLd, null, 2)}\n    </script>`;
@@ -531,7 +533,7 @@ async function prerenderAll() {
 
       // N-49: 決着ページにも静的本文と内部リンクを置く（noindex, follow なので follow 先が要る）
       html = injectStaticBody(html, staticBody({
-        h1: `【決着・終了】${titleJa}`,
+        h1: `【受付終了】${titleJa}`,
         lead: description,
         currentPath: `/market/${slug}`,
         links: listedEvents.slice(0, 5).map(e => [`/market/${e.slug || e.id}`, e.title_ja || e.title_en || String(e.slug || e.id)]),
@@ -624,7 +626,7 @@ async function prerenderAll() {
         ['プロトコル規格', 'WebMCP (Model Context Protocol 1.0)'],
         ['対応AI環境', 'Claude Desktop / Cursor / ChatGPT / 自律型エージェント'],
         ['認証方式', '完全オープン（API Key不要・無料）'],
-        ['提供ツール', '世論スプレッド乖離取得 / 銘柄詳細・ディベート論拠 / キーワード横断検索']
+        ['提供ツール', '世論スプレッド乖離取得 / 銘柄詳細（世界の確率と日本の世論） / キーワード横断検索']
       ]
     },
     {
@@ -663,13 +665,12 @@ async function prerenderAll() {
       dir: 'creators',
       h1: '公認インテリジェンス・クリエイター制度 ＆ 独自銘柄エコシステム',
       title: '公認クリエイター制度 ＆ 独自銘柄エコシステム ｜ 未来レーダー',
-      description: '専門家・アナリスト・ジャーナリスト向け公認予測クリエイター制度。独自銘柄の申請基準、3大上場基準、レベニューシェア設計のご案内。',
+      description: '専門家・アナリスト・ジャーナリスト向け公認予測クリエイター制度と、独自銘柄の申請基準のご案内（申請の受付は現在停止中）。',
       canonical: `${SITE_URL}/creators`,
       facts: [
         ['制度ランク', '公認フェロー（招待制）／ 認定クリエイター（審査制）／ 一般観測者'],
         ['3大上場基準', '1.客観的オラクルURL 2.問いの中立性 3.公共性・非誹謗中傷'],
-        ['レベニューシェア', '広告スポンサー収益の最大60%をクリエイターへ還元（2026年秋〜）'],
-        ['法令遵守', '総務省届出電気通信事業者 Ａ－０８－２４２３７']
+        ['申請の受付', '現在停止中']
       ]
     },
     {
@@ -869,6 +870,18 @@ async function prerenderAll() {
     }
   ];
 
+  // AR-34: 記事ソースから更新日と出典を取り出す（記事ソースを唯一の正とする）
+  const readGuideMeta = (sourceFile) => {
+    const abs = path.join(ROOT, sourceFile);
+    if (!fs.existsSync(abs)) return { updatedAt: null, sources: [] };
+    const src = fs.readFileSync(abs, 'utf-8');
+    const updatedAt = (src.match(/updatedAt:\s*'([^']+)'/) || [])[1] || null;
+    const block = (src.match(/sources:\s*\[([\s\S]*?)\n\s*\],/) || [])[1] || '';
+    const sources = [...block.matchAll(/label:\s*'((?:[^'\\]|\\.)*)',\s*url:\s*'([^']+)'/g)]
+      .map(m => ({ label: m[1].replace(/\\'/g, "'"), url: m[2] }));
+    return { updatedAt, sources };
+  };
+
   // 記事ソースから relatedMarketSlugs を取り出す
   const readRelatedSlugs = (sourceFile) => {
     const abs = path.join(ROOT, sourceFile);
@@ -898,6 +911,11 @@ async function prerenderAll() {
     html = html.replace(/<meta name="twitter:description" content=".*?" \/>/i, `<meta name="twitter:description" content="${escapeHtml(guide.description)}" />`);
     html = html.replace(/<meta name="twitter:url" content=".*?" \/>/i, `<meta name="twitter:url" content="${guide.canonical}" />`);
 
+    const guideMeta = readGuideMeta(guide.sourceFile);
+    if (guideMeta.sources.length === 0) {
+      throw new Error(`❌ 記事 [${guide.slug}] の出典を記事ソースから読めませんでした（AR-34）`);
+    }
+
     // Schema.org Article JSON-LD
     const articleJsonLd = {
       "@context": "https://schema.org",
@@ -922,7 +940,7 @@ async function prerenderAll() {
         }
       },
       "datePublished": guide.publishedAt,
-      "dateModified": guide.publishedAt
+      "dateModified": guideMeta.updatedAt || guide.publishedAt
     };
 
     const jsonLdScript = `<script type="application/ld+json">\n    ${JSON.stringify(articleJsonLd, null, 2)}\n    </script>`;
@@ -944,6 +962,13 @@ async function prerenderAll() {
     <main class="prerender-guide-shell" style="max-width:800px;margin:0 auto;padding:24px;font-family:sans-serif;">
       <h1>${escapeHtml(guide.title)}</h1>
       <p>${escapeHtml(guide.description)}</p>
+      <p>公開 ${escapeHtml(guide.publishedAt)}${guideMeta.updatedAt ? ` ／ 更新 ${escapeHtml(guideMeta.updatedAt)}` : ''}</p>
+      <section style="margin-top:24px;">
+        <h2>出典</h2>
+        <ul>
+          ${guideMeta.sources.map(s => `<li><a href="${escapeHtml(s.url)}" rel="noopener">${escapeHtml(s.label)}</a></li>`).join('\n          ')}
+        </ul>
+      </section>
       <section style="margin-top:24px;">
         <h2>注目のリアルタイム観測銘柄</h2>
         <ul>

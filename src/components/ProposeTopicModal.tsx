@@ -257,7 +257,7 @@ export const ProposeTopicModal: React.FC<ProposeTopicModalProps> = ({ isOpen, on
             {/* 提案者名（任意） */}
             <div className="form-group">
               <label className="form-label">
-                <span>提案者のお名前またはXアカウント名（任意）</span>
+                <span>提案者のお名前またはXアカウント名（任意・入力すると公開されます）</span>
                 <span className="optional-tag">任意</span>
               </label>
               <input

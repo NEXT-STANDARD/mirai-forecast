@@ -831,8 +831,8 @@ async function checkDbAndPhase0() {
       if (!html.includes('content="noindex, follow"')) {
         closedArchiveFails.push(`決着済み銘柄 [${slug}] に noindex, follow メタタグが存在しません`);
       }
-      if (!html.includes('【決着・終了】')) {
-        closedArchiveFails.push(`決着済み銘柄 [${slug}] の og:title に【決着・終了】プレフィックスが存在しません`);
+      if (!html.includes('【受付終了】')) {
+        closedArchiveFails.push(`決着済み銘柄 [${slug}] の og:title に【受付終了】プレフィックスが存在しません`);
       }
     }
   }
@@ -1077,7 +1077,7 @@ async function checkDbAndPhase0() {
         if (!fs.existsSync(htmlPath)) continue;
         const html = fs.readFileSync(htmlPath, "utf-8");
         const og = (html.match(/<meta property="og:title" content="(.*?)"/) || [, ""])[1];
-        if (og.startsWith("【決着・終了】")) continue;   // アーカイブは対象外
+        if (og.startsWith("【受付終了】")) continue;   // アーカイブは対象外
         checked++;
         let want;
         if (m.framing === "yes")          want = new RegExp(`^【世界の確率 ${m.prob}%】`);
@@ -1121,7 +1121,7 @@ async function checkDbAndPhase0() {
       for (const file of fs.readdirSync(distMarket).filter(f => f.endsWith(".html"))) {
         const html = fs.readFileSync(path.join(distMarket, file), "utf-8");
         const og = (html.match(/<meta property="og:title" content="(.*?)"/) || [, ""])[1];
-        if (og.startsWith("【決着・終了】") || og.includes("【日本世論調査】") || og.includes("【世界観測銘柄】")) continue;
+        if (og.startsWith("【受付終了】") || og.includes("【日本世論調査】") || og.includes("【世界観測銘柄】")) continue;
 
         // 4面それぞれから主語を取り出す（取れなければ null）
         let fromOg = null;

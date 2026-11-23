@@ -80,7 +80,7 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
             </span>
             <span className="flex items-center gap-1 text-slate-400">
               <Calendar size={12} />
-              {guide.publishedAt}
+              公開 {guide.publishedAt}{guide.updatedAt && guide.updatedAt !== guide.publishedAt ? ` ／ 更新 ${guide.updatedAt}` : ''}
             </span>
             <span className="flex items-center gap-1 text-slate-400">
               <Clock size={12} />
@@ -98,7 +98,7 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
 
           <div className="flex items-center gap-2 text-xs text-slate-400 font-mono pt-2">
             <ShieldCheck size={14} className="text-emerald-400" />
-            <span>執筆・監修：{guide.author}</span>
+            <span>執筆：{guide.author}</span>
           </div>
         </header>
 
@@ -148,6 +148,22 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
             </section>
           ))}
         </div>
+
+        {/* AR-34: 出典 */}
+        {guide.sources.length > 0 && (
+          <section className="pt-8 border-t border-cyan-900/60 space-y-3">
+            <h3 className="text-base font-bold text-white">出典</h3>
+            <ul className="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-300">
+              {guide.sources.map((src) => (
+                <li key={src.url}>
+                  <a href={src.url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 underline break-all">
+                    {src.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* 関連観測銘柄への誘導セクション (P1-3) */}
         {relatedMarkets.length > 0 && (

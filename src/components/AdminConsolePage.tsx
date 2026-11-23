@@ -1618,7 +1618,7 @@ export const AdminConsolePage: React.FC<AdminConsolePageProps> = ({
               {bulkAction === 'reject' && selectedArchives.length > 0 && (
                 <p className="text-xs text-amber-300 mb-2">
                   ⚠️ このうち <strong>{selectedArchives.length}件</strong> は決着済みのアーカイブ銘柄です。
-                  削除すると <code>/market/&lt;slug&gt;</code> の「決着・終了」ページも消え、
+                  削除すると <code>/market/&lt;slug&gt;</code> の「受付終了」ページも消え、
                   そのURLは 404 になります（現在は noindex で残しています）。
                 </p>
               )}

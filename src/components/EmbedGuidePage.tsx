@@ -154,10 +154,10 @@ export const EmbedGuidePage: React.FC<EmbedGuidePageProps> = ({ onBack, events, 
         <div className="p-6 rounded-xl bg-[#0b1320] border border-cyan-900/60 shadow-xl space-y-2">
           <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
             <ShieldCheck size={18} className="text-amber-400" />
-            <span>3. 完全無料・商用利用OK・賭博性ゼロ</span>
+            <span>3. 無料・商用利用OK・金銭を賭けない</span>
           </div>
           <p className="text-xs text-slate-400 leading-relaxed">
-            総務省届出事業者（Ａ－０８－２４２３７）による適法な公共情報ポータル。登録不要で商用メディア・ブログでも安心してご利用いただけます。
+            投票は無料で、金銭や換金できるものは賭けていません。登録不要で、商用メディアやブログでも利用できます。
           </p>
         </div>
       </div>

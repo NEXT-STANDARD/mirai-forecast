@@ -114,8 +114,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
               <p className="text-xs text-slate-400 leading-relaxed">運営者に利害関係がなく、オッズや世論を歪めない構造。</p>
             </div>
             <div className="p-5 rounded-xl bg-slate-950/70 border border-cyan-900/40">
-              <span className="text-cyan-400 text-xs font-mono font-bold block mb-1.5">03. 公開オラクル</span>
-              <p className="text-xs text-slate-400 leading-relaxed">決着は公的発表・公式記録に基づいて自動アーカイブ。</p>
+              <span className="text-cyan-400 text-xs font-mono font-bold block mb-1.5">03. 判定しない</span>
+              <p className="text-xs text-slate-400 leading-relaxed">世界の市場の結果は Polymarket が確定し、当サイトはそれを記録するだけ。国内独自の問いの結果判定は行っていません。</p>
             </div>
           </div>
         </section>
@@ -127,7 +127,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">3. 銘柄の「3大上場基準（Listing Triple Standard）」</h2>
           </div>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            無責任なデマ、誹謗中傷、主観的な陰謀論を100%排除するため、当サイトに掲載される全ての銘柄は以下の3基準を厳格にクリアしています。
+            デマや誹謗中傷、主観的な陰謀論を載せないため、掲載する銘柄は次の3つを基準に選んでいます。
           </p>
           <div className="space-y-4">
             <div className="flex items-start gap-4 p-5 rounded-xl bg-slate-950/70 border border-cyan-900/40">
@@ -135,7 +135,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
               <div>
                 <h3 className="font-bold text-white text-base mb-1.5">① 確定的検証性（Verifiable Truth）</h3>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                  決着期日および結果判定に用いる公的ソース（官報・公的統計・決算短信・主催者公式発表）がURLレベルで事前定義されていること。「〇〇は良い人か？」のような主観的テーマは一切採用しません。
+                  期日までに、公的な発表や記録（官報・公的統計・決算短信・主催者の公式発表など）で結果を確かめられる問いであること。「〇〇は良い人か？」のような主観的なテーマは採用しません。なお、国内独自の問いについて、判定に使う情報源を事前に URL で定めて結果を判定する運用は、まだ行っていません。
                 </p>
               </div>
             </div>
@@ -225,8 +225,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onBack, onOpenProposeModal
                   <td className="py-3.5 px-4 text-slate-300">Web3×集合知 非胴元型インテリジェンス・メディア（パブリック・グッズ構想）</td>
                 </tr>
                 <tr>
-                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">準拠法令</th>
-                  <td className="py-3.5 px-4 text-slate-300">電気通信事業法、日本国刑法第185条（賭博の禁止）完全準拠・金銭取引および換金要素なし</td>
+                  <th className="py-3.5 px-4 text-slate-400 font-medium bg-slate-950/60">金銭のやり取り</th>
+                  <td className="py-3.5 px-4 text-slate-300">ありません。投票は無料で、金銭・換金できるポイント等は賭けていません。</td>
                 </tr>
               </tbody>
             </table>

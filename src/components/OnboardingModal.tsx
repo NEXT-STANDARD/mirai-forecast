@@ -70,10 +70,6 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                   <Zap size={13} className="text-cyan-400" />
                   <span>Polymarket データ完全連動</span>
                 </div>
-                <div className="feature-pill">
-                  <Sparkles size={13} className="text-amber-400" />
-                  <span>Gemini 3.8 Flash カタリスト分析</span>
-                </div>
               </div>
             </div>
           )}
@@ -99,7 +95,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({
                 </div>
                 <div className="feature-pill green">
                   <CheckCircle2 size={13} className="text-emerald-400" />
-                  <span>公職選挙法第138条の3 遵守設計</span>
+                  <span>国内選挙の当落は扱いません</span>
                 </div>
               </div>
             </div>

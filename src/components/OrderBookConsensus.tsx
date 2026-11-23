@@ -165,9 +165,9 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
         <div className="election-blackout-banner opacity-80">
           <div className="blackout-icon">🏁</div>
           <div className="blackout-text">
-            <strong>投票受付終了（判定結果確定・アーカイブ）</strong>
+            <strong>投票受付終了</strong>
             <p>
-              このテーマは対象期日（{event.endDate ? event.endDate.split('T')[0] : ''}）を満了したため、新たな世論投票の受付を終了しました。世界のオッズ推移および事前分析の記録を閲覧いただけます。
+              このテーマは対象期日（{event.endDate ? event.endDate.split('T')[0] : ''}）を過ぎたため、新たな投票の受付を終了しました。これまでの確率の推移と投票の集計は引き続き閲覧できます。
             </p>
           </div>
         </div>
@@ -258,7 +258,7 @@ export const OrderBookConsensus: React.FC<OrderBookConsensusProps> = ({
       {/* 免責ポリシー */}
       <div className="terminal-compliance-note">
         <ShieldCheck size={13} />
-        <span>非ベッティング・公選法配慮済み世論インテリジェンス</span>
+        <span>無料の世論投票（金銭は賭けません）</span>
       </div>
     </div>
   );

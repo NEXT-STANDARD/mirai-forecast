@@ -14,7 +14,6 @@ import {
   Scale,
   Compass,
   FileCheck2,
-  Percent,
   Check,
   Share2,
   Mail,
@@ -50,13 +49,18 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
     window.scrollTo(0, 0);
     applySeoMetadata({
       title: '公認クリエイター制度 ＆ 独自銘柄エコシステム ｜ 未来レーダー',
-      description: '専門家・アナリスト・ジャーナリスト向け公認予測クリエイター制度。独自銘柄の申請基準、3大上場基準、レベニューシェア設計のご案内。',
+      description: '専門家・アナリスト・ジャーナリスト向け公認予測クリエイター制度と、独自銘柄の申請基準のご案内（申請の受付は現在停止中）。',
       canonicalUrl: 'https://mirairadar.com/creators',
       ogType: 'article',
     });
   }, []);
 
+  // 申請はいま受け付けていない。申請者の氏名・メールが、誰でも読める events テーブル（question_en）に
+  // 書き込まれる作りになっていたため（AR-31）。非公開の保存先と通知ができるまで止める
+  const APPLICATIONS_OPEN = false;
+
   const isFormValid =
+    APPLICATIONS_OPEN &&
     contributor.trim().length >= 2 &&
     contactEmail.trim().includes('@') &&
     profileUrl.trim().length >= 5 &&
@@ -223,10 +227,6 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
               業界の第一人者として独自銘柄を優先上場。公式特集枠へのピックアップと認証ブルーバッジが付与されます。
             </p>
             <div className="pt-2 border-t border-slate-800 space-y-1.5 text-xs font-mono text-slate-300">
-              <div className="flex items-center gap-2 text-amber-300 font-semibold">
-                <Percent size={13} />
-                <span>最大60% レベニューシェア枠</span>
-              </div>
               <div className="text-slate-400">・即時上場・優先審査ライン</div>
               <div className="text-slate-400">・公式X・メディア特集掲載</div>
             </div>
@@ -243,10 +243,6 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
               特定領域（AI・経済・防衛・スポーツ等）に知見を持つクリエイター。月間最大5本の独自銘柄を上場可能です。
             </p>
             <div className="pt-2 border-t border-slate-800 space-y-1.5 text-xs font-mono text-slate-300">
-              <div className="flex items-center gap-2 text-emerald-300 font-semibold">
-                <Percent size={13} />
-                <span>50% レベニューシェア枠</span>
-              </div>
               <div className="text-slate-400">・認証グリーンバッジ付与</div>
               <div className="text-slate-400">・銘柄ページへ著者クレジット</div>
             </div>
@@ -295,7 +291,7 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
           </h2>
         </div>
         <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-          未来レーダーは総務省届出電気通信事業者（Ａ－０８－２４２３７）として法令を遵守し、中立な公共インテリジェンスを提供します。すべての提案銘柄は以下の厳格な3基準を満たす必要があります。
+          提案いただく問いは、次の3つの基準で審査します。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
@@ -392,6 +388,12 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
             </button>
           </div>
         ) : (
+          <>
+          {!APPLICATIONS_OPEN && (
+            <div className="p-4 rounded-xl bg-amber-950/30 border border-amber-500/50 text-amber-200 text-xs sm:text-sm leading-relaxed">
+              公認クリエイターの申請は、現在受け付けていません。申請内容を安全に保管する仕組みを整えてから再開します。下のフォームは記入例としてご覧ください（送信はできません）。
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 申請者情報 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -600,10 +602,11 @@ export const CreatorsPage: React.FC<CreatorsPageProps> = ({ onBack, onOpenPropos
             >
               <Send size={16} />
               <span>
-                {isSubmitting ? '審査キューへ送信中...' : '公認クリエイター審査へ申請する'}
+                {!APPLICATIONS_OPEN ? '申請の受付は停止中です' : isSubmitting ? '審査キューへ送信中...' : '公認クリエイター審査へ申請する'}
               </span>
             </button>
           </form>
+          </>
         )}
       </div>
 

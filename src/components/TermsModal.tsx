@@ -77,10 +77,10 @@ export const TermsModal: React.FC<TermsModalProps> = ({
               <div>
                 <h4 className="terms-section-title">
                   <AlertCircle size={15} className="text-amber-400" />
-                  <span>第2条（公職選挙法第138条の3の遵守）</span>
+                  <span>第2条（選挙に関する問いの扱い）</span>
                 </h4>
                 <p>
-                  本サービスは、日本国内の国政選挙および地方選挙の公示日から投開票日までの期間中、公職選挙法第138条の3（人気投票の公表の禁止）を厳格に遵守し、特定候補者・政党に関する新たな世論投票の受付を一時停止（ブラックアウト）いたします。
+                  本サービスは、日本国内の国政選挙および地方選挙について、特定の候補者や政党の当落・得票を問う銘柄は、審査で採用せず掲載しない方針です（公職選挙法第138条の3 が禁じる人気投票の公表に当たらないようにするためです）。選挙の期間中に投票の受付を自動で止める仕組みはありません。
                 </p>
               </div>
 
@@ -100,38 +100,79 @@ export const TermsModal: React.FC<TermsModalProps> = ({
             </>
           ) : (
             <>
+              {/* AR-30・AR-31: 実際に保存・送信しているものを書く（2026-11-24 改定）。
+                  項目を増減したら、ここも同時に直すこと */}
               <div>
                 <h4 className="terms-section-title">
                   <Lock size={15} className="text-emerald-400" />
-                  <span>1. 取得する情報および利用目的</span>
+                  <span>1. 当社が保存する情報と利用目的</span>
                 </h4>
-                <p>本サービスでは、サービスの改善、アクセス解析、および世論集計の正確性向上のため、以下の情報を取得する場合があります：</p>
                 <ul className="terms-list">
-                  <li><strong>投票ログ</strong>: 選択肢（YES/NO）、投票日時、対象銘柄ID（統計集計目的）</li>
-                  <li><strong>アクセス情報</strong>: IPアドレス、ブラウザ種別、リファラ、アクセス日時（Google Analytics 4 経由）</li>
-                  <li><strong>端末設定</strong>: LocalStorageによる投票履歴・称号ランク・連続観測日数のローカル保持</li>
+                  <li>
+                    <strong>投票の記録</strong>（クラウドデータベース Supabase に保存）: 選んだ選択肢（YES/NO）、投票日時、対象の銘柄、端末の種類（スマートフォン／パソコンの別）、
+                    参照元のページの URL（リファラ）、重複投票を防ぐための識別子（ブラウザに保存した乱数と銘柄から作るもので、氏名やメールアドレスは含みません）。
+                    利用目的は、世論の集計と表示、重複投票の防止、サービスの改善です。
+                    集計に使うため、投票の記録（上の各項目）は、このサイトのデータ公開の仕組みを通じて誰でも読める状態にあります。
+                  </li>
+                  <li>
+                    <strong>銘柄の提案</strong>: 提案フォームに入力した内容（問い、締切、判定に使う情報源、背景、任意で入力した提案者名）。審査と掲載のために使い、入力した内容は公開されます。
+                  </li>
+                  <li>
+                    <strong>ブラウザ内の保存</strong>（LocalStorage）: 投票済みの銘柄、称号ランク、連続観測日数など。お使いのブラウザの中だけに保存され、当社には送られません。
+                  </li>
+                </ul>
+                <p style={{ marginTop: '0.4rem', color: '#8a96a8' }}>
+                  公認クリエイターの申請（氏名・メールアドレス等の入力）は、現在受け付けていません。
+                </p>
+              </div>
+
+              <div>
+                <h4 className="terms-section-title">2. 外部への送信（利用者情報の外部送信）</h4>
+                <p>本サービスのページを開くと、次の事業者へ、お使いの端末から情報が送信されます。</p>
+                <ul className="terms-list">
+                  <li>
+                    <strong>Google アナリティクス 4</strong>（送信先: Google LLC）: 閲覧したページの URL、参照元、端末・ブラウザの種類、おおよその地域、Cookie による識別子、IP アドレスなど。
+                    利用目的は、アクセス状況の把握とサービスの改善です。
+                    Google によるデータの扱いは <a href="https://policies.google.com/technologies/partner-sites?hl=ja" target="_blank" rel="noopener noreferrer">Google のサイトでの説明</a> を、
+                    送信を止めたい場合は <a href="https://tools.google.com/dlpage/gaoptout?hl=ja" target="_blank" rel="noopener noreferrer">Google アナリティクス オプトアウト アドオン</a> をご覧ください。
+                  </li>
+                  <li>
+                    <strong>Cloudflare Web Analytics</strong>（送信先: Cloudflare, Inc.）: 閲覧したページの URL、参照元、ページの読み込み時間などの性能情報、端末・ブラウザの種類。
+                    利用目的は、アクセス状況と表示速度の把握です。Cookie は使いません。
+                    詳しくは <a href="https://www.cloudflare.com/ja-jp/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare のプライバシーポリシー</a> をご覧ください。
+                  </li>
+                  <li>
+                    <strong>表示に必要な取得</strong>: 確率データ（Polymarket）、投票の集計（Supabase）、画像やフォントの配信元から、表示のためにデータを取得します。
+                    その際、通常の通信と同じく、IP アドレスやブラウザの種類がそれぞれの事業者に伝わります。
+                  </li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="terms-section-title">2. Cookie、ローカルストレージおよびクラウドインフラの利用</h4>
+                <h4 className="terms-section-title">3. 第三者提供</h4>
                 <p>
-                  本サービスは、利用者の投票状態の保持およびGoogle Analyticsによる利用状況分析のためにCookieおよびブラウザのローカルストレージ（LocalStorage）を利用しています。また、投票集計データはクラウドデータベース（Supabase）に匿名化された状態で安全に同期されます。
+                  当社は、法令に基づく場合を除き、本人の同意なく個人データを第三者に提供しません。上の「外部への送信」は、各事業者のサービスを利用するためのものです。
                 </p>
               </div>
 
               <div>
-                <h4 className="terms-section-title">3. 第三者提供の制限</h4>
+                <h4 className="terms-section-title">4. 開示等の請求・お問い合わせ窓口</h4>
                 <p>
-                  当運営は、法令に基づく開示要請がある場合を除き、利用者の個人を特定できる情報を事前の同意なく第三者に提供することはありません。
+                  保有する個人データの開示・訂正・利用停止等のご請求、苦情、その他のお問い合わせは、下記の運営者までご連絡ください。ご本人であることを確認したうえで、法令に従って対応します。
                 </p>
+                <ul className="terms-list">
+                  <li>運営者: ＤＥＬＩＣＩＯＵＳ株式会社（代表取締役 大山 圭太）</li>
+                  <li>所在地: 〒104-0061 東京都中央区銀座１丁目１５番４号 ヒューリック銀座一丁目昭和通りビル７階（郵送）</li>
+                  <li>X: <a href="https://x.com/MiraiRadar" target="_blank" rel="noopener noreferrer">@MiraiRadar</a></li>
+                </ul>
               </div>
 
               <div>
-                <h4 className="terms-section-title">4. プライバシーポリシーの改定および運営情報</h4>
+                <h4 className="terms-section-title">5. 安全管理と改定</h4>
                 <p>
-                  本ポリシーは法令の改正およびサービス改善に伴い改定されることがあります。運営主体：ＤＥＬＩＣＩＯＵＳ株式会社（届出電気通信事業者：Ａ－０８－２４２３７、所在地：東京都中央区銀座１丁目１５番４号ヒューリック銀座一丁目昭和通りビル７階）。お問い合わせは公開書簡ページ記載の窓口までご連絡ください。
+                  当社は、取り扱う情報の漏えい等を防ぐため、保存先へのアクセス権限の管理など必要な措置を講じます。本ポリシーは、法令の改正やサービスの変更に伴い改定することがあります。
                 </p>
+                <p style={{ marginTop: '0.4rem', color: '#8a96a8' }}>2026年11月24日 改定</p>
               </div>
             </>
           )}

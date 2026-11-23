@@ -22,6 +22,17 @@ import { OrderBookConsensus } from './OrderBookConsensus';
 import { NativeSponsorCard } from './NativeSponsorCard';
 import type { MarketItem } from '../types';
 import { applySeoMetadata } from '../utils/seoHelper';
+import { isDomesticEvent } from '../utils/polymarketOddsResolver';
+
+// AR-32: コメントは保存されず（画面の状態に積むだけ）、再読み込みで消えるので、保存の仕組みができるまで欄を出さない
+const COMMENTS_ENABLED = false;
+
+/** AR-9: 国内独自の問いを誰が立てたか。ID の接頭辞で分かる（council=生成AIの案、proposal=利用者の提案） */
+const domesticOriginNote = (id: string): string => {
+  if (id.startsWith('council-')) return '生成AIが案を作り、運営が審査して掲載した問いです。';
+  if (id.startsWith('proposal-')) return '利用者から提案され、運営が審査して掲載した問いです。';
+  return '未来レーダーの運営が立てた問いです。';
+};
 
 interface MarketDetailPageProps {
   item: MarketItem;
@@ -100,7 +111,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
         "url": canonicalUrl,
         "mainEntity": {
           "@type": "Question",
-          "name": item.question || item.titleJa,
+          "name": isDomesticEvent(item.id) ? item.titleJa : (item.question || item.titleJa),
           "suggestedAnswer": [
             {
               "@type": "Answer",
@@ -309,7 +320,8 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             return (
               <div className="detail-title-block">
                 <h1 className="detail-main-title">{item.titleJa}</h1>
-                <p className="detail-sub-question">{item.question}</p>
+                {/* AR-9: 国内銘柄の question には生成スクリプトのメモ（評議会のスコアや起案者）が入っているので出さない */}
+                {!isDomesticEvent(item.id) && <p className="detail-sub-question">{item.question}</p>}
               </div>
             );
           }
@@ -485,14 +497,15 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
             />
           </div>
 
-          {/* 💡 Gemini 3.8 Flash 深層カタリスト日程分析 */}
+          {/* 💡 AI 解説（AR-9: 事前に用意したデータがある銘柄だけ。以前は固定文を「リアルタイム分析」として全銘柄に出していた） */}
+          {item.aiInsight && (
           <div className="detail-section-card catalyst-card">
             <div className="section-card-header">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-cyan-400" />
                 <h3 className="section-card-title">AI知性カタリスト分析</h3>
               </div>
-              <span className="badge-ai-model">Gemini 3.8 Flash リアルタイム分析</span>
+              <span className="badge-ai-model">{item.aiInsight.lastUpdated || 'AI による事前の解説'}</span>
             </div>
 
             <div className="catalyst-content-body">
@@ -504,7 +517,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                     <span>市場コンセンサス・心理サマリー</span>
                   </h4>
                   <p className="catalyst-summary-text">
-                    {item.aiInsight?.summaryJa || '世界最大の予測市場におけるスマートマネーのリアルタイム織り込み状況を観測中。'}
+                    {item.aiInsight.summaryJa}
                   </p>
                 </div>
 
@@ -514,12 +527,13 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                     <span>なぜこの確率・世論になっているのか（主要因）</span>
                   </h4>
                   <p className="catalyst-why-text">
-                    {item.aiInsight?.whyMovedJa || '直近の報道やマクロ指標、関係者発言を受けた価格形成要因を分析。'}
+                    {item.aiInsight.whyMovedJa}
                   </p>
                 </div>
               </div>
 
-              {/* ⚔️ Gemini 3.8 知的ディベート対比（YES論拠 vs NO論拠） */}
+              {/* ⚔️ 両論の対比（両方のデータがあるときだけ） */}
+              {item.aiInsight.bullCaseJa && item.aiInsight.bearCaseJa && (
               <div className="ai-debate-section mt-3 pt-4 border-t border-slate-800/80">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 min-w-0 flex-wrap">
@@ -539,7 +553,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                       </span>
                     </div>
                     <p className="debate-card-text">
-                      {item.aiInsight?.bullCaseJa || `${item.titleJa} に関して、市場の先行指標や直近のモメンタム、関係機関の積極姿勢を織り込み、スマートマネーが強気な買いを入れている背景が存在します。`}
+                      {item.aiInsight.bullCaseJa}
                     </p>
                   </div>
 
@@ -554,25 +568,28 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
                       </span>
                     </div>
                     <p className="debate-card-text">
-                      {item.aiInsight?.bearCaseJa || `締切日までの時間的猶予、法規制や地政学リスク、および突発的なサプライズ懸念により、一定数のクォンツ勢が下振れリスクを警戒しています。`}
+                      {item.aiInsight.bearCaseJa}
                     </p>
                   </div>
                 </div>
 
                 {/* ⚖️ 争点・対立軸の総括 */}
+                {item.aiInsight.debateSummaryJa && (
                 <div className="debate-summary-box mt-3">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-amber-300 mb-1">
                     <span>⚖️</span>
                     <span>最大の争点・勝負の分かれ目</span>
                   </div>
                   <p className="debate-summary-text">
-                    {item.aiInsight?.debateSummaryJa || `今後のカタリスト日程（公式発表や重要指標）における数値が市場予測を上回るかどうかが、確率の急変トリガーとなります。`}
+                    {item.aiInsight.debateSummaryJa}
                   </p>
                 </div>
+                )}
               </div>
+              )}
 
               {/* 🕒 次回注目カタリスト日程（確率変動トリガー） */}
-              {item.aiInsight?.keyCatalysts && item.aiInsight.keyCatalysts.length > 0 && (
+              {item.aiInsight.keyCatalysts && item.aiInsight.keyCatalysts.length > 0 && (
                 <div className="catalyst-timeline-block mt-5 pt-4 border-t border-slate-800/80">
                   <h4 className="catalyst-timeline-title mb-2.5">
                     <Clock size={15} className="text-amber-400 shrink-0" />
@@ -590,47 +607,80 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               )}
             </div>
           </div>
+          )}
 
           {/* 💎 Phase 3: コンテクスト連動型 ネイティブ・スポンサーシップ */}
           <NativeSponsorCard item={item} variant="detail" />
 
-          {/* 📜 判定基準・公式ルール (Polymarket Resolution Rules) */}
+          {/* 📜 判定基準（AR-9・AR-10: UMA と汎用の情報源の定型文は、Polymarket の銘柄にだけ出す。
+              国内独自の銘柄には判定の仕組みが無いので、無いと書く） */}
+          {isDomesticEvent(item.id) ? (
           <div className="detail-section-card rules-card">
             <div className="section-card-header">
               <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
                 <FileText className="text-cyan-400 w-5 h-5 flex-shrink-0" />
-                <h3 className="section-card-title">公式判定ルール ＆ 情報源（Resolution Rules）</h3>
+                <h3 className="section-card-title">この問いについて</h3>
               </div>
-              <span className="badge-oracle">UMA Optimistic Oracle 準拠</span>
+            </div>
+            <div className="rules-content-body">
+              <div className="rule-item">
+                <p>
+                  {domesticOriginNote(String(item.id))}世界の予測市場（Polymarket）には対応する市場が無いため、世界の確率はありません。
+                  表示しているのは、このサイトで集めた日本の投票の集計だけです。
+                </p>
+              </div>
+              <div className="rule-item">
+                <strong>結果の判定:</strong>
+                <p>
+                  締切（{item.endDate ? item.endDate.split('T')[0] : '未定'}）の後に結果を判定して記録する仕組みは、いまはありません。締切を過ぎると投票の受付を終えます。
+                </p>
+              </div>
+              <div className="rule-compliance-note">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>
+                  投票は無料で、金銭や換金できるものは賭けていません。
+                </span>
+              </div>
+            </div>
+          </div>
+          ) : (
+          <div className="detail-section-card rules-card">
+            <div className="section-card-header">
+              <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
+                <FileText className="text-cyan-400 w-5 h-5 flex-shrink-0" />
+                <h3 className="section-card-title">判定ルール（Polymarket）</h3>
+              </div>
             </div>
 
             <div className="rules-content-body">
               <div className="rule-item">
-                <strong>判定基準（Criteria）:</strong>
+                <strong>判定基準（要約）:</strong>
                 <p>
                   {subjectNote(item)
-                    ? `公式締切日（${item.endDate}）までに「${item.question}」が公式機関によって確定されます。表示している確率は「${framingOf(item).subject}」が結果になる確率で、この市場は YES/NO の二値ではありません。`
-                    : `公式締切日（${item.endDate}）までに、質問文「${item.question}」が公式機関によって公式に確認された場合、YESとして判定（Resolution）されます。それ以外の場合はNOとして決済されます。`}
+                    ? `締切日（${item.endDate ? item.endDate.split('T')[0] : '未定'}）までに「${item.question}」の結果が確定します。表示している確率は「${framingOf(item).subject}」が結果になる確率で、この市場は YES/NO の二値ではありません。`
+                    : `締切日（${item.endDate ? item.endDate.split('T')[0] : '未定'}）までに「${item.question}」が起きたと確認されれば YES、そうでなければ NO として判定されます。`}
                 </p>
               </div>
 
               <div className="rule-item">
-                <strong>公式情報源（Resolution Source）:</strong>
+                <strong>正式なルールと情報源:</strong>
                 <p>
-                  対象分野の公式発表機関（MLB公式、米連邦選挙管理委員会、日銀公式発表、SEC公式文書等）および UMA Optimistic Oracle の検証プロセスに基づきます。
+                  正式な判定条件と情報源は、Polymarket の市場ページに書かれたものに従います。結果は Polymarket が UMA Optimistic Oracle の手続きで確定し、未来レーダーは判定に関わりません。
                 </p>
               </div>
 
               <div className="rule-compliance-note">
                 <ShieldCheck size={14} className="text-emerald-400" />
                 <span>
-                  <strong>法的免責:</strong> 日本国内においては完全無料の意識調査・オルタナティブデータとして提供されており、金銭のベッティング行為は一切行われません。
+                  未来レーダーでの投票は無料で、金銭や換金できるものは賭けていません。Polymarket の確率は閲覧用に表示しているだけです。
                 </span>
               </div>
             </div>
           </div>
+          )}
 
           {/* 💬 日本のコミュニティ議論 ＆ 直感コメント欄 */}
+          {COMMENTS_ENABLED && (
           <div className="detail-section-card comments-card">
             <div className="section-card-header">
               <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
@@ -677,6 +727,7 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
               )}
             </div>
           </div>
+          )}
         </div>
 
         {/* 右カラム (35%): 世論板 ＆ ワンクリック投票 ＆ Xシェア ＆ 関連銘柄 */}

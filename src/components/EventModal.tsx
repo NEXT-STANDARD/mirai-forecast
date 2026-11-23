@@ -4,6 +4,10 @@ import type { MarketItem } from '../types';
 import { X, Sparkles, Share2, MessageSquare, ShieldCheck, CheckCircle2 } from 'lucide-react';
 import { TerminalChart } from './TerminalChart';
 import { useFocusTrap } from '../utils/useFocusTrap';
+import { isDomesticEvent } from '../utils/polymarketOddsResolver';
+
+// AR-32: コメントは保存されず（画面の状態に積むだけ）、再読み込みで消えるので、保存の仕組みができるまで欄を出さない
+const COMMENTS_ENABLED = false;
 
 interface EventModalProps {
   item: MarketItem | null;
@@ -66,9 +70,12 @@ export const EventModal: React.FC<EventModalProps> = ({
         {/* タイトルと元の問い */}
         <div className="modal-body-scroll">
           <h2 className="modal-title">{item.titleJa}</h2>
+          {/* AR-9: 国内銘柄の question には生成スクリプトのメモが入っているので出さない */}
+          {!isDomesticEvent(item.id) && (
           <p className="modal-question-en">
             <strong>Original Question:</strong> {item.question}
           </p>
+          )}
 
           {/* 株価ターミナル風 高機能インタラクティブチャート */}
           <TerminalChart
@@ -136,7 +143,7 @@ export const EventModal: React.FC<EventModalProps> = ({
             <div className="modal-ai-section">
               <div className="ai-section-title">
                 <Sparkles size={16} className="sparkle-icon" />
-                <span>AIによる変動要因＆背景分析（Gemini 3.8 Flash）</span>
+                <span>AI による事前の解説</span>
               </div>
               <p className="ai-summary">{item.aiInsight.summaryJa}</p>
 
@@ -162,7 +169,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           {item.isExpired || (item.endDate && new Date(item.endDate).getTime() < Date.now()) ? (
             <div className="modal-vote-area opacity-80">
               <div className="vote-title-row">
-                <h4 className="font-mono text-slate-400">🏁 投票受付終了（結果確定）</h4>
+                <h4 className="font-mono text-slate-400">🏁 投票受付終了</h4>
               </div>
               <p className="text-xs text-slate-400 mt-1">
                 このテーマは対象期日を満了したため、新たな投票受付を終了しました。
@@ -196,6 +203,7 @@ export const EventModal: React.FC<EventModalProps> = ({
           )}
 
           {/* コメント・考察タイムライン */}
+          {COMMENTS_ENABLED && (
           <div className="modal-comments-section">
             <div className="comments-header">
               <div className="title">
@@ -236,6 +244,7 @@ export const EventModal: React.FC<EventModalProps> = ({
               ))}
             </div>
           </div>
+          )}
 
           {/* 免責事項 */}
           <div className="modal-disclaimer">

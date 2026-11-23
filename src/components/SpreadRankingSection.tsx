@@ -211,7 +211,7 @@ export const SpreadRankingSection: React.FC<SpreadRankingSectionProps> = ({
               {/* 🎯 1タップ即時投票ボタン または 🏛️ 公選法ブラックアウト または 🏁 締切終了 */}
               {event.isExpired || (event.endDate && new Date(event.endDate).getTime() < Date.now()) ? (
                 <div className="card-blackout-badge opacity-80" onClick={(e) => e.stopPropagation()}>
-                  <span className="text-slate-400 font-mono">🏁 投票受付終了（結果確定）</span>
+                  <span className="text-slate-400 font-mono">🏁 投票受付終了</span>
                 </div>
               ) : event.isElectionBlackout ? (
                 <div className="card-blackout-badge" onClick={(e) => e.stopPropagation()}>

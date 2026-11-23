@@ -48,7 +48,7 @@ export const MobileStickyVoteBar: React.FC<MobileStickyVoteBarProps> = ({
           <div className="sticky-voted-layout">
             <div className="sticky-voted-status">
               <span className="voted-tag bg-slate-800 text-slate-400 border-slate-700 font-mono">
-                🏁 投票受付終了（結果確定）
+                🏁 投票受付終了
               </span>
             </div>
 
