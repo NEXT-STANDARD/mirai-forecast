@@ -984,9 +984,16 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
           if (DRY_RUN) {
             console.log(`🧪 [dry-run] 上位25件外の派生フィールド更新 ${refreshRecords.length}件 を省略しました`);
           } else {
-            const { error: rErr } = await supabase.from('events').upsert(refreshRecords, { onConflict: 'id' });
-            if (rErr) console.error('派生フィールドの更新に失敗:', rErr.message);
-            else console.log(`🔄 上位25件外の有効銘柄 ${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
+            // AR-22: upsert は INSERT … ON CONFLICT なので、送らない NOT NULL 列（slug など）で
+            //   毎回落ちていた（8/23 から一度も成功していない）。既存行だけを触るので行ごとの update にする
+            let refreshed = 0;
+            for (const { id, ...fields } of refreshRecords) {
+              const { error: rErr } = await supabase.from('events').update(fields).eq('id', id);
+              if (rErr) console.error(`派生フィールドの更新に失敗 (${id}):`, rErr.message);
+              else refreshed++;
+            }
+            console.log(`🔄 上位外の有効銘柄 ${refreshed}/${refreshRecords.length}件 の派生フィールド（締切・サブタイトル）を更新`);
+            if (refreshed < refreshRecords.length) process.exitCode = 1;
           }
         } else {
           console.log('🔄 上位25件外の有効銘柄：更新が必要な派生フィールドはありませんでした');
