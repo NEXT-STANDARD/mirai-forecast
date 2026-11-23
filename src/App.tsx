@@ -156,7 +156,17 @@ export function App() {
   const [userVotes, setUserVotes] = useState<Record<string, 'YES' | 'NO'>>(() => {
     try {
       const saved = localStorage.getItem('mirairadar_user_votes');
-      return saved ? JSON.parse(saved) : {};
+      if (!saved) return {};
+      // AR-13: 詳細ページの投票は choice の位置に銘柄IDを入れていたため、
+      //   { 銘柄ID: 銘柄ID } が保存され、その銘柄に二度と投票できなくなっていた。
+      //   YES/NO 以外の値はここで捨て、投票できる状態に戻す。
+      const parsed: unknown = JSON.parse(saved);
+      if (!parsed || typeof parsed !== 'object') return {};
+      return Object.fromEntries(
+        Object.entries(parsed as Record<string, unknown>).filter(
+          (entry): entry is [string, 'YES' | 'NO'] => entry[1] === 'YES' || entry[1] === 'NO'
+        )
+      );
     } catch {
       return {};
     }

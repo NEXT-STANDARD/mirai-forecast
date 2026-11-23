@@ -685,7 +685,9 @@ export const MarketDetailPage: React.FC<MarketDetailPageProps> = ({
           <OrderBookConsensus
             event={item}
             userVote={userVote}
-            onVote={(choice: 'YES' | 'NO') => onVote(item.id, choice)}
+            // AR-13: OrderBookConsensus は onVote(event.id, choice) と2引数で呼ぶ。
+            //   以前は1引数の関数を渡しており、choice の位置に銘柄IDが入って票が記録されなかった
+            onVote={onVote}
             onOpenShare={() => onOpenShare(item)}
           />
 
