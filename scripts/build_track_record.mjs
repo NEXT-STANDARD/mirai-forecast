@@ -95,11 +95,11 @@ function closeTimeOf(market) {
 }
 
 /** 決着の LOOKBACK_MS 前の価格を「最後の予測」として取り出す。 */
-async function lastForecast(clobTokenId, closeMs = null) {
+async function lastForecast(clobTokenId, closeMs = null, allowWindow = RESCORE_CLOSED) {
   if (!clobTokenId) return null;
   let hist = await fetchHistory(`market=${clobTokenId}&interval=max&fidelity=180`);
   // AR-4: 決着済みトークンは interval=max が空。明示したときだけ期間指定で取り直す
-  if (!hist && RESCORE_CLOSED && closeMs) {
+  if (!hist && allowWindow && closeMs) {
     const endTs = Math.floor(closeMs / 1000);
     const startTs = Math.floor((closeMs - RESCORE_WINDOW_MS) / 1000);
     hist = await fetchHistory(`market=${clobTokenId}&startTs=${startTs}&endTs=${endTs}&fidelity=180`);
@@ -136,6 +136,13 @@ async function main() {
   const records = [];
   const skipped = { api: 0, unresolved: 0, noHistory: 0, noMarket: 0, noTarget: 0 };
 
+  // まだ公開記録に無い銘柄（新しく決着したもの）は、期間指定で履歴を取ってよい。
+  // 既存の記録は --rescore-closed を付けたときだけ取り直す（公開記録を黙って書き換えない）
+  let publishedIds = new Set();
+  try {
+    if (fs.existsSync(OUT)) publishedIds = new Set((JSON.parse(fs.readFileSync(OUT, 'utf-8')).records || []).map(r => String(r.id)));
+  } catch {}
+
   for (const e of closed) {
     if (!/^\d+$/.test(String(e.id))) { skipped.api++; continue; }
     let ev;
@@ -155,7 +162,8 @@ async function main() {
     if (!outcome) { skipped.unresolved++; continue; }
 
     const tok = parseJson(market.clobTokenIds);
-    const forecast = await lastForecast(Array.isArray(tok) ? tok[0] : null, closeTimeOf(market));
+    const closeMs = closeTimeOf(market);
+    const forecast = await lastForecast(Array.isArray(tok) ? tok[0] : null, closeMs, RESCORE_CLOSED || !publishedIds.has(String(e.id)));
     if (!forecast) { skipped.noHistory++; continue; }
 
     const jp = votes[e.id];
@@ -171,6 +179,8 @@ async function main() {
       subject: (outcome.subject && !/^yes$/i.test(outcome.subject)) ? outcome.subject
         : ((markets.length > 1 ? (market.groupItemTitle || '').trim() : '') || outcome.subject || null),
       marketId: market.id ? String(market.id) : null,
+      // 実際に決着（取引終了）した時刻。endDate は DB の締切で、期限前に決着する銘柄とずれる（週次のまとめはこちらを使う）
+      closedAt: closeMs ? new Date(closeMs).toISOString() : null,
       world: { prob: forecast.prob, at: forecast.at, points: forecast.points, usedFallback: forecast.usedFallback },
       japan: jpUsable ? { prob: Math.round((jp.yes / jp.total) * 100), n: jp.total } : null,
       japanVotes: jp ? jp.total : 0,

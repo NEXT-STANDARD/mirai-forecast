@@ -1,18 +1,36 @@
-name: MiraiRadar Weekly Award & MVP Bot
+name: MiraiRadar Weekly Track Record Post
+
+# 週次の答え合わせを X に1本投稿する（scripts/x_weekly_track_record_bot.mjs）。
+# 旧「Weekly Award & MVP Bot」は固定文の作り物の数字を投稿していたため 2026-10-23 に停止し、作り直した（AR-2）。
+#
+# 投稿するのは次の3つがそろったときだけ:
+#   1. 定期実行（月曜 09:00 JST）か、手動実行で post=true を選んだとき
+#   2. リポジトリ変数 WEEKLY_BOT_ENABLED が 'true'（止めるときは変数を false にする。キルスイッチ）
+#   3. 直近7日に決着した予測が1件以上ある
+# 手動実行の既定は「文面を表示するだけ」。
 
 on:
   schedule:
-    # 毎週日曜日 21:00 JST (12:00 UTC)
-    - cron: '0 12 * * 0'
+    # 月曜 00:00 UTC = 09:00 JST。週次観測（日曜 21:10 UTC）が的中記録を更新した後に動かす
+    - cron: '0 0 * * 1'
   workflow_dispatch:
+    inputs:
+      post:
+        description: '実際に投稿する（既定は文面の表示だけ）'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
   issues: write   # AR-7: 失敗の通知を issue で起票する
   actions: read   # 通知に失敗したステップ名を載せる
 
+concurrency:
+  group: weekly-track-record-post
+  cancel-in-progress: false
+
 jobs:
-  weekly-award-tweet:
+  weekly-track-record-post:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -23,24 +41,23 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Japanese Fonts
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y fonts-noto-cjk fonts-ipafont-gothic fonts-vlgothic
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Weekly Award & MVP Announcement Bot
+      - name: Post weekly track record summary
         env:
+          WEEKLY_BOT_ENABLED: ${{ vars.WEEKLY_BOT_ENABLED }}
+          SHOULD_POST: ${{ github.event_name == 'schedule' || inputs.post == true }}
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
           TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
           TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
           TWITTER_ACCESS_SECRET: ${{ secrets.TWITTER_ACCESS_SECRET }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/x_weekly_award_bot.mjs
+        run: |
+          if [ "$SHOULD_POST" = "true" ]; then
+            node scripts/x_weekly_track_record_bot.mjs --post
+          else
+            node scripts/x_weekly_track_record_bot.mjs
+          fi
 
       # AR-7: 失敗を人に届ける
       - name: Notify failure
