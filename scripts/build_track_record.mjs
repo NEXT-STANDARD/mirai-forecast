@@ -10,7 +10,15 @@
  *
  * 【なぜ markets[0] を使わないか】
  *   多肢イベントで markets[0] は任意の1候補にすぎない（N-34）。
- *   どのサブ市場が対象かは resolvePolymarketOdds に判定させる。
+ *   対象のサブ市場は matchTitledMarket（題名が名指ししている候補）で決める。
+ *   以前は resolvePolymarketOdds を使っていたが、決着済みイベントでは対象を返さず
+ *   markets[0] に落ちていた（AR-4：題名と違うサブ市場で採点した記録が公開された）。
+ *   題名から対象を決められない多肢イベントは採点しない（本命は決着後の価格で選ぶと勝者になるため使わない）。
+ *
+ * 【--rescore-closed】
+ *   決着済みトークンは prices-history?interval=max が空を返すため、既存の記録は引き継がれるだけで
+ *   採点し直されない。このフラグを付けたときだけ、決着時刻までの期間（startTs/endTs）で取り直す。
+ *   公開中の記録を書き換えるので、--dry-run で旧→新の差分を確かめてから使う。
  *
  * 【日本世論について】
  *   現時点では決着済み39件のうち n>=3 が 0件のため、日本側は採点できない。
@@ -22,12 +30,16 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
-import { resolvePolymarketOdds } from './resolvePolymarketOdds.mjs';
+import { matchTitledMarket } from './resolvePolymarketOdds.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const OUT = path.resolve(ROOT, 'public', 'data', 'track_record.json');
 const DRY_RUN = process.argv.includes('--dry-run');
+const RESCORE_CLOSED = process.argv.includes('--rescore-closed');
+const DIFF_OUT = (process.argv.find(a => a.startsWith('--diff-out=')) || '').slice('--diff-out='.length) || null;
+// prices-history は期間が長すぎると 400（30日は不可、14日は可を実測）。必要なのは決着の24時間前なので14日で足りる
+const RESCORE_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
 
 const LOOKBACK_MS = 24 * 60 * 60 * 1000;   // 「最後の予測」とみなす時点
 const MIN_VOTES = 3;                        // 日本世論を予測として扱う下限（サイト全体と同じ基準）
@@ -65,13 +77,34 @@ function resolveOutcome(market) {
   };
 }
 
-/** 決着の LOOKBACK_MS 前の価格を「最後の予測」として取り出す。 */
-async function lastForecast(clobTokenId) {
-  if (!clobTokenId) return null;
-  const res = await fetch(`https://clob.polymarket.com/prices-history?market=${clobTokenId}&interval=max&fidelity=180`);
+async function fetchHistory(query) {
+  const res = await fetch(`https://clob.polymarket.com/prices-history?${query}`);
   if (!res.ok) return null;
   const hist = (await res.json())?.history;
-  if (!Array.isArray(hist) || hist.length === 0) return null;
+  return Array.isArray(hist) && hist.length > 0 ? hist : null;
+}
+
+/** サブ市場が決着（取引終了）した時刻。closedTime → umaEndDate → endDate の順に使う。 */
+function closeTimeOf(market) {
+  for (const v of [market?.closedTime, market?.umaEndDate, market?.endDate]) {
+    if (!v) continue;
+    const t = Date.parse(String(v).replace(' ', 'T').replace(/\+00$/, 'Z'));
+    if (!Number.isNaN(t)) return t;
+  }
+  return null;
+}
+
+/** 決着の LOOKBACK_MS 前の価格を「最後の予測」として取り出す。 */
+async function lastForecast(clobTokenId, closeMs = null) {
+  if (!clobTokenId) return null;
+  let hist = await fetchHistory(`market=${clobTokenId}&interval=max&fidelity=180`);
+  // AR-4: 決着済みトークンは interval=max が空。明示したときだけ期間指定で取り直す
+  if (!hist && RESCORE_CLOSED && closeMs) {
+    const endTs = Math.floor(closeMs / 1000);
+    const startTs = Math.floor((closeMs - RESCORE_WINDOW_MS) / 1000);
+    hist = await fetchHistory(`market=${clobTokenId}&startTs=${startTs}&endTs=${endTs}&fidelity=180`);
+  }
+  if (!hist) return null;
 
   const endT = hist[hist.length - 1].t * 1000;
   const cutoff = endT - LOOKBACK_MS;
@@ -101,7 +134,7 @@ async function main() {
   console.log(`決着済み ${closed.length}件 を照会します（決着${LOOKBACK_MS / 3600000}時間前の価格を「最後の予測」とする）`);
 
   const records = [];
-  const skipped = { api: 0, unresolved: 0, noHistory: 0, noMarket: 0 };
+  const skipped = { api: 0, unresolved: 0, noHistory: 0, noMarket: 0, noTarget: 0 };
 
   for (const e of closed) {
     if (!/^\d+$/.test(String(e.id))) { skipped.api++; continue; }
@@ -112,17 +145,17 @@ async function main() {
       ev = await r.json();
     } catch { skipped.api++; continue; }
 
-    // 対象サブ市場は解決器に選ばせる（markets[0] は任意の1候補にすぎない）
-    const odds = resolvePolymarketOdds(ev, e.title_ja, e.title_en);
-    const marketId = odds?.matchedMarketId;
-    const market = (ev.markets || []).find(m => String(m.id) === String(marketId)) || (ev.markets || [])[0];
-    if (!market) { skipped.noMarket++; continue; }
+    // 対象サブ市場：単一市場ならそれ。多肢なら題名が名指ししている候補だけ（AR-4：markets[0] に落とさない）
+    const markets = ev.markets || [];
+    if (markets.length === 0) { skipped.noMarket++; continue; }
+    const market = markets.length === 1 ? markets[0] : matchTitledMarket(ev, e.title_ja, e.title_en).market;
+    if (!market) { skipped.noTarget++; continue; }
 
     const outcome = resolveOutcome(market);
     if (!outcome) { skipped.unresolved++; continue; }
 
     const tok = parseJson(market.clobTokenIds);
-    const forecast = await lastForecast(Array.isArray(tok) ? tok[0] : null);
+    const forecast = await lastForecast(Array.isArray(tok) ? tok[0] : null, closeTimeOf(market));
     if (!forecast) { skipped.noHistory++; continue; }
 
     const jp = votes[e.id];
@@ -134,7 +167,8 @@ async function main() {
       titleJa: e.title_ja || e.title_en || String(e.id),
       category: e.category || null,
       endDate: e.end_date || null,
-      subject: odds?.leaderName || odds?.matchedLabel || outcome.subject || null,
+      subject: (markets.length > 1 ? (market.groupItemTitle || '').trim() : '') || outcome.subject || null,
+      marketId: market.id ? String(market.id) : null,
       world: { prob: forecast.prob, at: forecast.at, points: forecast.points, usedFallback: forecast.usedFallback },
       japan: jpUsable ? { prob: Math.round((jp.yes / jp.total) * 100), n: jp.total } : null,
       japanVotes: jp ? jp.total : 0,
@@ -162,6 +196,23 @@ async function main() {
   // 表示の方針ではなくデータ生成の仕組みとして保証する。
   // 全面再採点が必要なとき（採点ロジック自体の修正時）だけ --rebuild で解除する。
   // ----------------------------------------------------------------------------
+  // 公開中の記録と比べて、結論が変わる記録を一覧にする（書き換えの前に人が確かめるため）
+  if (fs.existsSync(OUT)) {
+    try {
+      const prevById = new Map((JSON.parse(fs.readFileSync(OUT, 'utf-8')).records || []).map(r => [String(r.id), r]));
+      const changes = records.filter(r => prevById.has(r.id)).map(r => {
+        const p = prevById.get(r.id);
+        return { id: r.id, titleJa: r.titleJa,
+          before: { subject: p.subject, prob: p.world?.prob, happened: p.happened, worldCorrect: p.worldCorrect },
+          after: { subject: r.subject, prob: r.world.prob, happened: r.happened, worldCorrect: r.worldCorrect } };
+      }).filter(c => c.before.happened !== c.after.happened || c.before.worldCorrect !== c.after.worldCorrect
+        || c.before.prob !== c.after.prob || (c.before.subject ?? null) !== (c.after.subject ?? null));
+      const flipped = changes.filter(c => c.before.happened !== c.after.happened || c.before.worldCorrect !== c.after.worldCorrect);
+      console.log(`  🔁 公開中の記録との差   : ${changes.length}件（うち結果か正誤が変わる ${flipped.length}件）`);
+      if (DIFF_OUT) fs.writeFileSync(DIFF_OUT, JSON.stringify(changes, null, 1), 'utf-8');
+    } catch (e) { console.error('差分の計算に失敗:', e.message); }
+  }
+
   if (fs.existsSync(OUT) && !process.argv.includes('--rebuild')) {
     try {
       const prev = JSON.parse(fs.readFileSync(OUT, 'utf-8'));
@@ -206,7 +257,7 @@ async function main() {
     method: {
       forecastPoint: `決着の${LOOKBACK_MS / 3600000}時間前の市場価格`,
       minVotesForJapan: MIN_VOTES,
-      note: '多肢イベントの対象サブ市場は resolvePolymarketOdds が選定する（markets[0] は使わない）',
+      note: '多肢イベントは題名が名指ししているサブ市場で採点する（markets[0] も本命も使わない。特定できないものは採点しない）',
     },
     summary: {
       worldScored, worldHits,
@@ -224,7 +275,7 @@ async function main() {
   console.log(`  採点できた       : ${worldScored}件`);
   console.log(`  世界の的中       : ${worldHits}件 (${payload.summary.worldAccuracy ?? '-'}%)`);
   console.log(`  日本の採点対象   : ${japanScored}件${japanScored ? ` / 的中 ${japanHits}件` : `（${MIN_VOTES}票以上の決着銘柄がまだ無い）`}`);
-  console.log(`  除外             : API不可 ${skipped.api} / 未決着 ${skipped.unresolved} / 履歴なし ${skipped.noHistory} / 市場なし ${skipped.noMarket}`);
+  console.log(`  除外             : API不可 ${skipped.api} / 未決着 ${skipped.unresolved} / 履歴なし ${skipped.noHistory} / 市場なし ${skipped.noMarket} / 対象を特定できない ${skipped.noTarget}`);
   console.log('');
   console.log('  母集団による的中率の違い');
   console.log(`    全体                     ${breakdown.all.hits}/${breakdown.all.n} (${breakdown.all.accuracy}%)`);

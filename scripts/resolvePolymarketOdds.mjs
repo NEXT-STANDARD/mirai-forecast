@@ -56,6 +56,92 @@ export const truncateLeader = (name) => {
   return t.length > LEADER_NAME_MAX ? t.slice(0, LEADER_NAME_MAX - 1) + "…" : t;
 };
 
+/**
+ * 多肢イベントで、題名（日本語・英語）が名指ししている対象のサブ市場を特定する。
+ * 本命（最高値の候補）は選ばない。決着後の価格で本命を選ぶと勝者を選ぶことになるため、
+ * 決着済みの採点（build_track_record）はこの関数だけを使う（AR-4）。
+ * @returns {{ market: object|null, isGenericBucket: boolean }}
+ */
+export function matchTitledMarket(ev, dbTitleJa = '', dbTitleEn = '') {
+  const markets = ev.markets || [];
+  const lowerJa = (dbTitleJa || '').toLowerCase();
+  const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
+
+  // ダミー/プレースホルダ（A, B, C, Other等）を除外した有効候補集合 (N-34)
+  const validMarkets = markets.filter(m => !isDummyCandidate(m.groupItemTitle || m.question));
+  const candidateMarkets = validMarkets.length > 0 ? validMarkets : markets;
+
+  // 2-0. コロン以降に明示された個別選択肢の照合 (N-38: 9件の選択肢型市場の完全解決)
+  const colonTarget = (dbTitleEn || '').includes(':') 
+    ? (dbTitleEn || '').split(':').pop().trim().replace(/[?？]$/, '') 
+    : '';
+  const isGenericColon = /^(winner|champion|2027 champion|match winner)$/i.test(colonTarget);
+  const isGenericBucketQuestion = /到達水準予測|価格水準予測/i.test(dbTitleJa);
+
+  let matchedMarket = null;
+
+  // 英語の問い（title_en）が対象を名指ししているなら、それが正。
+  // 日本語タイトルが「到達水準予測」と一般化されていても、英語側を優先する
+  // （訳の一般化で答えが出せなくなっていた／第11回 N-38）
+  if (colonTarget && !isGenericColon) {
+    const colonMatches = candidateMarkets.filter(m => {
+      const itemTitle = (m.groupItemTitle || m.question || '').trim().toLowerCase();
+      return itemTitle === colonTarget.toLowerCase() || 
+             itemTitle.replace(/\s+/g, '') === colonTarget.toLowerCase().replace(/\s+/g, '');
+    });
+    if (colonMatches.length > 0) {
+      matchedMarket = colonMatches.find(m => m.closed !== true && m.active !== false) || colonMatches[0];
+    }
+  }
+
+  // 2-1. 多肢レンジ・価格帯予測で全体を問う銘柄（例: WTI到達水準予測）は特定の対象を持たない (N-34)
+  if (!matchedMarket && isGenericBucketQuestion) return { market: null, isGenericBucket: true };
+
+  // 2-1b. 英文中に閾値が直接書かれている形式（形式B）を拾う (N-39)
+  //   形式A : "What price will Ethereum hit in August?: ↑ 3,000?"   → コロン以降＝対象
+  //   形式B : "Will Elon Musk post <40 tweets from …?"              → 文中の "<40" が対象
+  //   バケット名（groupItemTitle）が "<40" のように同じ表記で存在するので完全一致で引く
+  if (!matchedMarket) {
+    const rawEn = dbTitleEn || ev.title || '';
+    const inline = /([<>≤≥]\s*\d[\d,]*)/.exec(rawEn);
+    if (inline) {
+      const key = inline[1].replace(/\s+/g, '');
+      matchedMarket = markets.find(m => (m.groupItemTitle || '').trim().replace(/\s+/g, '') === key) || null;
+    }
+  }
+
+  // 2-2. タイトルで特定候補が問われている場合 (候補集合からマッチング)
+  if (!matchedMarket) {
+    matchedMarket = candidateMarkets.find(m => {
+      const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
+      if (!itemTitle || isDummyCandidate(itemTitle)) return false;
+      
+      // 英語タイトル完全/部分一致 (短い略称・1文字等での誤マッチ防止のため length >= 4)
+      if (itemTitle.length >= 4 && lowerEn.includes(itemTitle)) return true;
+      if (itemTitle.length >= 4 && lowerJa.includes(itemTitle)) return true;
+      if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
+      if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
+      if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
+      if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
+      if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
+      if (/sinner/i.test(itemTitle) && /シナー/i.test(lowerJa)) return true;
+      if (/alcaraz/i.test(itemTitle) && /アルカラス/i.test(lowerJa)) return true;
+      if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
+      if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
+      if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
+      if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
+      if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
+      if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
+      if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
+      if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
+      if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
+      return false;
+    });
+  }
+
+  return { market: matchedMarket || null, isGenericBucket: false };
+}
+
 export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
   if (!ev || !ev.markets || ev.markets.length === 0) return null;
 
@@ -135,36 +221,14 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
   // 2. 多肢イベント
   const lowerJa = (dbTitleJa || '').toLowerCase();
   const lowerEn = (dbTitleEn || ev.title || '').toLowerCase();
-
-  // ダミー/プレースホルダ（A, B, C, Other等）を除外した有効候補集合 (N-34)
   const validMarkets = markets.filter(m => !isDummyCandidate(m.groupItemTitle || m.question));
   const candidateMarkets = validMarkets.length > 0 ? validMarkets : markets;
 
-  // 2-0. コロン以降に明示された個別選択肢の照合 (N-38: 9件の選択肢型市場の完全解決)
-  const colonTarget = (dbTitleEn || '').includes(':') 
-    ? (dbTitleEn || '').split(':').pop().trim().replace(/[?？]$/, '') 
-    : '';
-  const isGenericColon = /^(winner|champion|2027 champion|match winner)$/i.test(colonTarget);
-  const isGenericBucketQuestion = /到達水準予測|価格水準予測/i.test(dbTitleJa);
+  const titled = matchTitledMarket(ev, dbTitleJa, dbTitleEn);
+  const matchedMarket = titled.market;
 
-  let matchedMarket = null;
-
-  // 英語の問い（title_en）が対象を名指ししているなら、それが正。
-  // 日本語タイトルが「到達水準予測」と一般化されていても、英語側を優先する
-  // （訳の一般化で答えが出せなくなっていた／第11回 N-38）
-  if (colonTarget && !isGenericColon) {
-    const colonMatches = candidateMarkets.filter(m => {
-      const itemTitle = (m.groupItemTitle || m.question || '').trim().toLowerCase();
-      return itemTitle === colonTarget.toLowerCase() || 
-             itemTitle.replace(/\s+/g, '') === colonTarget.toLowerCase().replace(/\s+/g, '');
-    });
-    if (colonMatches.length > 0) {
-      matchedMarket = colonMatches.find(m => m.closed !== true && m.active !== false) || colonMatches[0];
-    }
-  }
-
-  // 2-1. 多肢レンジ・価格帯予測で全体を問う銘柄（例: WTI到達水準予測）は特定2値オッズを出さず【世界観測銘柄】とする (N-34)
-  if (!matchedMarket && isGenericBucketQuestion) {
+  // 2-1. 多肢レンジ・価格帯予測で全体を問う銘柄は特定2値オッズを出さず【世界観測銘柄】とする (N-34)
+  if (titled.isGenericBucket) {
     const volume24h = ev.volume24hr || 0;
     const totalVolume = ev.volume || volume24h * 3.5;
     return {
@@ -178,48 +242,6 @@ export function resolvePolymarketOdds(ev, dbTitleJa = '', dbTitleEn = '') {
       leaderName: null,
       marketQuestion: null
     };
-  }
-
-  // 2-1b. 英文中に閾値が直接書かれている形式（形式B）を拾う (N-39)
-  //   形式A : "What price will Ethereum hit in August?: ↑ 3,000?"   → コロン以降＝対象
-  //   形式B : "Will Elon Musk post <40 tweets from …?"              → 文中の "<40" が対象
-  //   バケット名（groupItemTitle）が "<40" のように同じ表記で存在するので完全一致で引く
-  if (!matchedMarket) {
-    const rawEn = dbTitleEn || ev.title || '';
-    const inline = /([<>≤≥]\s*\d[\d,]*)/.exec(rawEn);
-    if (inline) {
-      const key = inline[1].replace(/\s+/g, '');
-      matchedMarket = markets.find(m => (m.groupItemTitle || '').trim().replace(/\s+/g, '') === key) || null;
-    }
-  }
-
-  // 2-2. タイトルで特定候補が問われている場合 (候補集合からマッチング)
-  if (!matchedMarket) {
-    matchedMarket = candidateMarkets.find(m => {
-      const itemTitle = (m.groupItemTitle || m.question || '').toLowerCase();
-      if (!itemTitle || isDummyCandidate(itemTitle)) return false;
-      
-      // 英語タイトル完全/部分一致 (短い略称・1文字等での誤マッチ防止のため length >= 4)
-      if (itemTitle.length >= 4 && lowerEn.includes(itemTitle)) return true;
-      if (itemTitle.length >= 4 && lowerJa.includes(itemTitle)) return true;
-      if (/mbapp[eé]/i.test(itemTitle) && /エムバペ|mbapp/i.test(lowerJa)) return true;
-      if (/vinicius/i.test(itemTitle) && /ヴィニシウス|vinicius/i.test(lowerJa)) return true;
-      if (/kane/i.test(itemTitle) && /ケイン|kane/i.test(lowerJa)) return true;
-      if (/bellingham/i.test(itemTitle) && /ベリンガム|bellingham/i.test(lowerJa)) return true;
-      if (/rodri/i.test(itemTitle) && /ロドリ|rodri/i.test(lowerJa)) return true;
-      if (/sinner/i.test(itemTitle) && /シナー/i.test(lowerJa)) return true;
-      if (/alcaraz/i.test(itemTitle) && /アルカラス/i.test(lowerJa)) return true;
-      if (/paris\s*saint-germain|psg/i.test(itemTitle) && /パリ・サンジェルマン|psg/i.test(lowerJa)) return true;
-      if (/arsenal/i.test(itemTitle) && /アーセナル/i.test(lowerJa)) return true;
-      if (/real\s*madrid/i.test(itemTitle) && /レアル・マドリード/i.test(lowerJa)) return true;
-      if (/manchester\s*city/i.test(itemTitle) && /マンチェスター・シティ/i.test(lowerJa)) return true;
-      if (/50\+?\s*bps\s*decrease/i.test(itemTitle) && /50bp/i.test(lowerJa)) return true;
-      if (/25\s*bps\s*decrease/i.test(itemTitle) && /25bp/i.test(lowerJa)) return true;
-      if (/100,?000/i.test(itemTitle) && /100,?000|10万/i.test(lowerJa)) return true;
-      if (/150,?000/i.test(itemTitle) && /150,?000|15万/i.test(lowerJa)) return true;
-      if (/Match Winner/i.test(m.question || '') && /勝敗予測/i.test(lowerJa)) return true;
-      return false;
-    });
   }
 
   if (matchedMarket) {
