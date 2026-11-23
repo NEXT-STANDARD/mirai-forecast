@@ -2,9 +2,14 @@ import type { MarketItem, CategoryType } from '../types';
 import { supabase } from './supabaseClient';
 import { INITIAL_EVENTS } from '../data/initialEvents';
 import { AI_INSIGHTS_MASTER } from '../data/aiInsightsMaster';
-import { MARKET_ODDS_MASTER } from '../data/marketOddsMaster';
 
 const POLYMARKET_EVENTS_API = 'https://gamma-api.polymarket.com/events?limit=100&active=true&closed=false&order=volume24hr&ascending=false';
+const POLYMARKET_EVENT_API = (id: string) => `https://gamma-api.polymarket.com/events/${encodeURIComponent(id)}`;
+// 上位100件に入らなかった有効銘柄を個別に取りに行く上限（有効銘柄はふだん数十件）
+const MAX_DIRECT_FETCH = 40;
+// 個別取得は30秒ごとのポーリングのたびに数十件の要求になるので、取れた分は5分使い回す
+const DIRECT_FETCH_TTL_MS = 5 * 60 * 1000;
+const directEventCache = new Map<string, { ev: unknown; at: number }>();
 
 /**
  * AIインサイトを確実に解決するセマンティック・インテリジェンス関数
@@ -120,30 +125,54 @@ export async function fetchLivePolymarketMarkets(): Promise<MarketItem[]> {
       }
     }
 
-    // 2. Polymarket API からリアルタイムのオッズ・出来高を取得 (MARKET_ODDS_MASTER で初期化し最新オッズをオーバーレイ)
+    // 2. Polymarket API からリアルタイムのオッズ・出来高を取得する
+    // AR-3: 以前は 8/24 のバンドル値（MARKET_ODDS_MASTER）で初期化し、上位100件だけを上書きしていた。
+    //   圏外の掲載銘柄では2か月前の確率を「世界オッズ」として出していたので、初期値は持たない。
+    //   取れなかった銘柄は「取得なし」と表示される（古い値を現在値として出すよりよい）
     const liveOddsMap = new Map<string, any>();
-    
-    // マスター辞書から初期投入
-    Object.entries(MARKET_ODDS_MASTER).forEach(([key, val]) => {
-      liveOddsMap.set(key, val);
-    });
+    const putOdds = (ev: any) => {
+      if (!ev || typeof ev !== 'object') return;
+      const dbMatch = dbEvents.find(d => String(d.id) === String(ev.id) || d.slug === ev.slug);
+      const odds = resolvePolymarketOdds(ev, dbMatch?.title_ja, dbMatch?.title_en);
+      if (odds && odds.hasWorldOdds && odds.probYes !== null) {
+        liveOddsMap.set(String(ev.id), odds);
+        if (ev.slug) liveOddsMap.set(ev.slug, odds);
+      }
+    };
 
     try {
       const res = await fetch(POLYMARKET_EVENTS_API);
       if (res.ok) {
         const liveData = await res.json();
-        liveData.forEach((ev: any) => {
-          const dbMatch = dbEvents.find(d => String(d.id) === String(ev.id) || d.slug === ev.slug);
-          const odds = resolvePolymarketOdds(ev, dbMatch?.title_ja, dbMatch?.title_en);
-          if (odds && odds.hasWorldOdds && odds.probYes !== null) {
-            liveOddsMap.set(String(ev.id), odds);
-            if (ev.slug) liveOddsMap.set(ev.slug, odds);
-          }
-        });
+        if (Array.isArray(liveData)) liveData.forEach(putOdds);
       }
     } catch (apiErr) {
-      console.warn('Polymarket Live API failed, using cached master odds:', apiErr);
+      console.warn('Polymarket Live API failed:', apiErr);
     }
+
+    // 上位100件に無い有効な Polymarket 銘柄は /events/{id} で個別に取る（prerender・OGP と同じ取り方）
+    const missingIds = dbEvents
+      .filter(d => !isDomesticEvent(d.id) && /^\d+$/.test(String(d.id)) && !liveOddsMap.has(String(d.id)))
+      .sort((a, b) => Number(Boolean(b.is_listed)) - Number(Boolean(a.is_listed)))
+      .slice(0, MAX_DIRECT_FETCH)
+      .map(d => String(d.id));
+    const now = Date.now();
+    const staleIds = missingIds.filter(id => {
+      const hit = directEventCache.get(id);
+      return !hit || now - hit.at > DIRECT_FETCH_TTL_MS;
+    });
+    if (staleIds.length > 0) {
+      const results = await Promise.allSettled(staleIds.map(async id => {
+        const r = await fetch(POLYMARKET_EVENT_API(id));
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return { id, ev: await r.json() };
+      }));
+      const failed = results.filter(r => r.status === 'rejected').length;
+      // 取れなかった銘柄（Polymarket に無いシード行の 404 など）も TTL の間は取りに行かない
+      results.forEach((r, i) => directEventCache.set(staleIds[i], { ev: r.status === 'fulfilled' ? r.value.ev : null, at: now }));
+      if (failed > 0) console.warn(`Polymarket の個別取得に失敗: ${failed}/${staleIds.length}件`);
+    }
+    missingIds.forEach(id => { const hit = directEventCache.get(id); if (hit?.ev) putOdds(hit.ev); });
 
     // 3. Supabaseの日本語データ + AI_INSIGHTS_MASTER + 最新オッズを結合
     if (dbEvents.length > 0) {
