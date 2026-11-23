@@ -167,7 +167,9 @@ async function main() {
       titleJa: e.title_ja || e.title_en || String(e.id),
       category: e.category || null,
       endDate: e.end_date || null,
-      subject: (markets.length > 1 ? (market.groupItemTitle || '').trim() : '') || outcome.subject || null,
+      // 確率の主語：outcomes[0] が Yes でない市場（勝敗の人名・チーム名）はそれ。Yes の多肢はサブ市場名
+      subject: (outcome.subject && !/^yes$/i.test(outcome.subject)) ? outcome.subject
+        : ((markets.length > 1 ? (market.groupItemTitle || '').trim() : '') || outcome.subject || null),
       marketId: market.id ? String(market.id) : null,
       world: { prob: forecast.prob, at: forecast.at, points: forecast.points, usedFallback: forecast.usedFallback },
       japan: jpUsable ? { prob: Math.round((jp.yes / jp.total) * 100), n: jp.total } : null,
@@ -197,9 +199,13 @@ async function main() {
   // 全面再採点が必要なとき（採点ロジック自体の修正時）だけ --rebuild で解除する。
   // ----------------------------------------------------------------------------
   // 公開中の記録と比べて、結論が変わる記録を一覧にする（書き換えの前に人が確かめるため）
-  if (fs.existsSync(OUT)) {
+  let prevPayload = null;
+  try { if (fs.existsSync(OUT)) prevPayload = JSON.parse(fs.readFileSync(OUT, 'utf-8')); } catch {}
+  const prevById = new Map(((prevPayload && prevPayload.records) || []).map(r => [String(r.id), r]));
+  const today = new Date().toISOString().slice(0, 10);
+  let flippedCount = 0;
+  if (prevPayload) {
     try {
-      const prevById = new Map((JSON.parse(fs.readFileSync(OUT, 'utf-8')).records || []).map(r => [String(r.id), r]));
       const changes = records.filter(r => prevById.has(r.id)).map(r => {
         const p = prevById.get(r.id);
         return { id: r.id, titleJa: r.titleJa,
@@ -209,6 +215,17 @@ async function main() {
         || c.before.prob !== c.after.prob || (c.before.subject ?? null) !== (c.after.subject ?? null));
       const flipped = changes.filter(c => c.before.happened !== c.after.happened || c.before.worldCorrect !== c.after.worldCorrect);
       console.log(`  🔁 公開中の記録との差   : ${changes.length}件（うち結果か正誤が変わる ${flipped.length}件）`);
+      flippedCount = flipped.length;
+      // 訂正の印：結果か正誤を変えた記録には、変えた日と前の値を残す（追記型の記録を黙って書き換えない）
+      const flippedIds = new Set(flipped.map(c => c.id));
+      for (const r of records) {
+        const p = prevById.get(r.id);
+        if (flippedIds.has(r.id)) {
+          r.correction = { date: today, before: { prob: p.world?.prob ?? null, happened: p.happened, worldCorrect: p.worldCorrect } };
+        } else if (p?.correction) {
+          r.correction = p.correction;   // 以前の訂正の印は、採点し直しても残す
+        }
+      }
       if (DIFF_OUT) fs.writeFileSync(DIFF_OUT, JSON.stringify(changes, null, 1), 'utf-8');
     } catch (e) { console.error('差分の計算に失敗:', e.message); }
   }
@@ -268,6 +285,15 @@ async function main() {
     },
     breakdown,
     calibration,
+    // 記録全体への訂正の履歴（日付と件数）。以前の分は引き継ぐ
+    corrections: [
+      ...((prevPayload && prevPayload.corrections) || []),
+      ...(RESCORE_CLOSED && flippedCount > 0 ? [{
+        date: today,
+        changed: flippedCount,
+        note: '決着済みの多肢イベントを題名が名指しするサブ市場で採点し直した（以前は markets[0] で採点していた）。各記録の correction に前の値を残す',
+      }] : []),
+    ],
     records,
   };
 
