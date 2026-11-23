@@ -71,6 +71,26 @@ export const truncateLeader = (name?: string | null): string | null => {
   return t.length > LEADER_NAME_MAX ? t.slice(0, LEADER_NAME_MAX - 1) + '…' : t;
 };
 
+// 価格が読めないサブ市場で 50 を出さない（既定値 50 が「世界 YES 50%」として表示されていた）
+const yesPercent = (m: any): number | null => {
+  if (!m || m.outcomePrices == null) return null;
+  try {
+    const parsed = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+    if (!Array.isArray(parsed) || parsed[0] == null) return null;
+    const v = parseFloat(parsed[0]);
+    return Number.isFinite(v) ? Math.min(100, Math.max(0, Math.round(v * 100))) : null;
+  } catch {
+    return null;
+  }
+};
+// 同じ題名の候補が複数あるとき（同じ水準の市場が回ごとに作られる）、取引中で価格のあるもの →
+// 取引中のもの → 価格のある（決着済みの）もの の順に選ぶ。以前は価格の無い先頭の行を選び 50 を出していた
+const pickAmong = (ms: any[]): any =>
+  ms.find(m => m.closed !== true && m.active !== false && yesPercent(m) !== null)
+  || ms.find(m => m.closed !== true && m.active !== false)
+  || ms.find(m => yesPercent(m) !== null)
+  || ms[0];
+
 export function resolvePolymarketOdds(
   ev: any,
   dbTitleJa: string = '',
@@ -115,14 +135,20 @@ export function resolvePolymarketOdds(
       };
     }
 
-    let probYes = 50;
-    if (targetMarket.outcomePrices) {
-      try {
-        const parsed = typeof targetMarket.outcomePrices === 'string' ? JSON.parse(targetMarket.outcomePrices) : targetMarket.outcomePrices;
-        if (Array.isArray(parsed) && parsed[0]) {
-          probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
-        }
-      } catch {}
+    const probYes = yesPercent(targetMarket);
+    if (probYes === null) {
+      return {
+        probYes: null,
+        hasWorldOdds: false,
+        isClosed: false,
+        volume24h: Math.round(ev.volume24hr || 0),
+        totalVolume: Math.round(ev.volume || 0),
+        probChange24h: 0,
+        isMultiChoice: false,
+        leaderName: null,
+        marketQuestion: targetMarket.question || targetMarket.groupItemTitle || null,
+        outcomeSubject: null,
+      };
     }
 
     const volume24h = ev.volume24hr || (targetMarket.volume24hr ? parseFloat(targetMarket.volume24hr) : 0);
@@ -176,7 +202,7 @@ export function resolvePolymarketOdds(
              itemTitle.replace(/\s+/g, '') === colonTarget.toLowerCase().replace(/\s+/g, '');
     });
     if (colonMatches.length > 0) {
-      matchedMarket = colonMatches.find((m: any) => m.closed !== true && m.active !== false) || colonMatches[0];
+      matchedMarket = pickAmong(colonMatches);
     }
   }
 
@@ -228,14 +254,20 @@ export function resolvePolymarketOdds(
   }
 
   if (matchedMarket) {
-    let probYes = 50;
-    if (matchedMarket.outcomePrices) {
-      try {
-        const parsed = typeof matchedMarket.outcomePrices === 'string' ? JSON.parse(matchedMarket.outcomePrices) : matchedMarket.outcomePrices;
-        if (Array.isArray(parsed) && parsed[0]) {
-          probYes = Math.min(100, Math.max(0, Math.round(parseFloat(parsed[0]) * 100)));
-        }
-      } catch {}
+    const probYes = yesPercent(matchedMarket);
+    if (probYes === null) {
+      return {
+        probYes: null,
+        hasWorldOdds: false,
+        isClosed: false,
+        volume24h: Math.round(ev.volume24hr || 0),
+        totalVolume: Math.round(ev.volume || 0),
+        probChange24h: 0,
+        isMultiChoice: true,
+        leaderName: null,
+        marketQuestion: matchedMarket.question || matchedMarket.groupItemTitle || null,
+        outcomeSubject: null,
+      };
     }
     const volume24h = ev.volume24hr || (matchedMarket.volume24hr ? parseFloat(matchedMarket.volume24hr) : 0);
     const totalVolume = ev.volume || (matchedMarket.volume ? parseFloat(matchedMarket.volume) : volume24h * 3.5);
