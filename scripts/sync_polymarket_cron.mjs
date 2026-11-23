@@ -29,6 +29,8 @@ if (fs.existsSync(envPath)) {
 // （当初はDB書き込みしか止めておらず、生成ファイルを書き換えてビルドを壊した）
 // フィルタを変えたときに、本番データを触らずに効果を確認するために使う。
 const DRY_RUN = process.argv.includes('--dry-run');
+// AR-5: dry-run でも Gemini を呼び、DB には書かずに「何が公開に反転するか」を一覧にする（課金あり）
+const DRY_RUN_WITH_GEMINI = DRY_RUN && process.argv.includes('--with-gemini');
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || localEnv.VITE_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || localEnv.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || localEnv.VITE_SUPABASE_ANON_KEY;
@@ -93,6 +95,27 @@ function calculateJRelevance(titleLower, volume24h) {
     }
   }
   return volume24h * multiplier;
+}
+
+const kw = (words) => new RegExp(`\\b(?:${words.join('|')})\\b`, 'i');
+const KEYWORD_CATEGORY_RULES = [
+  ['politics', kw(['elections?', 'president(?:ial)?', 'prime minister', 'minister', 'senate', 'house', 'congress', 'parliament', 'war', 'treaty', 'china', 'russia', 'putin', 'iran', 'israel', 'ceasefire', 'hormuz', 'governor', 'nominee', 'democrats?', 'republicans?', 'taiwan', 'ukraine'])],
+  ['tech', kw(['ai', 'gpt', 'openai', 'spacex', 'nvidia', 'apple', 'tech', 'nintendo', 'switch'])],
+  ['sports', kw(["ballon d'or", 'ohtani', 'dodgers', 'cardinals', 'orioles', 'epl', 'champions league', 'uefa', 'psg', 'tennis', 'itf', 'atp', 'wta', 'mlb', 'nba', 'nfl', 'baseball', 'soccer', 'football', 'ufc', 'fight night', 'super bowl', 'world series', 'premier league'])],
+  ['entertainment', kw(['ghibli', 'movie', 'anime', 'lol', 'league of legends', 'counter-strike', 'kespa', 'lck', 'esports?', 'box office', 'grammys?', 'oscars?'])],
+];
+const KEYWORD_CATEGORY_LABELS = {
+  economy: '📊 経済・金利・暗号資産', politics: '🌐 国際・社会', tech: '⚡ AI・テック',
+  sports: '⚾ スポーツ', entertainment: '🎬 エンタメ・カルチャー',
+};
+
+// 題名の本文（カテゴリ接頭辞を除いた部分）が日本語として成り立っているか（AR-5・N-41）
+const CATEGORY_PREFIX_RE = /^(?:経済・市場予測|国際政治動向|AI・テック予測|エンタメ予測|スポーツ予測)[:：]\s*/;
+const JP_RE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/;
+function isCleanJaTitle(title) {
+  if (!title) return false;
+  const body = String(title).replace(CATEGORY_PREFIX_RE, '');
+  return JP_RE.test(body) && !body.includes('Will ') && !body.includes('Spread:');
 }
 
 async function generateInsightsWithGemini(items) {
@@ -300,97 +323,14 @@ async function syncPolymarket() {
         } catch {}
       }
 
-      let cat = 'economy';
-      let catLabel = '📊 経済・金利・暗号資産';
-
-      if (
-        titleLower.includes('election') ||
-        titleLower.includes('president') ||
-        titleLower.includes('minister') ||
-        titleLower.includes('senate') ||
-        titleLower.includes('war') ||
-        titleLower.includes('treaty') ||
-        titleLower.includes('china') ||
-        titleLower.includes('russia') ||
-        titleLower.includes('putin') ||
-        titleLower.includes('iran') ||
-        titleLower.includes('israel') ||
-        titleLower.includes('ceasefire') ||
-        titleLower.includes('hormuz') ||
-        titleLower.includes('governor')
-      ) {
-        cat = 'politics';
-        catLabel = '🌐 国際・社会';
-      } else if (
-        titleLower.includes('ai') ||
-        titleLower.includes('gpt') ||
-        titleLower.includes('openai') ||
-        titleLower.includes('spacex') ||
-        titleLower.includes('nvidia') ||
-        titleLower.includes('apple') ||
-        titleLower.includes('tech') ||
-        titleLower.includes('nintendo') ||
-        titleLower.includes('switch')
-      ) {
-        cat = 'tech';
-        catLabel = '⚡ AI・テック';
-      } else if (
-        titleLower.includes('ohtani') ||
-        titleLower.includes('dodgers') ||
-        titleLower.includes('cardinals') ||
-        titleLower.includes('orioles') ||
-        titleLower.includes('wings') ||
-        titleLower.includes('ballon d\'or') ||
-        titleLower.includes('epl') ||
-        titleLower.includes('champion') ||
-        titleLower.includes('uefa') ||
-        titleLower.includes('psg') ||
-        titleLower.includes('tennis') ||
-        titleLower.includes('cincinnati') ||
-        titleLower.includes('itf') ||
-        titleLower.includes('mlb') ||
-        titleLower.includes('baseball') ||
-        titleLower.includes('soccer') ||
-        titleLower.includes('football') ||
-        titleLower.includes('ufc') ||
-        titleLower.includes('fight night') ||
-        titleLower.includes('prague') ||
-        titleLower.includes('cancun') ||
-        titleLower.includes('sion') ||
-        titleLower.includes('monterrey') ||
-        titleLower.includes('braves') ||
-        titleLower.includes('mets') ||
-        titleLower.includes('white sox') ||
-        titleLower.includes('angels') ||
-        titleLower.includes('rangers') ||
-        titleLower.includes('cubs') ||
-        titleLower.includes('mariners') ||
-        titleLower.includes('brighton') ||
-        titleLower.includes('albion')
-      ) {
-        cat = 'sports';
-        catLabel = '⚾ スポーツ';
-      } else if (
-        titleLower.includes('ghibli') ||
-        titleLower.includes('movie') ||
-        titleLower.includes('anime') ||
-        titleLower.includes('lol:') ||
-        titleLower.includes('league of legends') ||
-        titleLower.includes('counter-strike') ||
-        titleLower.includes('kespa') ||
-        titleLower.includes('lck') ||
-        titleLower.includes('esport') ||
-        titleLower.includes('musk # tweets') ||
-        titleLower.includes('box office') ||
-        titleLower.includes('grammy') ||
-        titleLower.includes('oscar')
-      ) {
-        cat = 'entertainment';
-        catLabel = '🎬 エンタメ・カルチャー';
-      } else {
-        cat = 'economy';
-        catLabel = '📊 経済・金利・暗号資産';
+      // AR-20: 以前は includes の部分一致で、ai が said・Spain に、war が award に、sion が decision に当たった。
+      //   語境界つきの正規表現で判定する。どれにも当たらないときは cat=null（判定なし）として、
+      //   後段で「既定の economy」と「判定した economy」を区別できるようにする
+      let cat = null;
+      for (const [k, re] of KEYWORD_CATEGORY_RULES) {
+        if (re.test(titleLower)) { cat = k; break; }
       }
+      const catLabel = KEYWORD_CATEGORY_LABELS[cat || 'economy'];
 
       const volume24h = ev.volume24hr || 0;
       const jScore = calculateJRelevance(titleLower, volume24h);
@@ -444,10 +384,64 @@ async function syncPolymarket() {
     console.log(`⚽ スポーツ枠: ${sportsTaken}/${SPORTS_QUOTA}件を採用${sportsDropped.length ? `（枠外で除外 ${sportsDropped.length}件）` : ''}`);
     console.log(`🎯 主体上限(${SUBJECT_QUOTA}件/主体): 採用${topCandidates.length}件${subjectDropped.length ? `（同一主体の重複で除外 ${subjectDropped.length}件）` : ''}`);
 
-    // Gemini 3.8 Flash でタイトルと個別深層カタリストを一括生成
-    console.log(`🤖 ${topCandidates.length}件の市場データについて Gemini 3.8 Flash がリアルタイム情勢分析を生成中...`);
-    const insights = DRY_RUN ? [] : await generateInsightsWithGemini(topCandidates);
-    if (DRY_RUN) console.log('🧪 [dry-run] Gemini 呼び出しを省略しました');
+    // 訂正済みタイトル：保持ガードを越えて必ず適用される（誤訳の自己修復）
+    // 値は文字列、rawQuestion を受け取って文字列を返す関数、
+    // またはカテゴリも直すときの { title: 文字列か関数, category }
+    // （保持ガードはカテゴリも凍結するので、題名だけ直しても誤ったカテゴリが残る）
+    // 選定外の有効銘柄にも、下の「上位25件外の派生フィールド更新」で適用される
+    const fedDecisionTitle = (meeting) => (raw) => {
+      const m = /:\s*(?:(\d+)(\+?)\s*bps\s*(decrease|increase)|(No change))/i.exec(raw || '');
+      if (!m) return `米FRB ${meeting}会合の政策金利決定`;
+      if (m[4]) return `米FRBは${meeting}の会合で政策金利を据え置くか？`;
+      const pct = Number(m[1]) / 100;
+      return `米FRBは${meeting}の会合で${pct}%${m[2] ? '以上の' : 'の'}${/decrease/i.test(m[3]) ? '利下げ' : '利上げ'}を決定するか？`;
+    };
+    const TITLE_OVERRIDES = {
+      // 英語は "…?: ↑ $150?" と特定の水準を問うのに、日本語が「到達水準予測」と
+      // 一般化されており、その水準の確率が答えにならなくなっていた (N-38)
+      '746379': (raw) => {
+        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
+        return lvl
+          ? `2026年8月にWTI原油は${lvl[2]}ドル${lvl[1] === '↑' ? '以上に到達' : '以下に下落'}するか？`
+          : '2026年8月 WTI原油先物価格の到達水準予測';
+      },
+      // テニス判定の Sion が Decision・recession に当たり「テニス公式戦／sports」で凍結されていた (AR-6)
+      '606422': { title: fedDecisionTitle('2026年10月'), category: 'economy' },
+      '770450': { title: fedDecisionTitle('2026年12月'), category: 'economy' },
+      '770451': { title: fedDecisionTitle('2027年1月'), category: 'economy' },
+      '48802': { title: '米国は2026年末までに景気後退（リセッション）入りするか？', category: 'economy' },
+      // 「↓ 60,000」は dip to（下落）の問いなのに「到達するか」と訳され、向きが消えていた (AR-21)
+      '89502': (raw) => {
+        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
+        if (!lvl) return 'ビットコイン 2026年の到達価格予測';
+        return lvl[1] === '↓'
+          ? `ビットコインは2026年中に${lvl[2]}ドルまで下落するか？`
+          : `ビットコインは2026年中に${lvl[2]}ドルに到達するか？`;
+      },
+    };
+    // 訂正があれば { titleJa, category }（category は指定が無ければ null）を返す
+    function resolveOverride(id, raw) {
+      const o = TITLE_OVERRIDES[String(id)];
+      if (!o) return null;
+      const title = (typeof o === 'object') ? o.title : o;
+      return {
+        titleJa: typeof title === 'function' ? title(raw) : title,
+        category: (typeof o === 'object' && o.category) || null,
+      };
+    }
+
+    // 既存DBの日本語タイトル・カテゴリを先に読む（保持ガードと、Gemini に送る行の絞り込みの両方に使う）
+    // N-20類似の件数上限破綻を防ぐため range(0, 9999) を明示
+    const { data: existingRows } = await supabase.from('events').select('id, title_ja, category, is_active, is_listed').range(0, 9999);
+    const existingMap = new Map((existingRows || []).map(r => [r.id, r]));
+
+    // AR-5: Gemini に送るのは、題名を作る必要がある行だけ（訂正表にも無く、既存の題名も綺麗でない行）。
+    //   AI 分析欄の出力は cron から戻らない（AR-25）ので、綺麗な題名を持つ行を毎回送っても使われない
+    const needsTitle = topCandidates.filter(c => !resolveOverride(c.id, c.rawQuestion) && !isCleanJaTitle(existingMap.get(c.id)?.title_ja));
+    const callGemini = needsTitle.length > 0 && (!DRY_RUN || DRY_RUN_WITH_GEMINI);
+    console.log(`🤖 題名が必要な ${needsTitle.length}/${topCandidates.length}件 ${callGemini ? `を Gemini 3.8 Flash に送ります${geminiApiKey ? '' : '（鍵なし：英語のまま非公開になります）'}` : 'のため Gemini は呼びません'}`);
+    const insights = callGemini ? await generateInsightsWithGemini(needsTitle) : [];
+    if (DRY_RUN && !callGemini && needsTitle.length > 0) console.log('🧪 [dry-run] Gemini 呼び出しを省略しました（--with-gemini で実行）');
     const insightMap = new Map();
     const insightsJsonStore = {};
 
@@ -537,52 +531,6 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
     }
 
     // 翻訳辞書 ＆ ルールベース翻訳フォールバック
-    // 訂正済みタイトル：保持ガードを越えて必ず適用される（誤訳の自己修復）
-    // 値は文字列、rawQuestion を受け取って文字列を返す関数、
-    // またはカテゴリも直すときの { title: 文字列か関数, category }
-    // （保持ガードはカテゴリも凍結するので、題名だけ直しても誤ったカテゴリが残る）
-    // 選定外の有効銘柄にも、下の「上位25件外の派生フィールド更新」で適用される
-    const fedDecisionTitle = (meeting) => (raw) => {
-      const m = /:\s*(?:(\d+)(\+?)\s*bps\s*(decrease|increase)|(No change))/i.exec(raw || '');
-      if (!m) return `米FRB ${meeting}会合の政策金利決定`;
-      if (m[4]) return `米FRBは${meeting}の会合で政策金利を据え置くか？`;
-      const pct = Number(m[1]) / 100;
-      return `米FRBは${meeting}の会合で${pct}%${m[2] ? '以上の' : 'の'}${/decrease/i.test(m[3]) ? '利下げ' : '利上げ'}を決定するか？`;
-    };
-    const TITLE_OVERRIDES = {
-      // 英語は "…?: ↑ $150?" と特定の水準を問うのに、日本語が「到達水準予測」と
-      // 一般化されており、その水準の確率が答えにならなくなっていた (N-38)
-      '746379': (raw) => {
-        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
-        return lvl
-          ? `2026年8月にWTI原油は${lvl[2]}ドル${lvl[1] === '↑' ? '以上に到達' : '以下に下落'}するか？`
-          : '2026年8月 WTI原油先物価格の到達水準予測';
-      },
-      // テニス判定の Sion が Decision・recession に当たり「テニス公式戦／sports」で凍結されていた (AR-6)
-      '606422': { title: fedDecisionTitle('2026年10月'), category: 'economy' },
-      '770450': { title: fedDecisionTitle('2026年12月'), category: 'economy' },
-      '770451': { title: fedDecisionTitle('2027年1月'), category: 'economy' },
-      '48802': { title: '米国は2026年末までに景気後退（リセッション）入りするか？', category: 'economy' },
-      // 「↓ 60,000」は dip to（下落）の問いなのに「到達するか」と訳され、向きが消えていた (AR-21)
-      '89502': (raw) => {
-        const lvl = /:\s*([↑↓])\s*\$?([\d,]+)/.exec(raw || '');
-        if (!lvl) return 'ビットコイン 2026年の到達価格予測';
-        return lvl[1] === '↓'
-          ? `ビットコインは2026年中に${lvl[2]}ドルまで下落するか？`
-          : `ビットコインは2026年中に${lvl[2]}ドルに到達するか？`;
-      },
-    };
-    // 訂正があれば { titleJa, category }（category は指定が無ければ null）を返す
-    function resolveOverride(id, raw) {
-      const o = TITLE_OVERRIDES[String(id)];
-      if (!o) return null;
-      const title = (typeof o === 'object') ? o.title : o;
-      return {
-        titleJa: typeof title === 'function' ? title(raw) : title,
-        category: (typeof o === 'object' && o.category) || null,
-      };
-    }
-
     const DIRECT_MAP = {
       '1': { titleJa: '米大統領選 2028：JDヴァンスが勝利するか？', category: 'politics' },
       '2': { titleJa: '日銀：9月会合で追加利上げ（0.75%へ）を実施するか？', category: 'economy' },
@@ -822,13 +770,11 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
       // 構造的フェイルセーフ: 未知の英語タイトルにはカテゴリに応じた自動日本語化プレフィックスを付与
       const fallbackCat = category || 'economy';
+      // categoryIsDefault: 判定できずに economy にしただけ（AR-20：これでキーワード分類を潰さない）
       const prefix = fallbackCat === 'sports' ? 'スポーツ予測: ' : fallbackCat === 'politics' ? '国際政治動向: ' : fallbackCat === 'tech' ? 'AI・テック予測: ' : fallbackCat === 'entertainment' ? 'エンタメ予測: ' : '経済・市場予測: ';
-      return { titleJa: `${prefix}${t}`, category: fallbackCat };
+      return { titleJa: `${prefix}${t}`, category: fallbackCat, categoryIsDefault: !category };
     }
 
-    // 既存DBの高品質な日本語タイトル・カテゴリを事前取得し、同期による上書きを構造的に防止 (N-20類似の件数上限破綻を防ぐため range(0, 9999) を明示)
-    const { data: existingRows } = await supabase.from('events').select('id, title_ja, category').range(0, 9999);
-    const existingMap = new Map((existingRows || []).map(r => [r.id, r]));
 
     const catLabels = {
       economy: '📊 経済・金利・暗号資産',
@@ -855,12 +801,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       const fb = translateFallback(c.id, c.rawQuestion);
 
       const existing = existingMap.get(c.id);
-      const existingHasJp = existing?.title_ja && /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]/.test(existing.title_ja);
-      const existingIsClean = existingHasJp &&
-        !existing.title_ja.includes('Will ') &&
-        !existing.title_ja.includes('Spread:') &&
-        !existing.title_ja.startsWith('経済・市場予測: Will') &&
-        !existing.title_ja.startsWith('経済・市場予測: Spread:');
+      // AR-5: 以前は title_ja 全体で日本語を探したので、「経済・市場予測: Democrats Sweep…」のように
+      //   接頭辞だけが日本語の行も「綺麗」と判定され、Gemini の題名より優先されて凍結されていた
+      const existingIsClean = isCleanJaTitle(existing?.title_ja);
 
       // 既存DBにすでに綺麗な日本語タイトルが存在する場合は、LLMやフォールバックによる破壊・上書きを防止して最優先保持
       // 保持ガードは「同期がタイトルを壊すこと」を防ぐためのものだが、
@@ -878,8 +821,10 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
 
       titleJa = (titleJa || '').replace(/\s{2,}/g, ' ').trim();
 
+      // AR-20: フォールバックが「判定できずに economy」としたときは、キーワード分類（語境界つき）を優先する
       const finalCat = override?.category
-        || ((existingIsClean && existing?.category) ? existing.category : (fb.category || c.cat || 'economy'));
+        || ((existingIsClean && existing?.category) ? existing.category
+          : (fb.categoryIsDefault ? (c.cat || 'economy') : (fb.category || c.cat || 'economy')));
       if (override) logOverride(c.id, existing, titleJa, finalCat);
 
       // 締切はイベント単位の値を優先する。markets[0].endDate は多肢イベントでは
@@ -906,6 +851,9 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
         icon_url: c.ev.image || c.ev.icon || '',
         end_date: endDateStr,
         is_active: !isExpired && hasJpFinal,
+        // AR-39: 新しい行と、非公開から公開に戻る行は掲載に入れない（掲載は週次の選定が決める）。
+        //   is_listed の既定は true なので、指定しないと英語のまま眠っていた行が一斉に掲載に入る
+        is_listed: (existing && existing.is_active) ? (existing.is_listed ?? false) : false,
         updated_at: new Date().toISOString(),
       };
     });
@@ -927,6 +875,16 @@ export const AI_INSIGHTS_MASTER: Record<string, AiInsightData> = ${JSON.stringif
       : await supabase.from('events').upsert(selectedRecords, { onConflict: 'id' });
     if (DRY_RUN) console.log(`🧪 [dry-run] ${selectedRecords.length}件の upsert を省略しました`);
     if (DRY_RUN) {
+      const flips = selectedRecords.filter(r => {
+        const ex = existingMap.get(r.id);
+        return !ex || ex.is_active !== r.is_active || ex.title_ja !== r.title_ja || ex.category !== r.category || ex.is_listed !== r.is_listed;
+      });
+      console.log(`\n🧪 [dry-run] 既存行から変わる ${flips.length}件（新規・公開状態・題名・カテゴリ・掲載）`);
+      flips.forEach(r => {
+        const ex = existingMap.get(r.id);
+        console.log(`   ${r.id} active ${ex ? ex.is_active : '(新規)'}→${r.is_active} listed ${ex ? ex.is_listed : '-'}→${r.is_listed} [${ex?.category ?? '-'}→${r.category}]`);
+        if (!ex || ex.title_ja !== r.title_ja) console.log(`      「${String(ex?.title_ja ?? '').slice(0, 50)}」→「${String(r.title_ja).slice(0, 50)}」`);
+      });
       console.log('\n🧪 [dry-run] このフィルタで選ばれる銘柄一覧');
       selectedRecords.forEach((r, i) => {
         console.log(`   ${String(i + 1).padStart(2)}. [${r.category || '-'}] ${String(r.title_ja || r.title_en || r.id).slice(0, 52)}`);

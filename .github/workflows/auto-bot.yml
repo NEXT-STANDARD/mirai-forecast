@@ -42,6 +42,9 @@ jobs:
           VITE_SUPABASE_URL: ${{ inputs.inject_failure && 'http://127.0.0.1:9' || secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          # AR-5: 鍵が無いと新しい銘柄の題名が英語のまま作られ、非公開で生まれる。
+          #   Gemini に送るのは題名が必要な行だけ（綺麗な題名を持つ行は送らない）
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/sync_polymarket_cron.mjs
 
       # Twitter 乖離警報ステップは 2026-10-23 に停止（AR-1：票0件の銘柄を「日本世論 50%」として投稿していた）。
