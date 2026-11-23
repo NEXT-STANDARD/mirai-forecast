@@ -11,6 +11,7 @@
  * Twitterbot, Googlebot, Facebookbot 等で 100% 正確な銘柄別OGP・検索インデックスを実現します。
  */
 
+import { pickGuideRelated } from './guideRelated.mjs';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -929,15 +930,14 @@ async function prerenderAll() {
 
     // 記事側のプロパティ名は relatedMarketSlugs。relatedSlugs で読んでいたため常に
     // 未定義となり、実在しない slug を含むハードコード配列が使われていた（第12回 N-43）
-    const relatedSlugs = readRelatedSlugs(guide.sourceFile);
-    // 死んだリンクを黙って出さない：有効銘柄に無い slug があればビルドを止める
-    const activeSlugSet = new Set(events.map(e => String(e.slug || e.id)));
-    const deadSlugs = relatedSlugs.filter(sl => !activeSlugSet.has(sl));
-    if (relatedSlugs.length === 0) {
-      throw new Error(`❌ [CRITICAL] 記事 [${guide.slug}] の relatedMarketSlugs が空です。内部リンクが生成できません。`);
+    // AR-26: 記事の一覧は「優先」。決着・非掲載のものは飛ばして掲載中の銘柄で補う。
+    //   以前は1件でも決着するとビルドを止めており、本番が凍結した（N-52）。止めるのは0件のときだけ
+    const { slugs: relatedSlugs, dropped } = pickGuideRelated(readRelatedSlugs(guide.sourceFile), events);
+    if (dropped.length > 0) {
+      console.warn(`⚠️ 記事 [${guide.slug}] の優先銘柄のうち掲載中でないものを飛ばしました: ${dropped.join(', ')}`);
     }
-    if (deadSlugs.length > 0) {
-      throw new Error(`❌ [CRITICAL] 記事 [${guide.slug}] が有効銘柄に存在しない slug へリンクしています: ${deadSlugs.join(', ')}`);
+    if (relatedSlugs.length === 0) {
+      throw new Error(`❌ [CRITICAL] 記事 [${guide.slug}] に載せられる掲載中の銘柄が1件もありません。内部リンクが生成できません。`);
     }
     const crawlableLinksHtml = `
   <div id="root">

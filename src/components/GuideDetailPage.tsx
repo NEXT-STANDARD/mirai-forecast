@@ -4,6 +4,7 @@ import { POLYMARKET_JAPAN_GUIDE } from '../content/guides/polymarketJapan';
 import type { GuideArticle } from '../content/guides/polymarketJapan';
 import type { MarketItem } from '../types';
 import { applySeoMetadata } from '../utils/seoHelper';
+import { pickGuideRelated } from '../utils/guideRelated';
 
 interface GuideDetailPageProps {
   slug?: string;
@@ -30,9 +31,8 @@ export const GuideDetailPage: React.FC<GuideDetailPageProps> = ({
   }, [guide]);
 
   // 関連銘柄の取得
-  const relatedMarkets = allEvents.filter(ev => 
-    guide.relatedMarketSlugs.includes(ev.slug) || guide.relatedMarketSlugs.includes(ev.id)
-  );
+  // AR-26: 記事の一覧は「優先」。掲載中でないものは飛ばし、掲載中の銘柄で補う（プリレンダーと同じ規則）
+  const relatedMarkets = pickGuideRelated(guide.relatedMarketSlugs, allEvents);
 
   const shareText = `【解説】${guide.title}
 世界最大の予測市場Polymarketは日本から使えるのか？法規制と日本語での活用法まとめ。

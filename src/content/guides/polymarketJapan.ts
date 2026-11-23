@@ -29,10 +29,9 @@ export const POLYMARKET_JAPAN_GUIDE: GuideArticle = {
   updatedAt: '2026-10-22',
   author: '未来レーダー編集部 政策・予測市場リサーチチーム',
   readTimeMin: 6,
+  // 優先して載せたい銘柄（固定の一覧ではない）。決着・非掲載のものは飛ばし、掲載中の銘柄で3件まで補う（AR-26）
   relatedMarketSlugs: [
     'how-many-fed-rate-cuts-in-2026',
-    'boj-rate-hike-september-2026',
-    'openai-gpt5-release-2026'
   ],
   sections: [
     {

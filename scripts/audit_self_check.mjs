@@ -4,6 +4,7 @@ import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 import { createClient } from "@supabase/supabase-js";
 import { isDomesticEvent } from "./resolvePolymarketOdds.mjs";
+import { pickGuideRelated, GUIDE_RELATED_COUNT } from "./guideRelated.mjs";
 
 // CI（GitHub Actions）でも動くよう、実行環境の絶対パスを持たない（初回CI実行で ENOENT を踏んだ）
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -675,25 +676,25 @@ async function checkDbAndPhase0() {
   }
 
   // 関連記事リンクが有効銘柄に実在すること (P1-3)
+  // AR-26: 記事の一覧は「優先」で、プリレンダーは掲載中の銘柄で補って3件にする（scripts/guideRelated.mjs）。
+  //   ここも同じ規則で選んだ結果を検査する。固定一覧の各件を「実在必須」にすると、決着のたびに検査が落ちる
   const guideSource = fs.readFileSync(path.join(ROOT, "src/content/guides/polymarketJapan.ts"), "utf-8");
   const relatedMatch = guideSource.match(/relatedMarketSlugs:\s*\[([\s\S]*?)\]/);
   if (relatedMatch) {
-    const rawSlugs = relatedMatch[1].split(",").map(s => s.replace(/['"\s]/g, "")).filter(Boolean);
-    if (rawSlugs.length < 3) {
-      guideFails.push(`ガイド記事の関連銘柄リンク数が3件未満です (${rawSlugs.length}件)`);
+    const preferred = [...relatedMatch[1].matchAll(/['"]([^'"]+)['"]/g)].map(m => m[1]);
+    const { slugs, dropped } = pickGuideRelated(preferred, activeEvents);
+    if (slugs.length < GUIDE_RELATED_COUNT) {
+      guideFails.push(`ガイド記事に載せられる掲載中の銘柄が${GUIDE_RELATED_COUNT}件未満です (${slugs.length}件)`);
     }
-    for (const slug of rawSlugs) {
-      const existsInDb = activeEvents.some(e => e.slug === slug || e.id === slug);
-      if (!existsInDb) {
-        guideFails.push(`ガイド記事の関連銘柄 [${slug}] が Supabase 有効銘柄に実在しません`);
-      }
+    if (dropped.length > 0) {
+      console.log(`  ℹ️ ガイド記事の優先銘柄のうち掲載中でないもの（補充で代替）: ${dropped.join(", ")}`);
     }
   } else {
     guideFails.push("polymarketJapan.ts から relatedMarketSlugs が取得できませんでした");
   }
 
   report("ガイド記事 直接.html 配信 ＆ Article構造化データ ＆ 実在 <a href> 内部リンク (P1-2, P1-3)", guideFails.length === 0,
-    guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 実在3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
+    guideFails.length === 0 ? `ガイド記事 /guide/polymarket-japan (Article構造化データ / 掲載中3銘柄 <a href> リンク / 双方向導線 / sitemap含有) を検証完了` : guideFails.join("; "));
 
   // ==============================================================================
   // 18. ヘッダー CSS 厳密基本セレクタ整合性 ＆ 1279px/440pxレスポンシブ ＆ Deploy Hook 連携 (N-21, N-22, N-27)
