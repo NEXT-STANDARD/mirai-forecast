@@ -1,0 +1,66 @@
+name: MiraiRadar Scheduled Workflow Keepalive
+
+# AR-28: 公開リポジトリの定期実行（schedule）は、60日間リポジトリに活動が無いと GitHub が自動で無効にする。
+#   9/7〜10/21 は44日間 push が無く、あと16日で同期・週次観測・ボットがすべて止まるところだった。
+#   ここで毎週、定期実行のワークフローを API で有効化し直し、無活動の数え直しをさせる（ダミーのコミットは作らない）。
+#
+# 触るのは state が active か disabled_inactivity のものだけ。
+#   disabled_manually（人が止めたもの。ボットのキルスイッチ等）は有効化しない。
+# もし disabled_inactivity が見つかったら、有効に戻したうえでこの run を失敗にし、issue で知らせる
+# （止まっていた間の同期や投稿は取り戻せないので、人が気づく必要がある）。
+
+on:
+  schedule:
+    # 毎週水曜 03:20 UTC（同期の :00/:30 と週次の日曜を避ける）
+    - cron: '20 3 * * 3'
+  workflow_dispatch:
+
+permissions:
+  actions: write   # ワークフローの有効化
+  contents: read
+  issues: write    # AR-7: 失敗の通知
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Re-enable scheduled workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          revived=0
+          while IFS=$'\t' read -r id state path name; do
+            file="${path#.github/workflows/}"
+            # 定期実行を持たないワークフローは対象外
+            if ! grep -qE '^\s*schedule:' "$path" 2>/dev/null; then
+              continue
+            fi
+            case "$state" in
+              active)
+                gh api -X PUT "repos/$REPO/actions/workflows/$id/enable" --silent
+                echo "✅ 有効化し直した: $name ($file)"
+                ;;
+              disabled_inactivity)
+                gh api -X PUT "repos/$REPO/actions/workflows/$id/enable" --silent
+                echo "::error::無活動で止まっていたので有効に戻した: $name ($file)"
+                revived=$((revived + 1))
+                ;;
+              *)
+                echo "⏸️ 触らない（$state）: $name ($file)"
+                ;;
+            esac
+          done < <(gh api "repos/$REPO/actions/workflows" --paginate --jq '.workflows[] | [.id, .state, .path, .name] | @tsv')
+          if [ "$revived" -gt 0 ]; then
+            echo "::error::無活動で止まっていた定期実行が ${revived} 件ありました。止まっていた間の同期・投稿は行われていません"
+            exit 1
+          fi
+
+      # AR-7: 失敗を人に届ける
+      - name: Notify failure
+        if: ${{ failure() }}
+        uses: ./.github/actions/notify-failure
